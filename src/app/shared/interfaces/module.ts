@@ -1,16 +1,17 @@
-/** Discriminator for the scope selects: `Institution User` and `Common` both send `moduleScope: 1`. */
+/** Discriminator for the three module scopes persisted by the API. */
 export type ModuleScopeKey = 'institution' | 'host' | 'common';
 
 export interface ModuleScopeOption {
   key: ModuleScopeKey;
   label: string;
-  /** The API `moduleScope`. Not unique — `institution` and `common` are both `1`. */
+  /** The API `moduleScope`. */
   value: number;
 }
 
 /** `moduleScope` is an untyped int32 in swagger; these are the values the API uses. */
 export const INSTITUTION_MODULE_SCOPE = 1;
 export const HOST_MODULE_SCOPE = 2;
+export const COMMON_MODULE_SCOPE = 3;
 
 export const MODULE_SCOPE_LABELS: Record<ModuleScopeKey, string> = {
   institution: 'Institution User',
@@ -21,8 +22,7 @@ export const MODULE_SCOPE_LABELS: Record<ModuleScopeKey, string> = {
 export const MODULE_SCOPES: ModuleScopeOption[] = [
   { key: 'institution', label: MODULE_SCOPE_LABELS.institution, value: INSTITUTION_MODULE_SCOPE },
   { key: 'host', label: MODULE_SCOPE_LABELS.host, value: HOST_MODULE_SCOPE },
-  // `Common` is not a scope of its own — it is the `isCommonMenu` subset of scope 1.
-  { key: 'common', label: MODULE_SCOPE_LABELS.common, value: INSTITUTION_MODULE_SCOPE },
+  { key: 'common', label: MODULE_SCOPE_LABELS.common, value: COMMON_MODULE_SCOPE },
 ];
 
 /** The scope both module grids open on — the list endpoints return nothing without one. */
@@ -30,14 +30,19 @@ export const DEFAULT_MODULE_SCOPE_KEY: ModuleScopeKey = 'institution';
 
 /** key → the number the API accepts. */
 export const moduleScopeValue = (key: ModuleScopeKey): number =>
-  key === 'host' ? HOST_MODULE_SCOPE : INSTITUTION_MODULE_SCOPE;
+  key === 'host'
+    ? HOST_MODULE_SCOPE
+    : key === 'common'
+      ? COMMON_MODULE_SCOPE
+      : INSTITUTION_MODULE_SCOPE;
 
 type ScopedRow = Pick<ModuleRow, 'moduleScope' | 'isCommonMenu'>;
 
 /** Row → key. `null` for a scope the UI does not model, so the raw number still surfaces. */
 export function moduleScopeKeyOf(row: ScopedRow): ModuleScopeKey | null {
   if (row.moduleScope === HOST_MODULE_SCOPE) return 'host';
-  if (row.moduleScope === INSTITUTION_MODULE_SCOPE) return row.isCommonMenu ? 'common' : 'institution';
+  if (row.moduleScope === COMMON_MODULE_SCOPE) return 'common';
+  if (row.moduleScope === INSTITUTION_MODULE_SCOPE) return 'institution';
   return null;
 }
 

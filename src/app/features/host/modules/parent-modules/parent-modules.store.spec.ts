@@ -107,7 +107,7 @@ describe('ParentModulesStore', () => {
     expect(moduleTreeReaderMock.readScope).toHaveBeenCalledTimes(1);
   });
 
-  it('narrows to the common rows without changing the requested scope', async () => {
+  it('requests Common modules with scope 3', async () => {
     treeHolds([
       createModule({ id: 7, isCommonMenu: false }),
       createModule({ id: 8, isCommonMenu: true }),
@@ -118,9 +118,8 @@ describe('ParentModulesStore', () => {
     store.setModuleScopeKey('common');
     await TestBed.inject(ApplicationRef).whenStable();
 
-    // `Common` is the `isCommonMenu` subset of scope 1, and no endpoint can filter on it.
-    expect(moduleTreeReaderMock.readScope).toHaveBeenLastCalledWith(1);
-    expect(store.visibleModules().map((module) => module.id)).toEqual([8]);
+    expect(moduleTreeReaderMock.readScope).toHaveBeenLastCalledWith(3);
+    expect(store.visibleModules().map((module) => module.id)).toEqual([7, 8]);
   });
 
   it('only indents a sub-header whose parent survived the filters', async () => {

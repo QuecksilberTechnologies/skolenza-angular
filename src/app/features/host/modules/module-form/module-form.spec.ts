@@ -147,7 +147,7 @@ describe('ModuleForm', () => {
     isLeafNode: false,
     isModuleDisplayInUI: true,
     isCommonMenu: true,
-    moduleScope: 1,
+    moduleScope: 3,
     isActive: true,
     imageIconWeb: null,
     imageIconMobile: null,
@@ -159,7 +159,7 @@ describe('ModuleForm', () => {
     updatedDateTime: null,
   };
 
-  it('reads a scope-1 common row back as the Common scope', async () => {
+  it('reads a scope-3 row back as the Common scope', async () => {
     parentModuleApiMock.getParentModule.mockReturnValue(
       of({ isSucceeded: true, message: '', errors: [], data: commonRow }),
     );

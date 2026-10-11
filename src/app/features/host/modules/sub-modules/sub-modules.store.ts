@@ -89,15 +89,8 @@ export const SubModulesStore = signalStore(
     isLoading: computed(() => store.subModulesResource.isLoading()),
     parentOptions: computed(() => store.parentOptionsResource.value() ?? []),
     isLoadingParentOptions: computed(() => store.parentOptionsResource.isLoading()),
-    /**
-     * `Common` shares `moduleScope: 1` with `Institution User` and the list endpoint has no
-     * `isCommonMenu` param, so the subset is carved out here rather than in the template.
-     */
-    visibleModules: computed(() =>
-      store.moduleScopeKey() === 'common'
-        ? store.modules().filter((module) => module.isCommonMenu)
-        : store.modules(),
-    ),
+    /** The API scopes Institution, Host and Common independently. */
+    visibleModules: computed(() => store.modules()),
   })),
   withMethods((store) => {
     const subModuleApi = inject(SubModuleApi);

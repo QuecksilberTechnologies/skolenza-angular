@@ -71,6 +71,44 @@ const commonMenu = [
   },
 ] as unknown as CommonMenuItem[];
 
+const flattenedCommonMenu = [
+  {
+    moduleId: 39,
+    moduleName: 'My-Profile',
+    displayName: 'Profile',
+    urlPath: 'profile',
+    children: [],
+  },
+  {
+    moduleId: 40,
+    moduleName: 'Help-Support',
+    displayName: 'Help & Support',
+    urlPath: 'help-support',
+    children: [],
+  },
+  {
+    moduleId: 41,
+    moduleName: 'Sign-Out',
+    displayName: 'Sign out',
+    urlPath: 'sign-out',
+    children: [],
+  },
+  {
+    moduleId: 42,
+    moduleName: 'Settings',
+    displayName: 'Settings',
+    urlPath: 'setting',
+    children: [],
+  },
+  {
+    moduleId: 44,
+    moduleName: 'Notification',
+    displayName: 'Notification',
+    urlPath: 'common-menu/notifications/notification',
+    children: [],
+  },
+] as unknown as CommonMenuItem[];
+
 describe('AuthStore', () => {
   let store: InstanceType<typeof AuthStore>;
   const commonMenuApiMock = {
@@ -102,6 +140,22 @@ describe('AuthStore', () => {
 
     expect(commonMenuApiMock.getCommonMenu).toHaveBeenCalled();
     expect(store.userMenuItems().map((item) => item.displayName)).toEqual(['Profile', 'Sign out']);
+  });
+
+  it('should build the user menu from the migrated two-level CommonMenu shape', async () => {
+    commonMenuApiMock.getCommonMenu.mockReturnValueOnce(
+      of({ isSucceeded: true, message: '', errors: [], data: flattenedCommonMenu }),
+    );
+
+    store.setLoginData(createHostLoginInfo());
+    await Promise.resolve();
+
+    expect(store.userMenuItems().map((item) => item.displayName)).toEqual([
+      'Profile',
+      'Help & Support',
+      'Settings',
+      'Sign out',
+    ]);
   });
 
   it('should resolve a host to roleTypeId 0', () => {

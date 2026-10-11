@@ -68,20 +68,10 @@ export const ParentModulesStore = signalStore(
     return { parentModulesResource };
   }),
   withComputed((store) => {
-    /**
-     * `Common` shares `moduleScope: 1` with `Institution User` and no endpoint can filter on
-     * `isCommonMenu`, so both that subset and the status filter are carved out here.
-     */
+    /** The API scopes Institution, Host and Common independently; only status is local. */
     const visibleModules = computed(() => {
       const isActive = store.isActive();
-      const isCommon = store.moduleScopeKey() === 'common';
-      return store
-        .modules()
-        .filter(
-          (module) =>
-            (!isCommon || module.isCommonMenu) &&
-            (isActive === null || module.isActive === isActive),
-        );
+      return store.modules().filter((module) => isActive === null || module.isActive === isActive);
     });
 
     return {

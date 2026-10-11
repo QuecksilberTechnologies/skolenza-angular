@@ -107,7 +107,7 @@ describe('SubModulesStore', () => {
     expect(parentModuleApiMock.getModuleHeaders).toHaveBeenLastCalledWith({ ModuleScope: 2 });
   });
 
-  it('narrows to the common rows without changing the requested scope', async () => {
+  it('requests Common modules and parent options with scope 3', async () => {
     subModuleApiMock.getSubModules.mockReturnValue(
       of({
         isSucceeded: true,
@@ -125,13 +125,13 @@ describe('SubModulesStore', () => {
     store.setModuleScopeKey('common');
     await TestBed.inject(ApplicationRef).whenStable();
 
-    // `Common` is the `isCommonMenu` subset of scope 1, and the endpoint cannot filter on it.
     expect(subModuleApiMock.getSubModules).toHaveBeenLastCalledWith({
-      moduleScope: 1,
+      moduleScope: 3,
       parentModuleId: null,
       isActive: null,
     });
-    expect(store.visibleModules().map((module) => module.id)).toEqual([12]);
+    expect(parentModuleApiMock.getModuleHeaders).toHaveBeenLastCalledWith({ ModuleScope: 3 });
+    expect(store.visibleModules().map((module) => module.id)).toEqual([11, 12]);
   });
 
   it('clears the parent filter when the scope changes', async () => {

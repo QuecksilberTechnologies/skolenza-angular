@@ -19,6 +19,37 @@ const profileMenu = [
   },
 ] as unknown as CommonMenuItem[];
 
+const flattenedProfileMenu = [
+  {
+    moduleId: 39,
+    moduleName: 'My-Profile',
+    displayName: 'Profile',
+    urlPath: 'profile',
+    children: [],
+  },
+  {
+    moduleId: 40,
+    moduleName: 'Help-Support',
+    displayName: 'Help & Support',
+    urlPath: 'help-support',
+    children: [],
+  },
+  {
+    moduleId: 41,
+    moduleName: 'Sign-Out',
+    displayName: 'Sign out',
+    urlPath: 'sign-out',
+    children: [],
+  },
+  {
+    moduleId: 42,
+    moduleName: 'Settings',
+    displayName: 'Settings',
+    urlPath: 'setting',
+    children: [],
+  },
+] as unknown as CommonMenuItem[];
+
 describe('UserMenu', () => {
   let component: UserMenu;
   let fixture: ComponentFixture<UserMenu>;
@@ -72,5 +103,22 @@ describe('UserMenu', () => {
     expect(host.querySelector('app-user-menu-loader')).toBeNull();
     const labels = [...host.querySelectorAll('ul.py-2 a')].map((a) => a.textContent?.trim());
     expect(labels).toEqual(['Profile', 'Sign out']);
+  });
+
+  it('should render the migrated two-level CommonMenu quick actions', async () => {
+    commonMenuApiMock.getCommonMenu.mockReturnValueOnce(
+      of({ isSucceeded: true, message: '', errors: [], data: flattenedProfileMenu }),
+    );
+
+    TestBed.runInInjectionContext(() => {
+      store.setLoginData({ userType: 'Host' } as never);
+    });
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const labels = [...fixture.nativeElement.querySelectorAll('ul.py-2 a')].map((a) =>
+      a.textContent?.trim(),
+    );
+    expect(labels).toEqual(['Profile', 'Help & Support', 'Settings', 'Sign out']);
   });
 });

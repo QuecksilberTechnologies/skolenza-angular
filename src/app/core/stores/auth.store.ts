@@ -39,6 +39,9 @@ interface AuthState {
 
 const LOGOUT_MODULE_NAME = 'sign-out';
 
+/** Routes that belong to the profile quick-actions branch after the two-level Module migration. */
+const USER_MENU_ROUTES = new Set(['profile', 'help-support', LOGOUT_MODULE_NAME, 'setting']);
+
 /** The dropdown's logout row is identified by name, never by position — `itemPriority`
  *  can order the CommonMenu children either way round. */
 export const isLogoutMenuItem = (item: CommonMenuItem): boolean =>
@@ -59,12 +62,18 @@ const LOGOUT_MENU_ITEM: CommonMenuItem = {
   children: [],
 };
 
-/** The dropdown is the CommonMenu "Profile" root; hosts have no such root, so fall
- *  back to the synthesized logout item rather than a hard-coded index. Logout is
- *  pinned last because the template styles the closing row as the sign-out action. */
+/**
+ * Before the two-level Module migration, these actions were children of the CommonMenu
+ * "Profile" group. They are now direct children of `COMMON_MENU`, so accept both shapes while
+ * deployed databases move through the migration. Logout stays last because the template styles
+ * the closing row as the sign-out action.
+ */
 const userMenuItemsFrom = (roots: CommonMenuItem[] | undefined): CommonMenuItem[] => {
   const profile = roots?.find((root) => root.moduleName?.toLowerCase() === 'profile');
-  const items = profile?.children ?? [];
+  const nestedItems = profile?.children ?? [];
+  const items = nestedItems.length
+    ? nestedItems
+    : (roots ?? []).filter((item) => USER_MENU_ROUTES.has(item.urlPath?.toLowerCase()));
 
   if (!items.length) return [LOGOUT_MENU_ITEM];
 
