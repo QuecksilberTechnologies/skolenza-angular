@@ -1,0 +1,2913 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skolenza Design System</title>
+    <meta
+      name="description"
+      content="Design tokens, interaction rules and Angular CDK patterns for custom Skolenza components."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ============================================================
+         Doc chrome. Values mirror the tokens the guide documents, so
+         this page is itself a sample of the system.
+         ============================================================ */
+      :root {
+        --ax-font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+        --ax-font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+        --ax-radius-sm: 4px;
+        --ax-radius-md: 6px;
+        --ax-radius-lg: 8px;
+        --ax-radius-xl: 12px;
+        --ax-radius-2xl: 16px;
+        --ax-radius-full: 9999px;
+
+        --ax-border-width: 1px;
+
+        --ax-duration-fast: 150ms;
+        --ax-duration-base: 200ms;
+        --ax-duration-slow: 300ms;
+        --ax-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+        --ax-ease-enter: cubic-bezier(0, 0, 0.2, 1);
+        --ax-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+        --ax-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --ax-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --ax-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --ax-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --ax-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      }
+
+      :root,
+      :root[data-theme='light'] {
+        color-scheme: light;
+        --doc-bg: #fafafa;
+        --doc-surface: #ffffff;
+        --doc-surface-2: #f4f4f5;
+        --doc-border: #e4e4e7;
+        --doc-border-strong: #d4d4d8;
+        --doc-text: #18181b;
+        --doc-text-muted: #71717a;
+        --doc-accent: #0f766e;
+        --doc-accent-soft: #ccfbf1;
+        --doc-code-bg: #f4f4f5;
+        --doc-code-text: #18181b;
+        --doc-ok: #15803d;
+        --doc-ok-soft: #dcfce7;
+        --doc-warn: #b45309;
+        --doc-warn-soft: #fef3c7;
+        --doc-danger: #b91c1c;
+        --doc-danger-soft: #fee2e2;
+        --doc-info: #1d4ed8;
+        --doc-info-soft: #dbeafe;
+      }
+
+      :root[data-theme='dark'] {
+        color-scheme: dark;
+        --doc-bg: #09090b;
+        --doc-surface: #18181b;
+        --doc-surface-2: #27272a;
+        --doc-border: #27272a;
+        --doc-border-strong: #3f3f46;
+        --doc-text: #fafafa;
+        --doc-text-muted: #a1a1aa;
+        --doc-accent: #2dd4bf;
+        --doc-accent-soft: #134e4a;
+        --doc-code-bg: #111113;
+        --doc-code-text: #e4e4e7;
+        --doc-ok: #4ade80;
+        --doc-ok-soft: #14532d;
+        --doc-warn: #fbbf24;
+        --doc-warn-soft: #451a03;
+        --doc-danger: #f87171;
+        --doc-danger-soft: #450a0a;
+        --doc-info: #60a5fa;
+        --doc-info-soft: #172554;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          color-scheme: dark;
+          --doc-bg: #09090b;
+          --doc-surface: #18181b;
+          --doc-surface-2: #27272a;
+          --doc-border: #27272a;
+          --doc-border-strong: #3f3f46;
+          --doc-text: #fafafa;
+          --doc-text-muted: #a1a1aa;
+          --doc-accent: #2dd4bf;
+          --doc-accent-soft: #134e4a;
+          --doc-code-bg: #111113;
+          --doc-code-text: #e4e4e7;
+          --doc-ok: #4ade80;
+          --doc-ok-soft: #14532d;
+          --doc-warn: #fbbf24;
+          --doc-warn-soft: #451a03;
+          --doc-danger: #f87171;
+          --doc-danger-soft: #450a0a;
+          --doc-info: #60a5fa;
+          --doc-info-soft: #172554;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 88px;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--ax-font-sans);
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--doc-text);
+        background: var(--doc-bg);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: var(--doc-accent);
+      }
+
+      code,
+      pre,
+      kbd {
+        font-family: var(--ax-font-mono);
+      }
+
+      code {
+        font-size: 0.85em;
+        background: var(--doc-code-bg);
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-sm);
+        padding: 0.1em 0.35em;
+      }
+
+      pre {
+        margin: 12px 0 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        background: var(--doc-code-bg);
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-lg);
+        font-size: 12.5px;
+        line-height: 1.65;
+        color: var(--doc-code-text);
+      }
+
+      pre code {
+        background: none;
+        border: 0;
+        padding: 0;
+        font-size: inherit;
+      }
+
+      /* Layout ---------------------------------------------------- */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: color-mix(in srgb, var(--doc-surface) 88%, transparent);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--doc-border);
+      }
+
+      .topbar strong {
+        font-size: 15px;
+        letter-spacing: -0.01em;
+      }
+
+      .topbar .ver {
+        font-size: 11px;
+        color: var(--doc-text-muted);
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-full);
+        padding: 2px 8px;
+      }
+
+      .topbar .spacer {
+        margin-left: auto;
+      }
+
+      .theme-toggle {
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 32px;
+        padding: 0 12px;
+        color: var(--doc-text);
+        background: var(--doc-surface);
+        border: 1px solid var(--doc-border-strong);
+        border-radius: var(--ax-radius-md);
+        transition: background var(--ax-duration-fast) var(--ax-ease-standard);
+      }
+
+      .theme-toggle:hover {
+        background: var(--doc-surface-2);
+      }
+
+      .theme-toggle:focus-visible,
+      a:focus-visible,
+      button:focus-visible,
+      summary:focus-visible {
+        outline: 2px solid var(--doc-accent);
+        outline-offset: 2px;
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 32px;
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 24px 16px 96px;
+      }
+
+      nav.toc {
+        position: sticky;
+        top: 72px;
+        align-self: start;
+        max-height: calc(100vh - 96px);
+        overflow-y: auto;
+        font-size: 13px;
+      }
+
+      nav.toc h2 {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--doc-text-muted);
+        margin: 18px 0 6px;
+      }
+
+      nav.toc h2:first-child {
+        margin-top: 0;
+      }
+
+      nav.toc a {
+        display: block;
+        padding: 4px 8px;
+        color: var(--doc-text-muted);
+        text-decoration: none;
+        border-radius: var(--ax-radius-sm);
+      }
+
+      nav.toc a:hover {
+        color: var(--doc-text);
+        background: var(--doc-surface-2);
+      }
+
+      main {
+        min-width: 0;
+      }
+
+      section {
+        margin: 0 0 56px;
+      }
+
+      h1 {
+        font-size: 30px;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        margin: 8px 0 8px;
+      }
+
+      h2 {
+        font-size: 22px;
+        letter-spacing: -0.015em;
+        margin: 0 0 6px;
+        padding-top: 8px;
+      }
+
+      h3 {
+        font-size: 16px;
+        margin: 28px 0 6px;
+      }
+
+      h4 {
+        font-size: 14px;
+        margin: 20px 0 4px;
+      }
+
+      p {
+        margin: 6px 0 12px;
+      }
+
+      .lede {
+        color: var(--doc-text-muted);
+        font-size: 15px;
+        max-width: 70ch;
+      }
+
+      ul,
+      ol {
+        margin: 6px 0 12px;
+        padding-left: 20px;
+      }
+
+      li {
+        margin: 3px 0;
+      }
+
+      .card {
+        background: var(--doc-surface);
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-xl);
+        padding: 18px 20px;
+        margin: 16px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        margin: 12px 0 4px;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--doc-border);
+        vertical-align: top;
+      }
+
+      th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--doc-text-muted);
+        font-weight: 600;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      td code {
+        white-space: nowrap;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      .note,
+      .warn,
+      .ok {
+        border-left: 3px solid var(--doc-info);
+        background: var(--doc-info-soft);
+        border-radius: 0 var(--ax-radius-md) var(--ax-radius-md) 0;
+        padding: 10px 14px;
+        margin: 14px 0;
+        font-size: 13.5px;
+      }
+
+      .warn {
+        border-left-color: var(--doc-warn);
+        background: var(--doc-warn-soft);
+      }
+
+      .ok {
+        border-left-color: var(--doc-ok);
+        background: var(--doc-ok-soft);
+      }
+
+      .note p:last-child,
+      .warn p:last-child,
+      .ok p:last-child {
+        margin-bottom: 0;
+      }
+
+      .demo {
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-lg);
+        background:
+          linear-gradient(45deg, var(--doc-surface-2) 25%, transparent 25%) -8px 0 / 16px 16px,
+          linear-gradient(-45deg, var(--doc-surface-2) 25%, transparent 25%) -8px 0 / 16px 16px,
+          var(--doc-surface);
+        padding: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-top: 12px;
+      }
+
+      .demo.stack {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+        gap: 10px;
+      }
+
+      .swatch {
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-md);
+        overflow: hidden;
+        font-size: 11px;
+      }
+
+      .swatch .chip {
+        height: 46px;
+      }
+
+      .swatch .meta {
+        padding: 6px 8px;
+        background: var(--doc-surface);
+      }
+
+      .swatch .meta b {
+        display: block;
+        font-weight: 600;
+      }
+
+      .swatch .meta span {
+        color: var(--doc-text-muted);
+        font-family: var(--ax-font-mono);
+        font-size: 10.5px;
+      }
+
+      /* Sample components (static replicas of the real Angular ones) - */
+      .ax-btn {
+        font: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 34px;
+        padding: 0 14px;
+        border-radius: var(--ax-radius-md);
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition:
+          background var(--ax-duration-fast) var(--ax-ease-standard),
+          border-color var(--ax-duration-fast) var(--ax-ease-standard),
+          color var(--ax-duration-fast) var(--ax-ease-standard);
+      }
+
+      .ax-btn--primary {
+        background: var(--doc-accent);
+        color: #fff;
+      }
+
+      :root[data-theme='dark'] .ax-btn--primary {
+        color: #0b0b0d;
+      }
+
+      .ax-btn--primary:hover {
+        filter: brightness(0.94);
+      }
+
+      .ax-btn--outlined {
+        background: transparent;
+        color: var(--doc-text);
+        border-color: var(--doc-border-strong);
+      }
+
+      .ax-btn--outlined:hover {
+        background: var(--doc-surface-2);
+      }
+
+      .ax-btn--text {
+        background: transparent;
+        color: var(--doc-accent);
+      }
+
+      .ax-btn--text:hover {
+        background: var(--doc-accent-soft);
+      }
+
+      .ax-btn--danger {
+        background: var(--doc-danger);
+        color: #fff;
+      }
+
+      .ax-btn[disabled] {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .ax-btn:focus-visible {
+        outline: 2px solid var(--doc-accent);
+        outline-offset: 2px;
+      }
+
+      .ax-btn--sm {
+        min-height: 28px;
+        font-size: 12px;
+        padding: 0 10px;
+      }
+
+      .ax-btn--lg {
+        min-height: 40px;
+        padding: 0 18px;
+      }
+
+      .ax-btn--icon {
+        width: 34px;
+        min-height: 34px;
+        padding: 0;
+      }
+
+      .ax-field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 220px;
+      }
+
+      .ax-label {
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .ax-label .req {
+        color: var(--doc-danger);
+      }
+
+      .ax-input {
+        font: inherit;
+        font-size: 13px;
+        min-height: 34px;
+        padding: 0 10px;
+        color: var(--doc-text);
+        background: var(--doc-surface);
+        border: 1px solid var(--doc-border-strong);
+        border-radius: var(--ax-radius-md);
+        transition:
+          border-color var(--ax-duration-fast) var(--ax-ease-standard),
+          box-shadow var(--ax-duration-fast) var(--ax-ease-standard);
+      }
+
+      .ax-input::placeholder {
+        color: var(--doc-text-muted);
+      }
+
+      .ax-input:hover {
+        border-color: var(--doc-text-muted);
+      }
+
+      .ax-input:focus {
+        outline: none;
+        border-color: var(--doc-accent);
+        box-shadow: 0 0 0 1px var(--doc-accent);
+      }
+
+      .ax-input[aria-invalid='true'] {
+        border-color: var(--doc-danger);
+      }
+
+      .ax-input[disabled] {
+        background: var(--doc-surface-2);
+        color: var(--doc-text-muted);
+        cursor: not-allowed;
+      }
+
+      .ax-hint {
+        font-size: 11px;
+        color: var(--doc-text-muted);
+      }
+
+      .ax-error {
+        font-size: 11px;
+        color: var(--doc-danger);
+      }
+
+      .ax-panel {
+        background: var(--doc-surface);
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-xl);
+        box-shadow: var(--ax-shadow-md);
+        padding: 6px;
+        min-width: 200px;
+      }
+
+      :root[data-theme='dark'] .ax-panel {
+        box-shadow: none;
+      }
+
+      .ax-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: var(--ax-radius-md);
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .ax-option:hover {
+        background: var(--doc-surface-2);
+      }
+
+      .ax-option[aria-selected='true'] {
+        background: var(--doc-accent-soft);
+        color: var(--doc-text);
+        font-weight: 500;
+      }
+
+      .ax-tooltip {
+        display: inline-block;
+        font-size: 11.5px;
+        padding: 5px 9px;
+        border-radius: var(--ax-radius-md);
+        background: #18181b;
+        color: #fafafa;
+        box-shadow: var(--ax-shadow-md);
+      }
+
+      :root[data-theme='dark'] .ax-tooltip {
+        background: #f4f4f5;
+        color: #18181b;
+      }
+
+      .ax-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: var(--ax-radius-full);
+        background: var(--doc-surface-2);
+      }
+
+      .ax-badge .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: var(--ax-radius-full);
+        background: currentColor;
+      }
+
+      .ax-badge--ok {
+        color: var(--doc-ok);
+        background: var(--doc-ok-soft);
+      }
+
+      .ax-badge--warn {
+        color: var(--doc-warn);
+        background: var(--doc-warn-soft);
+      }
+
+      .ax-badge--danger {
+        color: var(--doc-danger);
+        background: var(--doc-danger-soft);
+      }
+
+      .ax-card {
+        background: var(--doc-surface);
+        border: 1px solid var(--doc-border);
+        border-radius: 10px;
+        box-shadow: var(--ax-shadow-sm);
+        padding: 16px;
+        min-width: 220px;
+      }
+
+      :root[data-theme='dark'] .ax-card {
+        box-shadow: none;
+      }
+
+      .ax-tabs {
+        display: flex;
+        gap: 2px;
+        border-bottom: 1px solid var(--doc-border);
+      }
+
+      .ax-tab {
+        font: inherit;
+        font-size: 13px;
+        background: none;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        padding: 8px 12px;
+        min-height: 34px;
+        color: var(--doc-text-muted);
+        cursor: pointer;
+      }
+
+      .ax-tab[aria-selected='true'] {
+        color: var(--doc-accent);
+        border-bottom-color: var(--doc-accent);
+        font-weight: 500;
+      }
+
+      .ax-table {
+        width: 100%;
+        font-size: 13px;
+        border-collapse: collapse;
+      }
+
+      .ax-table th {
+        padding: 10px 5px;
+      }
+
+      .ax-table td {
+        padding: 6px 5px;
+        border-bottom: 1px solid var(--doc-border);
+      }
+
+      .ax-table tbody tr:hover td {
+        background: color-mix(in srgb, var(--doc-text) 3%, transparent);
+      }
+
+      .ax-toast {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        width: 100%;
+        max-width: 360px;
+        padding: 12px 14px;
+        border-radius: var(--ax-radius-xl);
+        border: 1px solid var(--doc-border);
+        background: var(--doc-surface);
+        box-shadow: var(--ax-shadow-lg);
+        font-size: 13px;
+      }
+
+      .ax-toast .bar {
+        width: 3px;
+        align-self: stretch;
+        border-radius: var(--ax-radius-full);
+        background: var(--doc-ok);
+      }
+
+      .ax-drawer {
+        width: 260px;
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-xl);
+        background: var(--doc-surface);
+        box-shadow: var(--ax-shadow-xl);
+        overflow: hidden;
+      }
+
+      .ax-drawer header,
+      .ax-dialog header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--doc-border);
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .ax-drawer .body,
+      .ax-dialog .body {
+        padding: 16px;
+        font-size: 13px;
+        color: var(--doc-text-muted);
+      }
+
+      .ax-drawer footer,
+      .ax-dialog footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 12px 16px;
+        border-top: 1px solid var(--doc-border);
+      }
+
+      .ax-dialog {
+        width: min(420px, 100%);
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-xl);
+        background: var(--doc-surface);
+        box-shadow: var(--ax-shadow-xl);
+        overflow: hidden;
+      }
+
+      .ax-cal {
+        width: 232px;
+        padding: 10px;
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-xl);
+        background: var(--doc-surface);
+        box-shadow: var(--ax-shadow-md);
+      }
+
+      .ax-cal .grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        margin-top: 6px;
+      }
+
+      .ax-cal .cell {
+        height: 28px;
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        border-radius: var(--ax-radius-md);
+        cursor: pointer;
+      }
+
+      .ax-cal .cell:hover {
+        background: var(--doc-surface-2);
+      }
+
+      .ax-cal .cell.head {
+        color: var(--doc-text-muted);
+        font-size: 10.5px;
+        cursor: default;
+      }
+
+      .ax-cal .cell.sel {
+        background: var(--doc-accent);
+        color: #fff;
+        font-weight: 600;
+      }
+
+      :root[data-theme='dark'] .ax-cal .cell.sel {
+        color: #0b0b0d;
+      }
+
+      .ax-cal .cell.today {
+        outline: 1px solid var(--doc-accent);
+      }
+
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          var(--doc-surface-2) 25%,
+          color-mix(in srgb, var(--doc-surface-2) 60%, var(--doc-surface)) 37%,
+          var(--doc-surface-2) 63%
+        );
+        background-size: 400% 100%;
+        animation: ax-shimmer 1.4s ease infinite;
+        border-radius: var(--ax-radius-md);
+        height: 12px;
+      }
+
+      @keyframes ax-shimmer {
+        0% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0 50%;
+        }
+      }
+
+      .spinner {
+        width: 16px;
+        height: 16px;
+        border-radius: var(--ax-radius-full);
+        border: 2px solid color-mix(in srgb, currentColor 30%, transparent);
+        border-top-color: currentColor;
+        animation: ax-spin 0.7s linear infinite;
+      }
+
+      @keyframes ax-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .do-dont {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .do-dont > div {
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-lg);
+        padding: 12px 14px;
+        font-size: 13px;
+      }
+
+      .do-dont .h {
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
+      }
+
+      .do-dont .do .h {
+        color: var(--doc-ok);
+      }
+
+      .do-dont .dont .h {
+        color: var(--doc-danger);
+      }
+
+      kbd {
+        font-size: 11px;
+        border: 1px solid var(--doc-border-strong);
+        border-bottom-width: 2px;
+        border-radius: var(--ax-radius-sm);
+        padding: 1px 5px;
+        background: var(--doc-surface);
+      }
+
+      .anatomy {
+        font-size: 12.5px;
+        color: var(--doc-text-muted);
+        margin: 8px 0 0;
+      }
+
+      details.spec {
+        border: 1px solid var(--doc-border);
+        border-radius: var(--ax-radius-lg);
+        padding: 10px 14px;
+        margin: 12px 0;
+        background: var(--doc-surface);
+      }
+
+      details.spec summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13.5px;
+      }
+
+      .checklist {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .checklist li {
+        padding-left: 26px;
+        position: relative;
+      }
+
+      .checklist li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 6px;
+        width: 14px;
+        height: 14px;
+        border: 1px solid var(--doc-border-strong);
+        border-radius: var(--ax-radius-sm);
+      }
+
+      footer.page {
+        border-top: 1px solid var(--doc-border);
+        padding-top: 16px;
+        font-size: 12.5px;
+        color: var(--doc-text-muted);
+      }
+
+      @media (max-width: 900px) {
+        .shell {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 0;
+        }
+
+        nav.toc {
+          position: static;
+          max-height: none;
+          margin-bottom: 24px;
+          border: 1px solid var(--doc-border);
+          border-radius: var(--ax-radius-lg);
+          padding: 12px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <strong>Skolenza Design System</strong>
+      <span class="ver">Angular 22 &middot; CDK 22 &middot; Optimus UI v2</span>
+      <span class="spacer"></span>
+      <button class="theme-toggle" type="button" id="themeToggle" aria-pressed="false">
+        <span aria-hidden="true">◐</span> <span id="themeLabel">Dark</span>
+      </button>
+    </div>
+
+    <div class="shell">
+      <nav class="toc" aria-label="Contents">
+        <h2>Start</h2>
+        <a href="#how-to-use">How to use this guide</a>
+        <a href="#root-scale">The 13px root scale</a>
+        <a href="#token-layer">Token layer</a>
+
+        <h2>Foundations</h2>
+        <a href="#color">Color</a>
+        <a href="#typography">Typography</a>
+        <a href="#spacing">Spacing</a>
+        <a href="#borders">Borders &amp; radius</a>
+        <a href="#elevation">Elevation</a>
+        <a href="#sizing">Sizing &amp; targets</a>
+        <a href="#icons">Icons</a>
+        <a href="#motion">Motion</a>
+        <a href="#layout">Layout &amp; breakpoints</a>
+
+        <h2>Behaviour</h2>
+        <a href="#states">States</a>
+        <a href="#a11y">Accessibility</a>
+
+        <h2>Angular CDK</h2>
+        <a href="#cdk-overlay">Overlay</a>
+        <a href="#cdk-portal">Portal</a>
+        <a href="#cdk-a11y">A11y</a>
+        <a href="#cdk-menu">Menu &amp; Listbox</a>
+        <a href="#cdk-dnd">Drag &amp; Drop</a>
+        <a href="#cdk-misc">Layout, Clipboard, Text</a>
+
+        <h2>Components</h2>
+        <a href="#c-button">Button</a>
+        <a href="#c-input">Input / Form field</a>
+        <a href="#c-select">Select / Dropdown</a>
+        <a href="#c-dialog">Modal / Dialog</a>
+        <a href="#c-tooltip">Tooltip</a>
+        <a href="#c-popover">Popover</a>
+        <a href="#c-card">Card</a>
+        <a href="#c-tabs">Tabs</a>
+        <a href="#c-menu">Menu</a>
+        <a href="#c-table">Data table</a>
+        <a href="#c-toast">Toast</a>
+        <a href="#c-drawer">Drawer</a>
+        <a href="#c-datepicker">Date picker</a>
+        <a href="#c-overlay">Custom CDK overlay</a>
+
+        <h2>Reference</h2>
+        <a href="#tokens-full">Full token table</a>
+        <a href="#checklist">Ship checklist</a>
+      </nav>
+
+      <main>
+        <section id="how-to-use">
+          <h1>Skolenza Design System</h1>
+          <p class="lede">
+            Design tokens, interaction rules and Angular&nbsp;CDK patterns for
+            <strong>custom-built</strong> Skolenza components - the ones Optimus UI does not ship, or
+            ships in a shape we cannot use. Every value below is derived from what the app already
+            renders (<code>src/styles.css</code>, <code>core/axion-preset.ts</code>, and the class
+            frequencies across <code>src/app/**/*.html</code>), so adopting it does not restyle the
+            product.
+          </p>
+
+          <div class="card">
+            <h3 style="margin-top: 0">Where each layer lives</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Layer</th>
+                    <th>Owner</th>
+                    <th>Use it for</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>--p-*</code></td>
+                    <td>Optimus UI / Aura preset (<code>core/axion-preset.ts</code>)</td>
+                    <td>
+                      Palette + component tokens. <strong>Source of truth for colour.</strong> Custom
+                      components read these, never re-declare them.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>--ax-*</code></td>
+                    <td>This guide, declared in <code>src/styles.css</code></td>
+                    <td>
+                      Geometry and motion: radius, elevation, control height, duration, easing. Fixed
+                      in <strong>px</strong> so the 13px root scale cannot drift them.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Tailwind utilities</td>
+                    <td>Tailwind v4 + <code>@openng/optimus-ui-tailwindcss</code></td>
+                    <td>Layout, spacing, typography in templates. First choice in feature code.</td>
+                  </tr>
+                  <tr>
+                    <td>Component CSS</td>
+                    <td>The component's own <code>.css</code></td>
+                    <td>
+                      Only what a utility cannot express: overlay panels, keyframes, <code>::part</code>-style
+                      internals. Budget: warn at 4kB, error at 8kB per stylesheet.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="note">
+            <p>
+              <strong>Build a custom component only when Optimus cannot do the job.</strong> The
+              order is: Optimus component &rarr; Optimus component wrapped in
+              <code>shared/components/</code> &rarr; CDK primitive + this token set. A hand-rolled
+              overlay costs you focus management, scroll strategy, RTL and ARIA that CDK already
+              solved.
+            </p>
+          </div>
+        </section>
+
+        <section id="root-scale">
+          <h2>The 13px root scale</h2>
+          <p class="lede">
+            <code>html { font-size: 0.8125rem }</code> in <code>src/styles.css</code>. One
+            <code>rem</code> is <strong>13px</strong>, not 16px. Every Tailwind <code>rem</code>
+            utility in the app is therefore ~19% smaller than its documented value.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Utility</th>
+                  <th>rem</th>
+                  <th>Renders at</th>
+                  <th>Utility</th>
+                  <th>rem</th>
+                  <th>Renders at</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>text-xs</code></td>
+                  <td>0.75</td>
+                  <td>9.75px</td>
+                  <td><code>p-1</code> / <code>gap-1</code></td>
+                  <td>0.25</td>
+                  <td>3.25px</td>
+                </tr>
+                <tr>
+                  <td><code>text-sm</code></td>
+                  <td>0.875</td>
+                  <td>11.38px</td>
+                  <td><code>p-2</code> / <code>gap-2</code></td>
+                  <td>0.5</td>
+                  <td>6.5px</td>
+                </tr>
+                <tr>
+                  <td><code>text-base</code></td>
+                  <td>1</td>
+                  <td>13px</td>
+                  <td><code>p-3</code> / <code>gap-3</code></td>
+                  <td>0.75</td>
+                  <td>9.75px</td>
+                </tr>
+                <tr>
+                  <td><code>text-lg</code></td>
+                  <td>1.125</td>
+                  <td>14.63px</td>
+                  <td><code>p-4</code> / <code>gap-4</code></td>
+                  <td>1</td>
+                  <td>13px</td>
+                </tr>
+                <tr>
+                  <td><code>text-xl</code></td>
+                  <td>1.25</td>
+                  <td>16.25px</td>
+                  <td><code>p-6</code></td>
+                  <td>1.5</td>
+                  <td>19.5px</td>
+                </tr>
+                <tr>
+                  <td><code>text-2xl</code></td>
+                  <td>1.5</td>
+                  <td>19.5px</td>
+                  <td><code>p-8</code></td>
+                  <td>2</td>
+                  <td>26px</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="warn">
+            <p>
+              <strong>Rule:</strong> inside a custom component's own CSS, express
+              <em>geometry</em> (control height, icon box, radius, overlay offset, hit area) in
+              <strong>px</strong> or in <code>--ax-*</code> tokens. Use <code>rem</code> only for
+              type, where scaling with the root is the point. Mixing a 16px-mental-model
+              <code>rem</code> into a 13px root is the single most common sizing bug in this repo.
+            </p>
+          </div>
+        </section>
+
+        <section id="token-layer">
+          <h2>Token layer</h2>
+          <p class="lede">
+            Add this block to <code>src/styles.css</code> once. Everything further down references
+            these names. Colour tokens deliberately alias Optimus, so the runtime accent picker keeps
+            working.
+          </p>
+
+          <pre><code>/* === Skolenza custom-component tokens ============================ */
+:root {
+  /* Geometry - px on purpose (root font-size is 13px) */
+  --ax-radius-sm: 4px;    /* tags, chips, checkbox            */
+  --ax-radius-md: 6px;    /* inputs, buttons, menu items      */
+  --ax-radius-lg: 8px;    /* list rows, inline panels         */
+  --ax-radius-xl: 12px;   /* overlays, dialogs, drawers       */
+  --ax-radius-2xl: 16px;  /* hero / marketing cards           */
+  --ax-radius-full: 9999px;
+
+  --ax-border-width: 1px;
+  --ax-border-color: var(--p-content-border-color);
+
+  --ax-control-h-sm: 28px;
+  --ax-control-h-md: 34px;   /* default                        */
+  --ax-control-h-lg: 40px;
+  --ax-control-px: 10px;
+
+  --ax-icon-xs: 12px;
+  --ax-icon-sm: 14px;
+  --ax-icon-md: 16px;   /* default, pairs with text-sm        */
+  --ax-icon-lg: 20px;
+  --ax-icon-xl: 24px;
+
+  /* Elevation - light mode only; dark mode swaps to borders    */
+  --ax-shadow-xs: 0 1px 2px 0 rgb(0 0 0 / .05);
+  --ax-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1);
+  --ax-shadow-md: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1);
+  --ax-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1);
+  --ax-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / .1), 0 8px 10px -6px rgb(0 0 0 / .1);
+
+  /* Motion */
+  --ax-duration-fast: 150ms;   /* colour / opacity micro-states */
+  --ax-duration-base: 200ms;   /* overlays, expand / collapse   */
+  --ax-duration-slow: 300ms;   /* drawers, dialogs, page-level  */
+  --ax-ease-standard: cubic-bezier(.4, 0, .2, 1);
+  --ax-ease-enter: cubic-bezier(0, 0, .2, 1);   /* decelerate   */
+  --ax-ease-exit: cubic-bezier(.4, 0, 1, 1);    /* accelerate   */
+
+  /* Overlay */
+  --ax-overlay-offset: 6px;      /* trigger -&gt; panel gap        */
+  --ax-overlay-scrim: rgb(0 0 0 / .32);
+  --ax-z-overlay: 1000;          /* CDK default cdk-overlay-container */
+}
+
+.dark {
+  --ax-shadow-xs: none;
+  --ax-shadow-sm: none;
+  --ax-shadow-md: 0 4px 12px rgb(0 0 0 / .45);
+  --ax-shadow-lg: 0 12px 28px rgb(0 0 0 / .55);
+  --ax-shadow-xl: 0 20px 40px rgb(0 0 0 / .6);
+  --ax-overlay-scrim: rgb(0 0 0 / .55);
+}</code></pre>
+
+          <div class="note">
+            <p>
+              <code>--p-content-border-color</code>, <code>--p-primary-color</code>,
+              <code>--p-surface-*</code> and friends already resolve per theme and per
+              <code>.dark</code>. Never hardcode a hex in a custom component - the Appearance panel
+              rewrites the primary ramp at runtime from
+              <code>ACCENT_COLORS</code> (<code>shared/interfaces/settings.ts</code>).
+            </p>
+          </div>
+        </section>
+
+        <!-- ===================== FOUNDATIONS ===================== -->
+        <section id="color">
+          <h2>Color</h2>
+          <p class="lede">
+            Neutrals are <strong>zinc</strong> end to end (<code>axion-preset.ts</code> maps the
+            whole <code>surface</code> ramp to zinc in both schemes). Primary is user-chosen at
+            runtime. Semantics come from the Optimus palette.
+          </p>
+
+          <h3>Surfaces &amp; text</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>Token</th>
+                  <th>Light</th>
+                  <th>Dark</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>App ground</td>
+                  <td><code>--color-surface-ground-light/dark</code></td>
+                  <td>#fafafa (zinc-50)</td>
+                  <td>#09090b (zinc-950)</td>
+                </tr>
+                <tr>
+                  <td>Raised surface (card, panel, overlay)</td>
+                  <td><code>--color-surface-light/dark</code></td>
+                  <td>#ffffff</td>
+                  <td>#18181b (zinc-900)</td>
+                </tr>
+                <tr>
+                  <td>Recessed / hover fill</td>
+                  <td><code>--p-surface-100</code> / <code>--p-surface-800</code></td>
+                  <td>#f4f4f5</td>
+                  <td>#27272a</td>
+                </tr>
+                <tr>
+                  <td>Border</td>
+                  <td><code>--color-border-light/dark</code></td>
+                  <td>#e4e4e7 (zinc-200)</td>
+                  <td>#27272a (zinc-800)</td>
+                </tr>
+                <tr>
+                  <td>Text primary</td>
+                  <td><code>--color-text-primary-light/dark</code></td>
+                  <td>#18181b (zinc-900)</td>
+                  <td>#fafafa (zinc-50)</td>
+                </tr>
+                <tr>
+                  <td>Text secondary / muted</td>
+                  <td><code>--color-text-secondary-light/dark</code></td>
+                  <td>#71717a (zinc-500)</td>
+                  <td>#a1a1aa (zinc-400)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="swatches" style="margin-top: 14px">
+            <div class="swatch">
+              <div class="chip" style="background: #fafafa"></div>
+              <div class="meta"><b>Ground</b><span>zinc-50</span></div>
+            </div>
+            <div class="swatch">
+              <div class="chip" style="background: #ffffff"></div>
+              <div class="meta"><b>Surface</b><span>#ffffff</span></div>
+            </div>
+            <div class="swatch">
+              <div class="chip" style="background: #f4f4f5"></div>
+              <div class="meta"><b>Hover fill</b><span>zinc-100</span></div>
+            </div>
+            <div class="swatch">
+              <div class="chip" style="background: #e4e4e7"></div>
+              <div class="meta"><b>Border</b><span>zinc-200</span></div>
+            </div>
+            <div class="swatch">
+              <div class="chip" style="background: #71717a"></div>
+              <div class="meta"><b>Muted text</b><span>zinc-500</span></div>
+            </div>
+            <div class="swatch">
+              <div class="chip" style="background: #18181b"></div>
+              <div class="meta"><b>Text / dark bg</b><span>zinc-900</span></div>
+            </div>
+          </div>
+
+          <h3>Primary (runtime accent)</h3>
+          <p>
+            The Appearance settings panel writes the user's accent into the
+            <code>--p-primary-*</code> ramp. Read it, never copy it:
+          </p>
+          <pre><code>/* CSS */
+.ax-thing { background: var(--p-primary-color); color: var(--p-primary-contrast-color); }
+
+// TS - charts and canvas work that cannot use CSS vars directly
+const primary = getComputedStyle(document.documentElement)
+  .getPropertyValue('--p-primary-500').trim() || '#10b981';</code></pre>
+          <p class="anatomy">
+            Reference: <code>features/okr/okr-dashboard/okr-dashboard.ts</code> and
+            <code>features/dashboard/dashboard-host/dashboard-host.ts</code> already do exactly this,
+            with a literal fallback for SSR/first paint.
+          </p>
+
+          <h3>Semantic colours</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Intent</th>
+                  <th>Fill / icon</th>
+                  <th>Soft background</th>
+                  <th>Used for</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Success</td>
+                  <td><code>--p-green-600</code> / <code>--p-green-400</code> (dark)</td>
+                  <td><code>--p-green-50</code> / <code>--p-green-950</code></td>
+                  <td>Saved, active, approved</td>
+                </tr>
+                <tr>
+                  <td>Warning</td>
+                  <td><code>--p-amber-600</code> / <code>--p-amber-400</code></td>
+                  <td><code>--p-amber-50</code> / <code>--p-amber-950</code></td>
+                  <td>Pending, expiring, partial</td>
+                </tr>
+                <tr>
+                  <td>Danger</td>
+                  <td><code>--p-red-600</code> / <code>--p-red-400</code></td>
+                  <td><code>--p-red-50</code> / <code>--p-red-950</code></td>
+                  <td>Destructive action, validation error, rejected</td>
+                </tr>
+                <tr>
+                  <td>Info</td>
+                  <td><code>--p-blue-600</code> / <code>--p-blue-400</code></td>
+                  <td><code>--p-blue-50</code> / <code>--p-blue-950</code></td>
+                  <td>Neutral notice, tips, "read only"</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="demo">
+            <span class="ax-badge ax-badge--ok"><i class="dot"></i>Active</span>
+            <span class="ax-badge ax-badge--warn"><i class="dot"></i>Pending</span>
+            <span class="ax-badge ax-badge--danger"><i class="dot"></i>Rejected</span>
+            <span class="ax-badge"><i class="dot"></i>Draft</span>
+          </div>
+
+          <div class="do-dont">
+            <div class="do">
+              <div class="h">Do</div>
+              Pair every colour-carried meaning with a label, icon or dot. Status must survive
+              greyscale.
+            </div>
+            <div class="dont">
+              <div class="h">Don't</div>
+              Use <code>--p-red-*</code> for a resting invalid field. The app deliberately neutralises
+              Optimus' untouched-invalid borders; opt back in with
+              <code>.form-invalid-visible</code>.
+            </div>
+          </div>
+        </section>
+
+        <section id="typography">
+          <h2>Typography</h2>
+          <p class="lede">
+            <strong>Inter</strong>, loaded from Google Fonts in <code>src/styles.css</code>. One
+            family, four weights. No secondary display face.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>Utility</th>
+                  <th>Size @13px root</th>
+                  <th>Weight</th>
+                  <th>Line height</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Page title</td>
+                  <td><code>text-2xl font-semibold</code></td>
+                  <td>19.5px</td>
+                  <td>600</td>
+                  <td>1.25</td>
+                </tr>
+                <tr>
+                  <td>Section / card title</td>
+                  <td><code>text-lg font-semibold</code></td>
+                  <td>14.6px</td>
+                  <td>600</td>
+                  <td>1.35</td>
+                </tr>
+                <tr>
+                  <td>Subsection, dialog header</td>
+                  <td><code>text-base font-medium</code></td>
+                  <td>13px</td>
+                  <td>500</td>
+                  <td>1.4</td>
+                </tr>
+                <tr>
+                  <td><strong>Body / control text (default)</strong></td>
+                  <td><code>text-sm</code></td>
+                  <td>11.4px</td>
+                  <td>400</td>
+                  <td>1.5</td>
+                </tr>
+                <tr>
+                  <td>Field label</td>
+                  <td><code>text-xs font-medium</code></td>
+                  <td>9.75px</td>
+                  <td>500</td>
+                  <td>1.4</td>
+                </tr>
+                <tr>
+                  <td>Meta, hint, helper, timestamp</td>
+                  <td><code>text-xs</code> + muted colour</td>
+                  <td>9.75px</td>
+                  <td>400</td>
+                  <td>1.45</td>
+                </tr>
+                <tr>
+                  <td>Numeric KPI</td>
+                  <td><code>text-3xl font-bold tabular-nums</code></td>
+                  <td>24.4px</td>
+                  <td>700</td>
+                  <td>1.1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="anatomy">
+            Observed usage across the app: <code>text-sm</code> 571&times;, <code>text-xs</code>
+            383&times;, <code>text-base</code> 115&times;. Two sizes carry nearly everything - resist
+            adding a third inside one component.
+          </p>
+
+          <ul>
+            <li>Letter spacing: default everywhere except headings &ge; 19px, which take
+              <code>tracking-tight</code>; all-caps micro-labels take <code>tracking-wide</code>.</li>
+            <li>Numbers in tables and KPIs: <code>tabular-nums</code>, so columns do not jitter.</li>
+            <li>Truncate with <code>truncate</code> (single line) or <code>line-clamp-2</code>; never
+              let a name reflow a table row.</li>
+            <li>Minimum rendered size is <code>text-xs</code> (9.75px). Anything smaller fails
+              readability review - raise the root, don't shrink the text.</li>
+          </ul>
+        </section>
+
+        <section id="spacing">
+          <h2>Spacing</h2>
+          <p class="lede">
+            Tailwind's 0.25rem step = <strong>3.25px</strong> here. Use the scale, not arbitrary
+            values, and prefer <code>gap</code> over margins.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Step</th>
+                  <th>px</th>
+                  <th>Where it belongs</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>gap-1</code></td>
+                  <td>3.25</td>
+                  <td>Icon &harr; its own label, badge internals, dot &harr; text</td>
+                </tr>
+                <tr>
+                  <td><code>gap-2</code> <em>(default)</em></td>
+                  <td>6.5</td>
+                  <td>Inline controls, button rows, chips, toolbar items</td>
+                </tr>
+                <tr>
+                  <td><code>gap-3</code></td>
+                  <td>9.75</td>
+                  <td>Stacked form fields, list rows, card internals</td>
+                </tr>
+                <tr>
+                  <td><code>gap-4</code></td>
+                  <td>13</td>
+                  <td>Grid of cards, form column gutter, section internals</td>
+                </tr>
+                <tr>
+                  <td><code>gap-6</code> / <code>gap-8</code></td>
+                  <td>19.5 / 26</td>
+                  <td>Between page sections only</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Component padding</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Surface</th>
+                  <th>Padding</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Control (input, button, select trigger)</td><td><code>0 10px</code> (<code>--ax-control-px</code>)</td></tr>
+                <tr><td>Menu / option row</td><td><code>7px 10px</code></td></tr>
+                <tr><td>Overlay panel shell</td><td><code>6px</code> (rows own their inset)</td></tr>
+                <tr><td>Card</td><td><code>16px</code>, header/footer <code>12px 16px</code></td></tr>
+                <tr><td>Dialog body</td><td><code>16px</code>; header and footer <code>12px 16px</code></td></tr>
+                <tr><td>Data table cell</td><td><code>6px 5px</code>; header <code>10px 5px</code> (matches <code>styles.css</code>)</td></tr>
+                <tr><td>Page container</td><td><code>p-4</code> mobile, <code>p-6</code> from <code>lg</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="borders">
+          <h2>Borders &amp; radius</h2>
+
+          <h3>Border</h3>
+          <ul>
+            <li>Width is always <strong>1px</strong>. A 2px border means "focus ring", nothing else.</li>
+            <li>Style is always <code>solid</code>. Dashed is reserved for drop targets and empty
+              placeholders (<code>border-dashed</code> + muted colour).</li>
+            <li>Colour is <code>--ax-border-color</code> (zinc-200 / zinc-800). A
+              <em>strong</em> border (control outline, zinc-300 / zinc-700) is for interactive
+              controls that must read as editable: inputs, select triggers, outlined buttons.</li>
+            <li>Dividers inside a surface use the same 1px border, never a shadow.</li>
+          </ul>
+
+          <h3>Radius</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Token</th>
+                  <th>px</th>
+                  <th>Tailwind twin</th>
+                  <th>Applies to</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><code>--ax-radius-sm</code></td><td>4</td><td><code>rounded-sm</code> (3.25px)</td><td>Checkbox, tag, inline code, tiny chip</td></tr>
+                <tr><td><code>--ax-radius-md</code></td><td>6</td><td><code>rounded-md</code> (4.9px)</td><td>Button, input, select trigger, menu item</td></tr>
+                <tr><td><code>--ax-radius-lg</code></td><td>8</td><td><code>rounded-lg</code> (6.5px)</td><td>List row, inline panel, image thumb, skeleton</td></tr>
+                <tr><td><code>--ax-radius-xl</code></td><td>12</td><td><code>rounded-xl</code> (9.75px)</td><td>Overlay panel, dialog, drawer, toast, card</td></tr>
+                <tr><td><code>--ax-radius-2xl</code></td><td>16</td><td><code>rounded-2xl</code> (13px)</td><td>Hero / pricing / marketing surfaces</td></tr>
+                <tr><td><code>--ax-radius-full</code></td><td>&infin;</td><td><code>rounded-full</code></td><td>Avatar, status dot, pill badge, icon-only toggle</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="anatomy">
+            Optimus cards are already pinned at <code>--p-card-border-radius: 0.8rem</code> (10.4px).
+            A custom card sitting next to one should use 10px, not 12px - the
+            <code>.ax-card</code> demo below does.
+          </p>
+
+          <div class="demo">
+            <div style="width: 64px; height: 44px; background: var(--doc-surface-2); border: 1px solid var(--doc-border); border-radius: 4px"></div>
+            <div style="width: 64px; height: 44px; background: var(--doc-surface-2); border: 1px solid var(--doc-border); border-radius: 6px"></div>
+            <div style="width: 64px; height: 44px; background: var(--doc-surface-2); border: 1px solid var(--doc-border); border-radius: 8px"></div>
+            <div style="width: 64px; height: 44px; background: var(--doc-surface-2); border: 1px solid var(--doc-border); border-radius: 12px"></div>
+            <div style="width: 64px; height: 44px; background: var(--doc-surface-2); border: 1px solid var(--doc-border); border-radius: 16px"></div>
+            <div style="width: 44px; height: 44px; background: var(--doc-surface-2); border: 1px solid var(--doc-border); border-radius: 9999px"></div>
+          </div>
+
+          <div class="note">
+            <p>
+              <strong>Nesting rule:</strong> an inner radius is the outer radius minus the gap
+              between them. A 6px row inside a 12px panel with 6px padding lines up; a 12px row
+              inside it does not.
+            </p>
+          </div>
+        </section>
+
+        <section id="elevation">
+          <h2>Elevation</h2>
+          <p class="lede">
+            Elevation answers one question: how far is this surface from the page? Light mode uses
+            shadow; <strong>dark mode uses borders and surface lightness instead</strong> - the app's
+            existing <code>dark:shadow-none dark:border-zinc-800</code> pattern, now encoded in the
+            tokens.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Level</th>
+                  <th>Token</th>
+                  <th>Surface</th>
+                  <th>Dark mode</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>0 - flush</td><td>none</td><td>Table rows, list items, inline sections</td><td>Border only</td></tr>
+                <tr><td>1 - resting</td><td><code>--ax-shadow-xs</code></td><td>Input, button at rest</td><td>none</td></tr>
+                <tr><td>2 - raised</td><td><code>--ax-shadow-sm</code></td><td>Card, tile, avatar</td><td>none + 1px border</td></tr>
+                <tr><td>3 - floating</td><td><code>--ax-shadow-md</code></td><td>Menu, popover, select panel, tooltip</td><td>Soft dark shadow + border</td></tr>
+                <tr><td>4 - modal</td><td><code>--ax-shadow-lg</code></td><td>Toast, confirm popover</td><td>Deeper dark shadow</td></tr>
+                <tr><td>5 - blocking</td><td><code>--ax-shadow-xl</code> + scrim</td><td>Dialog, drawer</td><td>Deepest + scrim</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="demo">
+            <div class="ax-card" style="box-shadow: var(--ax-shadow-xs); min-width: 120px">xs</div>
+            <div class="ax-card" style="box-shadow: var(--ax-shadow-sm); min-width: 120px">sm</div>
+            <div class="ax-card" style="box-shadow: var(--ax-shadow-md); min-width: 120px">md</div>
+            <div class="ax-card" style="box-shadow: var(--ax-shadow-lg); min-width: 120px">lg</div>
+            <div class="ax-card" style="box-shadow: var(--ax-shadow-xl); min-width: 120px">xl</div>
+          </div>
+
+          <p>
+            Never animate a shadow on hover to imply lift - animate background instead. Shadows are
+            expensive to repaint and the app already ships a hover-fill convention
+            (<code>hover:bg-gray-50 dark:hover:bg-zinc-700</code>).
+          </p>
+        </section>
+
+        <section id="sizing">
+          <h2>Sizing &amp; hit targets</h2>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Size</th>
+                  <th>Height</th>
+                  <th>Font</th>
+                  <th>Icon</th>
+                  <th>Use</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><code>sm</code></td><td>28px</td><td>12px</td><td>14px</td><td>Table row actions, filter bar, dense toolbars</td></tr>
+                <tr><td><code>md</code> <em>(default)</em></td><td>34px</td><td>13px</td><td>16px</td><td>Forms, dialogs, page actions</td></tr>
+                <tr><td><code>lg</code></td><td>40px</td><td>13px</td><td>20px</td><td>Primary CTA, auth screens, mobile-first flows</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Target sizes</h3>
+          <ul>
+            <li><strong>24&times;24 CSS px absolute minimum</strong> for any pointer target (WCAG 2.5.8
+              AA). A 28px control already clears it; a 16px icon button does not - pad it to 28px.</li>
+            <li><strong>40&times;40</strong> for anything primarily used on touch (mobile nav, bottom
+              sheets, calendar cells on small screens).</li>
+            <li>Adjacent targets keep &ge;4px of clear space, or the spacing exemption does not
+              apply.</li>
+            <li>Extend the hit area without growing the visual with padding, or a
+              <code>::after</code> inset overlay - never with <code>transform: scale()</code>.</li>
+          </ul>
+
+          <h3>Widths</h3>
+          <ul>
+            <li>Overlay panel: <code>min-width</code> = trigger width, <code>max-width: min(92vw, 420px)</code>.</li>
+            <li>Dialog: <code>sm</code> 360px, <code>md</code> 480px, <code>lg</code> 640px,
+              <code>xl</code> 840px; always <code>max-width: 92vw</code>, <code>max-height: 88vh</code>
+              with a scrolling body.</li>
+            <li>Drawer: 320px / 420px / 560px, full width below <code>sm</code>.</li>
+            <li>Text content caps at <code>max-w-prose</code> (~65ch) - long paragraphs never span a
+              wide dialog.</li>
+          </ul>
+        </section>
+
+        <section id="icons">
+          <h2>Icons</h2>
+          <p class="lede">
+            Three sources are installed: <code>pi pi-*</code> (Optimus/PrimeIcons, the default),
+            <code>@openng/icons</code>, and <code>lucide-angular</code>. Pick one per component and
+            do not mix visual styles inside a single surface.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Size</th><th>Box</th><th>Pairs with</th><th>Example</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>--ax-icon-xs</code></td><td>12px</td><td>Badges, inline meta</td><td>Status dot glyph</td></tr>
+                <tr><td><code>--ax-icon-sm</code></td><td>14px</td><td><code>text-xs</code>, dense tables</td><td>Row action chevron</td></tr>
+                <tr><td><code>--ax-icon-md</code></td><td>16px</td><td><code>text-sm</code> (default)</td><td>Button leading icon, menu item</td></tr>
+                <tr><td><code>--ax-icon-lg</code></td><td>20px</td><td><code>text-base/lg</code></td><td>Dialog header, aside menu</td></tr>
+                <tr><td><code>--ax-icon-xl</code></td><td>24px</td><td>Headings, empty states</td><td>Empty-state glyph (48px for the hero variant)</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ul>
+            <li>Icon + label gap is <code>gap-2</code> (6.5px); a <code>gap-1</code> pairing reads as
+              one unit (count badges, dot + status).</li>
+            <li>Optically centre with <code>inline-flex items-center</code> and
+              <code>leading-none</code> on the icon - never nudge with a margin hack.</li>
+            <li>Decorative icon &rarr; <code>aria-hidden="true"</code>. Icon-only control &rarr;
+              <code>aria-label</code> <em>and</em> a tooltip carrying the same words.</li>
+            <li>An icon is never the only carrier of state; pair with text, a title attribute is not
+              enough.</li>
+          </ul>
+
+          <div class="demo">
+            <button class="ax-btn ax-btn--outlined"><span aria-hidden="true">＋</span> Add staffMember</button>
+            <button class="ax-btn ax-btn--outlined ax-btn--icon" aria-label="Filter"><span aria-hidden="true">⌕</span></button>
+            <button class="ax-btn ax-btn--sm ax-btn--text">Export <span aria-hidden="true">↓</span></button>
+          </div>
+        </section>
+
+        <section id="motion">
+          <h2>Motion (Angular 22 native animations)</h2>
+          <p class="lede">
+            <code>@angular/animations</code> is deprecated as of v20.2 and is
+            <strong>not a dependency of this app</strong>. All motion is CSS, triggered by classes,
+            <code>@starting-style</code>, or the native
+            <code>animate.enter</code> / <code>animate.leave</code> template bindings.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Token</th><th>Value</th><th>Use</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>--ax-duration-fast</code></td><td>150ms</td><td>Hover, active, colour, opacity, focus ring</td></tr>
+                <tr><td><code>--ax-duration-base</code></td><td>200ms</td><td>Overlays, tooltips, menus, expand/collapse, tab indicator</td></tr>
+                <tr><td><code>--ax-duration-slow</code></td><td>300ms</td><td>Drawer, dialog, route-level transitions</td></tr>
+                <tr><td><code>--ax-ease-enter</code></td><td><code>cubic-bezier(0,0,.2,1)</code></td><td>Anything appearing (decelerate)</td></tr>
+                <tr><td><code>--ax-ease-exit</code></td><td><code>cubic-bezier(.4,0,1,1)</code></td><td>Anything leaving (accelerate)</td></tr>
+                <tr><td><code>--ax-ease-standard</code></td><td><code>cubic-bezier(.4,0,.2,1)</code></td><td>State changes on a persistent element</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ul>
+            <li><strong>Leave is faster than enter.</strong> Enter at the token duration, leave at
+              ~0.75&times; it. Nobody waits for a dismissal.</li>
+            <li>Animate <code>opacity</code> and <code>transform</code> only. Never animate
+              <code>height</code>/<code>width</code> directly - use the
+              <code>grid-template-rows: 0fr &rarr; 1fr</code> trick for auto height.</li>
+            <li>Travel distance: 4px for tooltips, 6-8px for menus and popovers, 12px for toasts,
+              full-axis slide for drawers.</li>
+            <li>No entrance animation on first paint of a list - it reads as jank. Animate only what
+              the user's action caused.</li>
+          </ul>
+
+          <h4>Overlay enter / leave</h4>
+          <pre><code>&lt;!-- template --&gt;
+@if (isOpen()) {
+  &lt;div class="ax-panel" animate.enter="ax-panel-in" animate.leave="ax-panel-out"&gt;
+    &lt;ng-content /&gt;
+  &lt;/div&gt;
+}</code></pre>
+          <pre><code>/* component css */
+.ax-panel-in  { animation: ax-in var(--ax-duration-base) var(--ax-ease-enter); }
+.ax-panel-out { animation: ax-out 150ms var(--ax-ease-exit) forwards; }
+
+@keyframes ax-in  { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+@keyframes ax-out { to   { opacity: 0; transform: translateY(-4px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ax-panel-in, .ax-panel-out { animation-duration: 1ms; }
+}</code></pre>
+
+          <div class="note">
+            <p>
+              Keep the reduced-motion duration at <strong>1ms rather than <code>none</code></strong>.
+              <code>animate.leave</code> waits for the animation to finish before removing the
+              element; killing the animation outright can strand the node.
+            </p>
+          </div>
+
+          <h4>Expand / collapse without a height animation</h4>
+          <pre><code>.ax-collapsible { display: grid; grid-template-rows: 0fr; overflow: hidden;
+                  transition: grid-template-rows var(--ax-duration-base) var(--ax-ease-standard); }
+.ax-collapsible.is-open { grid-template-rows: 1fr; }
+.ax-collapsible &gt; .content { min-height: 0; }</code></pre>
+
+          <h4>Staggered lists</h4>
+          <pre><code>@for (row of rows(); track row.id; let i = $index) {
+  &lt;li class="row" [style.--i]="i"&gt;{{ row.name }}&lt;/li&gt;
+}</code></pre>
+          <pre><code>.row { transition: opacity var(--ax-duration-base) var(--ax-ease-enter);
+       transition-delay: calc(30ms * var(--i)); }
+.row  { @starting-style { opacity: 0; transform: translateX(-6px); } }</code></pre>
+          <p class="anatomy">Cap the stagger at ~8 items (240ms); past that it reads as lag.</p>
+        </section>
+
+        <section id="layout">
+          <h2>Layout &amp; breakpoints</h2>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Breakpoint</th><th>Min width</th><th>CDK equivalent</th><th>Behaviour shift</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>sm</code></td><td>640px</td><td><code>Breakpoints.HandsetPortrait</code> and below</td><td>Drawers go full width; tables become stacked cards; paginator wraps (already in <code>styles.css</code>)</td></tr>
+                <tr><td><code>md</code></td><td>768px</td><td><code>Breakpoints.TabletPortrait</code></td><td>Forms go 2-column; aside menu becomes an overlay</td></tr>
+                <tr><td><code>lg</code></td><td>1024px</td><td><code>Breakpoints.WebPortrait</code></td><td>Aside menu docks; page padding grows to <code>p-6</code></td></tr>
+                <tr><td><code>xl</code></td><td>1280px</td><td><code>Breakpoints.WebLandscape</code></td><td>Detail + sidebar split views; 3-column dashboards</td></tr>
+                <tr><td><code>2xl</code></td><td>1536px</td><td>-</td><td>Content max-width caps; no new columns</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <ul>
+            <li><strong>Flex</strong> for one-dimensional rows (toolbars, button groups, item + meta).
+              <strong>Grid</strong> for forms and card collections.</li>
+            <li>Form grid: <code>grid grid-cols-1 md:grid-cols-2 gap-4</code>; a full-width field takes
+              <code>md:col-span-2</code>.</li>
+            <li>Card collections: <code>grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]</code>
+              - auto-fill beats a breakpoint ladder.</li>
+            <li>Never set a fixed height on a text container; let it grow and cap with
+              <code>max-h-*</code> + <code>overflow-y-auto</code>.</li>
+            <li>The app scrolls an <strong>inner container</strong>, not the window. Anything measuring
+              or reacting to scroll must listen in the capture phase - see
+              <a href="#cdk-overlay">Overlay</a>.</li>
+            <li>Responsive behaviour that is purely visual belongs in CSS. Use
+              <code>BreakpointObserver</code> only when the <em>DOM or behaviour</em> must differ
+              (drawer vs dialog, virtual scroll page size).</li>
+          </ul>
+
+          <pre><code>private readonly breakpoints = inject(BreakpointObserver);
+protected readonly isHandset = toSignal(
+  this.breakpoints.observe(Breakpoints.Handset).pipe(map((s) =&gt; s.matches)),
+  { initialValue: false },
+);</code></pre>
+        </section>
+
+        <!-- ===================== STATES ===================== -->
+        <section id="states">
+          <h2>States</h2>
+          <p class="lede">
+            Every interactive custom component implements all eight. A component with only
+            hover and disabled is unfinished.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>State</th><th>Visual</th><th>Implementation</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Rest</td>
+                  <td>Surface + 1px border, no shadow beyond its elevation level</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>Hover</td>
+                  <td>Background steps one surface level (zinc-50 / zinc-800); borders darken one step. Never move the element.</td>
+                  <td><code>:hover</code>, 150ms background transition. Pointer devices only: wrap in <code>@media (hover: hover)</code>.</td>
+                </tr>
+                <tr>
+                  <td>Focus (keyboard)</td>
+                  <td><strong>2px</strong> primary outline, 2px offset, on top of the resting border</td>
+                  <td><code>:focus-visible</code> only - never <code>:focus</code>. Inputs instead use a 1px inset ring (<code>--p-inputtext-focus-ring-*</code>) so the field does not jump.</td>
+                </tr>
+                <tr>
+                  <td>Active / pressed</td>
+                  <td>Background one step deeper than hover; no scale transform</td>
+                  <td><code>:active</code>, no transition (instant feedback)</td>
+                </tr>
+                <tr>
+                  <td>Selected / checked</td>
+                  <td>Primary-soft background + medium weight, plus a non-colour marker (check, dot, left bar)</td>
+                  <td><code>[aria-selected]</code> / <code>[aria-checked]</code> attribute selectors, not a class</td>
+                </tr>
+                <tr>
+                  <td>Disabled</td>
+                  <td><code>opacity: .55</code>, <code>cursor: not-allowed</code>, no hover response</td>
+                  <td>Real <code>disabled</code> on natives; <code>aria-disabled="true"</code> + no handler on composites. Keep disabled items focusable in menus and toolbars so keyboard users can discover them.</td>
+                </tr>
+                <tr>
+                  <td>Loading</td>
+                  <td>Skeleton for first load; 16px spinner + <code>aria-busy</code> for in-place refresh; button keeps its width and swaps the leading icon</td>
+                  <td>Shimmer 1.4s; announce with <code>aria-live="polite"</code> if it exceeds ~1s</td>
+                </tr>
+                <tr>
+                  <td>Error</td>
+                  <td>Danger border + message below, 11px. Message text is specific, never "Invalid input".</td>
+                  <td><code>aria-invalid="true"</code> + <code>aria-describedby</code> pointing at the message id</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="demo stack">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center">
+              <button class="ax-btn ax-btn--primary">Rest</button>
+              <button class="ax-btn ax-btn--primary" style="filter: brightness(0.94)">Hover</button>
+              <button class="ax-btn ax-btn--primary" style="outline: 2px solid var(--doc-accent); outline-offset: 2px">Focus</button>
+              <button class="ax-btn ax-btn--primary" disabled>Disabled</button>
+              <button class="ax-btn ax-btn--primary"><span class="spinner"></span> Saving</button>
+            </div>
+            <div style="display: flex; gap: 8px; flex-direction: column; max-width: 260px">
+              <div class="skeleton" style="width: 60%"></div>
+              <div class="skeleton" style="width: 100%"></div>
+              <div class="skeleton" style="width: 80%"></div>
+            </div>
+          </div>
+
+          <div class="warn">
+            <p>
+              <strong>Never remove the focus ring.</strong> <code>outline: none</code> without a
+              replacement is an accessibility defect and fails ESLint's template a11y rules the moment
+              it reaches a template binding.
+            </p>
+          </div>
+        </section>
+
+        <section id="a11y">
+          <h2>Accessibility</h2>
+          <p class="lede">
+            The bar is <strong>WCAG 2.2 AA and zero AXE violations</strong>. ESLint runs
+            <code>angular.configs.templateAccessibility</code> on every <code>.html</code>; failures
+            there are bugs, not style nits.
+          </p>
+
+          <h3>Keyboard contract per pattern</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Pattern</th><th>Keys</th><th>Focus</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Menu / dropdown</td>
+                  <td><kbd>Enter</kbd>/<kbd>Space</kbd>/<kbd>↓</kbd> open, <kbd>↑</kbd><kbd>↓</kbd> move, <kbd>Home</kbd>/<kbd>End</kbd>, type-ahead, <kbd>Esc</kbd> close, <kbd>Tab</kbd> closes and moves on</td>
+                  <td>Roving tabindex inside; focus returns to the trigger on close</td>
+                </tr>
+                <tr>
+                  <td>Dialog</td>
+                  <td><kbd>Esc</kbd> closes, <kbd>Tab</kbd> cycles inside</td>
+                  <td>Focus traps; initial focus on the first control (not the close button); restores to the opener</td>
+                </tr>
+                <tr>
+                  <td>Drawer</td>
+                  <td>Same as dialog when modal; no trap when it is a non-modal side panel</td>
+                  <td>Non-modal: focus moves in but <kbd>Tab</kbd> escapes naturally</td>
+                </tr>
+                <tr>
+                  <td>Tabs</td>
+                  <td><kbd>←</kbd><kbd>→</kbd> move, <kbd>Home</kbd>/<kbd>End</kbd> jump; automatic activation</td>
+                  <td>Only the active tab is tabbable; panel is <code>tabindex="0"</code> if it scrolls</td>
+                </tr>
+                <tr>
+                  <td>Tooltip</td>
+                  <td>Shows on focus as well as hover; <kbd>Esc</kbd> dismisses</td>
+                  <td>Never focusable itself; content must be hoverable (WCAG 1.4.13)</td>
+                </tr>
+                <tr>
+                  <td>Data table</td>
+                  <td><kbd>Tab</kbd> reaches interactive cells; sort buttons are real buttons</td>
+                  <td><code>aria-sort</code> on the sorted header; row actions reachable without hover</td>
+                </tr>
+                <tr>
+                  <td>Date picker</td>
+                  <td>Arrows move a day, <kbd>PgUp</kbd>/<kbd>PgDn</kbd> a month, <kbd>Esc</kbd> closes</td>
+                  <td>Grid roving tabindex; the focused day is the only tab stop</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Non-negotiables</h3>
+          <ul>
+            <li><strong>Contrast:</strong> 4.5:1 body text, 3:1 for &ge;19px bold text, UI borders and
+              icons that carry meaning. Muted zinc-500 on white is 4.6:1 - fine; zinc-400 on white is
+              not, which is why dark mode uses zinc-400 and light mode zinc-500.</li>
+            <li><strong>Focus visibility:</strong> a 2px ring with 2px offset against the adjacent
+              colour at &ge;3:1 (WCAG 2.4.11).</li>
+            <li><strong>Announce async change:</strong> CDK <code>LiveAnnouncer</code> for "12 results",
+              "Saved", "3 rows selected".</li>
+            <li><strong>Name every control:</strong> visible label preferred; icon-only gets
+              <code>aria-label</code>; a required field's label carries a visible <code>*</code>
+              (zod-driven validation no longer sets the native <code>required</code> attribute).</li>
+            <li><strong>Respect reduced motion</strong> in every component that animates.</li>
+            <li><strong>Colour is never the only channel</strong> - pair it with text, icon or shape.</li>
+            <li><strong>Zoom to 200%</strong> without horizontal scroll, and reflow at 320px width.</li>
+          </ul>
+
+          <pre><code>// Announce a result count after a filter
+private readonly announcer = inject(LiveAnnouncer);
+this.announcer.announce(`${count} staff members found`, 'polite');</code></pre>
+        </section>
+
+        <!-- ===================== CDK ===================== -->
+        <section id="cdk-overlay">
+          <h2>CDK Overlay</h2>
+          <p class="lede">
+            Everything that floats - menu, popover, select panel, tooltip, dialog, drawer - is a CDK
+            overlay. Skolenza has three house rules that CDK's defaults do not cover.
+          </p>
+
+          <h3>1. Use the shared position set</h3>
+          <p>
+            <code>CARD_OVERLAY_POSITIONS</code> in <code>shared/utilities/overlay.ts</code> gives the
+            standard flip order (below &rarr; above &rarr; end-aligned below &rarr; end-aligned
+            above) with the 6px trigger gap already applied.
+          </p>
+          <pre><code>&lt;ng-template
+  cdkConnectedOverlay
+  appRepositionOnResize
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="isOpen()"
+  [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayFlexibleDimensions]="true"
+  [cdkConnectedOverlayPush]="true"
+  (overlayOutsideClick)="close()"
+  (detach)="close()"&gt;
+  &lt;div class="ax-panel" role="dialog" animate.enter="ax-panel-in"&gt;...&lt;/div&gt;
+&lt;/ng-template&gt;</code></pre>
+          <pre><code>protected readonly positions = CARD_OVERLAY_POSITIONS;</code></pre>
+
+          <h3>2. Close on scroll, the Skolenza way</h3>
+          <p>
+            The shell scrolls an inner container, so CDK's <code>close</code> scroll strategy never
+            fires. Use <code>closeOverlayOnScroll()</code> (capture-phase listener that ignores
+            scrolling inside <code>.cdk-overlay-pane</code>), or
+            <code>appCdkCloseMenuOnScroll</code> for a <code>CdkMenuTrigger</code>.
+          </p>
+          <pre><code>constructor() {
+  closeOverlayOnScroll(() =&gt; this.close(), () =&gt; this.isOpen());
+}</code></pre>
+
+          <h3>3. Reposition when the panel resizes</h3>
+          <p>
+            A panel that opens as a skeleton and grows keeps the position that suited the skeleton.
+            Put <code>appRepositionOnResize</code> on the same
+            <code>ng-template</code> as <code>cdkConnectedOverlay</code>.
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Concern</th><th>Setting</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Backdrop</td><td>Dialog/drawer: <code>hasBackdrop</code> with <code>--ax-overlay-scrim</code>. Menu/popover: transparent backdrop (<code>cdk-overlay-transparent-backdrop</code>) or <code>overlayOutsideClick</code>.</td></tr>
+                <tr><td>Scroll strategy</td><td>Dialog/drawer: <code>block()</code>. Menu/popover/tooltip: <code>reposition()</code> plus the capture-phase close above.</td></tr>
+                <tr><td>Panel class</td><td>Always set <code>panelClass</code> - it is the only styling hook once the pane leaves the component's DOM (<code>::ng-deep</code> is not an option).</td></tr>
+                <tr><td>Direction</td><td>Inject <code>Directionality</code>; use logical positions (<code>start</code>/<code>end</code>), never <code>left</code>/<code>right</code>.</td></tr>
+                <tr><td>Z-index</td><td>Leave it to CDK's container (1000). Never raise a z-index to beat an overlay - move the element into an overlay instead.</td></tr>
+                <tr><td>Zoneless</td><td>Drive open/close from signals. If you must measure after attach, use <code>afterNextRender</code>.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="cdk-portal">
+          <h2>CDK Portal</h2>
+          <ul>
+            <li><code>TemplatePortal</code> is the default - the template keeps its injection context
+              and the host component's signals.</li>
+            <li><code>ComponentPortal</code> when the content is a component with its own store; pass
+              data through an injection token, not <code>@Input</code> assignment after creation.</li>
+            <li>A portal outlet inside a feature must be destroyed with the host - use
+              <code>DestroyRef.onDestroy(() =&gt; portal.detach())</code>.</li>
+            <li>Do not portal a form control out of its <code>ControlContainer</code>; for Optimus
+              template markers, use the wrapper pattern in <code>shared/components/</code> instead.</li>
+          </ul>
+          <pre><code>private readonly vcr = inject(ViewContainerRef);
+protected readonly portal = new TemplatePortal(this.tpl(), this.vcr);</code></pre>
+        </section>
+
+        <section id="cdk-a11y">
+          <h2>CDK A11y</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Primitive</th><th>Use it for</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>cdkTrapFocus</code> + <code>cdkTrapFocusAutoCapture</code></td><td>Dialog, modal drawer. Pair with <code>FocusTrapFactory</code> if you build the overlay manually.</td></tr>
+                <tr><td><code>FocusMonitor</code></td><td>Knowing <em>how</em> focus arrived (<code>'keyboard'</code> vs <code>'mouse'</code>) - e.g. showing a hint only for keyboard users. Always <code>stopMonitoring()</code> on destroy.</td></tr>
+                <tr><td><code>ActiveDescendantKeyManager</code></td><td>Combobox/autocomplete where focus stays in the input and <code>aria-activedescendant</code> points at the option.</td></tr>
+                <tr><td><code>FocusKeyManager</code></td><td>Menus, toolbars, tab lists where real DOM focus moves. Enable <code>.withWrap().withTypeAhead()</code>.</td></tr>
+                <tr><td><code>LiveAnnouncer</code></td><td>Result counts, save confirmations, async state.</td></tr>
+                <tr><td><code>InteractivityChecker</code></td><td>Finding the first genuinely focusable element before restoring focus.</td></tr>
+                <tr><td><code>cdkAriaLive</code></td><td>Declarative live region in a template.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="anatomy">
+            The repo also ships <code>RovingRadioGroup</code> (<code>shared/directives</code>), used
+            by the colour picker - reuse it for any swatch/segmented control before writing a new key
+            manager.
+          </p>
+        </section>
+
+        <section id="cdk-menu">
+          <h2>CDK Menu &amp; Listbox</h2>
+          <ul>
+            <li><code>cdkMenu</code> / <code>cdkMenuItem</code> / <code>cdkMenuTriggerFor</code> give
+              the full WAI-ARIA menu keyboard model free. Add
+              <code>appCdkCloseMenuOnScroll</code> on the trigger.</li>
+            <li><code>cdkMenuItemCheckbox</code> and <code>cdkMenuItemRadio</code> for stateful items -
+              they manage <code>aria-checked</code> for you.</li>
+            <li>Submenu: <code>[cdkMenuTriggerFor]</code> on the item plus
+              <code>[cdkMenuPosition]</code> for side placement. Keep submenus one level deep; the
+              staffMember action menu is the cautionary tale (13 entries, needs an explicit
+              <code>max-height: 60vh</code>).</li>
+            <li><code>cdkListbox</code> for multi-select surfaces that are not menus (filter panels,
+              permission pickers): <code>[cdkListboxMultiple]</code>,
+              <code>[cdkListboxCompareWith]</code>.</li>
+            <li>Menu items are 34px tall, <code>--ax-radius-md</code>, with 10px inline padding and a
+              16px leading icon slot that stays reserved even when an item has no icon - otherwise
+              labels misalign.</li>
+          </ul>
+        </section>
+
+        <section id="cdk-dnd">
+          <h2>CDK Drag &amp; Drop</h2>
+          <p class="lede">
+            Used by the kanban boards and the form editor. Consistency here is mostly about the three
+            ghost surfaces: preview, placeholder, and drop-target.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Element</th><th>Class</th><th>Style</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Dragged copy</td><td><code>.cdk-drag-preview</code></td><td><code>--ax-shadow-lg</code>, <code>--ax-radius-lg</code>, <code>opacity: .95</code>, slight <code>rotate(1deg)</code> for boards only</td></tr>
+                <tr><td>Gap left behind</td><td><code>.cdk-drag-placeholder</code></td><td><code>opacity: .4</code>, dashed 1px border, same height as the item</td></tr>
+                <tr><td>Settling</td><td><code>.cdk-drag-animating</code></td><td><code>transition: transform var(--ax-duration-base) var(--ax-ease-standard)</code></td></tr>
+                <tr><td>Valid target</td><td><code>.cdk-drop-list-dragging</code></td><td>Container gets a primary-soft tint and a 1px primary border</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul>
+            <li>Always provide a <strong>drag handle</strong> (<code>cdkDragHandle</code>) on rows that
+              also contain buttons or links; whole-row dragging steals clicks.</li>
+            <li>Set <code>cdkDragBoundary</code> so an item cannot be dropped into the void, and
+              <code>cdkDropListOrientation</code> explicitly.</li>
+            <li><strong>Keyboard alternative is mandatory</strong> - a drag-only reorder is an
+              accessibility failure. Ship "Move up"/"Move down" in the row menu and announce the new
+              position with <code>LiveAnnouncer</code>.</li>
+            <li>Touch: <code>cdkDragStartDelay="150"</code> on touch so scrolling a board does not
+              pick up a card.</li>
+          </ul>
+        </section>
+
+        <section id="cdk-misc">
+          <h2>CDK Layout, Clipboard, Text &amp; Scrolling</h2>
+          <ul>
+            <li><code>BreakpointObserver</code> - behaviour-level responsiveness only (see
+              <a href="#layout">Layout</a>). Convert to a signal with <code>toSignal</code>.</li>
+            <li><code>Clipboard</code> - copy actions; always follow with a toast or an inline
+              "Copied" state that reverts after ~2s (the colour picker does this).</li>
+            <li><code>TextFieldModule</code> - <code>cdkTextareaAutosize</code> with
+              <code>cdkAutosizeMinRows</code>/<code>MaxRows</code> instead of a manual resize
+              observer.</li>
+            <li><code>ScrollingModule</code> - <code>cdk-virtual-scroll-viewport</code> once a list
+              can exceed ~200 rows. Fixed item size must match the real row height (<code>34px</code>
+              for menu-style rows) or scrolling drifts.</li>
+            <li><code>cdkScrollable</code> - register the app's inner scroll container so CDK
+              reposition strategies see it.</li>
+          </ul>
+        </section>
+
+        <!-- ===================== COMPONENTS ===================== -->
+        <section id="c-button">
+          <h2>Button</h2>
+          <p class="anatomy">
+            Anatomy: [leading icon 16px] [label] [trailing icon / badge] inside a 34px pill-less
+            rounded rect.
+          </p>
+          <div class="demo">
+            <button class="ax-btn ax-btn--primary">Primary</button>
+            <button class="ax-btn ax-btn--outlined">Outlined</button>
+            <button class="ax-btn ax-btn--text">Text</button>
+            <button class="ax-btn ax-btn--danger">Delete</button>
+            <button class="ax-btn ax-btn--outlined ax-btn--sm">Small</button>
+            <button class="ax-btn ax-btn--primary ax-btn--lg">Large</button>
+            <button class="ax-btn ax-btn--outlined" disabled>Disabled</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Height</td><td>28 / 34 / 40px (<code>--ax-control-h-*</code>)</td></tr>
+                <tr><td>Padding</td><td>10 / 14 / 18px inline; icon-only is square</td></tr>
+                <tr><td>Radius</td><td><code>--ax-radius-md</code> (6px); <code>--ax-radius-full</code> only for icon-only toggles</td></tr>
+                <tr><td>Label</td><td>13px / 500. Sentence case, verb first ("Add staffMember", not "ADD STAFF_MEMBER")</td></tr>
+                <tr><td>Icon gap</td><td>6px</td></tr>
+                <tr><td>Transition</td><td>background, border-color, color @ 150ms</td></tr>
+                <tr><td>Loading</td><td>Spinner replaces the leading icon; width is frozen; <code>aria-busy="true"</code>; label stays</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul>
+            <li>One primary button per view region. Destructive actions are danger-coloured and always
+              confirmed.</li>
+            <li>Never disable a submit button to express "form invalid" without also showing why -
+              show errors on submit instead.</li>
+            <li>Button vs link: navigation is an <code>&lt;a&gt;</code>, action is a
+              <code>&lt;button type="button"&gt;</code>. Always set <code>type</code> inside a form.</li>
+          </ul>
+        </section>
+
+        <section id="c-input">
+          <h2>Input / Form field</h2>
+          <p class="anatomy">Anatomy: label (+ required <code>*</code>) &rarr; control &rarr; hint or error. 4px between each.</p>
+          <div class="demo">
+            <div class="ax-field">
+              <label class="ax-label" for="d1">StaffMember name <span class="req">*</span></label>
+              <input class="ax-input" id="d1" placeholder="e.g. Priya Sharma" />
+              <span class="ax-hint">Shown on the ID card.</span>
+            </div>
+            <div class="ax-field">
+              <label class="ax-label" for="d2">Work email <span class="req">*</span></label>
+              <input class="ax-input" id="d2" value="priya@" aria-invalid="true" aria-describedby="d2e" />
+              <span class="ax-error" id="d2e">Enter a valid email address.</span>
+            </div>
+            <div class="ax-field">
+              <label class="ax-label" for="d3">StaffMember code</label>
+              <input class="ax-input" id="d3" value="AXN-0042" disabled />
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Height / padding</td><td>34px / <code>0 10px</code>; textarea <code>8px 10px</code></td></tr>
+                <tr><td>Radius / border</td><td><code>--ax-radius-md</code>; 1px control-strength border</td></tr>
+                <tr><td>Focus</td><td>1px primary border + 1px primary inset ring (<code>--p-inputtext-focus-ring-*</code>), so layout never shifts</td></tr>
+                <tr><td>Label</td><td>12px / 500, 4px above; required marker is a visible red <code>*</code></td></tr>
+                <tr><td>Hint / error</td><td>11px, 4px below; error replaces hint, never stacks</td></tr>
+                <tr><td>Leading icon</td><td>16px, 10px from the edge; input gets <code>pl-10!</code> (important modifier goes last)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="note">
+            <p>
+              Validation lives in a colocated <strong>zod</strong> schema through
+              <code>validateStandardSchema()</code>. Because zod issues carry no field metadata, the
+              DOM's <code>required</code>/<code>min</code> attributes are not set - the visible
+              <code>*</code> and an explicit <code>[min]</code> in the template are what make the rule
+              perceivable. Errors render as <code>f.x().errors()[0].message</code>.
+            </p>
+          </div>
+        </section>
+
+        <section id="c-select">
+          <h2>Select / Dropdown</h2>
+          <p class="anatomy">Anatomy: trigger (value + 16px chevron) &rarr; connected overlay panel &rarr; option rows.</p>
+          <div class="demo" style="align-items: flex-start">
+            <div class="ax-field">
+              <label class="ax-label" for="d4">Department</label>
+              <button class="ax-input" id="d4" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer" aria-haspopup="listbox" aria-expanded="true">
+                Engineering <span aria-hidden="true">▾</span>
+              </button>
+            </div>
+            <div class="ax-panel" role="listbox" aria-label="Department" style="margin-top: 22px">
+              <div class="ax-option" role="option" aria-selected="true">Engineering <span style="margin-left: auto" aria-hidden="true">✓</span></div>
+              <div class="ax-option" role="option" aria-selected="false">Human Resources</div>
+              <div class="ax-option" role="option" aria-selected="false">Finance</div>
+              <div class="ax-option" role="option" aria-selected="false">Field Operations</div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Trigger</td><td>Identical to an input: 34px, <code>--ax-radius-md</code></td></tr>
+                <tr><td>Panel</td><td><code>--ax-radius-xl</code>, <code>--ax-shadow-md</code>, 6px padding, 6px below the trigger, <code>min-width</code> = trigger</td></tr>
+                <tr><td>Option row</td><td>34px, <code>7px 10px</code>, <code>--ax-radius-md</code>; selected = primary-soft + check</td></tr>
+                <tr><td>Max height</td><td><code>min(320px, 50vh)</code>, then scroll; &gt;10 options gets a filter input</td></tr>
+                <tr><td>Long labels</td><td>Single line + ellipsis (<code>panelStyleClass="select-option-truncate"</code>)</td></tr>
+                <tr><td>Empty</td><td>"No departments found" at 11px muted, 24px tall row - never an empty panel</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Multi-select shows up to 2 chips then "+N more"; the trigger never grows past two lines.
+            Use <code>cdkListbox</code> for the custom case, or the existing
+            <code>shared/components/select-field</code> wrapper when Optimus can do the job.
+          </p>
+        </section>
+
+        <section id="c-dialog">
+          <h2>Modal / Dialog</h2>
+          <div class="demo">
+            <div class="ax-dialog">
+              <header>Delete department <button class="ax-btn ax-btn--text ax-btn--sm" aria-label="Close dialog">✕</button></header>
+              <div class="body">
+                Field Operations has 14 staff members assigned. They will be moved to Unassigned. This
+                cannot be undone.
+              </div>
+              <footer>
+                <button class="ax-btn ax-btn--outlined">Cancel</button>
+                <button class="ax-btn ax-btn--danger">Delete department</button>
+              </footer>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Widths</td><td>360 / 480 / 640 / 840px, capped at <code>92vw</code></td></tr>
+                <tr><td>Height</td><td><code>max-height: 88vh</code>; only the body scrolls</td></tr>
+                <tr><td>Radius / shadow</td><td><code>--ax-radius-xl</code> / <code>--ax-shadow-xl</code></td></tr>
+                <tr><td>Scrim</td><td><code>--ax-overlay-scrim</code>, fades in over 200ms</td></tr>
+                <tr><td>Motion</td><td>Enter 200ms: opacity 0&rarr;1, <code>translateY(8px) scale(.98)</code>&rarr;none. Leave 150ms.</td></tr>
+                <tr><td>Footer</td><td>Right-aligned, 8px gap, cancel first, confirm last. Full-width stacked below <code>sm</code>.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul>
+            <li><code>role="dialog"</code> (<code>alertdialog</code> for destructive confirms),
+              <code>aria-modal="true"</code>, <code>aria-labelledby</code> pointing at the header.</li>
+            <li>Focus traps on open, lands on the first meaningful control, returns to the opener on
+              close. <kbd>Esc</kbd> always closes unless data would be lost - then confirm.</li>
+            <li>Header copy uses a plain hyphen or colon, never an em dash.</li>
+            <li>Body scroll is blocked (<code>ScrollStrategy.block()</code>), not the whole page's
+              <code>overflow</code>.</li>
+          </ul>
+        </section>
+
+        <section id="c-tooltip">
+          <h2>Tooltip</h2>
+          <div class="demo">
+            <span class="ax-tooltip">Bulk import staff members</span>
+            <span class="ax-tooltip">Rotate gateway URL</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Type / padding</td><td>11.5px, <code>5px 9px</code></td></tr>
+                <tr><td>Radius / shadow</td><td><code>--ax-radius-md</code> / <code>--ax-shadow-md</code></td></tr>
+                <tr><td>Colour</td><td>Inverted surface (zinc-900 on light, zinc-100 on dark) - the one place we invert</td></tr>
+                <tr><td>Offset / width</td><td>6px from the trigger; <code>max-width: 240px</code></td></tr>
+                <tr><td>Delay</td><td>Show 300ms, hide 100ms; no delay if another tooltip is already open</td></tr>
+                <tr><td>Motion</td><td>Fade + 4px travel, 150ms</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul>
+            <li>Opens on hover <em>and</em> focus; dismissable with <kbd>Esc</kbd>; stays while the
+              pointer is over it (WCAG 1.4.13).</li>
+            <li>Never the sole carrier of essential information, and never interactive - if it needs a
+              link or a button it is a <a href="#c-popover">popover</a>.</li>
+            <li>Plain text, one line where possible, no terminal punctuation.</li>
+          </ul>
+        </section>
+
+        <section id="c-popover">
+          <h2>Popover</h2>
+          <p class="anatomy">A popover is a tooltip that earned interactivity: rich content, focusable children, explicit dismissal.</p>
+          <div class="demo">
+            <div class="ax-panel" style="width: 280px; padding: 0">
+              <div style="padding: 12px 14px; border-bottom: 1px solid var(--doc-border); font-weight: 600; font-size: 13px">Priya Sharma</div>
+              <div style="padding: 12px 14px; font-size: 12px; color: var(--doc-text-muted)">
+                Senior Engineer &middot; Engineering<br />Reports to Arun Mehta
+              </div>
+              <div style="padding: 10px 14px; border-top: 1px solid var(--doc-border); display: flex; gap: 8px; justify-content: flex-end">
+                <button class="ax-btn ax-btn--text ax-btn--sm">View profile</button>
+              </div>
+            </div>
+          </div>
+          <ul>
+            <li>Panel styling equals the select panel: <code>--ax-radius-xl</code>,
+              <code>--ax-shadow-md</code>, 6px offset.</li>
+            <li><code>role="dialog"</code> + <code>aria-label</code>; focus moves in on open when it
+              contains controls, and returns to the trigger on close.</li>
+            <li>Closes on outside click, <kbd>Esc</kbd>, and scroll of the container (use
+              <code>closeOverlayOnScroll</code>).</li>
+            <li>Content that loads async must reserve height or use
+              <code>appRepositionOnResize</code>, or the panel will hang off-screen.</li>
+            <li>No nested popovers. A popover that needs a popover is a drawer.</li>
+          </ul>
+        </section>
+
+        <section id="c-card">
+          <h2>Card</h2>
+          <div class="demo">
+            <div class="ax-card">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+                <strong style="font-size: 14px">Headcount</strong>
+                <span class="ax-badge ax-badge--ok"><i class="dot"></i>+4</span>
+              </div>
+              <div style="font-size: 26px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums">248</div>
+              <div style="font-size: 11px; color: var(--doc-text-muted)">Active staff members this month</div>
+            </div>
+            <div class="ax-card" style="display: flex; gap: 12px; align-items: flex-start">
+              <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--doc-surface-2)"></div>
+              <div>
+                <div style="font-size: 13px; font-weight: 600">Bulk import</div>
+                <div style="font-size: 11px; color: var(--doc-text-muted)">Upload a sheet, map columns, review errors.</div>
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Radius</td><td>10px, matching <code>--p-card-border-radius: 0.8rem</code></td></tr>
+                <tr><td>Border / shadow</td><td>1px border + <code>--ax-shadow-sm</code>; dark mode drops the shadow</td></tr>
+                <tr><td>Padding</td><td>16px; header/footer bands <code>12px 16px</code> with a 1px divider</td></tr>
+                <tr><td>Title</td><td><code>text-base font-semibold</code>; optional 11px muted subtitle</td></tr>
+                <tr><td>Interactive card</td><td>Hover fills to the recessed surface; the whole card is one <code>&lt;a&gt;</code>/<code>&lt;button&gt;</code>, never a nest of clickables</td></tr>
+                <tr><td>Dashboard body</td><td><code>min-h-[18rem]</code> via the <code>dash-card-body</code> utility, so a grid of cards never ratchets</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="c-tabs">
+          <h2>Tabs</h2>
+          <div class="demo stack">
+            <div class="ax-tabs" role="tablist" aria-label="StaffMember sections">
+              <button class="ax-tab" role="tab" aria-selected="true">Overview</button>
+              <button class="ax-tab" role="tab" aria-selected="false">Documents</button>
+              <button class="ax-tab" role="tab" aria-selected="false">Attendance</button>
+              <button class="ax-tab" role="tab" aria-selected="false">Payroll</button>
+            </div>
+            <div style="font-size: 13px; color: var(--doc-text-muted); padding-top: 10px">Panel content</div>
+          </div>
+          <ul>
+            <li>34px tall, 12px inline padding, 2px bottom indicator in primary, 200ms slide.</li>
+            <li><code>role="tablist"</code> / <code>tab</code> / <code>tabpanel</code>,
+              <code>aria-controls</code> + <code>aria-labelledby</code>, arrow-key navigation with only
+              the active tab tabbable.</li>
+            <li>Overflow scrolls horizontally with edge fades - never wrap onto a second row, never
+              shrink the labels.</li>
+            <li>Max 6 top-level tabs. Beyond that use an aside menu or a select.</li>
+            <li>Tab state belongs in the URL for deep links; lazily render panel content.</li>
+          </ul>
+        </section>
+
+        <section id="c-menu">
+          <h2>Menu</h2>
+          <div class="demo">
+            <div class="ax-panel" role="menu" aria-label="Row actions" style="width: 220px">
+              <div class="ax-option" role="menuitem"><span aria-hidden="true">✎</span> Edit details</div>
+              <div class="ax-option" role="menuitem"><span aria-hidden="true">⧉</span> Duplicate</div>
+              <div class="ax-option" role="menuitem"><span aria-hidden="true">›</span> View profile <span style="margin-left: auto" aria-hidden="true">▸</span></div>
+              <div style="height: 1px; background: var(--doc-border); margin: 6px 4px"></div>
+              <div class="ax-option" role="menuitem" style="color: var(--doc-danger)"><span aria-hidden="true">🗑</span> Delete</div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Panel</td><td><code>--ax-radius-xl</code>, <code>--ax-shadow-md</code>, 6px padding, min-width 180px, max-width 320px</td></tr>
+                <tr><td>Item</td><td>34px, <code>7px 10px</code>, <code>--ax-radius-md</code>, 16px icon slot always reserved</td></tr>
+                <tr><td>Separator</td><td>1px border, 6px vertical margin, 4px inset from the panel edge</td></tr>
+                <tr><td>Destructive item</td><td>Danger text; always last, always below a separator</td></tr>
+                <tr><td>Submenu</td><td>One level only; opens to the <code>end</code> side; labels <code>white-space: nowrap</code>; panel <code>max-height: 60vh</code> then scroll</td></tr>
+                <tr><td>Shortcut hint</td><td>Right-aligned, 11px muted</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="anatomy">
+            When the overlay is appended to the body, a native <code>class</code> will not travel with
+            it - style it through <code>styleClass</code>/<code>panelClass</code> and a global rule,
+            the way <code>.staffMember-action-menu</code> does.
+          </p>
+        </section>
+
+        <section id="c-table">
+          <h2>Data table</h2>
+          <div class="demo stack">
+            <table class="ax-table">
+              <thead>
+                <tr>
+                  <th aria-sort="ascending">Name ▲</th>
+                  <th>Department</th>
+                  <th>Status</th>
+                  <th style="text-align: right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Priya Sharma</td><td>Engineering</td><td><span class="ax-badge ax-badge--ok"><i class="dot"></i>Active</span></td><td style="text-align: right"><button class="ax-btn ax-btn--text ax-btn--sm" aria-label="Actions for Priya Sharma">⋯</button></td></tr>
+                <tr><td>Arun Mehta</td><td>Field Operations</td><td><span class="ax-badge ax-badge--warn"><i class="dot"></i>On leave</span></td><td style="text-align: right"><button class="ax-btn ax-btn--text ax-btn--sm" aria-label="Actions for Arun Mehta">⋯</button></td></tr>
+                <tr><td>Neha Iyer</td><td>Finance</td><td><span class="ax-badge"><i class="dot"></i>Draft</span></td><td style="text-align: right"><button class="ax-btn ax-btn--text ax-btn--sm" aria-label="Actions for Neha Iyer">⋯</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Cell padding</td><td><code>6px 5px</code>; header <code>10px 5px</code> (as shipped in <code>styles.css</code>). Comfortable variant: <code>12px 10px</code>.</td></tr>
+                <tr><td>Row height</td><td>~34px dense, ~44px comfortable</td></tr>
+                <tr><td>Separators</td><td>1px bottom border; last row has none</td></tr>
+                <tr><td>Hover</td><td><code>rgb(0 0 0 / .025)</code> light, <code>rgb(255 255 255 / .03)</code> dark</td></tr>
+                <tr><td>Header</td><td>11px, 600, muted, sticky on scroll; sortable headers are buttons with <code>aria-sort</code></td></tr>
+                <tr><td>Alignment</td><td>Text left, numbers right with <code>tabular-nums</code>, actions right and fixed width</td></tr>
+                <tr><td>Loading / empty</td><td>Skeleton rows matching column widths; empty state = icon + one sentence + the primary action</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul>
+            <li>Row actions must be reachable without hover - keep the trigger always rendered, dimmed
+              at rest if needed.</li>
+            <li>Below <code>sm</code>, collapse each row into a stacked card with labelled
+              fields; never let a table scroll horizontally on phones.</li>
+            <li>Past ~200 rows use <code>cdk-virtual-scroll-viewport</code> with a fixed item size that
+              matches the real row height.</li>
+          </ul>
+        </section>
+
+        <section id="c-toast">
+          <h2>Toast / Notification</h2>
+          <div class="demo stack">
+            <div class="ax-toast">
+              <i class="bar" aria-hidden="true"></i>
+              <div>
+                <div style="font-weight: 600">Department saved</div>
+                <div style="color: var(--doc-text-muted)">Field Operations is now active.</div>
+              </div>
+              <button class="ax-btn ax-btn--text ax-btn--sm" style="margin-left: auto" aria-label="Dismiss">✕</button>
+            </div>
+            <div class="ax-toast">
+              <i class="bar" style="background: var(--doc-danger)" aria-hidden="true"></i>
+              <div>
+                <div style="font-weight: 600">Import failed</div>
+                <div style="color: var(--doc-text-muted)">Row 12: staffMember code already exists.</div>
+              </div>
+              <button class="ax-btn ax-btn--text ax-btn--sm" style="margin-left: auto" aria-label="Dismiss">✕</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Placement</td><td>Top-right on desktop, top-centre full-width below <code>sm</code>, 16px from the edge</td></tr>
+                <tr><td>Size</td><td><code>max-width: 360px</code>, 12-14px padding, <code>--ax-radius-xl</code>, <code>--ax-shadow-lg</code></td></tr>
+                <tr><td>Intent</td><td>3px left bar in the semantic colour; the surface stays neutral</td></tr>
+                <tr><td>Duration</td><td>Success 4s, info 5s, warning 6s, <strong>error: sticky</strong></td></tr>
+                <tr><td>Motion</td><td>Enter: slide 12px + fade, 200ms. Leave: 150ms. Stack shifts with a 200ms transform.</td></tr>
+                <tr><td>Stacking</td><td>Max 3 visible, newest on top, 8px gap; deduplicate identical messages</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul>
+            <li><code>role="status"</code> + <code>aria-live="polite"</code> for success/info;
+              <code>role="alert"</code> for errors.</li>
+            <li>Auto-dismiss pauses on hover and on focus within.</li>
+            <li>A toast is never the only record of an error - inline messaging carries the detail.</li>
+            <li>Copy: what happened, then what to do. Plain hyphens, no em dashes.</li>
+          </ul>
+        </section>
+
+        <section id="c-drawer">
+          <h2>Drawer / Side panel</h2>
+          <div class="demo">
+            <div class="ax-drawer">
+              <header>Filters <button class="ax-btn ax-btn--text ax-btn--sm" aria-label="Close filters">✕</button></header>
+              <div class="body">Department, status, joining date, reporting manager.</div>
+              <footer>
+                <button class="ax-btn ax-btn--text ax-btn--sm">Reset</button>
+                <button class="ax-btn ax-btn--primary ax-btn--sm">Apply</button>
+              </footer>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Property</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>Widths</td><td>320 / 420 / 560px; 100% below <code>sm</code></td></tr>
+                <tr><td>Side</td><td><code>end</code> for detail and filters, <code>start</code> for navigation</td></tr>
+                <tr><td>Radius</td><td>Edge-anchored: 0 on the docked edge, <code>--ax-radius-xl</code> on the free edge (or 0 when full-height flush)</td></tr>
+                <tr><td>Motion</td><td>300ms <code>translateX</code> with <code>--ax-ease-enter</code>; leave 225ms with <code>--ax-ease-exit</code>; scrim fades in parallel</td></tr>
+                <tr><td>Modality</td><td>Modal (scrim + focus trap + scroll block) for edit flows; non-modal for read-only inspectors</td></tr>
+                <tr><td>Structure</td><td>Sticky header, scrolling body, sticky footer with the actions</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="anatomy">
+            Reuse <code>shared/components/headless-drawer</code> before building a new one - it already
+            owns the Optimus <code>#headless</code> marker, which may appear only once per template.
+          </p>
+        </section>
+
+        <section id="c-datepicker">
+          <h2>Date picker</h2>
+          <div class="demo" style="align-items: flex-start">
+            <div class="ax-field" style="min-width: 180px">
+              <label class="ax-label" for="d5">Joining date</label>
+              <input class="ax-input" id="d5" value="12 Sep 2026" />
+            </div>
+            <div class="ax-cal">
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600">
+                <button class="ax-btn ax-btn--text ax-btn--sm" aria-label="Previous month">‹</button>
+                September 2026
+                <button class="ax-btn ax-btn--text ax-btn--sm" aria-label="Next month">›</button>
+              </div>
+              <div class="grid" role="grid">
+                <div class="cell head">M</div><div class="cell head">T</div><div class="cell head">W</div><div class="cell head">T</div><div class="cell head">F</div><div class="cell head">S</div><div class="cell head">S</div>
+                <div class="cell">7</div><div class="cell">8</div><div class="cell">9</div><div class="cell">10</div><div class="cell">11</div><div class="cell sel">12</div><div class="cell">13</div>
+                <div class="cell">14</div><div class="cell">15</div><div class="cell">16</div><div class="cell">17</div><div class="cell">18</div><div class="cell">19</div><div class="cell today">20</div>
+              </div>
+            </div>
+          </div>
+          <ul>
+            <li>Panel: <code>--ax-radius-xl</code>, <code>--ax-shadow-md</code>, 10px padding, 232px
+              wide; day cells 28px (36px below <code>sm</code>, for the touch target).</li>
+            <li>Selected = primary fill + contrast text; today = 1px primary outline; range ends are
+              fully rounded with a primary-soft band between them.</li>
+            <li><code>role="grid"</code> with roving tabindex; arrows move a day,
+              <kbd>PgUp</kbd>/<kbd>PgDn</kbd> a month, <kbd>Home</kbd>/<kbd>End</kbd> the week.
+              <code>aria-label</code> on each cell reads the full date.</li>
+            <li>The text input stays editable and parses <code>dd MMM yyyy</code> via
+              <code>date-fns</code>; the calendar is an aid, not the only route.</li>
+            <li>Disabled dates keep <code>aria-disabled</code> and stay focusable so the reason can be
+              announced.</li>
+          </ul>
+        </section>
+
+        <section id="c-overlay">
+          <h2>Custom CDK overlay component</h2>
+          <p class="lede">
+            The reference skeleton every Skolenza floating component starts from: signal-driven,
+            zoneless-safe, tokenised, and using the repo's scroll and reposition helpers.
+          </p>
+          <pre><code>import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
+import { ChangeDetectionStrategy, Component, computed, input, model, signal } from '@angular/core';
+
+import { CARD_OVERLAY_POSITIONS, closeOverlayOnScroll } from '@shared/utilities/overlay';
+import { RepositionOnResize } from '@shared/directives';
+
+@Component({
+  selector: 'app-inspector-popover',
+  imports: [CdkConnectedOverlay, CdkOverlayOrigin, RepositionOnResize],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    &lt;button
+      type="button"
+      class="ax-trigger"
+      cdkOverlayOrigin
+      #trigger="cdkOverlayOrigin"
+      [attr.aria-expanded]="isOpen()"
+      aria-haspopup="dialog"
+      (click)="toggle()"&gt;
+      {{ label() }}
+    &lt;/button&gt;
+
+    &lt;ng-template
+      cdkConnectedOverlay
+      appRepositionOnResize
+      [cdkConnectedOverlayOrigin]="trigger"
+      [cdkConnectedOverlayOpen]="isOpen()"
+      [cdkConnectedOverlayPositions]="positions"
+      [cdkConnectedOverlayFlexibleDimensions]="true"
+      [cdkConnectedOverlayPush]="true"
+      (overlayOutsideClick)="close()"
+      (detach)="close()"&gt;
+      &lt;div
+        class="ax-panel"
+        role="dialog"
+        [attr.aria-label]="label()"
+        animate.enter="ax-panel-in"
+        animate.leave="ax-panel-out"
+        (keydown.escape)="close()"&gt;
+        &lt;ng-content /&gt;
+      &lt;/div&gt;
+    &lt;/ng-template&gt;
+  `,
+  styleUrl: './inspector-popover.css',
+})
+export class InspectorPopover {
+  readonly label = input.required&lt;string&gt;();
+  readonly isOpen = model(false);
+
+  protected readonly positions = CARD_OVERLAY_POSITIONS;
+
+  constructor() {
+    closeOverlayOnScroll(() =&gt; this.close(), () =&gt; this.isOpen());
+  }
+
+  protected toggle(): void {
+    this.isOpen.update((open) =&gt; !open);
+  }
+
+  protected close(): void {
+    this.isOpen.set(false);
+  }
+}</code></pre>
+          <pre><code>/* inspector-popover.css */
+.ax-panel {
+  min-width: 200px;
+  max-width: min(92vw, 420px);
+  padding: 6px;
+  background: var(--p-content-background);
+  border: var(--ax-border-width) solid var(--ax-border-color);
+  border-radius: var(--ax-radius-xl);
+  box-shadow: var(--ax-shadow-md);
+  color: var(--p-text-color);
+}
+
+.ax-panel-in  { animation: ax-in var(--ax-duration-base) var(--ax-ease-enter); }
+.ax-panel-out { animation: ax-out 150ms var(--ax-ease-exit) forwards; }
+
+@keyframes ax-in  { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+@keyframes ax-out { to   { opacity: 0; transform: translateY(-4px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ax-panel-in, .ax-panel-out { animation-duration: 1ms; }
+}</code></pre>
+
+          <div class="warn">
+            <p>
+              Focus handling is the part most often skipped. If the panel contains controls, move
+              focus into it on open (<code>cdkTrapFocus cdkTrapFocusAutoCapture</code>) and return it
+              to the trigger on close. If it is read-only, leave focus on the trigger and make
+              <kbd>Esc</kbd> close it.
+            </p>
+          </div>
+        </section>
+
+        <!-- ===================== REFERENCE ===================== -->
+        <section id="tokens-full">
+          <h2>Full token table</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Token</th><th>Light</th><th>Dark</th><th>Notes</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>--ax-radius-sm / md / lg / xl / 2xl</code></td><td colspan="2">4 / 6 / 8 / 12 / 16px</td><td>px, not rem</td></tr>
+                <tr><td><code>--ax-border-width</code></td><td colspan="2">1px</td><td>2px means focus, nothing else</td></tr>
+                <tr><td><code>--ax-border-color</code></td><td>zinc-200</td><td>zinc-800</td><td>Alias of <code>--p-content-border-color</code></td></tr>
+                <tr><td><code>--ax-control-h-sm / md / lg</code></td><td colspan="2">28 / 34 / 40px</td><td>md is the default</td></tr>
+                <tr><td><code>--ax-control-px</code></td><td colspan="2">10px</td><td>Inline padding for controls</td></tr>
+                <tr><td><code>--ax-icon-xs &hellip; xl</code></td><td colspan="2">12 / 14 / 16 / 20 / 24px</td><td>16px pairs with <code>text-sm</code></td></tr>
+                <tr><td><code>--ax-shadow-xs &hellip; xl</code></td><td>5 steps</td><td>Flattened; borders instead</td><td>Never animate</td></tr>
+                <tr><td><code>--ax-duration-fast / base / slow</code></td><td colspan="2">150 / 200 / 300ms</td><td>Leave at ~0.75&times;</td></tr>
+                <tr><td><code>--ax-ease-standard / enter / exit</code></td><td colspan="2">(.4,0,.2,1) / (0,0,.2,1) / (.4,0,1,1)</td><td>Enter decelerates, exit accelerates</td></tr>
+                <tr><td><code>--ax-overlay-offset</code></td><td colspan="2">6px</td><td>Matches <code>CARD_OVERLAY_POSITIONS</code></td></tr>
+                <tr><td><code>--ax-overlay-scrim</code></td><td>black 32%</td><td>black 55%</td><td>Dialogs and modal drawers</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="checklist">
+          <h2>Ship checklist</h2>
+          <p class="lede">Run this before opening a PR for any custom CDK component.</p>
+          <ul class="checklist">
+            <li>Optimus genuinely could not do this, and the decision is written in the PR.</li>
+            <li>No hardcoded hex; colours read <code>--p-*</code>, geometry reads <code>--ax-*</code>.</li>
+            <li>Geometry in px; <code>rem</code> only for type (root is 13px).</li>
+            <li>All eight states implemented: rest, hover, focus-visible, active, selected, disabled, loading, error.</li>
+            <li>Focus ring visible at 2px/2px offset; focus returns to the trigger on close.</li>
+            <li>Full keyboard model for the pattern (arrows, Home/End, Esc, type-ahead where applicable).</li>
+            <li>Correct roles and ARIA; icon-only controls have an <code>aria-label</code>.</li>
+            <li>AXE clean; <code>bun run lint</code> passes including template a11y rules.</li>
+            <li>Dark mode checked: shadows dropped, borders present, contrast holds.</li>
+            <li>Motion uses <code>animate.enter</code>/<code>animate.leave</code> or CSS classes, honours <code>prefers-reduced-motion</code>, and animates only opacity/transform.</li>
+            <li>Overlay uses <code>CARD_OVERLAY_POSITIONS</code>, <code>closeOverlayOnScroll</code>, <code>appRepositionOnResize</code>, and a <code>panelClass</code>.</li>
+            <li>Responsive down to 320px; touch targets &ge;24px, &ge;40px on primary touch flows.</li>
+            <li>Component stylesheet under the 4kB warning budget.</li>
+            <li>Copy uses hyphens or colons, never em dashes; labels are sentence case, verb first.</li>
+            <li>Signals + <code>OnPush</code>; no <code>zone.js</code> assumptions, no <code>fakeAsync</code> in specs.</li>
+          </ul>
+        </section>
+
+        <footer class="page">
+          Skolenza Design System &middot; derived from <code>src/styles.css</code>,
+          <code>core/axion-preset.ts</code>, <code>shared/utilities/overlay.ts</code> and the
+          component conventions in <code>src/app/shared/components/</code>. Update this file in the
+          same PR as any change to those sources.
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var btn = document.getElementById('themeToggle');
+        var label = document.getElementById('themeLabel');
+        var stored = null;
+        try {
+          stored = localStorage.getItem('ax-ds-theme');
+        } catch (e) {
+          /* private mode, blocked storage - fall through to system preference */
+        }
+        var system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        var theme = stored || system;
+        apply(theme);
+
+        btn.addEventListener('click', function () {
+          theme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          apply(theme);
+          try {
+            localStorage.setItem('ax-ds-theme', theme);
+          } catch (e) {
+            /* ignore */
+          }
+        });
+
+        function apply(next) {
+          root.setAttribute('data-theme', next);
+          btn.setAttribute('aria-pressed', String(next === 'dark'));
+          label.textContent = next === 'dark' ? 'Light' : 'Dark';
+        }
+      })();
+    </script>
+  </body>
+</html>

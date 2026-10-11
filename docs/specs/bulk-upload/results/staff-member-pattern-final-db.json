@@ -1,0 +1,25 @@
+{
+  "staff members": [
+    {
+      "Id": 4,
+      "EmployementCode": "QT/2018/0001",
+      "DateOfOnBoarding": "2018-07-24T05:30:00+05:30"
+    },
+    {
+      "Id": 6,
+      "EmployementCode": "QT/2026/0145",
+      "DateOfOnBoarding": "2026-09-01T05:30:00+05:30"
+    },
+    {
+      "Id": 7,
+      "EmployementCode": "QT/2026/0200",
+      "DateOfOnBoarding": "2026-09-02T05:30:00+05:30"
+    }
+  ],
+  "pattern": {
+    "Prefix": "QT",
+    "Separator": "/",
+    "IncludeYear": true,
+    "LastUsedNumber": 200
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "isSucceeded": true,
+  "message": "Payslips retrieved successfully.",
+  "errors": [],
+  "data": [
+    {
+      "id": "PS202603-001",
+      "payrollId": "PR202603-001",
+      "staffMemberId": "EMP001",
+      "staffMemberFullName": "Sujeet Kumar Jaiswal",
+      "departmentName": "Engineering",
+      "designationName": "Senior Software Engineer",
+      "month": 3,
+      "year": 2026,
+      "generatedDate": "2026-03-28T11:00:00.000Z",
+      "earnings": [
+        { "name": "Basic Salary", "amount": 50000 },
+        { "name": "HRA", "amount": 20000 },
+        { "name": "Transport Allowance", "amount": 3000 },
+        { "name": "Special Allowance", "amount": 12000 },
+        { "name": "Medical Allowance", "amount": 2500 }
+      ],
+      "deductions": [
+        { "name": "Provident Fund", "amount": 6000 },
+        { "name": "Professional Tax", "amount": 200 },
+        { "name": "Income Tax (TDS)", "amount": 5500 }
+      ],
+      "grossSalary": 87500,
+      "totalDeductions": 11700,
+      "netSalary": 75800,
+      "workingDays": 22,
+      "presentDays": 20,
+      "leaveDays": 2,
+      "lopDays": 0
+    },
+    {
+      "id": "PS202603-002",
+      "payrollId": "PR202603-002",
+      "staffMemberId": "EMP002",
+      "staffMemberFullName": "Priya Sharma",
+      "departmentName": "Design",
+      "designationName": "UI/UX Designer",
+      "month": 3,
+      "year": 2026,
+      "generatedDate": "2026-03-28T11:00:00.000Z",
+      "earnings": [
+        { "name": "Basic Salary", "amount": 40000 },
+        { "name": "HRA", "amount": 16000 },
+        { "name": "Transport Allowance", "amount": 2500 },
+        { "name": "Special Allowance", "amount": 8000 },
+        { "name": "Medical Allowance", "amount": 2000 }
+      ],
+      "deductions": [
+        { "name": "Provident Fund", "amount": 4800 },
+        { "name": "Professional Tax", "amount": 200 },
+        { "name": "Income Tax (TDS)", "amount": 3200 }
+      ],
+      "grossSalary": 68500,
+      "totalDeductions": 8200,
+      "netSalary": 60300,
+      "workingDays": 22,
+      "presentDays": 21,
+      "leaveDays": 1,
+      "lopDays": 0
+    },
+    {
+      "id": "PS202602-002",
+      "payrollId": "PR202602-002",
+      "staffMemberId": "EMP002",
+      "staffMemberFullName": "Priya Sharma",
+      "departmentName": "Design",
+      "designationName": "UI/UX Designer",
+      "month": 2,
+      "year": 2026,
+      "generatedDate": "2026-02-28T11:00:00.000Z",
+      "earnings": [
+        { "name": "Basic Salary", "amount": 40000 },
+        { "name": "HRA", "amount": 16000 },
+        { "name": "Transport Allowance", "amount": 2500 },
+        { "name": "Special Allowance", "amount": 8000 },
+        { "name": "Medical Allowance", "amount": 2000 }
+      ],
+      "deductions": [
+        { "name": "Provident Fund", "amount": 4800 },
+        { "name": "Professional Tax", "amount": 200 },
+        { "name": "Income Tax (TDS)", "amount": 3200 }
+      ],
+      "grossSalary": 68500,
+      "totalDeductions": 8200,
+      "netSalary": 60300,
+      "workingDays": 20,
+      "presentDays": 20,
+      "leaveDays": 0,
+      "lopDays": 0
+    },
+    {
+      "id": "PS202601-002",
+      "payrollId": "PR202601-002",
+      "staffMemberId": "EMP002",
+      "staffMemberFullName": "Priya Sharma",
+      "departmentName": "Design",
+      "designationName": "UI/UX Designer",
+      "month": 1,
+      "year": 2026,
+      "generatedDate": "2026-01-31T11:00:00.000Z",
+      "earnings": [
+        { "name": "Basic Salary", "amount": 40000 },
+        { "name": "HRA", "amount": 16000 },
+        { "name": "Transport Allowance", "amount": 2500 },
+        { "name": "Special Allowance", "amount": 8000 },
+        { "name": "Medical Allowance", "amount": 2000 }
+      ],
+      "deductions": [
+        { "name": "Provident Fund", "amount": 4800 },
+        { "name": "Professional Tax", "amount": 200 },
+        { "name": "Income Tax (TDS)", "amount": 3200 }
+      ],
+      "grossSalary": 68500,
+      "totalDeductions": 8200,
+      "netSalary": 60300,
+      "workingDays": 23,
+      "presentDays": 22,
+      "leaveDays": 1,
+      "lopDays": 0
+    },
+    {
+      "id": "PS202602-001",
+      "payrollId": "PR202602-001",
+      "staffMemberId": "EMP001",
+      "staffMemberFullName": "Sujeet Kumar Jaiswal",
+      "departmentName": "Engineering",
+      "designationName": "Senior Software Engineer",
+      "month": 2,
+      "year": 2026,
+      "generatedDate": "2026-02-27T11:00:00.000Z",
+      "earnings": [
+        { "name": "Basic Salary", "amount": 50000 },
+        { "name": "HRA", "amount": 20000 },
+        { "name": "Transport Allowance", "amount": 3000 },
+        { "name": "Special Allowance", "amount": 12000 },
+        { "name": "Medical Allowance", "amount": 2500 }
+      ],
+      "deductions": [
+        { "name": "Provident Fund", "amount": 6000 },
+        { "name": "Professional Tax", "amount": 200 },
+        { "name": "Income Tax (TDS)", "amount": 5500 }
+      ],
+      "grossSalary": 87500,
+      "totalDeductions": 11700,
+      "netSalary": 75800,
+      "workingDays": 20,
+      "presentDays": 20,
+      "leaveDays": 0,
+      "lopDays": 0
+    },
+    {
+      "id": "PS202601-001",
+      "payrollId": "PR202601-001",
+      "staffMemberId": "EMP001",
+      "staffMemberFullName": "Sujeet Kumar Jaiswal",
+      "departmentName": "Engineering",
+      "designationName": "Senior Software Engineer",
+      "month": 1,
+      "year": 2026,
+      "generatedDate": "2026-01-30T11:00:00.000Z",
+      "earnings": [
+        { "name": "Basic Salary", "amount": 50000 },
+        { "name": "HRA", "amount": 20000 },
+        { "name": "Transport Allowance", "amount": 3000 },
+        { "name": "Special Allowance", "amount": 12000 },
+        { "name": "Medical Allowance", "amount": 2500 }
+      ],
+      "deductions": [
+        { "name": "Provident Fund", "amount": 6000 },
+        { "name": "Professional Tax", "amount": 200 },
+        { "name": "Income Tax (TDS)", "amount": 5500 }
+      ],
+      "grossSalary": 87500,
+      "totalDeductions": 11700,
+      "netSalary": 75800,
+      "workingDays": 22,
+      "presentDays": 21,
+      "leaveDays": 1,
+      "lopDays": 0
+    },
+    {
+      "id": "PS202603-005",
+      "payrollId": "PR202603-005",
+      "staffMemberId": "EMP005",
+      "staffMemberFullName": "Vikram Singh",
+      "departmentName": "Product",
+      "designationName": "Product Manager",
+      "month": 3,
+      "year": 2026,
+      "generatedDate": "2026-03-28T11:00:00.000Z",
+      "earnings": [
+        { "name": "Basic Salary", "amount": 55000 },
+        { "name": "HRA", "amount": 22000 },
+        { "name": "Transport Allowance", "amount": 3500 },
+        { "name": "Special Allowance", "amount": 15000 },
+        { "name": "Medical Allowance", "amount": 3000 }
+      ],
+      "deductions": [
+        { "name": "Provident Fund", "amount": 6600 },
+        { "name": "Professional Tax", "amount": 200 },
+        { "name": "Income Tax (TDS)", "amount": 7000 }
+      ],
+      "grossSalary": 98500,
+      "totalDeductions": 13800,
+      "netSalary": 84700,
+      "workingDays": 22,
+      "presentDays": 22,
+      "leaveDays": 0,
+      "lopDays": 0
+    },
+    {
+      "id": "PS202603-006",
+      "payrollId": "PR202603-006",
+      "staffMemberId": "EMP006",
+      "staffMemberFullName": "Neha Gupta",
+      "departmentName": "Human Resources",
+      "designationName": "HR Manager",
+      "month": 3,
+      "year": 2026,
+      "generatedDate": "2026-03-28T11:00:00.000Z",
+      "earnings": [
+        { "name": "Basic Salary", "amount": 45000 },
+        { "name": "HRA", "amount": 18000 },
+        { "name": "Transport Allowance", "amount": 3000 },
+        { "name": "Special Allowance", "amount": 10000 },
+        { "name": "Medical Allowance", "amount": 2500 }
+      ],
+      "deductions": [
+        { "name": "Provident Fund", "amount": 5400 },
+        { "name": "Professional Tax", "amount": 200 },
+        { "name": "Income Tax (TDS)", "amount": 4500 }
+      ],
+      "grossSalary": 78500,
+      "totalDeductions": 10100,
+      "netSalary": 68400,
+      "workingDays": 22,
+      "presentDays": 21,
+      "leaveDays": 1,
+      "lopDays": 0
+    },
+    {
+      "id": "PS202603-009",
+      "payrollId": "PR202603-009",
+      "staffMemberId": "EMP009",
+      "staffMemberFullName": "Rajesh Iyer",
+      "departmentName": "Engineering",
+      "designationName": "Team Lead",
+      "month": 3,
+      "year": 2026,
+      "generatedDate": "2026-03-28T11:00:00.000Z",
+      "earnings": [
+        { "name": "Basic Salary", "amount": 52000 },
+        { "name": "HRA", "amount": 20800 },
+        { "name": "Transport Allowance", "amount": 3500 },
+        { "name": "Special Allowance", "amount": 13000 },
+        { "name": "Medical Allowance", "amount": 2500 }
+      ],
+      "deductions": [
+        { "name": "Provident Fund", "amount": 6240 },
+        { "name": "Professional Tax", "amount": 200 },
+        { "name": "Income Tax (TDS)", "amount": 6000 }
+      ],
+      "grossSalary": 91800,
+      "totalDeductions": 12440,
+      "netSalary": 79360,
+      "workingDays": 22,
+      "presentDays": 21,
+      "leaveDays": 1,
+      "lopDays": 0
+    }
+  ],
+  "totalRecords": 7
+}

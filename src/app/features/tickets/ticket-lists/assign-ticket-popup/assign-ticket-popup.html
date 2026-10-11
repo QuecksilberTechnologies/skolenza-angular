@@ -1,0 +1,85 @@
+<div class="w-64">
+  <div class="px-4 pt-3 pb-2">
+    <p class="text-[11px] font-semibold tracking-wider text-zinc-400 uppercase dark:text-zinc-500">Assign to</p>
+  </div>
+  <div class="px-3 pb-2">
+    <p-iconfield
+      iconPosition="left"
+      class="w-full">
+      <p-inputicon class="pi pi-search" />
+      <input
+        type="text"
+        pInputText
+        pSize="small"
+        class="w-full"
+        placeholder="Search agents..."
+        aria-label="Search agents"
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+        (click)="$event.stopPropagation()"
+        (keydown)="$event.stopPropagation()" />
+    </p-iconfield>
+  </div>
+  @if (filteredAgents().length === 0) {
+  <div class="flex flex-col items-center gap-1 py-6 text-zinc-300 dark:text-zinc-600">
+    <i class="pi pi-search text-lg"></i>
+    <span class="text-xs text-zinc-400 dark:text-zinc-500">No agents found</span>
+  </div>
+  } @else {
+  <ul
+    ngListbox
+    selectionMode="explicit"
+    [value]="selectedValues()"
+    (valueChange)="onValuesChange($event)"
+    class="max-h-56 overflow-y-auto"
+    aria-label="Select agent">
+    @for (agent of filteredAgents(); track agent.name) { @let selected = isSelected(agent);
+    <li
+      ngOption
+      [value]="agent.name"
+      [label]="agent.name"
+      [class]="agentRowClass(selected)">
+      <div class="relative shrink-0">
+        <app-user-avatar [name]="agent.initial" avatarClass="h-8! w-8!" />
+        @if (agent.online) {
+        <span
+          class="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-white dark:ring-zinc-900"
+          aria-hidden="true"></span>
+        }
+      </div>
+      <div class="flex min-w-0 flex-1 flex-col items-start">
+        <span class="w-full truncate text-[13px] leading-tight font-medium text-zinc-800 dark:text-zinc-100">
+          {{ agent.name }}
+        </span>
+        <div class="flex items-center gap-1">
+          <span class="text-[11px] text-zinc-400 dark:text-zinc-500">{{ agent.role }}</span>
+          @if (agent.ticketCount > 0) {
+          <span class="text-zinc-300 select-none dark:text-zinc-600">·</span>
+          <span class="text-[11px] text-zinc-400 dark:text-zinc-500">{{ agent.ticketCount }} open</span>
+          }
+        </div>
+      </div>
+      @if (selected) {
+      <i
+        class="pi pi-check shrink-0 text-xs text-primary"
+        aria-hidden="true"></i>
+      }
+    </li>
+    }
+  </ul>
+  } @if (currentAssignee()) {
+  <div class="border-t border-zinc-100 dark:border-zinc-800">
+    <button
+      type="button"
+      class="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] font-medium text-rose-600 transition-colors hover:bg-rose-50 focus:outline-none dark:text-rose-400 dark:hover:bg-rose-950/20"
+      (click)="onUnassign()">
+      <span
+        class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-dashed border-rose-300 dark:border-rose-800/60"
+        aria-hidden="true">
+        <i class="pi pi-user-minus text-[10px]"></i>
+      </span>
+      Unassign
+    </button>
+  </div>
+  }
+</div>

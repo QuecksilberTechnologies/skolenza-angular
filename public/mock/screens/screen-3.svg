@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<rect width="1600" height="900" fill="#ffffff"/>
+<rect width="1600" height="56" fill="#8b5cf6"/>
+<circle cx="32" cy="28" r="8" fill="#fff" opacity=".8"/><circle cx="58" cy="28" r="8" fill="#fff" opacity=".6"/><circle cx="84" cy="28" r="8" fill="#fff" opacity=".4"/>
+<text x="120" y="36" font-family="Segoe UI,Arial,sans-serif" font-size="22" fill="#fff">Design tool</text>
+<rect x="0" y="56" width="260" height="804" fill="#e2e8f0" opacity=".5"/><rect x="300" y="140" width="873" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="188" width="1010" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="236" width="1147" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="284" width="1284" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="332" width="721" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="380" width="858" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="428" width="995" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="476" width="1132" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="524" width="1269" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="572" width="706" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="620" width="843" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="668" width="980" height="18" rx="4" fill="#e2e8f0"/><rect x="300" y="716" width="1117" height="18" rx="4" fill="#e2e8f0"/>
+<rect x="0" y="860" width="1600" height="40" fill="#e2e8f0"/>
+<text x="1480" y="887" font-family="Segoe UI,Arial,sans-serif" font-size="18" fill="#475569">Sample</text>
+</svg>

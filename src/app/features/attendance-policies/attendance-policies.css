@@ -1,0 +1,7 @@
+/* Full-width primary action until lg; natural width from lg up.
+   Scoped to the table caption so row-action and drawer buttons keep their natural size. */
+@media (max-width: 1023.98px) {
+  :host ::ng-deep .p-datatable-header .p-button {
+    width: 100%;
+  }
+}

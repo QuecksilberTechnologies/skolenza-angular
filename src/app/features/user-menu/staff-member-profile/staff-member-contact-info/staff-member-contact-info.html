@@ -1,0 +1,155 @@
+<p-card class="flex min-h-[calc(100vh-10.2rem)] w-full flex-col gap-8 md:p-2">
+  @let contacts = staffMemberContacts(); @if (isLoading() && contacts.length === 0) {
+  <app-profile-loader />
+  } @else { @if (contacts && contacts.length > 0) {
+  <app-profile-header
+    #profileHeader
+    [actionLabel]="'Add Contact'"
+    [id]="contacts[0].id"
+    [employementCode]="'N/A'"
+    [completionPercentage]="completionPercentage()"
+    [isInfoVerified]="contacts[0]?.isInfoVerified || false"
+    [isEditAllowed]="contacts[0]?.isEditAllowed || false"
+    [isVerifying]="isVerifying()"
+    [isEditing]="isEditing()"
+    [roleTypeId]="loginInfo?.user?.primaryRole?.roleTypeId"
+    [tabInfoType]="tabInfoType"
+    (create)="addEditContact()"
+    (refresh)="getStaffMemberContacts()"
+    (updateVerifyStatus)="updateVerifyStatus($event, contacts[0].id)"
+    (updateEditStatus)="updateEditStatus($event)" />
+
+  @for (contact of contacts; track $index) {
+  <app-profile-info-card>
+    <app-profile-info-block
+      label="Contact Name"
+      [value]="contact.contactName" />
+
+    <!-- Contact Type block -->
+    <app-profile-info-block
+      label="Contact Type"
+      [value]="getContactType(contact)" />
+
+    <!-- Relation -->
+    <app-profile-info-block
+      label="Contact Relation"
+      [value]="contact.relation | getRelationName: relationsOptions()" />
+
+    <!-- Contact Number block -->
+    <app-profile-info-block label="Contact Number">
+      @if (contact.contactNumber) {
+      <a
+        [href]="'tel:' + contact.contactNumber"
+        class="text-primary hover:underline focus:underline focus:outline-none">
+        {{ contact.contactNumber }}
+      </a>
+      } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+
+    <!-- Alternate Number block -->
+    <app-profile-info-block label="Alternate Number">
+      @if (contact.alternateNumber) {
+      <a
+        [href]="'tel:' + contact.alternateNumber"
+        class="text-primary hover:underline focus:underline focus:outline-none">
+        {{ contact.alternateNumber }}
+      </a>
+      } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+
+    <!-- Email block -->
+    <app-profile-info-block label="Email">
+      @if (contact.email) {
+      <a
+        [href]="'mailto:' + contact.email"
+        class="text-primary hover:underline focus:underline focus:outline-none">
+        {{ contact.email }}
+      </a>
+      } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+
+    <!-- Is Primary block -->
+    <app-profile-info-block
+      label="Is Primary"
+      [value]="contact.isPrimary ? 'Yes' : 'No'" />
+
+    <!-- Country block -->
+    <app-profile-info-block
+      label="Country"
+      [value]="contact.countryName" />
+
+    <!-- State block -->
+    <app-profile-info-block
+      label="State"
+      [value]="contact.stateName" />
+
+    <!-- District block -->
+    <app-profile-info-block
+      label="District"
+      [value]="contact.districtName" />
+
+    <!-- House No. block -->
+    <app-profile-info-block
+      label="House No."
+      [value]="contact.houseNo" />
+
+    <!-- Landmark block -->
+    <app-profile-info-block
+      label="Landmark"
+      [value]="contact.landMark" />
+
+    <!-- Street block -->
+    <app-profile-info-block
+      label="Street"
+      [value]="contact.street" />
+
+    <!-- Address block -->
+    <app-profile-info-block
+      label="Address"
+      [value]="contact.address" />
+
+    <!-- Remark block -->
+    <app-profile-info-block
+      label="Remark"
+      [value]="contact.remark" />
+
+    <!-- Description block -->
+    <app-profile-info-block
+      label="Description"
+      [value]="contact.description"
+      class="col-span-full" />
+
+    <app-profile-block-actions
+      ngProjectAs="actions"
+      [roleTypeId]="loginInfo?.user?.primaryRole?.roleTypeId"
+      [completionPercentage]="contact?.completionPercentage"
+      [isEditAllowed]="contact?.isEditAllowed"
+      (edit)="addEditContact(contact)"
+      (remove)="removeContact(contact)" />
+  </app-profile-info-card>
+  } @empty {
+  <app-profile-empty
+    [message]="profileEmptyMessage"
+    [description]="profileEmptyDescription"
+    [tabIcon]="profileEmptyTabIcon"
+    [roleTypeId]="loginInfo?.user?.primaryRole?.roleTypeId"
+    (retry)="getStaffMemberContacts()"
+    (add)="addEditContact()" />
+  } } @else {
+  <app-profile-empty
+    [message]="profileEmptyMessage"
+    [description]="profileEmptyDescription"
+    [tabIcon]="profileEmptyTabIcon"
+    [roleTypeId]="loginInfo?.user?.primaryRole?.roleTypeId"
+    (retry)="getStaffMemberContacts()"
+    (add)="addEditContact()" />
+  } }
+</p-card>
+
+<p-confirmDialog />

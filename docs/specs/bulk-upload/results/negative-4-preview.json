@@ -1,0 +1,37 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "jobId": "8ff5b085-1cd9-4ca3-b129-af2dfa5bf50a",
+    "master": 2,
+    "sourceColumns": ["DesignationName", "DepartmentName"],
+    "columnMapping": {
+      "DesignationName": "DesignationName",
+      "DepartmentName": "DepartmentName"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "processed": false,
+        "rowNumber": 2,
+        "values": {
+          "DesignationName": "UIQA-20260910-MissingParent",
+          "DepartmentName": "UIQA-20260910-NotPresent"
+        },
+        "status": 3,
+        "existingId": null,
+        "departmentId": null,
+        "errors": [
+          "DepartmentName must match exactly one active department in this institution; create missing departments first."
+        ]
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 0,
+    "invalidCount": 1,
+    "isValid": false,
+    "confirmationAvailable": true,
+    "canCommit": false
+  },
+  "errors": []
+}

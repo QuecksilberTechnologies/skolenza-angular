@@ -1,0 +1,122 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      #dt
+      [value]="assetTypes()"
+      [loading]="isLoadingTypes()"
+      [showLoader]="false"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      paginatorDropdownAppendTo="body"
+      [globalFilterFields]="['typeName', 'description']"
+      [(contextMenuSelection)]="selectedRow"
+      [contextMenu]="
+        (loginInfo?.user?.primaryRole?.roleTypeId ?? 2) !== 2 ? actionContextMenu : null
+      ">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter -->
+          <p-select
+            optionLabel="categoryName"
+            optionValue="id"
+            placeholder=" Select Category"
+            [appendTo]="'body'"
+            class="w-full lg:min-w-52"
+            [options]="assetCategories()"
+            [loading]="isLoadingCategories()"
+            [showClear]="true"
+            (onChange)="onCategoryChange($event)">
+            <ng-template
+              let-category
+              #item>
+              <div class="w-52 truncate">{{ category.categoryName }}</div>
+            </ng-template>
+          </p-select>
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input [debounceMs]="0" (searchTerm)="searchAssets(dt, $event)" />
+            @if ((loginInfo?.user?.primaryRole?.roleTypeId ?? 2) !== 2) {
+            <p-button
+              label="Add Asset Type"
+              icon="pi pi-plus"
+              class="w-full lg:w-auto"
+              styleClass="w-full lg:w-auto"
+              (onClick)="upsertAssetType()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>
+            <div class="flex justify-center">Actions</div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-type>
+        <tr [pContextMenuRow]="type">
+          <td>{{ type.typeName }}</td>
+          <td>
+            <div
+              class="max-w-[12rem] truncate"
+              [title]="type.description || '-'">
+              {{ type.description || '-' }}
+            </div>
+          </td>
+          <td>{{ type.categoryName || '-' }}</td>
+          <td>
+            <div class="flex justify-center gap-2">
+              <p-button
+                type="button"
+                icon="pi pi-ellipsis-h"
+                severity="secondary"
+                [rounded]="false"
+                [loading]="type?.isDeleting"
+                (click)="selectedRow = type; actionMenu.toggle($event)" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (assetTypes().length === 0) {
+        <tr>
+          <td colspan="4">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="4">
+            <app-table-empty-message
+              icon="pi pi-folder"
+              message="No asset types found"
+              subMessage="Add a new type to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems"
+  appendTo="body" />
+<p-confirmDialog
+  acceptButtonStyleClass="p-button-danger" />

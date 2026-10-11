@@ -1,0 +1,58 @@
+<section class="max-h-[calc(100vh-18rem)] overflow-y-auto">
+  <form
+    [formGroup]="classificationForm"
+    class="grid grid-cols-1 gap-4">
+    <div class="space-y-1">
+      <label
+        for="classificationName"
+        class="block font-medium">
+        Classification Name
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        pInputText
+        id="classificationName"
+        formControlName="classificationName"
+        placeholder="Enter classification name"
+        appTrimInput
+        [pAutoFocus]="true"
+        class="w-full" />
+      @if (isInvalid('classificationName')) {
+      <p-message
+        severity="error"
+        variant="simple">
+        Name is required (min 3 chars)
+      </p-message>
+      }
+    </div>
+
+    <div class="space-y-1">
+      <label
+        for="description"
+        class="block font-medium">
+        Description
+      </label>
+      <textarea
+        pTextarea
+        id="description"
+        formControlName="description"
+        placeholder="Enter description"
+        rows="3"
+        appTrimInput
+        class="w-full"></textarea>
+    </div>
+  </form>
+</section>
+
+<div class="mt-6 flex justify-end gap-2">
+  <p-button
+    label="Cancel"
+    variant="text"
+    severity="secondary"
+    (onClick)="onCancel()" />
+  <p-button
+    [label]="isSaving() ? 'Saving...' : 'Save'"
+    [loading]="isSaving()"
+    [disabled]="classificationForm.invalid || isSaving()"
+    (onClick)="onSubmit()" />
+</div>

@@ -1,0 +1,58 @@
+<form (submit)="onSubmit(); $event.preventDefault()" class="form-invalid-visible flex flex-col gap-4">
+  <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 md:max-w-sm dark:border-zinc-700">
+    <label for="appNotificationEnabled" class="font-medium">App notifications</label>
+    <p-toggleswitch inputId="appNotificationEnabled" [formField]="$any(f.appNotificationEnabled)" />
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="space-y-1">
+      <label for="notificationType" class="block font-medium">Notification type <span class="text-red-600 dark:text-red-400" aria-hidden="true">*</span></label>
+      <p-select
+        inputId="notificationType"
+        class="w-full"
+        [options]="store.optionsFor('notificationType')"
+        [loading]="store.isLoadingOptions()"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select"
+        [invalid]="showError(f.notificationType)"
+        [formField]="$any(f.notificationType)" />
+      <div id="notificationType-help" class="min-h-5">
+        @if (showError(f.notificationType)) {
+          <p-message severity="error" size="small" variant="simple">
+            <span>{{ f.notificationType().errors()[0].message }}</span>
+          </p-message>
+        }
+      </div>
+    </div>
+
+    <div class="space-y-1">
+      <label for="appToken" class="block font-medium">
+        App token
+        @if (model().appNotificationEnabled) {
+          <span class="text-red-600 dark:text-red-400" aria-hidden="true">*</span>
+        }
+      </label>
+      <input
+        [formField]="f.appToken"
+        pInputText
+        type="password"
+        id="appToken"
+        class="w-full"
+        [class.p-invalid]="showError(f.appToken)"
+        [attr.aria-invalid]="showError(f.appToken)"
+        placeholder="Push-notification token" />
+      <div id="appToken-help" class="min-h-5">
+        @if (showError(f.appToken)) {
+          <p-message severity="error" size="small" variant="simple">
+            <span>{{ f.appToken().errors()[0].message }}</span>
+          </p-message>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end">
+    <p-button type="submit" label="Push app notification settings" icon="pi pi-cloud-upload" [loading]="isSaving()" />
+  </div>
+</form>

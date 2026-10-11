@@ -1,0 +1,293 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.attendancePolicies()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [lazy]="true"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [paginator]="true"
+      [rows]="store.pageSize()"
+      [totalRecords]="store.totalRecords()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} policies"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '66rem' }"
+      [style]="{ background: 'transparent' }"
+      (onLazyLoad)="loadAttendancePolicies($event)"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Policy type filter -->
+          <p-select
+            [options]="policyTypeOptions()"
+            optionLabel="policyName"
+            optionValue="id"
+            placeholder="Policy Type"
+            ariaLabel="Filter by policy type"
+            [appendTo]="'body'"
+            [loading]="isLoadingPolicyTypes()"
+            class="w-full min-w-0 lg:min-w-52"
+            [ngModel]="store.policyTypeId()"
+            (onChange)="onPolicyTypeChange($event.value)" />
+
+          <!-- Status filter -->
+          <p-select
+            [options]="statusOptions"
+            optionLabel="status"
+            optionValue="value"
+            placeholder="Status"
+            ariaLabel="Filter by status"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-52"
+            [ngModel]="store.isActive()"
+            (onChange)="onStatusChange($event.value)" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchAttendancePolicies($event)" />
+            @if (canAdd()) {
+              <p-button
+                label="Add Attendance Policy"
+                icon="pi pi-plus"
+                class="w-full justify-center lg:w-auto"
+                pTooltip="Add an attendance policy"
+                tooltipPosition="bottom"
+                (onClick)="createAttendancePolicy()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #colgroup>
+        <!-- Widths add up to the table's 66rem min-width so nothing forces extra scroll. -->
+        <colgroup>
+          <col style="width: 16rem" />
+          <col style="width: 12rem" />
+          <col style="width: 16rem" />
+          <col style="width: 16rem" />
+          <col style="width: 6rem" />
+          @if (canUseRowActions()) {
+            <col style="width: 6rem" />
+          }
+        </colgroup>
+      </ng-template>
+
+      <ng-template #header>
+        <tr>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Policy
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Location Scope
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Allowed Channels
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Approvals
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Status
+          </th>
+          @if (canUseRowActions()) {
+            <th
+              scope="col"
+              class="px-3! py-2.5! align-middle whitespace-nowrap">
+              <div class="flex justify-center">Actions</div>
+            </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-policy>
+        <tr
+          [pContextMenuRow]="policy"
+          [pContextMenuRowDisabled]="!canUseRowActions()">
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <div class="flex flex-col items-start">
+              <button
+                type="button"
+                class="max-w-full truncate text-left font-medium text-primary-600 hover:underline dark:text-primary-400"
+                [attr.aria-label]="'View details for ' + (policy.policyName || 'this policy')"
+                (click)="showDetail(policy)">
+                {{ policy.policyName || '-' }}
+              </button>
+              <span class="max-w-full truncate text-xs text-gray-500 dark:text-zinc-400">
+                {{ policy.policyTypeName || '-' }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="policy.attendanceLocationScope | getAttendanceLocationScope"
+              severity="info" />
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <div class="flex flex-wrap gap-1">
+              @if (policy.allowBiometric) {
+                <p-tag
+                  value="Biometric"
+                  severity="secondary" />
+              }
+              @if (policy.allowMobile) {
+                <p-tag
+                  value="Mobile"
+                  severity="secondary" />
+              }
+              @if (policy.allowWeb) {
+                <p-tag
+                  value="Web"
+                  severity="secondary" />
+              }
+              @if (policy.allowManualAttendance) {
+                <p-tag
+                  value="Manual"
+                  severity="secondary" />
+              }
+              @if (policy.allowWorkFromHome) {
+                <p-tag
+                  value="WFH"
+                  severity="secondary" />
+              }
+              @if (
+                !policy.allowBiometric &&
+                !policy.allowMobile &&
+                !policy.allowWeb &&
+                !policy.allowManualAttendance &&
+                !policy.allowWorkFromHome
+              ) {
+                <span>-</span>
+              }
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <div class="flex flex-wrap gap-1">
+              @if (policy.requireGeoFenceForOffice) {
+                <p-tag
+                  value="Geo-fence req."
+                  severity="warn" />
+              }
+              @if (policy.requireGpsForRemote) {
+                <p-tag
+                  value="GPS req."
+                  severity="warn" />
+              }
+              @if (policy.allowOutsideLocationWithApproval) {
+                <p-tag
+                  value="Outside w/ approval"
+                  severity="secondary" />
+              }
+              @if (
+                !policy.requireGeoFenceForOffice &&
+                !policy.requireGpsForRemote &&
+                !policy.allowOutsideLocationWithApproval
+              ) {
+                <span>-</span>
+              }
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="policy.isActive ? 'Active' : 'Inactive'"
+              [severity]="policy.isActive ? 'success' : 'danger'" />
+          </td>
+          @if (canUseRowActions()) {
+            <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+              <div class="flex items-center justify-center gap-2">
+                @if (canUpdate()) {
+                  <p-button
+                    class="text-xl!"
+                    [icon]="policy.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                    [severity]="policy.isActive ? 'success' : 'danger'"
+                    [variant]="'text'"
+                    [pTooltip]="policy.isActive ? 'Deactivate' : 'Activate'"
+                    tooltipPosition="left"
+                    [showDelay]="300"
+                    [loading]="policy.isUpdatingStatus"
+                    [ariaLabel]="
+                      (policy.isActive ? 'Deactivate ' : 'Activate ') + (policy.policyName || 'policy')
+                    "
+                    (onClick)="confirmToggleActive(policy)" />
+                }
+                <app-table-action-button
+                  [ariaLabel]="'Actions for ' + (policy.policyName || 'policy')"
+                  (action)="selectedRow.set(policy); actionMenu.toggle($event)" />
+              </div>
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.attendancePolicies().length === 0) {
+          <tr>
+            <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            @if (hasActiveFilters()) {
+              <app-table-empty-message
+                icon="pi pi-search"
+                message="No policies match your filters"
+                subMessage="Try a different search term or clear the filters" />
+            } @else {
+              <app-table-empty-message
+                icon="pi pi-verified"
+                message="No attendance policies found"
+                subMessage="Add a policy to control how attendance is marked" />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<app-headless-drawer [(visible)]="isShowDetail">
+  @if (isShowDetail()) {
+    <app-attendance-policy-detail
+      [policy]="detailRow() ?? undefined"
+      [canUpdate]="canUpdate()"
+      (closePopup)="isShowDetail.set(false)"
+      (edit)="onDetailEdit()" />
+  }
+</app-headless-drawer>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+<p-confirmDialog />

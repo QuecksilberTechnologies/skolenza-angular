@@ -1,0 +1,35 @@
+{
+  "isSucceeded": true,
+  "message": "Leave statuses retrieved successfully.",
+  "errors": [],
+  "data": [
+    {
+      "id": 1,
+      "institutionId": 100,
+      "statusName": "Approved",
+      "description": "Leave request has been approved",
+      "isActive": true,
+      "color": "#22c55e"
+    },
+    {
+      "id": 2,
+      "institutionId": 100,
+      "statusName": "Pending",
+      "description": "Leave request is pending approval",
+      "isActive": true,
+      "color": "#f59e42"
+    },
+    {
+      "id": 3,
+      "institutionId": 100,
+      "statusName": "Rejected",
+      "description": "Leave request has been rejected",
+      "isActive": false,
+      "color": "#ef4444"
+    }
+  ],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalRecords": 3,
+  "totalPages": 1
+}

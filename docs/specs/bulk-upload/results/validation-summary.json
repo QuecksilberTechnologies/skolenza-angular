@@ -1,0 +1,45 @@
+[
+  {
+    "Case": "Designation missing alias mapping",
+    "Result": "PASS",
+    "CanCommit": false,
+    "ConfirmHttpStatus": 400,
+    "JobId": "f0b8437c-08ee-4208-8e78-134d453e0649"
+  },
+  {
+    "Case": "Duplicate Department rows",
+    "Result": "PASS",
+    "CanCommit": false,
+    "ConfirmHttpStatus": 400,
+    "JobId": "d73b4c0c-974d-4144-ba96-dc3bf40fe5a0"
+  },
+  {
+    "Case": "Missing Department name",
+    "Result": "PASS",
+    "CanCommit": false,
+    "ConfirmHttpStatus": 400,
+    "JobId": "6b33f224-9c42-4870-beca-def0095b2d42"
+  },
+  {
+    "Case": "Designation unknown parent",
+    "Result": "PASS",
+    "CanCommit": false,
+    "ConfirmHttpStatus": 400,
+    "JobId": "8ff5b085-1cd9-4ca3-b129-af2dfa5bf50a"
+  },
+  {
+    "Case": "Anonymous template rejected",
+    "Result": "PASS",
+    "HttpStatus": 401
+  },
+  {
+    "Case": "StaffEmploymentType missing entitlement rejected",
+    "Result": "PASS",
+    "HttpStatus": 403
+  },
+  {
+    "Case": "View operation cannot preview/create",
+    "Result": "PASS",
+    "HttpStatus": 403
+  }
+]

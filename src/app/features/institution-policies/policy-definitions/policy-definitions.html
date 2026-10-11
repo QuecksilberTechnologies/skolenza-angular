@@ -1,0 +1,164 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.policies()"
+      [loading]="store.isLoading()"
+      [showLoader]="false"
+      [lazy]="true"
+      [paginator]="true"
+      [showCurrentPageReport]="true"
+      [rows]="store.pageSize()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="store.totalRecords()"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [selectionMode]="'single'"
+      [sortMode]="'single'"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '48rem' }"
+      [style]="{ background: 'transparent' }"
+      paginatorDropdownAppendTo="body"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)"
+      (onLazyLoad)="store.loadPolicies($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Policy type filter -->
+          <p-select
+            [options]="store.policyTypes()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select Policy Type"
+            ariaLabel="Filter by policy type"
+            [showClear]="true"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-48"
+            [ngModel]="store.appliedFilters()?.policyTypeId ?? null"
+            (onChange)="onPolicyTypeChange($event.value)" />
+
+          <!-- Status filter -->
+          <p-select
+            [options]="store.statuses()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select Status"
+            ariaLabel="Filter by status"
+            [showClear]="true"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-48"
+            [ngModel]="store.appliedFilters()?.statusId ?? null"
+            (onChange)="onStatusChange($event.value)" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="onSearch($event)" />
+            <p-button
+              label="Resolve"
+              icon="pi pi-sitemap"
+              severity="secondary"
+              [outlined]="true"
+              class="w-full lg:w-auto"
+              (onClick)="openResolvePolicies()" />
+            <p-splitbutton
+              [disabled]="!canAdd()"
+              label="Create Policy"
+              icon="pi pi-plus"
+              class="w-full lg:w-auto"
+              [model]="createMenuItems()"
+              appendTo="body"
+              expandAriaLabel="More policy actions"
+              (onClick)="upsertPolicy()" />
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #header>
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          <th
+            class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap"
+            pSortableColumn="name">
+            Name
+            <p-sortIcon field="name" />
+          </th>
+          <th
+            class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap"
+            pSortableColumn="code">
+            Code
+            <p-sortIcon field="code" />
+          </th>
+          <th class="hidden !px-3 !py-3 align-middle text-gray-700 lg:table-cell dark:text-zinc-100">
+            Policy Type
+          </th>
+          <th class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap">
+            Version
+          </th>
+          <th class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap">Status</th>
+          <th class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap">
+            <div class="flex justify-center">Actions</div>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-policy>
+        <tr [pContextMenuRow]="policy">
+          <td class="!px-3 !py-3 align-middle font-medium whitespace-nowrap">{{ policy.name }}</td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">{{ policy.code }}</td>
+          <td class="hidden !px-3 !py-3 align-middle text-gray-700 lg:table-cell dark:text-zinc-100">
+            {{ policyTypeName(policy.policyTypeId) }}
+          </td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">v{{ policy.versionNumber }}</td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">
+            <p-tag
+              [value]="policy.status"
+              [severity]="statusSeverity(policy.status)" />
+          </td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">
+            <div class="flex justify-center gap-2">
+              <app-table-action-button
+                [ariaLabel]="'Actions for ' + policy.name"
+                (action)="selectedRow.set(policy); actionMenu.toggle($event)" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.policies().length === 0) {
+        <tr>
+          <td [attr.colspan]="columnCount"><app-table-loader /></td>
+        </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount">
+            <app-table-empty-message
+              icon="pi pi-file-edit"
+              message="No policies found"
+              subMessage="Create a policy to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+<p-confirmDialog />

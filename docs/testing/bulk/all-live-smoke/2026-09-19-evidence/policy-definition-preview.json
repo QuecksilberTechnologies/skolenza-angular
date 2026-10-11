@@ -1,0 +1,70 @@
+{
+  "isSucceeded": true,
+  "message": "Policy import preview saved successfully.",
+  "data": {
+    "staffMemberPatternHash": null,
+    "reservedStaffMemberSequence": null,
+    "jobId": "e7ecfd06-4b60-4527-9f5a-e0c39a9b57c9",
+    "master": 13,
+    "sourceColumns": [
+      "PolicyCode",
+      "PolicyName",
+      "PolicyTypeCode",
+      "EffectiveFrom",
+      "EffectiveTo",
+      "Summary",
+      "DefaultCurrencyCode",
+      "RulesJson",
+      "ApplicabilityJson"
+    ],
+    "columnMapping": {
+      "PolicyCode": "PolicyCode",
+      "PolicyName": "PolicyName",
+      "PolicyTypeCode": "PolicyTypeCode",
+      "EffectiveFrom": "EffectiveFrom",
+      "EffectiveTo": "EffectiveTo",
+      "Summary": "Summary",
+      "DefaultCurrencyCode": "DefaultCurrencyCode",
+      "RulesJson": "RulesJson",
+      "ApplicabilityJson": "ApplicabilityJson"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "hostRecordId": 8,
+        "proposedStaffMemberCode": null,
+        "invitationStatus": null,
+        "invitationError": null,
+        "invitationAttemptedAtUtc": null,
+        "processed": false,
+        "willReactivate": false,
+        "wasReactivated": false,
+        "rowNumber": 2,
+        "values": {
+          "PolicyCode": "INDIA_HYBRID_ATTENDANCE_LOCATION",
+          "PolicyName": "India Hybrid Attendance and Location Compliance",
+          "PolicyTypeCode": "HYBRID_ATTENDANCE",
+          "EffectiveFrom": "2026-09-19",
+          "EffectiveTo": "",
+          "Summary": "Defines valid office and remote attendance channels for hybrid staff members assigned to an approved location.",
+          "DefaultCurrencyCode": "INR",
+          "RulesJson": "[{\"policyRuleTypeId\":7,\"ruleOrder\":1,\"ruleName\":\"Approved attendance channels\",\"ruleConfiguration\":\"{\\\"allowedChannels\\\":[\\\"WEB\\\",\\\"MOBILE\\\",\\\"BIOMETRIC\\\"],\\\"requireGeoFenceForOffice\\\":true,\\\"allowOutsideLocationWithApproval\\\":true,\\\"requireGpsForRemote\\\":true}\"},{\"policyRuleTypeId\":1,\"ruleOrder\":2,\"ruleName\":\"Hybrid staffMember eligibility\",\"ruleConfiguration\":\"{\\\"staffEmploymentType\\\":\\\"Hybrid Full-Time\\\",\\\"minimumServiceDays\\\":0}\"}]",
+          "ApplicabilityJson": "[{\"applicabilityMode\":1,\"effectiveFrom\":\"2026-09-19\",\"institutionLocationId\":5,\"priority\":100,\"staffEmploymentTypeId\":14}]"
+        },
+        "status": 2,
+        "existingId": null,
+        "departmentId": null,
+        "policyVersionId": null,
+        "targetStaffMemberId": null,
+        "errors": []
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 1,
+    "invalidCount": 0,
+    "isValid": true,
+    "confirmationAvailable": true,
+    "canCommit": true
+  },
+  "errors": []
+}

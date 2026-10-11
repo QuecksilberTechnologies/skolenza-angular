@@ -1,0 +1,9 @@
+[
+  { "id": 1, "categoryName": "IT Support", "colorCode": "#3b82f6", "ticketCount": 5 },
+  { "id": 2, "categoryName": "Payroll", "colorCode": "#ef4444", "ticketCount": 4 },
+  { "id": 3, "categoryName": "HR Inquiry", "colorCode": "#8b5cf6", "ticketCount": 3 },
+  { "id": 4, "categoryName": "Benefits", "colorCode": "#10b981", "ticketCount": 3 },
+  { "id": 5, "categoryName": "Onboarding", "colorCode": "#f59e0b", "ticketCount": 2 },
+  { "id": 6, "categoryName": "Training", "colorCode": "#06b6d4", "ticketCount": 2 },
+  { "id": 7, "categoryName": "Recruitment", "colorCode": "#ec4899", "ticketCount": 1 }
+]

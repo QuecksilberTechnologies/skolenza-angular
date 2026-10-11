@@ -1,0 +1,7 @@
+{
+  "IsSucceeded": false,
+  "Message": "An active pattern already exists. Use update.",
+  "Data": null,
+  "Errors": [],
+  "ErrorCode": "CONFLICT"
+}

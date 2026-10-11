@@ -1,0 +1,24 @@
+{
+  "dashboard": {
+    "TotalStaff Members": "Total de empleados",
+    "NewHiresThisMonth": "Nuevas contrataciones este mes",
+    "OpenPositions": "Puestos vacantes",
+    "PendingApprovals": "Aprobaciones pendientes",
+    "LeaveBreakdown": "Resumen de ausencias",
+    "HRActivityHeatmap": "Mapa de actividad de RRHH",
+    "ProjectsStats": "Estadísticas de proyectos",
+    "RequestStatus": "Estado de la solicitud | Hoy",
+    "ProjectBurndown": "Gráfico de avance del proyecto",
+    "TeamProgress": "Progreso del equipo"
+  },
+  "accessDenied": {
+    "title": "Acceso denegado",
+    "headerDescription": "Se requiere permiso",
+    "reasonModuleOperation": "No tienes permiso para {{operation}} en {{module}}.",
+    "reasonModule": "No tienes acceso a {{module}}.",
+    "reasonGeneric": "No tienes permiso para ver esta página.",
+    "hint": "Tu rol no incluye este permiso. Pide a un administrador que te lo conceda o vuelve a una página a la que tengas acceso.",
+    "goToDashboard": "Ir al panel",
+    "goBack": "Volver"
+  }
+}

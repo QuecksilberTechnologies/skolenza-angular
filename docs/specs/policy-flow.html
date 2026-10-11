@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Institution Policy Flow</title>
+<style>body { margin: 0; }</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f3f6f7;
+    --surface: #ffffff;
+    --ink: #12202b;
+    --muted: #55666f;
+    --line: #d5dee2;
+    --line-strong: #9fb0b8;
+    --accent: #0b6e6e;
+    --accent-soft: #dcefee;
+    --code-bg: #e9eff1;
+
+    --draft: #5b6b75;
+    --draft-bg: #e4e9ec;
+    --review: #8a5a00;
+    --review-bg: #fbebc8;
+    --approved: #1f5fa8;
+    --approved-bg: #dce8f7;
+    --published: #17703f;
+    --published-bg: #d9f0e1;
+    --rejected: #b3261e;
+    --rejected-bg: #fbe0dd;
+    --archived: #4a4f63;
+    --archived-bg: #e3e4ec;
+
+    --display: 'Familjen Grotesk', 'Segoe UI', system-ui, sans-serif;
+    --body: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --bg: #0e161c;
+      --surface: #15212a;
+      --ink: #e6eef2;
+      --muted: #93a5af;
+      --line: #26363f;
+      --line-strong: #4a606c;
+      --accent: #4fd1c5;
+      --accent-soft: #123332;
+      --code-bg: #1a2a33;
+
+      --draft: #a9b7bf;
+      --draft-bg: #22303a;
+      --review: #f2c265;
+      --review-bg: #3a2e12;
+      --approved: #8db8f0;
+      --approved-bg: #152a44;
+      --published: #78d39c;
+      --published-bg: #123321;
+      --rejected: #f29a93;
+      --rejected-bg: #40191a;
+      --archived: #b4b8d0;
+      --archived-bg: #25273a;
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #0e161c;
+    --surface: #15212a;
+    --ink: #e6eef2;
+    --muted: #93a5af;
+    --line: #26363f;
+    --line-strong: #4a606c;
+    --accent: #4fd1c5;
+    --accent-soft: #123332;
+    --code-bg: #1a2a33;
+
+    --draft: #a9b7bf;
+    --draft-bg: #22303a;
+    --review: #f2c265;
+    --review-bg: #3a2e12;
+    --approved: #8db8f0;
+    --approved-bg: #152a44;
+    --published: #78d39c;
+    --published-bg: #123321;
+    --rejected: #f29a93;
+    --rejected-bg: #40191a;
+    --archived: #b4b8d0;
+    --archived-bg: #25273a;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.6;
+    padding-inline: 16px;
+  }
+  .wrap { max-width: 1000px; margin-inline: auto; padding-block: 0 72px; }
+
+  a { color: var(--accent); }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+  code, .mono { font-family: var(--mono); font-size: 0.86em; }
+  code { background: var(--code-bg); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+
+  h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 700; letter-spacing: -0.02em; }
+  h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.01em; }
+  h3 { font-size: 1.05rem; font-weight: 600; }
+  p { margin: 0; max-width: 68ch; }
+  .lead { font-size: 1.1rem; color: var(--muted); max-width: 62ch; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
+  }
+
+  /* header */
+  header.top { padding-block: 56px 28px; display: grid; gap: 16px; }
+  .meta { color: var(--muted); font-size: 0.85rem; }
+
+  nav.jump {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+    background: var(--bg); border-block: 1px solid var(--line);
+    margin-inline: -16px; padding: 10px 16px;
+    display: flex; gap: 6px 18px; flex-wrap: wrap;
+    font-size: 0.85rem;
+  }
+  nav.jump a { color: var(--muted); text-decoration: none; padding: 2px 0; }
+  nav.jump a:hover { color: var(--accent); }
+
+  section { padding-block: 48px 0; scroll-margin-top: 64px; display: grid; gap: 20px; }
+  .sub { color: var(--muted); }
+
+  /* status chips */
+  .chip {
+    display: inline-block; font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+    padding: 2px 9px; border-radius: 999px; white-space: nowrap;
+  }
+  .s-draft { background: var(--draft-bg); color: var(--draft); }
+  .s-review { background: var(--review-bg); color: var(--review); }
+  .s-approved { background: var(--approved-bg); color: var(--approved); }
+  .s-published { background: var(--published-bg); color: var(--published); }
+  .s-rejected { background: var(--rejected-bg); color: var(--rejected); }
+  .s-archived { background: var(--archived-bg); color: var(--archived); }
+  .act { background: var(--accent-soft); color: var(--accent); }
+
+  /* tables */
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  th {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: 0; }
+  td.nw { white-space: nowrap; }
+  tr.here td { background: var(--accent-soft); }
+
+  pre {
+    margin: 0; padding: 14px 16px; overflow-x: auto; background: var(--code-bg);
+    border-radius: 8px; font-family: var(--mono); font-size: 0.82rem; line-height: 1.55;
+  }
+
+  /* phase strip */
+  .phases { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin-top: 8px; }
+  .phase {
+    padding: 14px 14px 14px 0; border-top: 3px solid var(--accent); text-decoration: none; color: var(--ink);
+    display: grid; gap: 4px; align-content: start;
+  }
+  .phase b { font-family: var(--display); font-size: 1rem; }
+  .phase span { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+  .phase .k { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+  @media (max-width: 760px) {
+    .phases { grid-template-columns: 1fr 1fr; gap: 0 20px; }
+  }
+  @media (max-width: 440px) { .phases { grid-template-columns: 1fr; } }
+
+  /* silos */
+  .silos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .silo { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+  .silo.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .silo .tag { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .silo.on .tag { color: var(--accent); }
+  .silo dl { margin: 0; display: grid; gap: 6px; font-size: 0.84rem; }
+  .silo dt { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .silo dd { margin: 0; overflow-wrap: anywhere; }
+  @media (max-width: 820px) { .silos { grid-template-columns: 1fr; } }
+
+  /* walkthrough: real sequence */
+  ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: s; }
+  ol.steps > li {
+    counter-increment: s; display: grid; grid-template-columns: 40px 1fr; gap: 0 14px; position: relative;
+    padding-bottom: 22px;
+  }
+  ol.steps > li::before {
+    content: counter(s); font-family: var(--mono); font-size: 0.8rem; font-weight: 500;
+    width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface); border: 1.5px solid var(--accent); color: var(--accent); z-index: 1;
+  }
+  ol.steps > li::after {
+    content: ''; position: absolute; left: 15.5px; top: 32px; bottom: 0; width: 1.5px; background: var(--line-strong);
+  }
+  ol.steps > li:last-child { padding-bottom: 0; }
+  ol.steps > li:last-child::after { display: none; }
+  .step-body { display: grid; gap: 6px; padding-top: 3px; }
+  .step-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+  .step-head h3 { margin-right: 4px; }
+  .actor { font-size: 0.72rem; font-family: var(--mono); padding: 1px 8px; border-radius: 4px; border: 1px solid var(--line-strong); color: var(--muted); }
+  .ep { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  .step-body p { font-size: 0.9rem; color: var(--muted); }
+  .loop { border-left: 2px dashed var(--line-strong); padding-left: 12px; font-size: 0.85rem; color: var(--muted); }
+
+  /* state machine */
+  .diagram { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+  .diagram svg { display: block; min-width: 900px; width: 100%; height: auto; }
+  .diagram .box { stroke-width: 1.5; }
+  .diagram text { font-family: var(--body); fill: var(--ink); }
+  .diagram .lbl { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+  .diagram .st { font-family: var(--display); font-size: 15px; font-weight: 600; }
+  .diagram .arrow { stroke: var(--line-strong); stroke-width: 1.6; fill: none; }
+  .diagram .head { fill: var(--line-strong); }
+  .diagram .bad { stroke: var(--rejected); }
+  .diagram .bad-head { fill: var(--rejected); }
+  .b-draft { fill: var(--draft-bg); stroke: var(--draft); }
+  .b-review { fill: var(--review-bg); stroke: var(--review); }
+  .b-approved { fill: var(--approved-bg); stroke: var(--approved); }
+  .b-published { fill: var(--published-bg); stroke: var(--published); }
+  .b-rejected { fill: var(--rejected-bg); stroke: var(--rejected); }
+  .b-archived { fill: var(--archived-bg); stroke: var(--archived); }
+
+  /* callouts */
+  .note { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 4px; }
+  .note h3 { font-size: 0.95rem; }
+  .note p { font-size: 0.9rem; color: var(--muted); }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+
+  /* nested entity tree */
+  .tree { font-family: var(--mono); font-size: 0.82rem; }
+
+  .flowline { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; font-family: var(--mono); font-size: 0.8rem; }
+  .flowline .arr { color: var(--line-strong); }
+  .flowline span.node { background: var(--surface); border: 1px solid var(--line); padding: 3px 10px; border-radius: 6px; }
+
+  ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 68ch; }
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; display: grid; gap: 6px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Skolenza · Institution Policy engine</p>
+    <h1>How a policy moves from draft to a rule that applies to an staffMember</h1>
+    <p class="lead">A institution policy is versioned, goes through approval stages, is published, and is then targeted at staff members by applicability rules, assignments and exceptions. This page follows one policy end to end, then breaks out each part.</p>
+    <p class="meta">Source of truth: <code>docs/specs/Policy flow.md</code>, checked against <code>src/app/features/institution-policies/</code> and <code>institution-policy-api.ts</code>.</p>
+
+    <div class="phases" role="list">
+      <a class="phase" href="#walkthrough" role="listitem"><span class="k">Phase 1</span><b>Setup</b><span>Types and approval stages, once per institution</span></a>
+      <a class="phase" href="#authoring" role="listitem"><span class="k">Phase 2</span><b>Author</b><span>Policy, rules and applicability in one save</span></a>
+      <a class="phase" href="#lifecycle" role="listitem"><span class="k">Phase 3</span><b>Review and publish</b><span>Submit, approve, publish, archive</span></a>
+      <a class="phase" href="#staffMember" role="listitem"><span class="k">Phase 4</span><b>StaffMember side</b><span>Assign, except, acknowledge, attach documents</span></a>
+      <a class="phase" href="#resolve" role="listitem"><span class="k">Answer</span><b>Resolve</b><span>Which policies apply to this person, on this date</span></a>
+    </div>
+  </header>
+
+  <nav class="jump" aria-label="Sections">
+    <a href="#silos">Which policy</a>
+    <a href="#walkthrough">Walkthrough</a>
+    <a href="#authoring">Authoring</a>
+    <a href="#lifecycle">Lifecycle</a>
+    <a href="#staffMember">StaffMember side</a>
+    <a href="#resolve">Resolve</a>
+    <a href="#bulk">Bulk import</a>
+    <a href="#permissions">Permissions</a>
+    <a href="#routes">Routes</a>
+  </nav>
+
+  <!-- ============ SILOS ============ -->
+  <section id="silos">
+    <div>
+      <p class="eyebrow">Read this first</p>
+      <h2>Three unrelated things are called "policy"</h2>
+    </div>
+    <p>They have separate folders, separate APIs and separate routes. <code>PolicyType</code> exists in both the first and second, as different entities. This page is about the first one only.</p>
+    <div class="silos">
+      <div class="silo on">
+        <span class="tag">This page</span>
+        <h3>Institution Policy</h3>
+        <p style="font-size:0.88rem">Versioned compliance policies with approval, applicability and documents.</p>
+        <dl>
+          <div><dt>Folder</dt><dd><code>features/institution-policies/</code></dd></div>
+          <div><dt>API</dt><dd><code>institution-policy-api.ts</code></dd></div>
+          <div><dt>Route</dt><dd><code>/institution-policies</code></dd></div>
+        </dl>
+      </div>
+      <div class="silo">
+        <span class="tag">Separate</span>
+        <h3>Leave and insurance policies</h3>
+        <p style="font-size:0.88rem">Master data that maps policy types to leave types and insurance.</p>
+        <dl>
+          <div><dt>Folder</dt><dd><code>features/policies/</code></dd></div>
+          <div><dt>API</dt><dd><code>policy-type-api.ts</code>, <code>policies-insurance-api.ts</code></dd></div>
+          <div><dt>Route</dt><dd><code>/policies</code> (insurance-policies, leave-policy-type-mapping, leave-staffMember-policy-mapping)</dd></div>
+        </dl>
+      </div>
+      <div class="silo">
+        <span class="tag">Separate</span>
+        <h3>Attendance policies</h3>
+        <p style="font-size:0.88rem">Shift and attendance rules. Mounted under the Policies hub.</p>
+        <dl>
+          <div><dt>Folder</dt><dd><code>features/attendance-policies/</code></dd></div>
+          <div><dt>API</dt><dd><code>attendance-policy-api.ts</code></dd></div>
+          <div><dt>Route</dt><dd><code>/policies/attendance-policies</code>. Old <code>/attendance-policies</code> redirects here.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WALKTHROUGH ============ -->
+  <section id="walkthrough">
+    <div>
+      <p class="eyebrow">Start to finish</p>
+      <h2>One policy, in the order things happen</h2>
+    </div>
+    <p>Steps 1 to 3 happen once per institution. Every step after that needs the output of the one before it.</p>
+
+    <ol class="steps">
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Load the seed lists</h3><span class="actor">Institution admin</span></div>
+          <div class="ep"><code>GET /lookups</code></div>
+          <p>One call returns four backend-owned, read-only lists: <code>categories</code>, <code>statuses</code>, <code>ruleTypes</code>, <code>documentTypes</code>. Nothing here is editable in the app.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Create a policy type</h3><span class="actor">Institution admin</span></div>
+          <div class="ep"><code>POST /types</code></div>
+          <p>Needs a <code>categoryId</code> from step 1. Screen: <code>/institution-policies/types</code>.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Define approval stages</h3><span class="actor">Institution admin</span></div>
+          <div class="ep"><code>POST /approval-stages</code></div>
+          <p>Each stage has <code>stageOrder</code>, <code>approverRoleId</code>, <code>minimumApprovals</code> and <code>isMandatory</code>. A stage with <code>policyCategoryId: null</code> is global. A stage with a category applies only to that category's policies.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Create the policy</h3><span class="actor">Author</span><span class="chip s-draft">Draft</span></div>
+          <div class="ep"><code>POST /InstitutionPolicy</code></div>
+          <p>One call creates the policy, its first version, its rules and its applicability rows. There are no separate rule or applicability endpoints. A <code>changeSummary</code> is required and is what the audit trail records.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Edit while it is still editable</h3><span class="actor">Author</span><span class="chip s-draft">Draft</span><span class="chip s-rejected">Rejected</span></div>
+          <div class="ep"><code>PUT /InstitutionPolicy/{id}</code></div>
+          <p>Only these two statuses can be edited. Any other status hides the Edit action.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Submit for review</h3><span class="actor">Author</span><span class="chip s-review">Under Review</span></div>
+          <div class="ep"><code>POST /versions/{versionId}/transition</code> <span class="chip act">SUBMIT</span></div>
+          <p>Approval stages apply from here until publish.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Approve or reject</h3><span class="actor">Approver</span><span class="chip s-approved">Approved</span><span class="chip s-rejected">Rejected</span></div>
+          <div class="ep"><code>GET /versions/{versionId}/approval-progress</code> <code>POST …/transition</code> <span class="chip act">APPROVE</span> <span class="chip act">REJECT</span></div>
+          <p>Progress shows <code>approvalCount</code> against <code>minimumApprovals</code> for each stage, plus <code>isComplete</code>.</p>
+          <div class="loop">Rejected goes back to step 5. Edit, then submit again.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Publish</h3><span class="actor">Publisher</span><span class="chip s-published">Published</span></div>
+          <div class="ep"><code>POST …/transition</code> <span class="chip act">PUBLISH</span></div>
+          <p>The version is now immutable and can be targeted at staff members.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Target and collect</h3><span class="actor">Admin</span><span class="actor">StaffMember</span></div>
+          <div class="ep"><code>/assignments</code> <code>/exceptions</code> <code>/acknowledgements</code> <code>/documents</code></div>
+          <p>Done in the version workspace: assign staff members, record per-staffMember exceptions, attach documents, and let staff members acknowledge.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Ask who it applies to</h3><span class="actor">Anyone with module access</span></div>
+          <div class="ep"><code>GET /resolve?staffMemberId&amp;effectiveDate</code></div>
+          <p>Returns the published versions that apply to that staffMember on that date, with the reason each one matched.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Retire or change it</h3><span class="actor">Publisher</span><span class="chip s-archived">Archived</span></div>
+          <div class="ep"><span class="chip act">ARCHIVE</span> <code>POST /{policyId}/versions/clone</code></div>
+          <p>Archive a published version to retire it. To change a published version, clone it into a new Draft.</p>
+          <div class="loop">Clone returns to step 5 with a new version.</div>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ AUTHORING ============ -->
+  <section id="authoring">
+    <div>
+      <p class="eyebrow">Phase 2</p>
+      <h2>What one save creates</h2>
+    </div>
+    <pre class="tree">POST /InstitutionPolicy
+└─ Policy
+   └─ PolicyVersion v1            status: Draft
+      ├─ PolicyRule[]             policyRuleTypeId, ruleName, ruleConfiguration
+      └─ PolicyApplicability[]    who the version targets
+changeSummary                     required on every write, recorded in the audit trail</pre>
+    <div class="cols">
+      <div class="note">
+        <h3>Rules</h3>
+        <p><code>ruleConfiguration</code> must be a JSON <strong>object</strong> string, for example <code>{"days":12}</code>. Arrays and bare values are rejected by the backend. The zod schema enforces the same rule in the form.</p>
+      </div>
+      <div class="note">
+        <h3>Applicability</h3>
+        <p><code>applicabilityMode</code>: <code>1</code> is Include, <code>2</code> is Exclude. <code>priority</code> breaks ties between matching rows. <code>effectiveFrom</code> is required, <code>effectiveTo</code> is optional.</p>
+      </div>
+    </div>
+    <div class="scroll"><table>
+      <thead><tr><th>Targeting field</th><th>Source in the form</th><th>Editable</th></tr></thead>
+      <tbody>
+        <tr><td><code>countryId</code> → <code>stateId</code> → <code>districtId</code> → <code>localityId</code></td><td>Cascading selects, each level loads off the one above</td><td>Yes</td></tr>
+        <tr><td><code>institutionLocationId</code>, <code>staffEmploymentTypeId</code>, <code>departmentId</code>, <code>designationId</code>, <code>genderId</code></td><td>Lookup store and option APIs</td><td>Yes</td></tr>
+        <tr><td><code>staffMemberId</code></td><td>StaffMember picker. People without a numeric id are left out.</td><td>Yes</td></tr>
+        <tr><td><code>minimumServiceDays</code></td><td>Whole-number input, minimum 0</td><td>Yes</td></tr>
+        <tr><td><code>workArrangementType</code>, <code>employmentStatus</code></td><td>No value legend exists, so no select can be built</td><td>No. Existing values are carried through unchanged on save.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ============ LIFECYCLE ============ -->
+  <section id="lifecycle">
+    <div>
+      <p class="eyebrow">Phase 3</p>
+      <h2>Version lifecycle</h2>
+    </div>
+    <p>One endpoint drives every change of status: <code>POST /versions/{versionId}/transition</code> with an <code>action</code>.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 970 270" role="img" aria-labelledby="sm-t sm-d">
+        <title id="sm-t">Policy version state machine</title>
+        <desc id="sm-d">Draft goes to Under Review on SUBMIT, then Approved on APPROVE, Published on PUBLISH, Archived on ARCHIVE. Under Review goes to Rejected on REJECT, and Rejected returns to Under Review on SUBMIT after an edit.</desc>
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path class="head" d="M0 0 L10 5 L0 10 z"/></marker>
+          <marker id="ah-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path class="bad-head" d="M0 0 L10 5 L0 10 z"/></marker>
+        </defs>
+
+        <rect class="box b-draft" x="20" y="40" width="130" height="52" rx="8"/>
+        <text class="st" x="85" y="72" text-anchor="middle">Draft</text>
+        <rect class="box b-review" x="220" y="40" width="130" height="52" rx="8"/>
+        <text class="st" x="285" y="72" text-anchor="middle">Under Review</text>
+        <rect class="box b-approved" x="420" y="40" width="130" height="52" rx="8"/>
+        <text class="st" x="485" y="72" text-anchor="middle">Approved</text>
+        <rect class="box b-published" x="620" y="40" width="130" height="52" rx="8"/>
+        <text class="st" x="685" y="72" text-anchor="middle">Published</text>
+        <rect class="box b-archived" x="820" y="40" width="130" height="52" rx="8"/>
+        <text class="st" x="885" y="72" text-anchor="middle">Archived</text>
+        <rect class="box b-rejected" x="220" y="180" width="130" height="52" rx="8"/>
+        <text class="st" x="285" y="212" text-anchor="middle">Rejected</text>
+
+        <path class="arrow" d="M150 66 H218" marker-end="url(#ah)"/>
+        <text class="lbl" x="184" y="58" text-anchor="middle">SUBMIT</text>
+        <path class="arrow" d="M350 66 H418" marker-end="url(#ah)"/>
+        <text class="lbl" x="384" y="58" text-anchor="middle">APPROVE</text>
+        <path class="arrow" d="M550 66 H618" marker-end="url(#ah)"/>
+        <text class="lbl" x="584" y="58" text-anchor="middle">PUBLISH</text>
+        <path class="arrow" d="M750 66 H818" marker-end="url(#ah)"/>
+        <text class="lbl" x="784" y="58" text-anchor="middle">ARCHIVE</text>
+
+        <path class="arrow bad" d="M250 92 V178" marker-end="url(#ah-bad)"/>
+        <text class="lbl" x="242" y="140" text-anchor="end">REJECT</text>
+        <path class="arrow" d="M320 180 V94" marker-end="url(#ah)"/>
+        <text class="lbl" x="328" y="132">SUBMIT</text>
+        <text class="lbl" x="328" y="147">after an edit</text>
+
+        <text class="lbl" x="20" y="130">Editable: Draft and Rejected only</text>
+        <text class="lbl" x="620" y="130">Immutable from here. Clone to change.</text>
+      </svg>
+    </div>
+
+    <div class="scroll"><table>
+      <thead><tr><th>Action</th><th>Legal from</th><th>Result</th><th>Permission</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip act">SUBMIT</span></td><td><span class="chip s-draft">Draft</span> <span class="chip s-rejected">Rejected</span></td><td><span class="chip s-review">Under Review</span></td><td><code>INSTITUTION_POLICY_DEFINITIONS</code> · Submit</td></tr>
+        <tr><td><span class="chip act">APPROVE</span></td><td><span class="chip s-review">Under Review</span></td><td><span class="chip s-approved">Approved</span></td><td><code>INSTITUTION_POLICY_APPROVALS</code> · Approve</td></tr>
+        <tr><td><span class="chip act">REJECT</span></td><td><span class="chip s-review">Under Review</span></td><td><span class="chip s-rejected">Rejected</span></td><td><code>INSTITUTION_POLICY_APPROVALS</code> · Reject</td></tr>
+        <tr><td><span class="chip act">PUBLISH</span></td><td><span class="chip s-approved">Approved</span></td><td><span class="chip s-published">Published</span></td><td><code>INSTITUTION_POLICY_APPROVALS</code> · Publish</td></tr>
+        <tr><td><span class="chip act">ARCHIVE</span></td><td><span class="chip s-published">Published</span></td><td><span class="chip s-archived">Archived</span></td><td><code>INSTITUTION_POLICY_APPROVALS</code> · Archive</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="cols">
+      <div class="note">
+        <h3>What the row menu shows</h3>
+        <p>On the policy list, a row action appears only when the status allows it <em>and</em> the user holds that permission. "Open workspace" is always there and is ungated.</p>
+      </div>
+      <div class="note">
+        <h3>Operation names are capitalised</h3>
+        <p>The permission lookup uses <code>Submit</code>, <code>Approve</code>, <code>Publish</code>, <code>Archive</code>, not the uppercase <code>action</code> value. See <code>INSTITUTION_POLICY_LIFECYCLE_OPERATION_NAME</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STAFF_MEMBER SIDE ============ -->
+  <section id="staffMember">
+    <div>
+      <p class="eyebrow">Phase 4</p>
+      <h2>StaffMember side</h2>
+    </div>
+    <p>All four live in the version workspace at <code>/institution-policies/:policyId/versions/:versionId</code>. It is opened from a row action, not from the menu.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Entity</th><th>Write</th><th>Read</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Assignment</strong></td><td><code>POST /assignments</code><br><code>DELETE /assignments/{id}</code></td><td><code>GET /versions/{id}/assignments</code></td><td>Takes <code>staffMemberIds[]</code>. Repeating an staffMember counts as <code>existing</code>, not <code>inserted</code>.</td></tr>
+        <tr><td><strong>Exception</strong></td><td><code>POST /exceptions</code><br><code>POST /exceptions/{id}/decision</code></td><td><code>GET /versions/{id}/exceptions</code></td><td>Per-staffMember override. <code>overrideConfiguration</code> is a JSON object string, like <code>ruleConfiguration</code>. It is created, then approved or rejected.</td></tr>
+        <tr><td><strong>Acknowledgement</strong></td><td><code>POST /acknowledgements</code></td><td><code>GET /versions/{id}/acknowledgements</code></td><td>The staffMember confirms they have read the policy.</td></tr>
+        <tr><td><strong>Document</strong></td><td><code>POST /documents</code> (multipart)<br><code>DELETE /documents/{id}</code></td><td><code>GET /versions/{id}/documents</code></td><td>Typed by the <code>documentTypes</code> lookup.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="sub">Each tab in the workspace reads through its own permission leaf, and the audit trail (<code>GET /{policyId}/audit</code>) has its own leaf as well. It covers every version of the policy and records each write's <code>changeSummary</code>.</p>
+  </section>
+
+  <!-- ============ RESOLVE ============ -->
+  <section id="resolve">
+    <div>
+      <p class="eyebrow">The question the engine exists to answer</p>
+      <h2>Resolution</h2>
+    </div>
+    <p><code>GET /resolve?staffMemberId&amp;effectiveDate</code> returns the published versions that apply to one staffMember on one date. Every result carries a <code>resolutionSource</code> naming why it matched.</p>
+    <div class="scroll"><table>
+      <thead><tr><th><code>resolutionSource</code></th><th>Why the version applies</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip act">APPLICABILITY</span></td><td>An applicability row on the version matched the staffMember.</td></tr>
+        <tr><td><span class="chip act">ASSIGNMENT</span></td><td>The version was explicitly assigned to the staffMember.</td></tr>
+        <tr><td><span class="chip act">EXCEPTION</span></td><td>An approved per-staffMember exception brought it in.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="sub">Read-only, and gated only by module access. A read-only session may still ask. Screen: the "Resolve" button on the policy list.</p>
+  </section>
+
+  <!-- ============ BULK ============ -->
+  <section id="bulk">
+    <div>
+      <p class="eyebrow">Alternative to typing rows</p>
+      <h2>Bulk import</h2>
+    </div>
+    <p>Three targets, one wizard: <code>types</code>, <code>definitions</code>, <code>assignments</code>. <code>policy-bulk-import.ts</code> adapts each onto the shared bulk-import component.</p>
+    <div class="flowline">
+      <span class="node">template</span><span class="arr">→</span><span class="node">upload</span><span class="arr">→</span><span class="node">preview</span><span class="arr">→</span><span class="node">confirm</span><span class="arr">→</span><span class="node">job</span><span class="arr">→</span><span class="node">report</span>
+    </div>
+    <div class="scroll"><table>
+      <thead><tr><th>Step</th><th>Endpoint under <code>/bulk/{target}</code></th></tr></thead>
+      <tbody>
+        <tr><td>Download template</td><td><code>GET /template</code></td></tr>
+        <tr><td>Preview (validates, writes nothing)</td><td><code>POST /preview</code></td></tr>
+        <tr><td>Confirm</td><td><code>POST /confirm</code></td></tr>
+        <tr><td>Retry failed rows, or cancel</td><td><code>POST /retry</code> · <code>POST /cancel</code></td></tr>
+        <tr><td>Job list, job detail</td><td><code>GET /jobs</code> · <code>GET /jobs/{jobId}</code></td></tr>
+        <tr><td>Error report</td><td><code>GET /jobs/{jobId}/report</code></td></tr>
+      </tbody>
+    </table></div>
+    <div class="note">
+      <h3>Two rules</h3>
+      <p>Import writes need the <code>Import</code> operation, reads need <code>View</code>. Assignment import requires the target version to already be <span class="chip s-published">Published</span>.</p>
+    </div>
+  </section>
+
+  <!-- ============ PERMISSIONS ============ -->
+  <section id="permissions">
+    <div>
+      <p class="eyebrow">Who can press what</p>
+      <h2>Permissions</h2>
+    </div>
+    <p>The routes have only a coarse role gate (<code>adminManager</code>). There is no <code>hasModulePermissionGuard</code> here. Each button gates itself through <code>FeaturePageStore.canPerformOrUnknown(moduleCode, operation)</code>.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Module code</th><th>Covers</th><th>Operations used</th></tr></thead>
+      <tbody>
+        <tr><td><code>INSTITUTION_POLICY_TYPES</code></td><td>Policy types</td><td>Add, Update, status change</td></tr>
+        <tr><td><code>INSTITUTION_POLICY_DEFINITIONS</code></td><td>Policies, versions, documents</td><td>Add, Update, Import, <strong>Submit</strong>, Upload, Delete</td></tr>
+        <tr><td><code>INSTITUTION_POLICY_APPROVALS</code></td><td>Lifecycle decisions and stages</td><td>Approve, Reject, Publish, Archive</td></tr>
+        <tr><td><code>INSTITUTION_POLICY_ASSIGNMENTS</code></td><td>Assignments</td><td>Add, Import, Delete</td></tr>
+        <tr><td><code>INSTITUTION_POLICY_EXCEPTIONS</code></td><td>Exceptions</td><td>Add, Approve, Reject</td></tr>
+        <tr><td><code>INSTITUTION_POLICY_ACKNOWLEDGEMENTS</code></td><td>Acknowledgements</td><td>Add</td></tr>
+        <tr><td><code>INSTITUTION_POLICY_AUDIT</code></td><td>Audit trail</td><td>Read</td></tr>
+      </tbody>
+    </table></div>
+    <div class="cols">
+      <div class="note">
+        <h3>The split that surprises people</h3>
+        <p><code>Submit</code> sits on <code>DEFINITIONS</code>, because the author pushes their own draft out. Approve, Reject, Publish and Archive sit on <code>APPROVALS</code>.</p>
+      </div>
+      <div class="note">
+        <h3>Ids are not stamped for you</h3>
+        <p><code>InstitutionPolicy</code> is not in <code>MODULE_OPERATION_ROUTES</code>, so no interceptor adds <code>moduleId</code> and <code>operationId</code>. Every call site resolves both from the authenticated menu and passes them itself.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ROUTES ============ -->
+  <section id="routes">
+    <div>
+      <p class="eyebrow">Where it lives in the app</p>
+      <h2>Routes</h2>
+    </div>
+    <div class="scroll"><table>
+      <thead><tr><th>Route</th><th>Screen</th></tr></thead>
+      <tbody>
+        <tr><td><code>/institution-policies</code></td><td>Policy list: create, edit, import, transition, resolve</td></tr>
+        <tr><td><code>/institution-policies/types</code></td><td>Policy type master</td></tr>
+        <tr><td><code>/institution-policies/approval-stages</code></td><td>Approval stage master</td></tr>
+        <tr class="here"><td><code>/institution-policies/:policyId/versions/:versionId</code></td><td>Version workspace: assignments, exceptions, acknowledgements, documents, approval progress, audit</td></tr>
+      </tbody>
+    </table></div>
+    <p class="sub">The institution policy routes use their own <code>/institution-policies</code> prefix because <code>/policies</code> already belongs to the leave and insurance silo.</p>
+  </section>
+
+  <footer>
+    <span>Not covered: the leave engine (leave balances and their transactions). It is a separate system with no institution-policy counterpart, and it has no spec yet.</span>
+    <span>Code references: <code>policy-definitions.ts</code> (row actions), <code>policy-definition-form.ts</code> (<code>EDITABLE_STATUSES</code>), <code>institution-policies.routes.ts</code>, <code>features.routes.ts</code>, <code>docs/todo/policy-flow-spec-review.md</code>.</span>
+  </footer>
+</div>
+</html>

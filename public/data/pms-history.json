@@ -1,0 +1,74 @@
+{
+  "isSucceeded": true,
+  "message": "History fetched successfully",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 20,
+  "totalRecords": 7,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "h-001",
+      "staffMemberId": "e-101",
+      "staffMemberName": "Aarav Sharma",
+      "type": "Award",
+      "title": "StaffMember of the Quarter",
+      "description": "Recognized for the NPS initiative impact.",
+      "date": "2026-06-01"
+    },
+    {
+      "id": "h-002",
+      "staffMemberId": "e-101",
+      "staffMemberName": "Aarav Sharma",
+      "type": "Review",
+      "title": "Q1-2026 Review — Rating 4/5",
+      "description": "Strong quarter with excellent ownership.",
+      "date": "2026-04-10"
+    },
+    {
+      "id": "h-003",
+      "staffMemberId": "e-103",
+      "staffMemberName": "Kabir Singh",
+      "type": "Achievement",
+      "title": "AWS Solutions Architect certified",
+      "description": "Passed the Associate exam.",
+      "date": "2026-04-28"
+    },
+    {
+      "id": "h-004",
+      "staffMemberId": "e-101",
+      "staffMemberName": "Aarav Sharma",
+      "type": "Promotion",
+      "title": "Promoted to Senior Engineer",
+      "description": "Effective next quarter.",
+      "date": "2026-03-15"
+    },
+    {
+      "id": "h-005",
+      "staffMemberId": "e-102",
+      "staffMemberName": "Diya Patel",
+      "type": "Feedback",
+      "title": "Peer appreciation received",
+      "description": "Recognized for mentoring efforts.",
+      "date": "2026-05-12"
+    },
+    {
+      "id": "h-006",
+      "staffMemberId": "e-102",
+      "staffMemberName": "Diya Patel",
+      "type": "Review",
+      "title": "Q4-2025 Review — Rating 4/5",
+      "description": "Consistent delivery across the year.",
+      "date": "2026-01-08"
+    },
+    {
+      "id": "h-007",
+      "staffMemberId": "e-103",
+      "staffMemberName": "Kabir Singh",
+      "type": "Achievement",
+      "title": "Reduced build time by 30%",
+      "description": "Pipeline optimization rolled out.",
+      "date": "2026-05-20"
+    }
+  ]
+}

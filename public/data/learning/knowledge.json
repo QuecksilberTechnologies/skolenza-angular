@@ -1,0 +1,77 @@
+{
+  "isSucceeded": true,
+  "message": "Knowledge base loaded",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 6,
+  "totalRecords": 6,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "kb1",
+      "title": "Remote Work Policy",
+      "category": "HR",
+      "summary": "Eligibility, expectations, and equipment for working remotely.",
+      "content": "# Remote Work Policy\n\nStaff Members may work remotely up to **3 days per week** with manager approval.\n\n## Eligibility\n- Completed probation\n- Role suitable for remote work\n\n## Expectations\n- Available during **core hours** 10:00–16:00\n- Reliable internet and a quiet workspace\n\n## Equipment\nThe company provides a laptop and a monthly stipend for home-office costs.",
+      "author": "People Ops",
+      "updatedAt": "2026-06-12",
+      "popular": true,
+      "attachments": [{ "name": "remote-policy.pdf", "url": "#" }]
+    },
+    {
+      "id": "kb2",
+      "title": "Design Review Process",
+      "category": "Engineering",
+      "summary": "Stage-gated design reviews for aircraft and spacecraft programs.",
+      "content": "# Design Review Process\n\nEvery program follows **stage-gated reviews** along the systems-engineering V.\n\n## Gates\n- **PDR** — Preliminary Design Review\n- **CDR** — Critical Design Review\n- **TRR** — Test Readiness Review\n\n## Rules\n- Requirements must be **traceable** to verification\n- Raise risks early; log them in the risk register",
+      "author": "Systems Engineering",
+      "updatedAt": "2026-06-22",
+      "popular": true,
+      "attachments": []
+    },
+    {
+      "id": "kb3",
+      "title": "Incident Response Runbook",
+      "category": "Security",
+      "summary": "Steps to triage, contain, and report a security incident.",
+      "content": "# Incident Response\n\n## 1. Detect\nConfirm the incident and its scope.\n\n## 2. Contain\nIsolate affected systems immediately.\n\n## 3. Eradicate & Recover\nRemove the cause and restore service.\n\n## 4. Report\nFile a post-incident review within **48 hours**.",
+      "author": "Security",
+      "updatedAt": "2026-05-30",
+      "popular": false,
+      "attachments": [{ "name": "ir-checklist.pdf", "url": "#" }]
+    },
+    {
+      "id": "kb4",
+      "title": "Sales Commission Plan",
+      "category": "Sales",
+      "summary": "How commission tiers and accelerators work.",
+      "content": "# Sales Commission\n\nCommission is paid monthly based on closed-won revenue.\n\n## Tiers\n- 0–80% quota: base rate\n- 80–100%: +1.5x\n- Above 100%: **2x accelerator**",
+      "author": "RevOps",
+      "updatedAt": "2026-06-05",
+      "popular": false,
+      "attachments": []
+    },
+    {
+      "id": "kb5",
+      "title": "Expense Reimbursement",
+      "category": "General",
+      "summary": "Submitting and getting approval for work expenses.",
+      "content": "# Expense Reimbursement\n\nSubmit expenses within **30 days** via the finance portal.\n\n## Approved\n- Travel and lodging\n- Team meals\n- Software subscriptions (pre-approved)\n\nReceipts are **required** for all claims.",
+      "author": "Finance",
+      "updatedAt": "2026-06-18",
+      "popular": true,
+      "attachments": []
+    },
+    {
+      "id": "kb6",
+      "title": "Onboarding Checklist",
+      "category": "HR",
+      "summary": "Everything a new hire needs in their first week.",
+      "content": "# Onboarding Checklist\n\n## Day 1\n- Sign documents\n- Set up laptop and accounts\n\n## Week 1\n- Meet your team and buddy\n- Complete mandatory training\n- Read the engineering handbook",
+      "author": "People Ops",
+      "updatedAt": "2026-06-25",
+      "popular": false,
+      "attachments": [{ "name": "welcome-guide.pdf", "url": "#" }]
+    }
+  ]
+}

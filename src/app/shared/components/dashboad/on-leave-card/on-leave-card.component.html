@@ -1,0 +1,50 @@
+<app-dashboard-card [title]="title()">
+  <div class="dash-list">
+    @if (loading() && !staffMembers().length) {
+      @for (row of skeletonRows; track row) {
+        <div class="h-20 animate-pulse rounded-lg bg-gray-100 dark:bg-zinc-800"></div>
+      }
+    } @else {
+      @for (staffMember of staffMembers(); track staffMember.id) {
+        <div class="dash-list-item">
+          @if (staffMember.avatar) {
+            <img
+              [src]="staffMember.avatar"
+              [alt]="staffMember.name"
+              class="dash-avatar" />
+          } @else {
+            <app-user-avatar
+              [name]="staffMember.name"
+              shape="square"
+              avatarClass="dash-avatar size-12! rounded-lg! text-lg!" />
+          }
+          <div class="flex flex-col space-y-1">
+            <p class="text-base font-semibold dark:text-zinc-100">{{ staffMember.name }}</p>
+            @if (staffMember.department) {
+              <p class="text-xs text-gray-600 dark:text-gray-300">{{ staffMember.department }}</p>
+            }
+            <p class="text-xs text-gray-600 dark:text-gray-300">
+              <i
+                class="pi pi-calendar mr-2 text-xs! text-gray-400 dark:text-gray-500"
+                aria-hidden="true"></i>
+              {{ staffMember.dateRange }}
+            </p>
+            @if (staffMember.phone) {
+              <p class="text-xs text-gray-600 dark:text-gray-300">
+                <i
+                  class="pi pi-phone mr-2 text-xs! text-gray-400 dark:text-gray-500"
+                  aria-hidden="true"></i>
+                {{ staffMember.phone }}
+              </p>
+            }
+          </div>
+        </div>
+      } @empty {
+        <app-table-empty-message
+          icon="pi pi-calendar"
+          message="Nobody is on leave today"
+          subMessage="Approved leave covering today shows here" />
+      }
+    }
+  </div>
+</app-dashboard-card>

@@ -1,0 +1,24 @@
+{
+  "dashboard": {
+    "TotalStaff Members": "Total Staff Members",
+    "NewHiresThisMonth": "New Hires This Month",
+    "OpenPositions": "Open Positions",
+    "PendingApprovals": "Pending Approvals",
+    "LeaveBreakdown": "Leave Breakdown",
+    "HRActivityHeatmap": "HR Activity Heatmap",
+    "ProjectsStats": "Projects Stats",
+    "RequestStatus": "Request Status | Today",
+    "ProjectBurndown": "Project Burndown",
+    "TeamProgress": "Team Progress"
+  },
+  "accessDenied": {
+    "title": "Access denied",
+    "headerDescription": "Permission required",
+    "reasonModuleOperation": "You do not have permission to {{operation}} {{module}}.",
+    "reasonModule": "You do not have access to {{module}}.",
+    "reasonGeneric": "You do not have permission to view this page.",
+    "hint": "Your role does not include this permission. Ask an administrator to grant it, or head back to somewhere you can reach.",
+    "goToDashboard": "Go to Dashboard",
+    "goBack": "Go Back"
+  }
+}

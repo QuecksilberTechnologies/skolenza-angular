@@ -1,0 +1,35 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "jobId": "6b33f224-9c42-4870-beca-def0095b2d42",
+    "master": 1,
+    "sourceColumns": ["DepartmentName", "Description"],
+    "columnMapping": {
+      "DepartmentName": "DepartmentName",
+      "Description": "Description"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "processed": false,
+        "rowNumber": 2,
+        "values": {
+          "DepartmentName": "",
+          "Description": "Missing name"
+        },
+        "status": 3,
+        "existingId": null,
+        "departmentId": null,
+        "errors": ["DepartmentName is required."]
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 0,
+    "invalidCount": 1,
+    "isValid": false,
+    "confirmationAvailable": true,
+    "canCommit": false
+  },
+  "errors": []
+}

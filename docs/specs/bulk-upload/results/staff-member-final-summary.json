@@ -1,0 +1,21 @@
+{
+  "Date": "2026-09-11",
+  "Status": "COMPLETE",
+  "LiveCommit": "2c91b6eb5908cabd39da19e04a77d9d48a67730b",
+  "DeploymentId": "dep-dai0l23m8hqs73dmbdeg",
+  "Migration": "AddStaffMemberBulkImport.sql committed with service suspended",
+  "StaffMemberCreated": 2,
+  "StaffMemberReplayExisting": 2,
+  "StaffMemberFailed": 0,
+  "DatabaseReconciliation": "PASS",
+  "StaffEmploymentTypeCrud": "PASS",
+  "StaffEmploymentTypeMenu": ["Add", "Update", "Delete", "View"],
+  "PatternRecoding": "PASS: all 3 staff members, original pattern restored",
+  "FinalCodes": ["QT/2018/0001", "QT/2026/0145", "QT/2026/0200"],
+  "NextSequence": 201,
+  "EmailsSent": 0,
+  "CoverageNotes": [
+    "Live StaffMember input CSV and paste; XLSX automated coverage",
+    "Add existing pattern: live 409; missing-pattern creation: isolated DB coverage"
+  ]
+}

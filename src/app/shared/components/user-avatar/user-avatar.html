@@ -1,0 +1,24 @@
+@if (isActive() === undefined) {
+<ng-container [ngTemplateOutlet]="avatar" />
+} @else {
+<p-overlaybadge
+  [severity]="isActive() ? 'success' : 'danger'"
+  styleClass="top-auto! right-[6%]! bottom-[6%]! transform-none!"
+  [pTooltip]="statusLabel()"
+  tooltipPosition="right">
+  <ng-container [ngTemplateOutlet]="avatar" />
+</p-overlaybadge>
+<span class="sr-only">{{ statusLabel() }}</span>
+}
+
+<ng-template #avatar>
+  <p-avatar
+    [image]="image()"
+    [label]="image() ? undefined : initial()"
+    [ariaLabel]="name() ?? undefined"
+    [shape]="shape()"
+    [size]="size()"
+    [style.background-color]="image() ? null : background()"
+    class="inline-flex leading-0 text-white! uppercase dark:text-zinc-900!"
+    [class]="classes()" />
+</ng-template>

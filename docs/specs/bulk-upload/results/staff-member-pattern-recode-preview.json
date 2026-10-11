@@ -1,0 +1,35 @@
+{
+  "isSucceeded": true,
+  "message": "Review all proposed staffMember codes. Nothing has been changed.",
+  "data": {
+    "previewHash": "898F646EB05530533A098F7E2ABDB6891AD5B220CFB486F1C765DC5B674864BF",
+    "applied": false,
+    "canCommit": true,
+    "lastUsedNumber": 200,
+    "staff members": [
+      {
+        "name": "Deepesh Gupta",
+        "currentCode": "QT/2026/0001",
+        "proposedCode": "QT-2018-0001",
+        "joiningDate": "2018-07-24T00:00:00Z",
+        "errors": []
+      },
+      {
+        "name": "UIQA StaffMemberOne",
+        "currentCode": "QT/2026/0145",
+        "proposedCode": "QT-2026-0145",
+        "joiningDate": "2026-09-01T00:00:00Z",
+        "errors": []
+      },
+      {
+        "name": "UIQA StaffMemberTwo",
+        "currentCode": "QT/2026/0200",
+        "proposedCode": "QT-2026-0200",
+        "joiningDate": "2026-09-02T00:00:00Z",
+        "errors": []
+      }
+    ],
+    "errors": []
+  },
+  "errors": []
+}

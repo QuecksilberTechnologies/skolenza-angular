@@ -1,0 +1,131 @@
+<div class="notifications-page h-full overflow-y-auto p-3 sm:p-4 md:p-6">
+  <div class="mx-auto w-full max-w-3xl">
+    <p-card styleClass="!rounded-2xl [&_.p-card-body]:!p-3 sm:[&_.p-card-body]:!p-5">
+      <!-- Toolbar: filter tabs + mark all -->
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div
+          class="inline-flex items-center gap-1 rounded-xl bg-gray-100 p-1 dark:bg-zinc-800"
+          role="tablist"
+          aria-label="Filter notifications">
+          @for (tab of tabs; track tab.value) {
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="filter() === tab.value"
+            class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            [class.bg-white]="filter() === tab.value"
+            [class.dark:bg-zinc-900]="filter() === tab.value"
+            [class.shadow-sm]="filter() === tab.value"
+            [class.text-gray-900]="filter() === tab.value"
+            [class.dark:text-zinc-100]="filter() === tab.value"
+            [class.text-gray-500]="filter() !== tab.value"
+            (click)="setFilter(tab.value)">
+            {{ tab.label }} @if (tab.value === 'unread' && notificationStore.unreadCount() > 0) {
+            <span class="ml-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary">
+              {{ notificationStore.unreadCount() }}
+            </span>
+            }
+          </button>
+          }
+        </div>
+
+        <p-button
+          icon="pi pi-check"
+          [text]="true"
+          label="Mark all as read"
+          severity="info"
+          size="small"
+          class="text-xs"
+          [disabled]="!notificationStore.hasUnread()"
+          (onClick)="markAllAsRead()" />
+      </div>
+
+      <!-- Grouped list -->
+      @for (group of grouped(); track group.type) {
+      <section class="mb-5 last:mb-0">
+        <h4
+          class="mb-2 flex items-center gap-2 px-1 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-zinc-400">
+          {{ group.label }}
+          <span class="font-normal text-gray-400 normal-case dark:text-zinc-500">({{ group.items.length }})</span>
+        </h4>
+
+        <ul
+          class="m-0 list-none space-y-1 p-0"
+          role="list">
+          @for (notification of group.items; track notification.id) {
+          <li
+            class="notification-item group relative flex items-start gap-2.5 rounded-xl p-3 transition-all duration-200 sm:gap-3"
+            [class.bg-primary-50]="!notification.isRead"
+            [class.dark:bg-zinc-800]="!notification.isRead"
+            [class.pl-4]="!notification.isRead"
+            [class.hover:bg-gray-50]="notification.isRead"
+            [class.dark:hover:bg-zinc-800/70]="notification.isRead">
+            @if (!notification.isRead) {
+            <span
+              class="absolute top-2 bottom-2 left-0 w-1 rounded-full bg-primary"
+              aria-hidden="true"></span>
+            }
+            <div
+              class="notification-icon flex size-10 flex-shrink-0 items-center justify-center rounded-full ring-1 ring-black/5 dark:ring-white/10"
+              [class]="notification.bgColor"
+              aria-hidden="true">
+              <i [class]="notification.icon + ' ' + notification.iconColor + ' !text-lg'"></i>
+            </div>
+
+            <div class="notification-content min-w-0 flex-1">
+              <div class="flex items-start justify-between gap-2">
+                <p
+                  class="notification-title m-0 min-w-0 truncate text-sm leading-snug font-semibold text-gray-900 dark:text-zinc-100">
+                  {{ notification.title }}
+                </p>
+                <span
+                  class="notification-time mt-0.5 flex-shrink-0 text-xs whitespace-nowrap text-gray-500 dark:text-zinc-400">
+                  {{ notification.time }}
+                </span>
+              </div>
+              <p
+                class="notification-message m-0 mt-0.5 line-clamp-2 text-sm leading-relaxed text-gray-600 dark:text-zinc-400">
+                {{ notification.message }}
+              </p>
+            </div>
+
+            <div class="flex flex-shrink-0 items-center gap-1 self-center">
+              @if (!notification.isRead) {
+              <p-button
+                icon="pi pi-check"
+                [text]="true"
+                [rounded]="true"
+                severity="secondary"
+                size="small"
+                ariaLabel="Mark as read"
+                pTooltip="Mark as read"
+                (onClick)="markRead($event, notification.id)" />
+              }
+              <p-button
+                icon="pi pi-trash"
+                [text]="true"
+                [rounded]="true"
+                severity="danger"
+                size="small"
+                ariaLabel="Delete notification"
+                pTooltip="Delete"
+                (onClick)="remove($event, notification.id)" />
+            </div>
+          </li>
+          }
+        </ul>
+      </section>
+      } @empty {
+      <div class="flex flex-col items-center justify-center px-4 py-16 text-center">
+        <div
+          class="mb-3 flex size-14 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800"
+          aria-hidden="true">
+          <i class="pi pi-bell-slash !text-2xl text-gray-400 dark:text-zinc-500"></i>
+        </div>
+        <p class="m-0 text-base font-medium text-gray-700 dark:text-zinc-300">You're all caught up</p>
+        <p class="m-0 mt-1 text-sm text-gray-500 dark:text-zinc-400">No notifications to show</p>
+      </div>
+      }
+    </p-card>
+  </div>
+</div>

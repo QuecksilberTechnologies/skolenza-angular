@@ -1,0 +1,197 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      #dt
+      [value]="store.designations()"
+      [loading]="store.isLoading()"
+      [showLoader]="false"
+      [lazy]="true"
+      [paginator]="true"
+      [showCurrentPageReport]="true"
+      [rows]="store.pageSize()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="store.totalRecords()"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [globalFilterFields]="['designationName', 'departmentName']"
+      [selectionMode]="'single'"
+      [sortMode]="'single'"
+      [sortOrder]="-1"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '52rem' }"
+      paginatorDropdownAppendTo="body"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)"
+      [contextMenu]="actionContextMenu"
+      (onLazyLoad)="getDesignations($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter -->
+          <p-select
+            optionLabel="departmentName"
+            optionValue="id"
+            placeholder=" Select Department"
+            [appendTo]="'body'"
+            class="w-full min-w-52"
+            [options]="departments()"
+            [loading]="isLoadingDepartments()"
+            [showClear]="true"
+            (onChange)="onDepartmentChange($event.value)">
+            <ng-template
+              let-deptType
+              #item>
+              <div class="w-52 truncate">{{ deptType.departmentName }}</div>
+            </ng-template>
+          </p-select>
+
+          <p-select
+            [options]="departmentStatusOptions"
+            optionLabel="status"
+            optionValue="value"
+            placeholder=" Select Status"
+            [appendTo]="'body'"
+            class="w-full min-w-52"
+            [ngModel]="store.appliedFilters()?.status ?? null"
+            (onChange)="onStatusChange($event.value)" />
+
+          <!-- Advance filter -->
+          <app-table-search-filter [filterCount]="store.appliedFilterCount()" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input (searchTerm)="searchDesignations($event)" />
+            @if ((loginInfo()?.user?.primaryRole?.roleTypeId ?? 2) !== 2) {
+            <p-splitbutton
+              class="w-full lg:w-auto"
+              label="Add Designation"
+              icon="pi pi-plus"
+              [model]="designationSplitButtonItems"
+              appendTo="body"
+              expandAriaLabel="More designation actions"
+              (onClick)="createDesignation()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #colgroup>
+        <colgroup>
+          <col style="width: 12rem" />
+          <col style="width: 12rem" />
+          <col style="width: 14rem" />
+          <col style="width: 9rem" />
+          <col style="width: 7rem" />
+        </colgroup>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th
+            pSortableColumn="designationName"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              Designation
+              <p-sortIcon field="designationName" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="departmentName"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              Department
+              <p-sortIcon field="departmentName" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="description"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              Description
+              <p-sortIcon field="description" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="isActive"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              Status
+              <p-sortIcon field="isActive" />
+            </div>
+          </th>
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-designation>
+        <tr [pContextMenuRow]="designation">
+          <td class="!px-3 !py-2.5 align-middle">
+            <div class="truncate">{{ designation.designationName }}</div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle">
+            <div class="truncate">{{ designation.departmentName || '-' }}</div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle">
+            <div class="truncate">{{ designation.description || '-' }}</div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <p-tag
+              [value]="designation.isActive ? 'Active' : 'Inactive'"
+              [severity]="designation.isActive ? 'success' : 'danger'" />
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              @if (canUpdate()) {
+              <p-button
+                class="text-xl!"
+                [icon]="designation.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                [severity]="designation.isActive ? 'success' : 'danger'"
+                [pTooltip]="designation.isActive ? 'Deactivate' : 'Activate'"
+                tooltipPosition="left"
+                [showDelay]="300"
+                [loading]="designation.isUpdatingStatus"
+                [ariaLabel]="
+                  (designation.isActive ? 'Deactivate ' : 'Activate ') +
+                  (designation.designationName || 'designation')
+                "
+                (onClick)="confirmToggleStatus(designation)" />
+              }
+              <app-table-action-button
+                [ariaLabel]="'Actions for ' + (designation.designationName || 'designation')"
+                (action)="selectedRow.set(designation); actionMenu.toggle($event)" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (store.designations().length === 0) {
+        <tr>
+          <td colspan="5">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">
+            <app-table-empty-message
+              icon="pi pi-users"
+              message="No designations found"
+              subMessage="Add a new designation to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+<p-confirmDialog />

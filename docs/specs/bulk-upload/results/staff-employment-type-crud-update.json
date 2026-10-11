@@ -1,0 +1,17 @@
+{
+  "isSucceeded": true,
+  "message": "StaffEmploymentType updated successfully.",
+  "data": {
+    "id": 11,
+    "typeName": "UIQA-20260911-CRUD-Updated",
+    "description": "Updated through API",
+    "remark": null,
+    "isActive": false,
+    "pageNumber": 0,
+    "pageSize": 0,
+    "sortBy": null,
+    "sortOrder": "desc",
+    "userStaffMemberId": null
+  },
+  "errors": []
+}

@@ -1,0 +1,155 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      #dt
+      [value]="types()"
+      [lazy]="true"
+      (onLazyLoad)="getTypes($event)"
+      [paginator]="true"
+      [showLoader]="false"
+      [rows]="pageSize()"
+      [totalRecords]="totalRecords()"
+      [loading]="isLoading()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [rowHover]="true"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '48rem' }"
+      paginatorDropdownAppendTo="body"
+      [(contextMenuSelection)]="selectedRow"
+      [contextMenu]="actionContextMenu">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter -->
+          <p-select
+            [options]="classificationOptions()"
+            optionLabel="classificationName"
+            optionValue="id"
+            placeholder="All Classifications"
+            [showClear]="true"
+            appendTo="body"
+            (onChange)="onClassificationChange($event.value)"
+            class="w-full min-w-0 lg:min-w-48" />
+          <p-select
+            [options]="headerOptions()"
+            optionLabel="headerName"
+            optionValue="id"
+            placeholder="All Headers"
+            [showClear]="true"
+            appendTo="body"
+            [disabled]="!typeSelectedClassificationId()"
+            (onChange)="onHeaderChange($event.value)"
+            class="w-full min-w-0 lg:min-w-48" />
+
+          <!-- Advance filter -->
+          <app-table-search-filter [filterCount]="0" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input />
+            <p-button
+              label="Add Type"
+              icon="pi pi-plus"
+              styleClass="w-full lg:w-auto"
+              (onClick)="createEditType()" />
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #colgroup>
+        <colgroup>
+          <col style="width: 16rem" />
+          <col style="width: 14rem" />
+          <col style="width: 24rem" />
+          <col style="width: 8rem" />
+          <col style="width: 6rem" />
+        </colgroup>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th
+            pSortableColumn="ticketTypeName"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            Type Name
+            <p-sortIcon field="ticketTypeName" />
+          </th>
+          <th
+            pSortableColumn="ticketHeaderName"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            Header
+            <p-sortIcon field="ticketHeaderName" />
+          </th>
+          <th
+            pSortableColumn="description"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            Description
+            <p-sortIcon field="description" />
+          </th>
+          <th
+            pSortableColumn="isActive"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            Status
+            <p-sortIcon field="isActive" />
+          </th>
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-type>
+        <tr [pContextMenuRow]="type">
+          <td class="!px-3 !py-2.5 align-middle">{{ type.ticketTypeName }}</td>
+          <td class="!px-3 !py-2.5 align-middle">{{ type.ticketHeaderName }}</td>
+          <td class="!px-3 !py-2.5 align-middle">{{ type.description }}</td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <p-tag
+              [value]="type.isActive ? 'Active' : 'Inactive'"
+              [severity]="type.isActive ? 'success' : 'warn'" />
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <p-button
+              class="text-xl!"
+              type="button"
+              icon="pi pi-ellipsis-h"
+              [rounded]="false"
+              severity="secondary"
+              [disabled]="!type?.id"
+              (onClick)="selectedRow = type; actionMenu.toggle($event)" />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (types().length === 0) {
+        <tr>
+          <td colspan="5">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">
+            <app-table-empty-message
+              icon="pi pi-folder"
+              message="No ticket types found."
+              subMessage="Create a new ticket type to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems"
+  appendTo="body" />
+<p-confirmDialog />

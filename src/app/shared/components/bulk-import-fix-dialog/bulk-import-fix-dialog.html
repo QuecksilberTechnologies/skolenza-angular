@@ -1,0 +1,211 @@
+<div class="flex max-h-[75vh] min-h-0 flex-col gap-4">
+  <p class="m-0 shrink-0 text-sm text-zinc-500 dark:text-zinc-400">
+    Correct the invalid data below. Once every row is valid, you can carry on with the import.
+  </p>
+
+  <div class="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row">
+    <!-- ── The rows still needing attention ───────────────────────────────── -->
+    <nav
+      class="flex shrink-0 flex-col gap-2 lg:w-72 lg:overflow-y-auto"
+      aria-labelledby="bulk-import-fix-rail">
+      <div class="flex flex-col gap-0.5">
+        <h3
+          id="bulk-import-fix-rail"
+          class="m-0 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          Rows with errors
+        </h3>
+        <p class="m-0 text-xs text-zinc-500 dark:text-zinc-400">
+          {{ rows.length }} {{ rows.length === 1 ? 'row needs' : 'rows need' }} your attention
+        </p>
+      </div>
+
+      <ul class="m-0 flex list-none flex-col gap-2 p-0">
+        @for (row of rows; track row.rowNumber; let index = $index) {
+          <li>
+            <!--
+              A native button, not `p-button`: `aria-current` belongs on the control itself, and
+              Optimus nests its own `button` inside the host an attribute binding would land on.
+            -->
+            <!--
+              Selection is primary, not red: every row in this rail is an error row, so a red
+              highlight on one of them reads as "this one is worse" rather than "this one is open".
+              The red is left to the count and the number badge, which do mean the errors.
+            -->
+            <button
+              type="button"
+              class="flex w-full cursor-pointer items-center gap-2 rounded-md border p-2 text-left transition-colors duration-150"
+              [class]="
+                index === activeIndex()
+                  ? 'border-primary-300 bg-primary-50 dark:border-primary-800 dark:bg-primary-900/20'
+                  : 'border-zinc-200 bg-white hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800'
+              "
+              [attr.aria-current]="index === activeIndex() ? 'true' : null"
+              (click)="goTo(index)">
+              <span
+                class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-medium text-red-700 dark:bg-red-900/40 dark:text-red-300">
+                {{ row.rowNumber }}
+              </span>
+              <span class="flex min-w-0 flex-col">
+                <span class="truncate text-sm text-zinc-900 dark:text-zinc-50">
+                  {{ rowTitle(row) }}
+                </span>
+                <span class="text-xs text-red-700 dark:text-red-400">
+                  {{ errorCountLabel(row) }}
+                </span>
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <!-- ── The row on screen ──────────────────────────────────────────────── -->
+    <!--
+      A hair of padding inside the scroller: the section cards carry a border and a shadow, and an
+      overflow box clips both flush against its own edge.
+    -->
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col gap-3 lg:overflow-y-auto lg:px-1 lg:pb-1">
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 rounded-md border border-zinc-200 p-2 dark:border-zinc-800">
+        <h3 class="m-0 flex min-w-0 items-center gap-2 text-sm font-semibold">
+          <span
+            class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs text-red-700 dark:bg-red-900/40 dark:text-red-300">
+            {{ activeRow().rowNumber }}
+          </span>
+          <span class="truncate text-zinc-900 dark:text-zinc-50">{{ rowTitle(activeRow()) }}</span>
+        </h3>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ positionLabel() }}</span>
+          <p-button
+            label="Previous row"
+            icon="pi pi-chevron-left"
+            severity="secondary"
+            size="small"
+            [text]="true"
+            [disabled]="isFirst()"
+            (onClick)="previous()" />
+          <p-button
+            label="Next row"
+            icon="pi pi-chevron-right"
+            iconPos="right"
+            severity="secondary"
+            size="small"
+            [text]="true"
+            [disabled]="isLast()"
+            (onClick)="goTo(activeIndex() + 1)" />
+        </div>
+      </div>
+
+      <!-- Problems the API raised against the row rather than any one of its columns. -->
+      @if (rowLevelErrors().length) {
+        <!--
+          A tinted band rather than loose bullets: these belong to no field, so with nothing
+          around them a single one reads as a stray dot above the form.
+        -->
+        <div
+          class="flex gap-2 rounded-md border border-red-200 bg-red-50 p-2 dark:border-red-900/50 dark:bg-red-900/20"
+          role="alert">
+          <i
+            class="pi pi-exclamation-circle mt-0.5 text-sm! text-red-700 dark:text-red-400"
+            aria-hidden="true"></i>
+          <ul class="m-0 flex list-none flex-col gap-1 p-0 text-sm text-red-700 dark:text-red-400">
+            @for (error of rowLevelErrors(); track $index) {
+              <li>{{ error }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      <div class="flex flex-col gap-3">
+        @for (section of sections(); track section.heading) {
+          <app-section-card [heading]="section.heading">
+            <!--
+              `items-start`, not the grid default: a switch is a bordered box with no message slot,
+              so stretching it to a row sized by a neighbour's wrapped error message balloons it
+              into an empty panel.
+            -->
+            <div class="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              @for (field of section.fields; track field.column) {
+                @switch (field.type) {
+                  @case ('select') {
+                    <app-form-select
+                      [field]="$any(f[field.column])"
+                      [inputId]="'fix-' + field.column"
+                      [label]="field.label"
+                      [required]="field.required ?? false"
+                      [hint]="field.hint"
+                      [placeholder]="field.placeholder ?? 'Select ' + field.label"
+                      [submitted]="submitted"
+                      [options]="$any(options(field))"
+                      [optionLabel]="field.optionLabel"
+                      [optionValue]="optionValue"
+                      [loading]="field.optionsLoading?.() ?? false"
+                      [filter]="true"
+                      [filterBy]="field.optionLabel"
+                      [showClear]="!field.required"
+                      (selectionChange)="onFieldChange(field)" />
+                  }
+                  @case ('date') {
+                    <app-form-date
+                      [field]="$any(f[field.column])"
+                      [inputId]="'fix-' + field.column"
+                      [label]="field.label"
+                      [required]="field.required ?? false"
+                      [hint]="field.hint ?? 'yyyy-MM-dd'"
+                      [submitted]="submitted"
+                      dateFormat="yy-mm-dd" />
+                  }
+                  @case ('switch') {
+                    <app-form-switch
+                      [field]="$any(f[field.column])"
+                      [inputId]="'fix-' + field.column"
+                      [label]="field.label"
+                      [hint]="field.hint" />
+                  }
+                  @default {
+                    <app-form-text
+                      [field]="$any(f[field.column])"
+                      [inputId]="'fix-' + field.column"
+                      [label]="field.label"
+                      [required]="field.required ?? false"
+                      [hint]="field.hint"
+                      [placeholder]="field.placeholder"
+                      [submitted]="submitted"
+                      [type]="field.type === 'email' ? 'email' : field.type === 'tel' ? 'tel' : 'text'" />
+                  }
+                }
+              }
+            </div>
+          </app-section-card>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (saveBlocked()) {
+    <p class="m-0 shrink-0 text-sm text-amber-700 dark:text-amber-400" role="alert">
+      Correct the fields marked above before saving this row.
+    </p>
+  }
+
+  <div
+    class="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-zinc-200 pt-3 dark:border-zinc-800">
+    <p-button
+      label="Reset row"
+      icon="pi pi-replay"
+      severity="secondary"
+      [text]="true"
+      class="mr-auto"
+      (onClick)="resetRow()" />
+    <p-button label="Cancel" severity="secondary" (onClick)="close()" />
+    @if (isLast()) {
+      <p-button label="Save and re-check" icon="pi pi-check" (onClick)="done()" />
+    } @else {
+      <p-button
+        label="Save and next"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        (onClick)="saveAndNext()" />
+    }
+  </div>
+</div>

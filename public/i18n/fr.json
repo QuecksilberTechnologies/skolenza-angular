@@ -1,0 +1,24 @@
+{
+  "dashboard": {
+    "TotalStaff Members": "Nombre total d'employés",
+    "NewHiresThisMonth": "Nouvelles embauches ce mois-ci",
+    "OpenPositions": "Postes ouverts",
+    "PendingApprovals": "Approbations en attente",
+    "LeaveBreakdown": "Répartition des congés",
+    "HRActivityHeatmap": "Carte d'activité RH",
+    "ProjectsStats": "Statistiques des projets",
+    "RequestStatus": "Statut de la demande | Aujourd'hui",
+    "ProjectBurndown": "Graphique d'avancement du projet",
+    "TeamProgress": "Progrès de l'équipe"
+  },
+  "accessDenied": {
+    "title": "Accès refusé",
+    "headerDescription": "Autorisation requise",
+    "reasonModuleOperation": "Vous n'avez pas l'autorisation d'effectuer {{operation}} dans {{module}}.",
+    "reasonModule": "Vous n'avez pas accès à {{module}}.",
+    "reasonGeneric": "Vous n'avez pas l'autorisation de consulter cette page.",
+    "hint": "Votre rôle n'inclut pas cette autorisation. Demandez à un administrateur de vous l'accorder ou revenez à une page accessible.",
+    "goToDashboard": "Aller au tableau de bord",
+    "goBack": "Retour"
+  }
+}

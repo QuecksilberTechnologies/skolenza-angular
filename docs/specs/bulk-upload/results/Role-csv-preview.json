@@ -1,0 +1,53 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "jobId": "8f4bb571-31d6-420b-865e-8a4cd48157ea",
+    "master": 3,
+    "sourceColumns": ["RoleName", "RoleType", "Remark", "IsActive"],
+    "columnMapping": {
+      "RoleName": "RoleName",
+      "IsActive": "IsActive",
+      "Remark": "Remark",
+      "RoleType": "RoleType"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "processed": false,
+        "rowNumber": 2,
+        "values": {
+          "RoleName": "UIQA-20260910-Operator",
+          "IsActive": "true",
+          "Remark": "Development acceptance",
+          "RoleType": "2"
+        },
+        "status": 2,
+        "existingId": 28,
+        "departmentId": null,
+        "errors": []
+      },
+      {
+        "processed": false,
+        "rowNumber": 3,
+        "values": {
+          "RoleName": "UIQA-20260910-Supervisor",
+          "IsActive": "true",
+          "Remark": "Development acceptance",
+          "RoleType": "3"
+        },
+        "status": 2,
+        "existingId": 29,
+        "departmentId": null,
+        "errors": []
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 2,
+    "invalidCount": 0,
+    "isValid": true,
+    "confirmationAvailable": true,
+    "canCommit": true
+  },
+  "errors": []
+}

@@ -1,0 +1,26 @@
+{
+  "isSucceeded": true,
+  "message": "Dashboard fetched successfully",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 1,
+  "totalRecords": 1,
+  "totalPages": 1,
+  "data": {
+    "kpis": {
+      "activeGoals": 4,
+      "pendingReviews": 2,
+      "completedReviews": 1,
+      "feedbackReceived": 5,
+      "averageRating": 4.1
+    },
+    "goalProgress": {
+      "labels": ["Business", "Technical", "Leadership", "Personal Dev", "Collaboration"],
+      "values": [70, 38, 90, 100, 0]
+    },
+    "ratingTrend": {
+      "labels": ["Q2-2025", "Q3-2025", "Q4-2025", "Q1-2026"],
+      "values": [3.4, 3.8, 4.0, 4.1]
+    }
+  }
+}

@@ -1,0 +1,229 @@
+<form
+  (submit)="onSubmit(); $event.preventDefault()"
+  class="flex w-full flex-col gap-4">
+  @if (isLoadingForm()) {
+  <div
+    class="flex flex-col gap-4"
+    role="status"
+    aria-live="polite">
+    <span class="sr-only">Loading holiday</span>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <app-skeleton-field
+        labelWidth="7rem"
+        slot />
+      <app-skeleton-field
+        control="select"
+        labelWidth="2.5rem"
+        slot />
+    </div>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <app-skeleton-field
+        control="select"
+        labelWidth="4.5rem"
+        slot />
+      <app-skeleton-field
+        labelWidth="3rem"
+        slot />
+    </div>
+    <app-skeleton-field
+      control="textarea"
+      [textareaRows]="3"
+      labelWidth="6rem"
+      hint />
+    <app-skeleton-toggle />
+  </div>
+  } @else {
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="space-y-1">
+      <label
+        for="holidayName"
+        class="block font-medium">
+        Holiday name
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        id="holidayName"
+        pInputText
+        [pAutoFocus]="true"
+        type="text"
+        class="w-full"
+        placeholder="Enter holiday name"
+        [class.p-invalid]="showError(f.holidayName)"
+        [formField]="$any(f.holidayName)" />
+      <div
+        id="holidayName-help"
+        class="empty:hidden"
+        aria-live="polite">
+        @if (showError(f.holidayName)) {
+          <p-message
+            severity="error"
+            size="small"
+            variant="simple">
+            <span>{{ f.holidayName().errors()[0].message }}</span>
+          </p-message>
+        }
+      </div>
+    </div>
+    <div class="space-y-1">
+      <label
+        for="icon"
+        class="block font-medium">
+        Icon
+      </label>
+      <p-select
+        inputId="icon"
+        class="w-full"
+        [options]="iconOptions"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        appendTo="body"
+        placeholder="Select icon"
+        [formField]="$any(f.icon)">
+        <ng-template
+          #selectedItem
+          let-option>
+          <span class="flex items-center gap-2">
+            <i
+              [class]="option.value"
+              aria-hidden="true"></i>
+            {{ option.label }}
+          </span>
+        </ng-template>
+        <ng-template
+          #item
+          let-option>
+          <span class="flex items-center gap-2">
+            <i
+              [class]="option.value"
+              aria-hidden="true"></i>
+            {{ option.label }}
+          </span>
+        </ng-template>
+      </p-select>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="space-y-1">
+      <label
+        for="campusId"
+        class="block font-medium">
+        Location
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <p-select
+        inputId="campusId"
+        class="w-full"
+        [options]="locations()"
+        optionLabel="locationName"
+        optionValue="id"
+        [filter]="true"
+        filterBy="locationName"
+        [loading]="isLoadingLocations()"
+        appendTo="body"
+        placeholder="Select location"
+        [invalid]="showError(f.campusId)"
+        [formField]="$any(f.campusId)" />
+      <div
+        id="campusId-help"
+        class="empty:hidden"
+        aria-live="polite">
+        @if (showError(f.campusId)) {
+          <p-message
+            severity="error"
+            size="small"
+            variant="simple">
+            <span>{{ f.campusId().errors()[0].message }}</span>
+          </p-message>
+        }
+      </div>
+    </div>
+    <div class="space-y-1">
+      <label
+        for="holidayDate"
+        class="block font-medium">
+        Date
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <p-datepicker
+        inputId="holidayDate"
+        class="w-full"
+        appendTo="body"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        [invalid]="showError(f.holidayDate)"
+        [formField]="$any(f.holidayDate)" />
+      <div
+        id="holidayDate-help"
+        class="empty:hidden"
+        aria-live="polite">
+        @if (showError(f.holidayDate)) {
+          <p-message
+            severity="error"
+            size="small"
+            variant="simple">
+            <span>{{ f.holidayDate().errors()[0].message }}</span>
+          </p-message>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-1">
+    <label
+      for="description"
+      class="block font-medium">
+      Description
+    </label>
+    <textarea
+      id="description"
+      pTextarea
+      rows="3"
+      class="w-full resize-none"
+      placeholder="Enter description"
+      [value]="model().description"
+      (input)="onDescriptionInput($event)"></textarea>
+    <div class="flex w-full items-center justify-between text-sm text-gray-500 dark:text-zinc-400">
+      <span>{{ f.description().value().length || 0 }}/250 characters</span>
+      @if (showError(f.description)) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.description().errors()[0].message }}</span>
+        </p-message>
+      }
+    </div>
+  </div>
+
+  <app-toggle-field
+    inputId="isOptional"
+    label="Optional holiday"
+    hint="StaffMembers may choose whether to take an optional holiday">
+    <p-toggleswitch
+      inputId="isOptional"
+      [formField]="$any(f.isOptional)" />
+  </app-toggle-field>
+  }
+
+  <div class="flex items-center justify-end gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+    @if (submitted() && f().invalid()) {
+      <p class="mr-auto text-sm text-red-500 dark:text-red-400">
+        Fix the highlighted fields before saving.
+      </p>
+    }
+    <p-button
+      type="button"
+      label="Cancel"
+      variant="text"
+      severity="secondary"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isEditMode ? 'Save changes' : 'Add holiday'"
+      icon="pi pi-check"
+      [loading]="isSaving()"
+      [disabled]="isSaving() || isLoadingForm()" />
+  </div>
+</form>

@@ -1,0 +1,298 @@
+{
+  "isSucceeded": true,
+  "message": "Attendance data retrieved successfully.",
+  "errors": [],
+  "data": [
+    {
+      "id": 1,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-01T00:00:00.000Z",
+      "checkIn": "09:02",
+      "checkOut": "18:15",
+      "totalHours": 9.2,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 2,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-02T00:00:00.000Z",
+      "checkIn": "08:55",
+      "checkOut": "18:00",
+      "totalHours": 9.1,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 3,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-03T00:00:00.000Z",
+      "checkIn": "09:10",
+      "checkOut": "13:30",
+      "totalHours": 4.3,
+      "status": 3,
+      "remark": "Left early - personal reason"
+    },
+    {
+      "id": 4,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-04T00:00:00.000Z",
+      "checkIn": "09:00",
+      "checkOut": "18:30",
+      "totalHours": 9.5,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 5,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-05T00:00:00.000Z",
+      "checkIn": "08:45",
+      "checkOut": "18:00",
+      "totalHours": 9.3,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 6,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-06T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 6,
+      "remark": "Saturday"
+    },
+    {
+      "id": 7,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-07T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 6,
+      "remark": "Sunday"
+    },
+    {
+      "id": 8,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-08T00:00:00.000Z",
+      "checkIn": "09:05",
+      "checkOut": "18:10",
+      "totalHours": 9.1,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 9,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-09T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 2,
+      "remark": "No show"
+    },
+    {
+      "id": 10,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-10T00:00:00.000Z",
+      "checkIn": "09:00",
+      "checkOut": "18:00",
+      "totalHours": 9.0,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 11,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-11T00:00:00.000Z",
+      "checkIn": "08:50",
+      "checkOut": "18:20",
+      "totalHours": 9.5,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 12,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-12T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 5,
+      "remark": "Foundation Day"
+    },
+    {
+      "id": 13,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-13T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 6,
+      "remark": "Saturday"
+    },
+    {
+      "id": 14,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-14T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 6,
+      "remark": "Sunday"
+    },
+    {
+      "id": 15,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-15T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 4,
+      "remark": "Casual leave"
+    },
+    {
+      "id": 16,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-16T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 4,
+      "remark": "Casual leave"
+    },
+    {
+      "id": 17,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-17T00:00:00.000Z",
+      "checkIn": "09:15",
+      "checkOut": "18:00",
+      "totalHours": 8.8,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 18,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-18T00:00:00.000Z",
+      "checkIn": "09:00",
+      "checkOut": "18:30",
+      "totalHours": 9.5,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 19,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-19T00:00:00.000Z",
+      "checkIn": "08:58",
+      "checkOut": "18:10",
+      "totalHours": 9.2,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 20,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-20T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 6,
+      "remark": "Saturday"
+    },
+    {
+      "id": 21,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-21T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 6,
+      "remark": "Sunday"
+    },
+    {
+      "id": 22,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-22T00:00:00.000Z",
+      "checkIn": "09:00",
+      "checkOut": "18:00",
+      "totalHours": 9.0,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 23,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-23T00:00:00.000Z",
+      "checkIn": "09:05",
+      "checkOut": "18:15",
+      "totalHours": 9.2,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 24,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-24T00:00:00.000Z",
+      "checkIn": "09:10",
+      "checkOut": "14:00",
+      "totalHours": 4.8,
+      "status": 3,
+      "remark": "Half day - medical appointment"
+    },
+    {
+      "id": 25,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-25T00:00:00.000Z",
+      "checkIn": "08:50",
+      "checkOut": "18:20",
+      "totalHours": 9.5,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 26,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-26T00:00:00.000Z",
+      "checkIn": "09:00",
+      "checkOut": "18:00",
+      "totalHours": 9.0,
+      "status": 1,
+      "remark": ""
+    },
+    {
+      "id": 27,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-27T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 6,
+      "remark": "Saturday"
+    },
+    {
+      "id": 28,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-28T00:00:00.000Z",
+      "checkIn": "",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 6,
+      "remark": "Sunday"
+    },
+    {
+      "id": 29,
+      "staffMemberId": "EMP001",
+      "date": "2026-03-29T00:00:00.000Z",
+      "checkIn": "09:00",
+      "checkOut": "",
+      "totalHours": 0,
+      "status": 1,
+      "remark": "Working today"
+    }
+  ],
+  "totalRecords": 29
+}

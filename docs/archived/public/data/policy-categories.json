@@ -1,0 +1,41 @@
+{
+  "isSucceeded": true,
+  "message": "Policy category retrieved successfully.",
+  "errors": [],
+  "data": [
+    {
+      "id": "COMPANY_POLICY",
+      "name": "Company Policy",
+      "description": "Internal policies governing company operations and staffMember conduct",
+      "active": true
+    },
+    {
+      "id": "INSURANCE_POLICY",
+      "name": "Insurance Policy",
+      "description": "Policies related to staffMember and company insurance coverage",
+      "active": true
+    },
+    {
+      "id": "ANTI_RAGGING_POLICY",
+      "name": "Anti Ragging Policy",
+      "description": "Guidelines and rules to prevent harassment and misconduct",
+      "active": true
+    },
+    {
+      "id": "ASSETS_POLICY",
+      "name": "Assets Policy",
+      "description": "Policies related to usage and management of company assets",
+      "active": true
+    },
+    {
+      "id": "SOFTWARE_POLICY",
+      "name": "Software Policy",
+      "description": "Rules governing software usage, licensing, and security",
+      "active": true
+    }
+  ],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalRecords": 10,
+  "totalPages": 1
+}

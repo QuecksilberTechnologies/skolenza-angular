@@ -1,0 +1,438 @@
+{
+  "capturedAt": "2026-09-19T21:15:16.9485495+05:30",
+  "apiBase": "https://skolenza-api.onrender.com",
+  "results": [
+    {
+      "target": "department",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "department",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "2b9519ec-60af-4ca3-b8e9-2b23c623e770"
+    },
+    {
+      "target": "department",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=0, existing=1, failed=0",
+      "jobId": "2b9519ec-60af-4ca3-b8e9-2b23c623e770"
+    },
+    {
+      "target": "department",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=265",
+      "jobId": "2b9519ec-60af-4ca3-b8e9-2b23c623e770"
+    },
+    {
+      "target": "designation",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "designation",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "66770d7b-3e9f-4fa6-95c7-8c6b10d6b888"
+    },
+    {
+      "target": "designation",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=0, existing=1, failed=0",
+      "jobId": "66770d7b-3e9f-4fa6-95c7-8c6b10d6b888"
+    },
+    {
+      "target": "designation",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=262",
+      "jobId": "66770d7b-3e9f-4fa6-95c7-8c6b10d6b888"
+    },
+    {
+      "target": "role",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "role",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "18cb7cf8-7d45-4982-85a4-b49c75fa0030"
+    },
+    {
+      "target": "role",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=0, existing=1, failed=0",
+      "jobId": "18cb7cf8-7d45-4982-85a4-b49c75fa0030"
+    },
+    {
+      "target": "role",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=197",
+      "jobId": "18cb7cf8-7d45-4982-85a4-b49c75fa0030"
+    },
+    {
+      "target": "staff-employment-type",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "staff-employment-type",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "b7eb5dd3-b69d-4a3c-97b4-97d78844c389"
+    },
+    {
+      "target": "staff-employment-type",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=0, existing=1, failed=0",
+      "jobId": "b7eb5dd3-b69d-4a3c-97b4-97d78844c389"
+    },
+    {
+      "target": "staff-employment-type",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=249",
+      "jobId": "b7eb5dd3-b69d-4a3c-97b4-97d78844c389"
+    },
+    {
+      "target": "policy-type",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "policy-type",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "33260b1a-638e-4017-a2b0-5890926659f9"
+    },
+    {
+      "target": "policy-type",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=0, existing=1, failed=0",
+      "jobId": "33260b1a-638e-4017-a2b0-5890926659f9"
+    },
+    {
+      "target": "policy-type",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=327",
+      "jobId": "33260b1a-638e-4017-a2b0-5890926659f9"
+    },
+    {
+      "target": "policy-definition",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "policy-definition",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "e7ecfd06-4b60-4527-9f5a-e0c39a9b57c9"
+    },
+    {
+      "target": "policy-definition",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=0, existing=1, failed=0",
+      "jobId": "e7ecfd06-4b60-4527-9f5a-e0c39a9b57c9"
+    },
+    {
+      "target": "policy-definition",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=1317",
+      "jobId": "e7ecfd06-4b60-4527-9f5a-e0c39a9b57c9"
+    },
+    {
+      "target": "staffMember",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "staffMember",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "3dedf95f-cbcc-419f-9d2d-3b2dc9695c59"
+    },
+    {
+      "target": "staffMember",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=0, existing=1, failed=0",
+      "jobId": "3dedf95f-cbcc-419f-9d2d-3b2dc9695c59"
+    },
+    {
+      "target": "staffMember",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=773",
+      "jobId": "3dedf95f-cbcc-419f-9d2d-3b2dc9695c59"
+    },
+    {
+      "target": "staffMember-location",
+      "step": "create-or-existing",
+      "status": "PASS",
+      "detail": "staffMember=QT/2026/0204, institutionLocationId=5, assignmentId=5",
+      "jobId": null
+    },
+    {
+      "target": "policy-definition",
+      "step": "publish-or-existing",
+      "status": "PASS",
+      "detail": "policyId=8, versionId=9",
+      "jobId": null
+    },
+    {
+      "target": "policy-assignment",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "policy-assignment",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "9318d1d0-9e4a-452b-981c-35cf4d513505"
+    },
+    {
+      "target": "policy-assignment",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=0, existing=1, failed=0",
+      "jobId": "9318d1d0-9e4a-452b-981c-35cf4d513505"
+    },
+    {
+      "target": "policy-assignment",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=251",
+      "jobId": "9318d1d0-9e4a-452b-981c-35cf4d513505"
+    },
+    {
+      "target": "staffMember-policy-resolution",
+      "step": "resolve",
+      "status": "PASS",
+      "detail": "policy=INDIA_HYBRID_ATTENDANCE_LOCATION, staffMember=QT/2026/0204, matches=1",
+      "jobId": null
+    },
+    {
+      "target": "device-master",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "device-master",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "fc1af7c4-b2e5-488b-8be2-80749fcd5c7e"
+    },
+    {
+      "target": "device-master",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=0, existing=1, failed=0",
+      "jobId": "fc1af7c4-b2e5-488b-8be2-80749fcd5c7e"
+    },
+    {
+      "target": "device-master",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=326",
+      "jobId": "fc1af7c4-b2e5-488b-8be2-80749fcd5c7e"
+    },
+    {
+      "target": "institution-card",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "institution-card",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "befee9a8-5cf6-445b-9c35-1997fe6eea23"
+    },
+    {
+      "target": "institution-card",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=1, existing=0, failed=0",
+      "jobId": "befee9a8-5cf6-445b-9c35-1997fe6eea23"
+    },
+    {
+      "target": "institution-card",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=308",
+      "jobId": "befee9a8-5cf6-445b-9c35-1997fe6eea23"
+    },
+    {
+      "target": "host-module",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "host-module",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "369d1ae3-816a-464e-828d-dbf91aac2916"
+    },
+    {
+      "target": "host-module",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=1, existing=0, failed=0",
+      "jobId": "369d1ae3-816a-464e-828d-dbf91aac2916"
+    },
+    {
+      "target": "host-module",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=549",
+      "jobId": "369d1ae3-816a-464e-828d-dbf91aac2916"
+    },
+    {
+      "target": "host-submodule",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "host-submodule",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "f803dfea-84c1-428f-b833-a9a1bdec7eaa"
+    },
+    {
+      "target": "host-submodule",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=1, existing=0, failed=0",
+      "jobId": "f803dfea-84c1-428f-b833-a9a1bdec7eaa"
+    },
+    {
+      "target": "host-submodule",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=478",
+      "jobId": "f803dfea-84c1-428f-b833-a9a1bdec7eaa"
+    },
+    {
+      "target": "host-operation",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "host-operation",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "5264bef8-348e-4a0a-91a5-fde1415c1505"
+    },
+    {
+      "target": "host-operation",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=1, existing=0, failed=0",
+      "jobId": "5264bef8-348e-4a0a-91a5-fde1415c1505"
+    },
+    {
+      "target": "host-operation",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=251",
+      "jobId": "5264bef8-348e-4a0a-91a5-fde1415c1505"
+    },
+    {
+      "target": "host-module-operation",
+      "step": "template-export",
+      "status": "PASS",
+      "detail": "HTTP 200",
+      "jobId": null
+    },
+    {
+      "target": "host-module-operation",
+      "step": "preview",
+      "status": "PASS",
+      "detail": "",
+      "jobId": "2430bf70-3c78-4630-a423-b3e3d836cad8"
+    },
+    {
+      "target": "host-module-operation",
+      "step": "confirm-worker",
+      "status": "PASS",
+      "detail": "status=4, created=1, existing=0, failed=0",
+      "jobId": "2430bf70-3c78-4630-a423-b3e3d836cad8"
+    },
+    {
+      "target": "host-module-operation",
+      "step": "report-export",
+      "status": "PASS",
+      "detail": "HTTP 200, bytes=370",
+      "jobId": "2430bf70-3c78-4630-a423-b3e3d836cad8"
+    }
+  ],
+  "inserted": [
+    {
+      "department": "Customer Experience Operations",
+      "designation": "Customer Experience Specialist",
+      "role": "Customer Experience Lead",
+      "staffEmploymentType": "Hybrid Full-Time",
+      "staffMember": "Aarav Mehta",
+      "staffMemberCode": "QT/2026/0204",
+      "policy": "INDIA_HYBRID_ATTENDANCE_LOCATION",
+      "policyVersionId": 9,
+      "institutionLocationId": 5,
+      "hostModule": "HOST_COMPLIANCE_CENTRE_20260919211630",
+      "hostChild": "HOST_COMPLIANCE_REVIEWS_20260919211630",
+      "hostOperationType": 411649
+    }
+  ],
+  "gaps": [
+    "No independent master-data Export endpoint exists for these bulk targets; template and completed-job report are the implemented CSV exports."
+  ]
+}

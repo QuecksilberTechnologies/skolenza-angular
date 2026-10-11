@@ -1,0 +1,96 @@
+<p-card styleClass="h-full dark:bg-zinc-900 dark:border-zinc-800 dark:shadow-none">
+  <ng-template #header>
+    <app-dashboard-card-header
+      [title]="title()"
+      [placeholder]="placeholder()"
+      [loading]="loading()"
+      (refresh)="refresh.emit()" />
+  </ng-template>
+  <ng-template #content>
+    @if (loading() && !storage()?.capacityGigabytes) {
+    <div class="flex min-h-72 flex-col gap-3 dark:bg-zinc-900">
+      <div class="mx-auto h-36 w-36 animate-pulse rounded-full bg-gray-100 dark:bg-zinc-800"></div>
+      @for (row of skeletonRows; track row) {
+      <div class="h-11 animate-pulse rounded-lg bg-gray-100 dark:bg-zinc-800"></div>
+      }
+    </div>
+    } @else if (!storage()?.capacityGigabytes) {
+    <div class="flex min-h-72 items-center justify-center dark:bg-zinc-900">
+      <app-table-empty-message
+        icon="pi pi-database"
+        message="No storage data"
+        subMessage="Storage usage shows here once it is available" />
+    </div>
+    } @else {
+    <div class="flex min-h-72 flex-col items-center dark:bg-zinc-900">
+      <!-- Semicircle gauge -->
+      <div class="relative mt-2 mb-1 h-28 w-48">
+        <svg
+          viewBox="0 0 128 72"
+          class="h-full w-full"
+          aria-hidden="true">
+          <!-- Background arc -->
+          <path
+            d="M 10 64 A 54 54 0 0 1 118 64"
+            fill="none"
+            stroke-width="12"
+            stroke-linecap="round"
+            class="stroke-gray-100 dark:stroke-zinc-700" />
+          <!-- Filled arc -->
+          <path
+            d="M 10 64 A 54 54 0 0 1 118 64"
+            fill="none"
+            stroke-width="12"
+            stroke-linecap="round"
+            [class]="gaugeStrokeClass()"
+            [attr.stroke-dasharray]="gaugeDashArray()"
+            style="transition: stroke-dasharray 0.5s ease" />
+        </svg>
+        <!-- Center text -->
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
+          <span class="text-2xl font-bold text-gray-900 dark:text-zinc-100">{{ usedPercent() }}%</span>
+          <p class="mt-0.5 text-[11px] text-gray-400 dark:text-gray-500">{{ usedGb() }} / {{ totalGb() }} GB</p>
+        </div>
+      </div>
+
+      <!-- Used / Free summary -->
+      <div class="mb-3 flex items-center justify-center gap-6">
+        <div class="flex items-center gap-1.5">
+          <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+          <span class="text-xs text-gray-500 dark:text-gray-400">{{ usedGb() }} GB used</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="h-2.5 w-2.5 rounded-full bg-gray-200 dark:bg-zinc-600"></span>
+          <span class="text-xs text-gray-500 dark:text-gray-400">{{ freeGb() }} GB free</span>
+        </div>
+      </div>
+
+      <!-- Category breakdown -->
+      <div class="w-full space-y-2">
+        @for (cat of categories(); track cat.label) {
+        <div class="flex items-center gap-3 rounded-lg bg-primary-contrast px-3 py-2.5 dark:bg-zinc-800">
+          <div
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
+            [class]="cat.bgClass">
+            <lucide-angular
+              [img]="cat.icon"
+              size="16"
+              [class]="cat.colorClass"
+              aria-hidden="true" />
+          </div>
+          <div class="min-w-0 flex-1">
+            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ cat.label }}</span>
+          </div>
+          <span class="shrink-0 text-sm font-semibold text-gray-900 dark:text-zinc-100">
+            {{ formatGb(cat.usedGb) }}
+          </span>
+          <span class="w-8 shrink-0 text-right text-xs text-gray-400 dark:text-gray-500">
+            {{ categoryPercent(cat.usedGb) }}%
+          </span>
+        </div>
+        }
+      </div>
+    </div>
+    }
+  </ng-template>
+</p-card>

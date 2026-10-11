@@ -1,0 +1,87 @@
+{
+  "isSucceeded": true,
+  "message": "Reviews fetched successfully",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalRecords": 4,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "r-001",
+      "cycle": "Q1-2026",
+      "staffMemberId": "e-101",
+      "staffMemberName": "Aarav Sharma",
+      "reviewerId": "m-201",
+      "reviewerName": "Meera Nair",
+      "selfReview": "Delivered the NPS initiative ahead of schedule and supported two launches.",
+      "managerReview": "Strong quarter. Excellent ownership and cross-team communication.",
+      "goalsRating": 4,
+      "competencies": [
+        { "competency": "Communication", "rating": 5 },
+        { "competency": "Ownership", "rating": 4 },
+        { "competency": "Problem Solving", "rating": 4 },
+        { "competency": "Teamwork", "rating": 5 },
+        { "competency": "Quality", "rating": 4 }
+      ],
+      "overallRating": 4,
+      "comments": "Promotion candidate for next cycle.",
+      "status": "Completed",
+      "dueDate": "2026-04-10"
+    },
+    {
+      "id": "r-002",
+      "cycle": "Q1-2026",
+      "staffMemberId": "e-102",
+      "staffMemberName": "Diya Patel",
+      "reviewerId": "m-201",
+      "reviewerName": "Meera Nair",
+      "selfReview": "Focused on platform upgrades; mentoring took more time than planned.",
+      "managerReview": "",
+      "goalsRating": 3,
+      "competencies": [
+        { "competency": "Communication", "rating": 4 },
+        { "competency": "Ownership", "rating": 4 },
+        { "competency": "Problem Solving", "rating": 3 },
+        { "competency": "Teamwork", "rating": 4 },
+        { "competency": "Quality", "rating": 4 }
+      ],
+      "overallRating": 0,
+      "comments": "",
+      "status": "InReview",
+      "dueDate": "2026-04-12"
+    },
+    {
+      "id": "r-003",
+      "cycle": "Q1-2026",
+      "staffMemberId": "e-103",
+      "staffMemberName": "Kabir Singh",
+      "reviewerId": "m-202",
+      "reviewerName": "Rohan Mehta",
+      "selfReview": "Completed certification and improved build pipeline.",
+      "managerReview": "",
+      "goalsRating": 0,
+      "competencies": [],
+      "overallRating": 0,
+      "comments": "",
+      "status": "Pending",
+      "dueDate": "2026-04-15"
+    },
+    {
+      "id": "r-004",
+      "cycle": "Annual-2026",
+      "staffMemberId": "e-101",
+      "staffMemberName": "Aarav Sharma",
+      "reviewerId": "m-201",
+      "reviewerName": "Meera Nair",
+      "selfReview": "",
+      "managerReview": "",
+      "goalsRating": 0,
+      "competencies": [],
+      "overallRating": 0,
+      "comments": "",
+      "status": "Draft",
+      "dueDate": "2026-12-20"
+    }
+  ]
+}

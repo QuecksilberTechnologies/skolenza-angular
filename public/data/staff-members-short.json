@@ -1,0 +1,77 @@
+{
+  "isSucceeded": true,
+  "message": "Staff Members retrieved successfully.",
+  "errors": [],
+  "data": [
+    {
+      "staffMemberId": "EMP001",
+      "staffMemberFullName": "Sujeet Kumar Jaiswal",
+      "designationName": "Senior Software Engineer",
+      "departmentName": "Engineering",
+      "profileImageLink": ""
+    },
+    {
+      "staffMemberId": "EMP002",
+      "staffMemberFullName": "Priya Sharma",
+      "designationName": "UI/UX Designer",
+      "departmentName": "Design",
+      "profileImageLink": ""
+    },
+    {
+      "staffMemberId": "EMP003",
+      "staffMemberFullName": "Rahul Verma",
+      "designationName": "Software Engineer",
+      "departmentName": "Engineering",
+      "profileImageLink": ""
+    },
+    {
+      "staffMemberId": "EMP004",
+      "staffMemberFullName": "Anita Desai",
+      "designationName": "QA Engineer",
+      "departmentName": "Quality Assurance",
+      "profileImageLink": ""
+    },
+    {
+      "staffMemberId": "EMP005",
+      "staffMemberFullName": "Vikram Singh",
+      "designationName": "Product Manager",
+      "departmentName": "Product",
+      "profileImageLink": ""
+    },
+    {
+      "staffMemberId": "EMP006",
+      "staffMemberFullName": "Neha Gupta",
+      "designationName": "HR Manager",
+      "departmentName": "Human Resources",
+      "profileImageLink": ""
+    },
+    {
+      "staffMemberId": "EMP007",
+      "staffMemberFullName": "Amit Patel",
+      "designationName": "DevOps Engineer",
+      "departmentName": "Engineering",
+      "profileImageLink": ""
+    },
+    {
+      "staffMemberId": "EMP008",
+      "staffMemberFullName": "Kavita Nair",
+      "designationName": "Business Analyst",
+      "departmentName": "Product",
+      "profileImageLink": ""
+    },
+    {
+      "staffMemberId": "EMP009",
+      "staffMemberFullName": "Rajesh Iyer",
+      "designationName": "Team Lead",
+      "departmentName": "Engineering",
+      "profileImageLink": ""
+    },
+    {
+      "staffMemberId": "EMP010",
+      "staffMemberFullName": "Deepika Reddy",
+      "designationName": "Frontend Developer",
+      "departmentName": "Engineering",
+      "profileImageLink": ""
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "staffMemberPatternHash": null,
+    "reservedStaffMemberSequence": null,
+    "jobId": "b7eb5dd3-b69d-4a3c-97b4-97d78844c389",
+    "master": 4,
+    "sourceColumns": [
+      "TypeName",
+      "Description",
+      "Remark",
+      "IsActive"
+    ],
+    "columnMapping": {
+      "TypeName": "TypeName",
+      "IsActive": "IsActive",
+      "Description": "Description",
+      "Remark": "Remark"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "hostRecordId": null,
+        "proposedStaffMemberCode": null,
+        "invitationStatus": null,
+        "invitationError": null,
+        "invitationAttemptedAtUtc": null,
+        "processed": false,
+        "willReactivate": false,
+        "wasReactivated": false,
+        "rowNumber": 2,
+        "values": {
+          "TypeName": "Hybrid Full-Time",
+          "IsActive": "true",
+          "Description": "Full-time hybrid staff members attached to a primary office",
+          "Remark": "Eligible for hybrid attendance policy"
+        },
+        "status": 2,
+        "existingId": 14,
+        "departmentId": null,
+        "policyVersionId": null,
+        "targetStaffMemberId": null,
+        "errors": []
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 1,
+    "invalidCount": 0,
+    "isValid": true,
+    "confirmationAvailable": true,
+    "canCommit": true
+  },
+  "errors": []
+}

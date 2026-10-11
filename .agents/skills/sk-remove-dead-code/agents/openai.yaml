@@ -1,0 +1,5 @@
+interface:
+  display_name: "Remove Dead Code"
+  short_description: "Find and safely remove dead code"
+policy:
+  allow_implicit_invocation: false

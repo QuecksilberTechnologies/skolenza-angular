@@ -1,0 +1,61 @@
+{
+  "isSucceeded": true,
+  "message": "Policy import preview saved successfully.",
+  "data": {
+    "staffMemberPatternHash": null,
+    "reservedStaffMemberSequence": null,
+    "jobId": "33260b1a-638e-4017-a2b0-5890926659f9",
+    "master": 12,
+    "sourceColumns": [
+      "PolicyTypeCode",
+      "PolicyName",
+      "PolicyCategoryCode",
+      "Description",
+      "DefaultCurrencyCode",
+      "IsActive"
+    ],
+    "columnMapping": {
+      "PolicyTypeCode": "PolicyTypeCode",
+      "PolicyName": "PolicyName",
+      "PolicyCategoryCode": "PolicyCategoryCode",
+      "Description": "Description",
+      "DefaultCurrencyCode": "DefaultCurrencyCode",
+      "IsActive": "IsActive"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "hostRecordId": null,
+        "proposedStaffMemberCode": null,
+        "invitationStatus": null,
+        "invitationError": null,
+        "invitationAttemptedAtUtc": null,
+        "processed": false,
+        "willReactivate": false,
+        "wasReactivated": false,
+        "rowNumber": 2,
+        "values": {
+          "PolicyTypeCode": "HYBRID_ATTENDANCE",
+          "PolicyName": "Hybrid Attendance",
+          "PolicyCategoryCode": "ATTENDANCE",
+          "Description": "Attendance rules for staff members alternating between office and remote work",
+          "DefaultCurrencyCode": "INR",
+          "IsActive": "true"
+        },
+        "status": 2,
+        "existingId": 9,
+        "departmentId": null,
+        "policyVersionId": null,
+        "targetStaffMemberId": null,
+        "errors": []
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 1,
+    "invalidCount": 0,
+    "isValid": true,
+    "confirmationAvailable": true,
+    "canCommit": true
+  },
+  "errors": []
+}

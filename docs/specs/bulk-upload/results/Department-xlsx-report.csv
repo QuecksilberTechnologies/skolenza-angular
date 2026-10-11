@@ -1,0 +1,3 @@
+﻿RowNumber,Status,RecordId,Values,Errors
+2,Created,6,"{""Remark"":""Development acceptance"",""IsActive"":""true"",""Description"":""UI bulk acceptance engineering"",""DepartmentName"":""UIQA-20260910-Engineering""}",""
+3,Created,7,"{""Remark"":""Development acceptance"",""IsActive"":""true"",""Description"":""UI bulk acceptance people"",""DepartmentName"":""UIQA-20260910-People""}",""

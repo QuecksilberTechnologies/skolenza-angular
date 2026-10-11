@@ -1,0 +1,401 @@
+{
+  "Date": "2026-09-11",
+  "Scope": "StaffMember pattern, import and invitations",
+  "Database": "Isolated skolenza_bulk_test",
+  "DistinctTests": 77,
+  "Passed": 77,
+  "Failed": 0,
+  "Skipped": 0,
+  "LiveHttpStatus": "COMPLETE: CSV create, paste skip replay, DB reconciliation, pattern recode/restore and StaffEmploymentType CRUD/menu passed on 2026-09-11.",
+  "Tests": [
+    {
+      "Test": "Address_requires_contact_number_and_reuses_personal_primary_contact_contract",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Aliases_require_explicit_mapping_and_source_cannot_be_reused",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Allocation_requires_a_transaction",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Archived_staffMember_code_blocks_reuse_without_changing_archived_record",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-final-boundaries.trx"
+    },
+    {
+      "Test": "Changed_staffMember_code_invalidates_preview_fingerprint",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Concurrent_allocators_observe_committed_sequence_and_original_joining_year",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Confirmation_does_not_change_other_institution_codes_or_patterns",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Confirmed_staffMember_creates_account_role_image_and_primary_address_without_email",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Create_cannot_replace_an_existing_active_pattern",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Date_dependent_pattern_rejects_missing_joining_date",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Department_dependent_pattern_rejects_missing_department",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Duplicate_email_and_cross_institution_reference_block_confirmation",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Duplicate_proposed_codes_block_the_entire_preview",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "StaffMember_routes_require_authentication(\"CancelBulkImport\",\"bulk/cancel\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "StaffMember_routes_require_authentication(\"ConfirmBulkImport\",\"bulk/confirm\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "StaffMember_routes_require_authentication(\"DownloadBulkReport\",\"bulk/jobs/{jobId:guid}/report\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "StaffMember_routes_require_authentication(\"DownloadBulkTemplate\",\"bulk/template\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "StaffMember_routes_require_authentication(\"GetBulkImport\",\"bulk/jobs/{jobId:guid}\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "StaffMember_routes_require_authentication(\"ListBulkImports\",\"bulk/jobs\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "StaffMember_routes_require_authentication(\"PreviewBulkImport\",\"bulk/preview\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "StaffMember_routes_require_authentication(\"RetryBulkImport\",\"bulk/retry\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "StaffMember_routes_require_authentication(\"SendBulkInvitations\",\"bulk/send-invitations\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Existing_pipeline_rejects_wrong_module_or_denied_grant_before_handler(False,False)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-targeted.trx"
+    },
+    {
+      "Test": "Existing_pipeline_rejects_wrong_module_or_denied_grant_before_handler(True,False)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-targeted.trx"
+    },
+    {
+      "Test": "Existing_pipeline_rejects_wrong_module_or_denied_grant_before_handler(True,True)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-targeted.trx"
+    },
+    {
+      "Test": "Explicit_dispatch_generates_fresh_token_and_records_delivery_separately(\"failed\",Failed,1)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Explicit_dispatch_generates_fresh_token_and_records_delivery_separately(\"sent\",Sent,1)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Explicit_dispatch_generates_fresh_token_and_records_delivery_separately(\"token-failed\",Failed,0)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Explicit_dispatch_generates_fresh_token_and_records_delivery_separately(\"uncertain\",DeliveryUnknown,1)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Foreign_staffMember_blocks_preview",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Highest_preserved_code_determines_next_number",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Host_aggregate_cannot_bypass_pattern_preview(False)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Host_aggregate_cannot_bypass_pattern_preview(True)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Host_cannot_use_institution_pattern_write",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-action-permissions.trx"
+    },
+    {
+      "Test": "Initial_admin_counts_toward_capacity_and_worker_rechecks_changed_limit",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Invalid_required_fields_are_reported(\"DepartmentId\",\"-1\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Invalid_required_fields_are_reported(\"FirstName\",\"\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Invalid_required_fields_are_reported(\"GenderId\",\"Female\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Invalid_required_fields_are_reported(\"IsActive\",\"maybe\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Invalid_required_fields_are_reported(\"OfficialEmail\",\"invalid email\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Invitation_claim_before_completion_or_from_another_institution_is_rejected",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Invitations_are_claimed_once_failed_delivery_retries_and_public_report_hides_internal_ids",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Joining_dates_are_unambiguous_and_respect_excel_date_system(\"15/03/2020\",False,False,null)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Joining_dates_are_unambiguous_and_respect_excel_date_system(\"2020-03-15\",False,False,\"2020-03-15\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Joining_dates_are_unambiguous_and_respect_excel_date_system(\"42443\",True,True,\"2020-03-15\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Joining_dates_are_unambiguous_and_respect_excel_date_system(\"43905.5\",True,False,null)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Joining_dates_are_unambiguous_and_respect_excel_date_system(\"43905\",False,False,null)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Joining_dates_are_unambiguous_and_respect_excel_date_system(\"43905\",True,False,\"2020-03-15\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Joining_dates_are_unambiguous_and_respect_excel_date_system(\"60\",True,False,null)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Joining_dates_are_unambiguous_and_respect_excel_date_system(\"not a date\",False,False,null)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Matching_code_preserves_running_number_with_or_without_separator(\"\",\"QT2022MAR0145\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Matching_code_preserves_running_number_with_or_without_separator(\"/\",\"QT/2022/MAR/0145\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Missing_active_pattern_can_be_created_after_preview_without_changing_matching_codes",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-final-boundaries.trx"
+    },
+    {
+      "Test": "Missing_original_date_is_not_replaced_with_today",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Multiple_allocations_without_save_are_distinct_and_rollback_restores_counter",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Nonmatching_codes_are_not_silently_normalized(\"OTHER/0145\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Nonmatching_codes_are_not_silently_normalized(\"QT/+145\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Nonmatching_codes_are_not_silently_normalized(\"QT/0000\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Nonmatching_codes_are_not_silently_normalized(\"QT/00145\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Nonmatching_codes_are_not_silently_normalized(\"QT/0145 \")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Nonmatching_codes_are_not_silently_normalized(\"QT/145\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Numeric_prefix_is_not_part_of_the_sequence",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Original_joining_date_supplies_year_and_month",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Pattern_preview_recodes_admin_and_other_staffMember_without_mutating_them",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Pattern_routes_require_authentication(\"AddStaffMemberCodePattern\",\"add-staffMember-code-pattern\",Microsoft.AspNetCore.Mvc.HttpPostAttribute)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-targeted.trx"
+    },
+    {
+      "Test": "Pattern_routes_require_authentication(\"UpdateStaffMemberCodePattern\",\"update-staffMember-code-pattern\",Microsoft.AspNetCore.Mvc.HttpPutAttribute)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-targeted.trx"
+    },
+    {
+      "Test": "Preserved_0145_and_0200_generate_0201_and_reserve_approved_range",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Preview_is_read_only_and_confirmation_updates_codes_and_pattern_together",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-final-boundaries.trx"
+    },
+    {
+      "Test": "Sequence_overflow_is_rejected",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-pattern.trx"
+    },
+    {
+      "Test": "Stale_counter_blocks_confirmation_and_other_institution_cannot_read_job",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "Stale_preview_is_rejected_without_changing_pattern",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-first.trx"
+    },
+    {
+      "Test": "Uncertain_invitation_delivery_is_not_automatically_retried",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "View_only_operation_cannot_send_invitations",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-import-invitations.trx"
+    },
+    {
+      "Test": "View_permission_cannot_create_or_update_pattern(False)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-action-permissions.trx"
+    },
+    {
+      "Test": "View_permission_cannot_create_or_update_pattern(True)",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-code-action-permissions.trx"
+    },
+    {
+      "Test": "Xlsx_reader_retains_the_workbook_date_system(False,\"43905\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-final-boundaries.trx"
+    },
+    {
+      "Test": "Xlsx_reader_retains_the_workbook_date_system(True,\"42443\")",
+      "Outcome": "Passed",
+      "Evidence": "staffMember-final-boundaries.trx"
+    }
+  ],
+  "AdditionalFocusedEvidence": [
+    "staff-employment-type-response-regression.trx: 2 new passes",
+    "staffMember-legacy-date.trx: 2 new passes and 1 affected existing pass"
+  ]
+}

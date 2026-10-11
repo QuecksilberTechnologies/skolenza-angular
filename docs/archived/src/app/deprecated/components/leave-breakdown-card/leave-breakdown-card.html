@@ -1,0 +1,30 @@
+<p-card class="p-4 bg-white dark:bg-zinc-900 rounded-lg min-h-[20rem]">
+  <div class="font-semibold mb-4 text-xl text-gray-900 dark:text-zinc-100">
+    {{ title() }}
+  </div>
+  <div class="text-2xl font-bold text-gray-900 dark:text-zinc-100">
+    {{ leaveBreakdown().total }} Days
+  </div>
+  <div class="text-xs text-green-600 dark:text-green-400 mb-4">
+    {{ leaveBreakdown().change }} this month
+  </div>
+  <div class="flex h-3 w-full rounded overflow-hidden mb-4 bg-gray-100 dark:bg-zinc-700">
+    @for (lt of leaveBreakdown().types; track lt.type) {
+      <div [class]="`${lt.color} h-full`" [style.width.%]="getLeaveTypeWidth(lt.days)"></div>
+    }
+  </div>
+  <ul class="space-y-2">
+    @for (lt of leaveBreakdown().types; track lt.type) {
+      <li class="grid grid-cols-3 text-sm">
+        <span class="flex items-center">
+          <span [class]="`${lt.color} inline-block w-3 h-3 rounded-full mr-2`"></span>
+          <span class="text-gray-700 dark:text-zinc-200">{{ lt.type }}:</span>
+        </span>
+        <span class="font-semibold text-gray-900 dark:text-zinc-100">{{ lt.days }} days</span>
+        <span class="ml-2 text-xs text-slate-400 dark:text-zinc-400">
+          {{ lt.change }} this month
+        </span>
+      </li>
+    }
+  </ul>
+</p-card>

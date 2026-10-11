@@ -1,0 +1,53 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "jobId": "514cc50c-0bdb-4945-8708-a7097564a759",
+    "master": 4,
+    "sourceColumns": ["TypeName", "Description", "Remark", "IsActive"],
+    "columnMapping": {
+      "TypeName": "TypeName",
+      "IsActive": "IsActive",
+      "Description": "Description",
+      "Remark": "Remark"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "processed": false,
+        "rowNumber": 2,
+        "values": {
+          "TypeName": "UIQA-20260910-Contract",
+          "IsActive": "true",
+          "Description": "Development contract type",
+          "Remark": "Development acceptance"
+        },
+        "status": 2,
+        "existingId": 9,
+        "departmentId": null,
+        "errors": []
+      },
+      {
+        "processed": false,
+        "rowNumber": 3,
+        "values": {
+          "TypeName": "UIQA-20260910-Intern",
+          "IsActive": "true",
+          "Description": "Development intern type",
+          "Remark": "Development acceptance"
+        },
+        "status": 2,
+        "existingId": 10,
+        "departmentId": null,
+        "errors": []
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 2,
+    "invalidCount": 0,
+    "isValid": true,
+    "confirmationAvailable": true,
+    "canCommit": true
+  },
+  "errors": []
+}

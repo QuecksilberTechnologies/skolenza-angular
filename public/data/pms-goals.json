@@ -1,0 +1,89 @@
+{
+  "isSucceeded": true,
+  "message": "Goals fetched successfully",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalRecords": 6,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "g-001",
+      "title": "Increase NPS by 10 points",
+      "description": "Drive customer satisfaction initiatives across support and product.",
+      "category": "Business",
+      "weight": 25,
+      "progress": 70,
+      "startDate": "2026-01-01",
+      "dueDate": "2026-06-30",
+      "status": "InReview",
+      "ownerId": "e-101",
+      "ownerName": "Aarav Sharma"
+    },
+    {
+      "id": "g-002",
+      "title": "Migrate services to Angular 22",
+      "description": "Upgrade legacy modules and adopt signals across the platform.",
+      "category": "Technical",
+      "weight": 20,
+      "progress": 45,
+      "startDate": "2026-02-01",
+      "dueDate": "2026-08-31",
+      "status": "Pending",
+      "ownerId": "e-101",
+      "ownerName": "Aarav Sharma"
+    },
+    {
+      "id": "g-003",
+      "title": "Mentor two junior engineers",
+      "description": "Run weekly 1:1s and pairing sessions to grow the team.",
+      "category": "Leadership",
+      "weight": 15,
+      "progress": 90,
+      "startDate": "2026-01-15",
+      "dueDate": "2026-12-15",
+      "status": "InReview",
+      "ownerId": "e-102",
+      "ownerName": "Diya Patel"
+    },
+    {
+      "id": "g-004",
+      "title": "Complete AWS certification",
+      "description": "Pass the Solutions Architect Associate exam.",
+      "category": "Personal Development",
+      "weight": 10,
+      "progress": 100,
+      "startDate": "2026-01-01",
+      "dueDate": "2026-04-30",
+      "status": "Completed",
+      "ownerId": "e-103",
+      "ownerName": "Kabir Singh"
+    },
+    {
+      "id": "g-005",
+      "title": "Reduce build time by 30%",
+      "description": "Optimize CI pipeline and bundle splitting.",
+      "category": "Technical",
+      "weight": 20,
+      "progress": 30,
+      "startDate": "2026-03-01",
+      "dueDate": "2026-09-30",
+      "status": "Draft",
+      "ownerId": "e-102",
+      "ownerName": "Diya Patel"
+    },
+    {
+      "id": "g-006",
+      "title": "Launch cross-team design system",
+      "description": "Coordinate adoption across three product squads.",
+      "category": "Collaboration",
+      "weight": 10,
+      "progress": 0,
+      "startDate": "2026-04-01",
+      "dueDate": "2026-10-31",
+      "status": "Cancelled",
+      "ownerId": "e-103",
+      "ownerName": "Kabir Singh"
+    }
+  ]
+}

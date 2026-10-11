@@ -1,0 +1,26 @@
+{
+  "isSucceeded": true,
+  "message": "OK",
+  "errors": [],
+  "data": {
+    "comments": [
+      { "id": "cmt-1", "author": "Aarav Sharma", "initials": "AS", "message": "Latency work is paying off — p99 dropped 30ms this week.", "createdAt": "2026-06-18T10:15:00Z" },
+      { "id": "cmt-2", "author": "Diya Patel", "initials": "DP", "message": "Can we pull the alert-coverage KR forward? It's blocking the audit.", "createdAt": "2026-06-20T14:40:00Z" },
+      { "id": "cmt-3", "author": "Rohan Mehta", "initials": "RM", "message": "Agreed. I'll re-sequence next sprint.", "createdAt": "2026-06-21T09:05:00Z" }
+    ],
+    "activities": [
+      { "id": "act-1", "actor": "Aarav Sharma", "action": "created this OKR", "createdAt": "2026-03-20T09:00:00Z" },
+      { "id": "act-2", "actor": "Aarav Sharma", "action": "updated progress", "detail": "55% → 72%", "createdAt": "2026-06-15T11:20:00Z" },
+      { "id": "act-3", "actor": "Isha Nair", "action": "changed status", "detail": "Active → On Track", "createdAt": "2026-06-16T08:30:00Z" },
+      { "id": "act-4", "actor": "Aarav Sharma", "action": "added a key result", "detail": "Reach 90% alert coverage", "createdAt": "2026-06-17T16:00:00Z" }
+    ],
+    "attachments": [
+      { "id": "att-1", "fileName": "reliability-roadmap.pdf", "sizeLabel": "1.2 MB", "uploadedBy": "Aarav Sharma", "uploadedAt": "2026-05-02T10:00:00Z" },
+      { "id": "att-2", "fileName": "incident-postmortems-q2.xlsx", "sizeLabel": "340 KB", "uploadedBy": "Rohan Mehta", "uploadedAt": "2026-06-01T13:30:00Z" }
+    ],
+    "linkedGoals": [
+      { "id": "okr-006", "title": "Ship SOC 2 Type II compliance", "level": "Company", "progress": 100 },
+      { "id": "okr-003", "title": "Launch self-serve onboarding", "level": "Department", "progress": 15 }
+    ]
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "singleQuote": true,
+  "htmlWhitespaceSensitivity": "ignore",
+  "overrides": [
+    {
+      "files": ["*.html"],
+      "options": {
+        "parser": "angular",
+        "printWidth": 120,
+        "singleAttributePerLine": true,
+        "bracketSameLine": true,
+        "htmlWhitespaceSensitivity": "ignore"
+      }
+    }
+  ],
+  "embeddedLanguageFormatting": "auto",
+  "sortImports": {
+    "internalPattern": ["@core/", "@shared/", "@layout/", "@tickets/", "@env/"]
+  },
+  "sortTailwindcss": {
+    "stylesheet": "src/styles.css"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    ".angular/",
+    "out-tsc/",
+    ".agents/",
+    ".claude/",
+    ".vscode/",
+    ".github/",
+    ".idea/",
+    "bun.lock",
+    "*.log",
+    ".DS_Store",
+    "Thumbs.db",
+    "*.generated.ts",
+    "*.gen.ts",
+    "*.d.ts",
+    "*.min.js",
+    "*.min.css",
+    "*.png",
+    "*.jpg",
+    "*.jpeg",
+    "*.gif",
+    "*.svg",
+    "*.ico",
+    "*.webp",
+    "*.woff",
+    "*.woff2",
+    "*.ttf",
+    "*.eot",
+    "*.html",
+    "public/",
+    "docs/archived/",
+    "docs/specs/",
+    "docs/testing"
+  ]
+}

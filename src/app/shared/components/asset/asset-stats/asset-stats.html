@@ -1,0 +1,65 @@
+<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+  <!-- Total Assets -->
+  <p-card class="h-[7.4rem] w-full rounded-xl border-0 bg-white shadow dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="flex items-center gap-3 p-2 sm:gap-4">
+      <div
+        class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 sm:h-12 sm:w-12 dark:bg-primary-900/30">
+        <i class="pi pi-box text-xl! text-primary-500 sm:text-2xl! dark:text-primary-200"></i>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-2xl! leading-tight font-medium text-gray-900 sm:text-3xl! dark:text-zinc-100">
+          {{ assetStatistics()?.totalAssets || 0 }}
+        </span>
+        <span class="text-sm font-medium text-gray-500 sm:text-base dark:text-zinc-400">Total Assets</span>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Assigned Assets -->
+  <p-card class="h-[7.4rem] w-full rounded-xl border-0 bg-white shadow dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="flex items-center gap-3 p-2 sm:gap-4">
+      <div
+        class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 sm:h-12 sm:w-12 dark:bg-primary-900/30">
+        <i class="pi pi-check-circle text-xl! text-primary-500 sm:text-2xl! dark:text-primary-200"></i>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-2xl! leading-tight font-medium text-gray-900 sm:text-3xl! dark:text-zinc-100">
+          {{ assetStatistics()?.assignedAssets || 0 }}
+        </span>
+        <span class="text-sm font-medium text-gray-500 sm:text-base dark:text-zinc-400">Assigned Assets</span>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Available Assets -->
+  <p-card class="h-[7.4rem] w-full rounded-xl border-0 bg-white shadow dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="flex items-center gap-3 p-2 sm:gap-4">
+      <div
+        class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 sm:h-12 sm:w-12 dark:bg-primary-900/30">
+        <i class="pi pi-chart-line text-xl! text-primary-500 sm:text-2xl! dark:text-primary-200"></i>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-2xl! leading-tight font-medium text-gray-900 sm:text-3xl! dark:text-zinc-100">
+          {{ assetStatistics()?.availableAssets || 0 }}
+        </span>
+        <span class="text-sm font-medium text-gray-500 sm:text-base dark:text-zinc-400">Available Assets</span>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Maintenance -->
+  <p-card class="h-[7.4rem] w-full rounded-xl border-0 bg-white shadow dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="flex items-center gap-3 p-2 sm:gap-4">
+      <div
+        class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 sm:h-12 sm:w-12 dark:bg-primary-900/30">
+        <i class="pi pi-exclamation-triangle text-xl! text-primary-500 sm:text-2xl! dark:text-primary-200"></i>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-2xl leading-tight font-medium text-gray-900 sm:text-3xl dark:text-zinc-100">
+          {{ assetStatistics()?.underMaintenance || 0 }}
+        </span>
+        <span class="text-sm font-medium text-gray-500 sm:text-base dark:text-zinc-400">Maintenance</span>
+      </div>
+    </div>
+  </p-card>
+</div>

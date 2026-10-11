@@ -1,0 +1,67 @@
+{
+  "isSucceeded": true,
+  "message": "",
+  "data": {
+    "jobId": "9f951527-27ef-4ced-b95c-a60990c79375",
+    "master": 1,
+    "status": 4,
+    "createdAtUtc": "2026-09-10T18:03:48.293539Z",
+    "updatedAtUtc": "2026-09-10T18:03:53.239536Z",
+    "scheduledAtUtc": "2026-09-10T18:03:49.172426Z",
+    "totalRows": 2,
+    "processedRows": 2,
+    "createdCount": 0,
+    "existingCount": 2,
+    "failedCount": 0,
+    "error": null,
+    "preview": {
+      "jobId": "9f951527-27ef-4ced-b95c-a60990c79375",
+      "master": 1,
+      "sourceColumns": ["DepartmentName", "Description", "Remark", "IsActive"],
+      "columnMapping": {
+        "Remark": "Remark",
+        "IsActive": "IsActive",
+        "Description": "Description",
+        "DepartmentName": "DepartmentName"
+      },
+      "errors": [],
+      "rows": [
+        {
+          "processed": true,
+          "rowNumber": 2,
+          "values": {
+            "Remark": "Development acceptance",
+            "IsActive": "true",
+            "Description": "UI bulk acceptance engineering",
+            "DepartmentName": "UIQA-20260910-Engineering"
+          },
+          "status": 2,
+          "existingId": 6,
+          "departmentId": null,
+          "errors": []
+        },
+        {
+          "processed": true,
+          "rowNumber": 3,
+          "values": {
+            "Remark": "Development acceptance",
+            "IsActive": "true",
+            "Description": "UI bulk acceptance people",
+            "DepartmentName": "UIQA-20260910-People"
+          },
+          "status": 2,
+          "existingId": 7,
+          "departmentId": null,
+          "errors": []
+        }
+      ],
+      "readyCount": 0,
+      "existingCount": 2,
+      "invalidCount": 0,
+      "isValid": true,
+      "confirmationAvailable": false,
+      "canCommit": false
+    }
+  },
+  "errors": []
+}

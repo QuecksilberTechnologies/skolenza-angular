@@ -1,0 +1,588 @@
+{
+  "host": {
+    "main": [
+      {
+        "id": "host-dashboard",
+        "label": "Dashboard (Prototype)",
+        "icon": "pi pi-microsoft",
+        "route": "host-dashboard",
+        "tooltip": "Host Dashboard"
+      }
+    ],
+    "management": [
+      {
+        "id": "host-users",
+        "label": "Users",
+        "icon": "pi pi-users",
+        "route": "host-users",
+        "moduleKey": "HostUser",
+        "tooltip": "Manage host users"
+      },
+      {
+        "id": "host-roles",
+        "label": "Roles",
+        "icon": "pi pi-shield",
+        "route": "host-roles",
+        "moduleKey": "HostRole",
+        "tooltip": "Manage host roles"
+      },
+      {
+        "id": "institutions",
+        "label": "Institutions",
+        "icon": "pi pi-building",
+        "route": "institutions",
+        "moduleKey": "Host",
+        "tooltip": "Manage institutions"
+      },
+      {
+        "id": "subscriptions",
+        "label": "Subscriptions",
+        "icon": "pi pi-credit-card",
+        "tooltip": "Subscriptions",
+        "children": [
+          {
+            "id": "subscription-plans",
+            "label": "Plans",
+            "icon": "pi pi-credit-card",
+            "route": "subscriptions",
+            "moduleKey": "Subscription-Plan",
+            "tooltip": "Manage subscription plans"
+          },
+          {
+            "id": "subscription-modules",
+            "label": "Modules",
+            "icon": "pi pi-th-large",
+            "route": "modules",
+            "moduleKey": "Host",
+            "tooltip": "Manage modules"
+          }
+        ]
+      },
+      {
+        "id": "device-masters",
+        "label": "Device Masters",
+        "icon": "pi pi-tablet",
+        "route": "device-masters",
+        "moduleKey": "Host",
+        "tooltip": "Manage the device catalog"
+      },
+      {
+        "id": "institution-devices",
+        "label": "Institution Devices",
+        "icon": "pi pi-sitemap",
+        "route": "institution-devices",
+        "moduleKey": "Host",
+        "tooltip": "Manage devices installed at institution locations"
+      },
+      {
+        "id": "institution-device-configurations",
+        "label": "Device Configurations",
+        "icon": "pi pi-cog",
+        "route": "institution-device-configurations",
+        "moduleKey": "Host",
+        "tooltip": "Manage how institution devices connect to the platform"
+      }
+    ]
+  },
+  "admin": {
+    "main": [
+      {
+        "id": "admin-dashboard",
+        "label": "Dashboard (Prototype)",
+        "icon": "pi pi-microsoft",
+        "route": "admin-dashboard",
+        "tooltip": "Admin Dashboard"
+      }
+    ],
+    "management": [
+      {
+        "id": "staff members",
+        "label": "Staff Members",
+        "icon": "pi pi-users",
+        "route": "staff members",
+        "tooltip": "View and manage staff members",
+        "moduleKey": "Staff Members"
+      },
+      {
+        "id": "attendance",
+        "label": "Attendance (Prototype)",
+        "icon": "pi pi-clock",
+        "route": "attendance",
+        "tooltip": "Attendance",
+        "moduleKey": "Attendance"
+      },
+      {
+        "id": "leave",
+        "label": "Leave (Prototype)",
+        "icon": "pi pi-calendar-minus",
+        "tooltip": "Leave management",
+        "moduleKey": "Leaves",
+        "children": [
+          {
+            "id": "leave-my",
+            "label": "My Leave",
+            "icon": "pi pi-user",
+            "route": "leave/my",
+            "tooltip": "My leave balance and requests",
+            "moduleKey": "Leaves"
+          },
+          {
+            "id": "leave-inbox",
+            "label": "Approval Inbox",
+            "icon": "pi pi-inbox",
+            "route": "leave/inbox",
+            "tooltip": "Pending leave requests",
+            "moduleKey": "Leaves"
+          },
+          {
+            "id": "leave-history",
+            "label": "Leave History",
+            "icon": "pi pi-history",
+            "route": "leave/history",
+            "tooltip": "All team leave requests",
+            "moduleKey": "Leaves"
+          }
+        ]
+      },
+      {
+        "id": "tickets",
+        "label": "Tickets (Prototype)",
+        "icon": "pi pi-ticket",
+        "route": "tickets",
+        "tooltip": "Manage tickets",
+        "moduleKey": "Tickets"
+      },
+      {
+        "id": "assets",
+        "label": "Assets",
+        "icon": "pi pi-desktop",
+        "route": "assets",
+        "tooltip": "Manage company assets",
+        "moduleKey": "Assets"
+      },
+      {
+        "id": "payroll",
+        "label": "Payroll (Prototype)",
+        "icon": "pi pi-wallet",
+        "route": "payroll",
+        "tooltip": "Manage payroll",
+        "moduleKey": "Payroll"
+      },
+      {
+        "id": "departments",
+        "label": "Departments",
+        "icon": "pi pi-building",
+        "route": "departments",
+        "tooltip": "Departments",
+        "moduleKey": "Departments"
+      },
+      {
+        "id": "designations",
+        "label": "Designations",
+        "icon": "pi pi-id-card",
+        "route": "designations",
+        "tooltip": "Manage designations",
+        "moduleKey": "Designations"
+      },
+      {
+        "id": "institution-locations",
+        "label": "Locations",
+        "icon": "pi pi-map-marker",
+        "route": "institution-locations",
+        "tooltip": "Manage office and site locations",
+        "moduleKey": "Attendance"
+      },
+      {
+        "id": "roles",
+        "label": "Roles",
+        "icon": "pi pi-shield",
+        "route": "roles",
+        "tooltip": "Manage user roles",
+        "moduleKey": "Roles"
+      },
+      {
+        "id": "policies",
+        "label": "Policies",
+        "icon": "pi pi-file",
+        "route": "policies",
+        "tooltip": "Manage policies",
+        "moduleKey": "Policies"
+      },
+      {
+        "id": "report-types",
+        "label": "Report Types",
+        "icon": "pi pi-chart-bar",
+        "route": "report-types",
+        "tooltip": "Manage report types",
+        "moduleKey": "ReportingType"
+      },
+      {
+        "id": "holidays",
+        "label": "Holidays (Prototype)",
+        "icon": "pi pi-calendar",
+        "route": "holidays",
+        "tooltip": "Manage holidays",
+        "moduleKey": "Holidays"
+      },
+      {
+        "id": "projects",
+        "label": "Projects (Prototype)",
+        "icon": "pi pi-folder",
+        "route": "projects",
+        "tooltip": "Manage projects",
+        "moduleKey": "Projects"
+      },
+      {
+        "id": "okr",
+        "label": "OKRs (Prototype)",
+        "icon": "pi pi-flag",
+        "route": "okr/dashboard",
+        "tooltip": "Objectives & Key Results",
+        "moduleKey": "OKR"
+      },
+      {
+        "id": "tasks",
+        "label": "Tasks (Prototype)",
+        "icon": "pi pi-check-square",
+        "tooltip": "Task Sheet",
+        "moduleKey": "Tasks",
+        "children": [
+          {
+            "id": "tasks-dashboard",
+            "label": "Dashboard",
+            "icon": "pi pi-gauge",
+            "route": "tasks/dashboard",
+            "tooltip": "Task dashboard"
+          },
+          {
+            "id": "tasks-list",
+            "label": "All Tasks",
+            "icon": "pi pi-list",
+            "route": "tasks/list",
+            "tooltip": "All tasks"
+          },
+          {
+            "id": "tasks-my",
+            "label": "My Tasks",
+            "icon": "pi pi-user",
+            "route": "tasks/my",
+            "tooltip": "Tasks assigned to me"
+          },
+          {
+            "id": "tasks-team",
+            "label": "Team Tasks",
+            "icon": "pi pi-users",
+            "route": "tasks/team",
+            "tooltip": "Team tasks"
+          },
+          {
+            "id": "tasks-board",
+            "label": "Board",
+            "icon": "pi pi-th-large",
+            "route": "tasks/board",
+            "tooltip": "Kanban board"
+          },
+          {
+            "id": "tasks-calendar",
+            "label": "Calendar",
+            "icon": "pi pi-calendar",
+            "route": "tasks/calendar",
+            "tooltip": "Task calendar"
+          }
+        ]
+      },
+      {
+        "id": "performance",
+        "label": "Performance (PMS) (Prototype)",
+        "icon": "pi pi-chart-line",
+        "route": "performance/dashboard",
+        "tooltip": "Performance management"
+      },
+      {
+        "id": "learning",
+        "label": "Learning & Desk (Prototype)",
+        "icon": "pi pi-graduation-cap",
+        "tooltip": "Learning portal",
+        "children": [
+          {
+            "id": "learning-dashboard",
+            "label": "Dashboard",
+            "icon": "pi pi-th-large",
+            "route": "learning/dashboard",
+            "tooltip": "Learning dashboard"
+          },
+          {
+            "id": "learning-my",
+            "label": "My Learning",
+            "icon": "pi pi-book",
+            "route": "learning/my-learning",
+            "tooltip": "My enrolled courses"
+          },
+          {
+            "id": "learning-catalog",
+            "label": "Course Catalog",
+            "icon": "pi pi-objects-column",
+            "route": "learning/catalog",
+            "tooltip": "Browse courses"
+          },
+          {
+            "id": "learning-paths",
+            "label": "Learning Paths",
+            "icon": "pi pi-sitemap",
+            "route": "learning/paths",
+            "tooltip": "Learning roadmaps"
+          },
+          {
+            "id": "learning-assigned",
+            "label": "Assigned",
+            "icon": "pi pi-inbox",
+            "route": "learning/assigned",
+            "tooltip": "Assigned courses"
+          },
+          {
+            "id": "learning-certificates",
+            "label": "Certificates",
+            "icon": "pi pi-verified",
+            "route": "learning/certificates",
+            "tooltip": "Earned certificates"
+          },
+          {
+            "id": "learning-assessments",
+            "label": "Assessments",
+            "icon": "pi pi-question-circle",
+            "route": "learning/assessments",
+            "tooltip": "Quizzes"
+          },
+          {
+            "id": "learning-calendar",
+            "label": "Calendar",
+            "icon": "pi pi-calendar",
+            "route": "learning/calendar",
+            "tooltip": "Learning calendar"
+          },
+          {
+            "id": "learning-knowledge",
+            "label": "Knowledge Base",
+            "icon": "pi pi-database",
+            "route": "learning/knowledge",
+            "tooltip": "Articles"
+          },
+          {
+            "id": "learning-admin",
+            "label": "Admin",
+            "icon": "pi pi-cog",
+            "route": "learning/admin",
+            "tooltip": "Manage learning"
+          }
+        ]
+      }
+    ]
+  },
+  "staffMember": {
+    "main": [
+      {
+        "id": "dashboard",
+        "label": "Dashboard (Prototype)",
+        "icon": "pi pi-microsoft",
+        "route": "dashboard",
+        "tooltip": "StaffMember Dashboard"
+      }
+    ],
+    "management": [
+      {
+        "id": "staff members",
+        "label": "Staff Members",
+        "icon": "pi pi-users",
+        "route": "staff members",
+        "tooltip": "View and manage staff members",
+        "moduleKey": "Staff Members"
+      },
+      {
+        "id": "attendance",
+        "label": "My Attendance (Prototype)",
+        "icon": "pi pi-clock",
+        "route": "attendance",
+        "tooltip": "Attendance",
+        "moduleKey": "Attendance"
+      },
+      {
+        "id": "leave-my",
+        "label": "My Leave (Prototype)",
+        "icon": "pi pi-calendar-minus",
+        "route": "leave/my",
+        "tooltip": "My leave balance and requests",
+        "moduleKey": "Leaves"
+      },
+      {
+        "id": "tasks",
+        "label": "Tasks (Prototype)",
+        "icon": "pi pi-check-square",
+        "tooltip": "Task Sheet",
+        "moduleKey": "Tasks",
+        "children": [
+          {
+            "id": "tasks-dashboard",
+            "label": "Dashboard",
+            "icon": "pi pi-gauge",
+            "route": "tasks/dashboard",
+            "tooltip": "Task dashboard"
+          },
+          {
+            "id": "tasks-my",
+            "label": "My Tasks",
+            "icon": "pi pi-user",
+            "route": "tasks/my",
+            "tooltip": "Tasks assigned to me"
+          },
+          {
+            "id": "tasks-board",
+            "label": "Board",
+            "icon": "pi pi-th-large",
+            "route": "tasks/board",
+            "tooltip": "Kanban board"
+          },
+          {
+            "id": "tasks-calendar",
+            "label": "Calendar",
+            "icon": "pi pi-calendar",
+            "route": "tasks/calendar",
+            "tooltip": "Task calendar"
+          }
+        ]
+      },
+      {
+        "id": "tickets",
+        "label": "My Tickets (Prototype)",
+        "icon": "pi pi-ticket",
+        "route": "tickets",
+        "tooltip": "Manage tickets"
+      },
+      {
+        "id": "assets",
+        "label": "My Assets",
+        "icon": "pi pi-desktop",
+        "route": "assets",
+        "tooltip": "My Assets",
+        "moduleKey": "Assets"
+      },
+      {
+        "id": "payroll",
+        "label": "My Payslips (Prototype)",
+        "icon": "pi pi-wallet",
+        "route": "payroll/payslips",
+        "tooltip": "View payslips",
+        "moduleKey": "Payroll"
+      },
+      {
+        "id": "projects",
+        "label": "My Projects (Prototype)",
+        "icon": "pi pi-folder",
+        "route": "projects",
+        "tooltip": "Manage projects"
+      },
+      {
+        "id": "okr-my",
+        "label": "My OKRs (Prototype)",
+        "icon": "pi pi-flag",
+        "route": "okr/my",
+        "tooltip": "My objectives",
+        "moduleKey": "OKR"
+      },
+      {
+        "id": "performance",
+        "label": "Performance (PMS) (Prototype)",
+        "icon": "pi pi-chart-line",
+        "route": "performance/dashboard",
+        "tooltip": "Performance management"
+      },
+      {
+        "id": "holidays",
+        "label": "Holidays (Prototype)",
+        "icon": "pi pi-calendar",
+        "route": "holidays",
+        "tooltip": "Holidays",
+        "moduleKey": "Holidays"
+      },
+      {
+        "id": "learning",
+        "label": "Learning & Desk (Prototype)",
+        "icon": "pi pi-graduation-cap",
+        "tooltip": "Learning portal",
+        "children": [
+          {
+            "id": "learning-dashboard",
+            "label": "Dashboard",
+            "icon": "pi pi-th-large",
+            "route": "learning/dashboard",
+            "tooltip": "Learning dashboard"
+          },
+          {
+            "id": "learning-my",
+            "label": "My Learning",
+            "icon": "pi pi-book",
+            "route": "learning/my-learning",
+            "tooltip": "My enrolled courses"
+          },
+          {
+            "id": "learning-catalog",
+            "label": "Course Catalog",
+            "icon": "pi pi-objects-column",
+            "route": "learning/catalog",
+            "tooltip": "Browse courses"
+          },
+          {
+            "id": "learning-paths",
+            "label": "Learning Paths",
+            "icon": "pi pi-sitemap",
+            "route": "learning/paths",
+            "tooltip": "Learning roadmaps"
+          },
+          {
+            "id": "learning-assigned",
+            "label": "Assigned",
+            "icon": "pi pi-inbox",
+            "route": "learning/assigned",
+            "tooltip": "Assigned courses"
+          },
+          {
+            "id": "learning-certificates",
+            "label": "Certificates",
+            "icon": "pi pi-verified",
+            "route": "learning/certificates",
+            "tooltip": "Earned certificates"
+          },
+          {
+            "id": "learning-assessments",
+            "label": "Assessments",
+            "icon": "pi pi-question-circle",
+            "route": "learning/assessments",
+            "tooltip": "Quizzes"
+          },
+          {
+            "id": "learning-calendar",
+            "label": "Calendar",
+            "icon": "pi pi-calendar",
+            "route": "learning/calendar",
+            "tooltip": "Learning calendar"
+          },
+          {
+            "id": "learning-knowledge",
+            "label": "Knowledge Base",
+            "icon": "pi pi-database",
+            "route": "learning/knowledge",
+            "tooltip": "Articles"
+          }
+        ]
+      }
+    ]
+  },
+  "settings": [
+    {
+      "id": "settings-general",
+      "label": "Settings (Prototype)",
+      "icon": "pi pi-cog",
+      "route": "setting",
+      "tooltip": "Settings"
+    }
+  ]
+}

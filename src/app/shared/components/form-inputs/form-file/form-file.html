@@ -1,0 +1,103 @@
+<app-form-field-shell
+  [field]="field()"
+  [inputId]="inputId()"
+  [label]="label()"
+  [required]="required()"
+  [hint]="hint()"
+  [hintIcon]="hintIcon()"
+  [submitted]="submitted()"
+  groupLabel>
+  <div
+    role="group"
+    [attr.aria-labelledby]="inputId() + '-label'"
+    [attr.aria-describedby]="inputId() + '-help'">
+    @if (dragDrop()) {
+      <p-fileupload
+        mode="advanced"
+        [customUpload]="true"
+        [showUploadButton]="false"
+        [showCancelButton]="false"
+        [accept]="accept()"
+        [multiple]="multiple()"
+        [maxFileSize]="maxFileSize()"
+        [disabled]="disabled()"
+        (onSelect)="onSelect($event)"
+        (onClear)="onClear()">
+        <!-- Suppresses Optimus's own Choose/Upload/Cancel toolbar: the #content template
+             below draws its own "Choose file" affordance inside the drop zone. -->
+        <ng-template #header></ng-template>
+        <ng-template
+          #content
+          let-files
+          let-chooseCallback="chooseCallback"
+          let-clearCallback="clearCallback">
+          <div class="flex flex-col items-center justify-center transition">
+            @if (files?.length > 0) {
+              @for (file of files; track $index) {
+                <div class="flex flex-col items-center justify-center gap-2">
+                  @switch (file.type) {
+                    @case ('application/pdf') {
+                      <i class="pi pi-file-pdf text-[3.4rem]! text-red-700"></i>
+                    }
+                    @case ('application/msword') {
+                      <i class="pi pi-file-word text-[3.4rem]! text-blue-700"></i>
+                    }
+                    @case ('application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                      <i class="pi pi-file-word text-[3.4rem]! text-blue-700"></i>
+                    }
+                    @default {
+                      <i class="pi pi-file text-[3.4rem]! text-zinc-500"></i>
+                    }
+                  }
+                  <span class="text-sm font-medium text-zinc-500 dark:text-zinc-200">{{ file.name }}</span>
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      class="cursor-pointer border-none bg-transparent p-0 text-sm text-primary-600 hover:underline dark:text-primary-400"
+                      (click)="choose($event, chooseCallback)">
+                      Change
+                    </button>
+                    <button
+                      type="button"
+                      class="cursor-pointer border-none bg-transparent p-0 text-sm text-red-600 hover:underline dark:text-red-400"
+                      (click)="clearCallback()">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              }
+            } @else {
+              <div class="flex flex-col items-center justify-center p-4">
+                <div class="flex flex-col items-center">
+                  <i class="pi pi-upload text-2xl! text-primary-500 dark:text-primary-400"></i>
+                  <p class="mt-0.5 text-base font-medium text-zinc-700 dark:text-zinc-200">
+                    Drag & Drop or
+                    <button
+                      type="button"
+                      class="cursor-pointer border-none bg-transparent p-0 text-primary-600 hover:underline dark:text-primary-400"
+                      (click)="choose($event, chooseCallback)">
+                      Choose file
+                    </button>
+                    to upload
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+        </ng-template>
+      </p-fileupload>
+    } @else {
+      <p-fileupload
+        mode="basic"
+        chooseIcon="pi pi-upload"
+        [auto]="false"
+        [accept]="accept()"
+        [multiple]="multiple()"
+        [maxFileSize]="maxFileSize()"
+        [chooseLabel]="chooseLabel()"
+        [disabled]="disabled()"
+        (onSelect)="onSelect($event)"
+        (onClear)="onClear()" />
+    }
+  </div>
+</app-form-field-shell>

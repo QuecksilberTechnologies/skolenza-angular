@@ -1,0 +1,24 @@
+{
+  "dashboard": {
+    "TotalStaff Members": "कुल कर्मचारी",
+    "NewHiresThisMonth": "इस महीने की नई नियुक्तियाँ",
+    "OpenPositions": "खाली पद",
+    "PendingApprovals": "लंबित अनुमोदन",
+    "LeaveBreakdown": "अवकाश विवरण",
+    "HRActivityHeatmap": "एचआर गतिविधि हीटमैप",
+    "ProjectsStats": "प्रोजेक्ट आंकड़े",
+    "RequestStatus": "अनुरोध स्थिति | आज",
+    "ProjectBurndown": "प्रोजेक्ट बर्नडाउन",
+    "TeamProgress": "टीम प्रगति"
+  },
+  "accessDenied": {
+    "title": "पहुँच अस्वीकृत",
+    "headerDescription": "अनुमति आवश्यक",
+    "reasonModuleOperation": "आपके पास {{module}} में {{operation}} की अनुमति नहीं है।",
+    "reasonModule": "आपके पास {{module}} तक पहुँच नहीं है।",
+    "reasonGeneric": "आपके पास यह पृष्ठ देखने की अनुमति नहीं है।",
+    "hint": "आपकी भूमिका में यह अनुमति शामिल नहीं है। किसी व्यवस्थापक से इसे देने का अनुरोध करें, या किसी सुलभ पृष्ठ पर वापस जाएँ।",
+    "goToDashboard": "डैशबोर्ड पर जाएँ",
+    "goBack": "वापस जाएँ"
+  }
+}

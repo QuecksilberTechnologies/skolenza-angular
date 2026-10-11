@@ -1,0 +1,165 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      #dt
+      [value]="insurancPolicies()"
+      [loading]="isLoading()"
+      [showLoader]="false"
+      [lazy]="true"
+      [paginator]="true"
+      [showCurrentPageReport]="true"
+      [rows]="pageSize()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="totalRecords()"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [globalFilterFields]="['insurancePolicyName']"
+      [selectionMode]="'single'"
+      [sortMode]="'single'"
+      [sortOrder]="-1"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '64rem' }"
+      paginatorDropdownAppendTo="body"
+      [(contextMenuSelection)]="selectedRow"
+      [contextMenu]="
+        ((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2 ? actionContextMenu : null
+      "
+      (onLazyLoad)="getPolicies($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input />
+            <p-button
+              label="Add Insurance Policy"
+              icon="pi pi-plus"
+              class="w-full lg:w-auto"
+              styleClass="w-full lg:w-auto"
+              (onClick)="upsertInsurancePolicy()" />
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th
+            pSortableColumn="insurancePolicyName"
+            class="w-52">
+            <div class="flex items-center gap-2 truncate">
+              Insurance Policy Name
+              <p-sortIcon field="insurancePolicyName" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="insurancePolicyNumber"
+            class="w-40">
+            <div class="flex items-center gap-2 truncate">
+              Insurance Policy Number
+              <p-sortIcon field="insurancePolicyNumber" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="providerName"
+            class="w-52">
+            <div class="flex items-center gap-2 truncate">
+              Provider Name
+              <p-sortIcon field="providerName" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="policyTypeName"
+            class="w-64">
+            <div class="flex items-center gap-2 truncate">
+              Policy Type Name
+              <p-sortIcon field="policyTypeName" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="agentName"
+            class="w-32">
+            <div class="flex items-center gap-2">Agent Name</div>
+          </th>
+          <th class="w-52">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-policy>
+        <tr [pContextMenuRow]="policy">
+          <td>
+            <button
+              type="button"
+              class="w-52 truncate text-left text-primary-600 hover:underline dark:text-primary-400"
+              [attr.aria-label]="'View details for ' + policy.insurancePolicyName"
+              (click)="onViewDetails(policy, $event.currentTarget)">
+              {{ policy.insurancePolicyName }}
+            </button>
+          </td>
+          <td>
+            <div class="w-40 truncate">{{ policy.insurancePolicyNumber }}</div>
+          </td>
+          <td>
+            <div class="w-52 truncate">{{ policy.providerName }}</div>
+          </td>
+          <td>
+            <div class="w-64 truncate">{{ policy.policyTypeName }}</div>
+          </td>
+          <td>
+            <div class="w-32 truncate">{{ policy.agentName }}</div>
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <p-button
+                class="text-xl!"
+                type="button"
+                icon="pi pi-ellipsis-h"
+                [rounded]="false"
+                severity="secondary"
+                [ariaLabel]="'Actions for ' + policy.insurancePolicyName"
+                (onClick)="selectedRow = policy; actionMenu.toggle($event)" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        <tr>
+          <td colspan="6">
+            <app-table-loader />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">
+            <app-table-empty-message
+              icon="pi pi-shield"
+              message="No insurance policies found"
+              subMessage="Create a new insurance policy to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems"
+  appendTo="body" />
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems"
+  [popup]="true"
+  appendTo="body" />
+<p-confirmDialog />
+
+<!-- Row detail sheet: holds every field, including the ones the table has no column for. -->
+<app-headless-drawer
+  [visible]="isShowDetail()"
+  (visibleChange)="onDetailVisibleChange($event)">
+  @if (isShowDetail()) {
+  <app-insurance-policy-detail
+    [policy]="detailPolicy() ?? undefined"
+    (closePopup)="closeDetails()" />
+  }
+</app-headless-drawer>

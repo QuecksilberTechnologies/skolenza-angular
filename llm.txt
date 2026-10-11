@@ -1,0 +1,14 @@
+# Project Rules
+
+This is a SaaS application.
+
+General rules:
+- Follow existing architecture.
+- Do not introduce unnecessary dependencies.
+- Use TypeScript.
+- Prefer small, maintainable modules.
+- Do not modify unrelated files.
+- Run tests after changes.
+
+docs/llms/optimus-llms.txt
+docs/llms/ng-llms.txt

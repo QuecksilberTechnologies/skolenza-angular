@@ -1,0 +1,67 @@
+{
+  "isSucceeded": true,
+  "message": "",
+  "data": {
+    "jobId": "53b70331-421a-4b7e-baea-f4d71661a823",
+    "master": 2,
+    "status": 4,
+    "createdAtUtc": "2026-09-10T18:03:59.09873Z",
+    "updatedAtUtc": "2026-09-10T18:04:05.598955Z",
+    "scheduledAtUtc": "2026-09-10T18:04:02.305575Z",
+    "totalRows": 2,
+    "processedRows": 2,
+    "createdCount": 2,
+    "existingCount": 0,
+    "failedCount": 0,
+    "error": null,
+    "preview": {
+      "jobId": "53b70331-421a-4b7e-baea-f4d71661a823",
+      "master": 2,
+      "sourceColumns": ["DesName", "Dept", "Description", "IsActive"],
+      "columnMapping": {
+        "IsActive": "IsActive",
+        "Description": "Description",
+        "DepartmentName": "Dept",
+        "DesignationName": "DesName"
+      },
+      "errors": [],
+      "rows": [
+        {
+          "processed": true,
+          "rowNumber": 2,
+          "values": {
+            "IsActive": "true",
+            "Description": "Engineering manager",
+            "DepartmentName": "UIQA-20260910-Engineering",
+            "DesignationName": "UIQA-20260910-Manager"
+          },
+          "status": 4,
+          "existingId": 6,
+          "departmentId": 6,
+          "errors": []
+        },
+        {
+          "processed": true,
+          "rowNumber": 3,
+          "values": {
+            "IsActive": "true",
+            "Description": "People manager",
+            "DepartmentName": "UIQA-20260910-People",
+            "DesignationName": "UIQA-20260910-Manager"
+          },
+          "status": 4,
+          "existingId": 7,
+          "departmentId": 7,
+          "errors": []
+        }
+      ],
+      "readyCount": 0,
+      "existingCount": 0,
+      "invalidCount": 0,
+      "isValid": true,
+      "confirmationAvailable": false,
+      "canCommit": false
+    }
+  },
+  "errors": []
+}

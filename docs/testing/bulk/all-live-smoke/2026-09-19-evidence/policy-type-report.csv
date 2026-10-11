@@ -1,0 +1,3 @@
+﻿RowNumber,Status,RecordId,Values,Errors
+2,Existing,9,"{""IsActive"":""true"",""PolicyName"":""Hybrid Attendance"",""Description"":""Attendance rules for staff members alternating between office and remote work"",""PolicyTypeCode"":""HYBRID_ATTENDANCE"",""PolicyCategoryCode"":""ATTENDANCE"",""DefaultCurrencyCode"":""INR""}",""
+

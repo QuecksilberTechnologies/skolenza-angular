@@ -1,0 +1,340 @@
+<section class="max-h-[calc(100vh-18rem)] overflow-y-auto">
+  <form
+    [formGroup]="educationForm"
+    class="grid grid-cols-1 gap-4">
+    <!-- Degree -->
+    <div class="space-y-1">
+      <label
+        for="degree"
+        class="block font-medium">
+        Degree
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        formControlName="degree"
+        appTrimInput
+        pInputText
+        [pAutoFocus]="true"
+        type="text"
+        id="degree"
+        class="w-full"
+        placeholder="e.g. Bachelor of Science"
+        [invalid]="isInvalid('degree')" />
+      @if (educationForm.get('degree')?.invalid && educationForm.get('degree')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (educationForm.get('degree')?.errors?.['required']) {
+        <span>Degree name is required</span>
+        } @else if (educationForm.get('degree')?.errors?.['minlength']) {
+        <span>Degree name must be at least 3 characters</span>
+        } @else if (educationForm.get('degree')?.errors?.['pattern']) {
+        <span>
+          Degree name must start with a letter and use only letters, numbers, spaces, hyphens, or underscores.
+        </span>
+        }
+      </p-message>
+      }
+    </div>
+
+    <!-- Institute Name -->
+    <div class="space-y-1">
+      <label
+        for="instituteName"
+        class="block font-medium">
+        Institute Name
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        formControlName="instituteName"
+        appTrimInput
+        pInputText
+        type="text"
+        id="instituteName"
+        class="w-full"
+        placeholder="e.g. Delhi University"
+        [invalid]="isInvalid('instituteName')" />
+      @if ( educationForm.get('instituteName')?.invalid && educationForm.get('instituteName')?.touched ) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (educationForm.get('instituteName')?.errors?.['required']) {
+        <span>Institute name is required</span>
+        } @else if (educationForm.get('instituteName')?.errors?.['minlength']) {
+        <span>Institute name must be at least 3 characters</span>
+        } @else if (educationForm.get('instituteName')?.errors?.['pattern']) {
+        <span>
+          Institute name must start with a letter and use only letters, numbers, spaces, hyphens, or underscores.
+        </span>
+        }
+      </p-message>
+      }
+    </div>
+
+    <!-- Start Date & End Date -->
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="space-y-1">
+        <label
+          for="startDate"
+          class="block font-medium">
+          Start Date
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-datepicker
+          formControlName="startDate"
+          inputId="startDate"
+          appendTo="body"
+          class="w-full"
+          inputStyleClass="w-full"
+          placeholder="Select start date"
+          [invalid]="isInvalid('startDate')" />
+        @if (educationForm.get('startDate')?.invalid && educationForm.get('startDate')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (educationForm.get('startDate')?.errors?.['required']) {
+          <span>Start date is required</span>
+          }
+        </p-message>
+        }
+      </div>
+
+      <div class="space-y-1">
+        <label
+          for="endDate"
+          class="block font-medium">
+          End Date
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-datepicker
+          formControlName="endDate"
+          inputId="endDate"
+          appendTo="body"
+          class="w-full"
+          inputStyleClass="w-full"
+          placeholder="Select end date"
+          [invalid]="isInvalid('endDate')" />
+        @if (educationForm.get('endDate')?.invalid && educationForm.get('endDate')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (educationForm.get('endDate')?.errors?.['required']) {
+          <span>End date is required</span>
+          }
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <!-- Score Type & Score Value -->
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="space-y-1">
+        <label
+          for="scoreType"
+          class="block font-medium">
+          Score Type
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-select
+          formControlName="scoreType"
+          id="scoreType"
+          [options]="scoreTypes"
+          optionLabel="name"
+          optionValue="value"
+          placeholder="Select Score Type"
+          [appendTo]="'body'"
+          class="w-full"
+          [invalid]="isInvalid('scoreType')" />
+        @if (educationForm.get('scoreType')?.invalid && educationForm.get('scoreType')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (educationForm.get('scoreType')?.errors?.['required']) {
+          <span>Score type is required</span>
+          }
+        </p-message>
+        }
+      </div>
+
+      <div class="space-y-1">
+        <label
+          for="scoreValue"
+          class="block font-medium">
+          Score Value
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <input
+          formControlName="scoreValue"
+          appTrimInput
+          pInputText
+          type="text"
+          id="scoreValue"
+          class="w-full"
+          [placeholder]="`${educationForm.get('scoreType')?.value === '1' ? 'Enter percentage (0-100)' : 'Enter CGPA (e.g., 8.4 / 10)'}`"
+          [invalid]="isInvalid('scoreValue')" />
+        @if (educationForm.get('scoreValue')?.invalid && educationForm.get('scoreValue')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (educationForm.get('scoreValue')?.errors?.['required']) {
+          <span>Score value is required</span>
+          }
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <!-- Grade Division -->
+    <div class="space-y-1">
+      <label
+        for="gradeDivision"
+        class="block font-medium">
+        Grade Division
+      </label>
+      <input
+        formControlName="gradeDivision"
+        appTrimInput
+        pInputText
+        type="text"
+        id="gradeDivision"
+        class="w-full"
+        placeholder="e.g. First, Second, Pass" />
+    </div>
+
+    <!-- Is Education Gap? -->
+    <div class="flex items-center gap-4">
+      <span class="block font-medium">Is Education Gap?</span>
+
+      <div class="flex items-center gap-2">
+        <p-radioButton
+          inputId="gapYes"
+          name="isEducationGapBeforeDegree"
+          [value]="true"
+          formControlName="isEducationGapBeforeDegree" />
+        <label for="gapYes">Yes</label>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <p-radioButton
+          inputId="gapNo"
+          name="isEducationGapBeforeDegree"
+          [value]="false"
+          formControlName="isEducationGapBeforeDegree" />
+        <label for="gapNo">No</label>
+      </div>
+    </div>
+
+    @let isEducationGap = educationForm.get('isEducationGapBeforeDegree')?.value; @if (isEducationGap) {
+    <!-- Gap Years -->
+    <div class="space-y-1">
+      <label
+        for="gapYears"
+        class="block font-medium">
+        Gap Years
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <p-datepicker
+        formControlName="gapYears"
+        inputId="gapYears"
+        view="year"
+        dateFormat="yy"
+        appendTo="body"
+        class="w-full"
+        inputStyleClass="w-full"
+        placeholder="Select gap year"
+        [invalid]="isInvalid('gapYears')" />
+      @if (educationForm.get('gapYears')?.invalid && educationForm.get('gapYears')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (educationForm.get('gapYears')?.errors?.['required']) {
+        <span>Gap years is required</span>
+        }
+      </p-message>
+      }
+    </div>
+
+    <!-- Reason of Education Gap -->
+    <div class="space-y-1">
+      <label
+        for="reasonOfEducationGap"
+        class="block font-medium">
+        Reason of Education Gap
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <textarea
+        formControlName="reasonOfEducationGap"
+        appTrimInput
+        pTextarea
+        rows="3"
+        cols="20"
+        id="reasonOfEducationGap"
+        class="w-full"
+        placeholder="e.g. Preparation for competitive exams, health issues"
+        [invalid]="isInvalid('reasonOfEducationGap')"></textarea>
+      @if ( educationForm.get('reasonOfEducationGap')?.invalid && educationForm.get('reasonOfEducationGap')?.touched ) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (educationForm.get('reasonOfEducationGap')?.errors?.['required']) {
+        <span>Reason of education gap is required</span>
+        }
+      </p-message>
+      }
+    </div>
+    }
+
+    <!-- Remark -->
+    <div class="space-y-1">
+      <label
+        for="remark"
+        class="block font-medium">
+        Remark
+      </label>
+      <textarea
+        formControlName="remark"
+        appTrimInput
+        pTextarea
+        rows="3"
+        cols="20"
+        id="remark"
+        class="w-full"
+        placeholder="Any additional comments"></textarea>
+    </div>
+
+    <!-- Document -->
+    <div class="space-y-1">
+      <label
+        for="docs"
+        class="block font-medium">
+        Document
+      </label>
+      <app-form-file-upload
+        accept="application/pdf"
+        [existingFileName]="staffMemberEducation()?.fileName"
+        [existingFilePath]="staffMemberEducation()?.filePath"
+        (selectedFile)="onSelectFile($event)" />
+    </div>
+  </form>
+</section>
+
+<div class="mt-6 flex justify-end gap-2">
+  <p-button
+    label="Cancel"
+    variant="text"
+    severity="secondary"
+    (onClick)="onCancel()" />
+  <p-button
+    [label]="isSaving() ? 'Saving...' : 'Save'"
+    [loading]="isSaving()"
+    [disabled]="educationForm.invalid || isSaving()"
+    (onClick)="onSubmit()" />
+</div>

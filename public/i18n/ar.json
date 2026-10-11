@@ -1,0 +1,24 @@
+{
+  "dashboard": {
+    "TotalStaff Members": "إجمالي الموظفين",
+    "NewHiresThisMonth": "الموظفون الجدد هذا الشهر",
+    "OpenPositions": "الوظائف الشاغرة",
+    "PendingApprovals": "الموافقات المعلقة",
+    "LeaveBreakdown": "تفاصيل الإجازات",
+    "HRActivityHeatmap": "خريطة نشاط الموارد البشرية",
+    "ProjectsStats": "إحصائيات المشاريع",
+    "RequestStatus": "حالة الطلبات | اليوم",
+    "ProjectBurndown": "مخطط انخفاض المشروع",
+    "TeamProgress": "تقدم الفريق"
+  },
+  "accessDenied": {
+    "title": "تم رفض الوصول",
+    "headerDescription": "الإذن مطلوب",
+    "reasonModuleOperation": "ليس لديك إذن لتنفيذ {{operation}} في {{module}}.",
+    "reasonModule": "ليس لديك حق الوصول إلى {{module}}.",
+    "reasonGeneric": "ليس لديك إذن لعرض هذه الصفحة.",
+    "hint": "دورك لا يتضمن هذا الإذن. اطلب من المسؤول منحك إياه، أو ارجع إلى صفحة يمكنك الوصول إليها.",
+    "goToDashboard": "الانتقال إلى لوحة التحكم",
+    "goBack": "رجوع"
+  }
+}

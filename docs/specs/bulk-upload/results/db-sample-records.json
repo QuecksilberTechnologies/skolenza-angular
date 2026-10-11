@@ -1,0 +1,200 @@
+{
+  "rows": [
+    {
+      "master": "Department",
+      "id": 6,
+      "institution_id": 8,
+      "name": "UIQA-20260910-Engineering",
+      "description": "UI bulk acceptance engineering",
+      "remark": "Development acceptance",
+      "active": true,
+      "department_id": null,
+      "department_name": null,
+      "role_type": null
+    },
+    {
+      "master": "Department",
+      "id": 7,
+      "institution_id": 8,
+      "name": "UIQA-20260910-People",
+      "description": "UI bulk acceptance people",
+      "remark": "Development acceptance",
+      "active": true,
+      "department_id": null,
+      "department_name": null,
+      "role_type": null
+    },
+    {
+      "master": "Designation",
+      "id": 6,
+      "institution_id": 8,
+      "name": "UIQA-20260910-Manager",
+      "description": "Engineering manager",
+      "remark": null,
+      "active": true,
+      "department_id": 6,
+      "department_name": "UIQA-20260910-Engineering",
+      "role_type": null
+    },
+    {
+      "master": "Designation",
+      "id": 7,
+      "institution_id": 8,
+      "name": "UIQA-20260910-Manager",
+      "description": "People manager",
+      "remark": null,
+      "active": true,
+      "department_id": 7,
+      "department_name": "UIQA-20260910-People",
+      "role_type": null
+    },
+    {
+      "master": "Role",
+      "id": 28,
+      "institution_id": 8,
+      "name": "UIQA-20260910-Operator",
+      "description": null,
+      "remark": "Development acceptance",
+      "active": true,
+      "department_id": null,
+      "department_name": null,
+      "role_type": 2
+    },
+    {
+      "master": "Role",
+      "id": 29,
+      "institution_id": 8,
+      "name": "UIQA-20260910-Supervisor",
+      "description": null,
+      "remark": "Development acceptance",
+      "active": true,
+      "department_id": null,
+      "department_name": null,
+      "role_type": 3
+    },
+    {
+      "master": "StaffEmploymentType",
+      "id": 9,
+      "institution_id": 8,
+      "name": "UIQA-20260910-Contract",
+      "description": "Development contract type",
+      "remark": "Development acceptance",
+      "active": true,
+      "department_id": null,
+      "department_name": null,
+      "role_type": null
+    },
+    {
+      "master": "StaffEmploymentType",
+      "id": 10,
+      "institution_id": 8,
+      "name": "UIQA-20260910-Intern",
+      "description": "Development intern type",
+      "remark": "Development acceptance",
+      "active": true,
+      "department_id": null,
+      "department_name": null,
+      "role_type": null
+    }
+  ],
+  "jobs": [
+    {
+      "id": "8420b745-0f71-4ea7-8e2c-586dbb03056f",
+      "institution_id": 8,
+      "master": 1,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "2c820403-0b22-478b-abb0-07c0dc172cf4",
+      "institution_id": 8,
+      "master": 1,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "9f951527-27ef-4ced-b95c-a60990c79375",
+      "institution_id": 8,
+      "master": 1,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "53b70331-421a-4b7e-baea-f4d71661a823",
+      "institution_id": 8,
+      "master": 2,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "de11e5a5-cc92-468a-ac60-cfc2833730cb",
+      "institution_id": 8,
+      "master": 2,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "d73b4c0c-974d-4144-ba96-dc3bf40fe5a0",
+      "institution_id": 8,
+      "master": 1,
+      "status": 1,
+      "next_row": 0
+    },
+    {
+      "id": "c7826585-9e9c-4aab-a190-6a5a44e831d8",
+      "institution_id": 8,
+      "master": 2,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "9c23df6f-39ab-4fb2-ba89-66ac336ff2b1",
+      "institution_id": 8,
+      "master": 3,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "8f4bb571-31d6-420b-865e-8a4cd48157ea",
+      "institution_id": 8,
+      "master": 3,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "096090ac-5cfd-460d-8bf5-21b5f0d18514",
+      "institution_id": 8,
+      "master": 3,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "8ff5b085-1cd9-4ca3-b129-af2dfa5bf50a",
+      "institution_id": 8,
+      "master": 2,
+      "status": 1,
+      "next_row": 0
+    },
+    {
+      "id": "63dfad16-5a2e-46cb-8106-cc5443b96109",
+      "institution_id": 8,
+      "master": 4,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "514cc50c-0bdb-4945-8708-a7097564a759",
+      "institution_id": 8,
+      "master": 4,
+      "status": 4,
+      "next_row": 2
+    },
+    {
+      "id": "88de3063-f0cc-43b0-b7ac-c0fdb9b445bc",
+      "institution_id": 8,
+      "master": 4,
+      "status": 4,
+      "next_row": 2
+    }
+  ]
+}

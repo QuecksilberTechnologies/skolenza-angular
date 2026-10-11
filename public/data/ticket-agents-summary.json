@@ -1,0 +1,6 @@
+[
+  { "name": "Sam Smith", "initial": "S", "role": "Support Lead", "ticketCount": 0, "online": true },
+  { "name": "Jane Roe", "initial": "J", "role": "Agent", "ticketCount": 5, "online": true },
+  { "name": "Sarah Davis", "initial": "S", "role": "Agent", "ticketCount": 0, "online": false },
+  { "name": "David Wilson", "initial": "D", "role": "Agent", "ticketCount": 0, "online": false }
+]

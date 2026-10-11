@@ -1,0 +1,98 @@
+[
+  {
+    "Master": "Department",
+    "Source": "xlsx",
+    "JobId": "8420b745-0f71-4ea7-8e2c-586dbb03056f",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "Department",
+    "Source": "csv",
+    "JobId": "2c820403-0b22-478b-abb0-07c0dc172cf4",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "Department",
+    "Source": "paste",
+    "JobId": "9f951527-27ef-4ced-b95c-a60990c79375",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "Designation",
+    "Source": "xlsx",
+    "JobId": "53b70331-421a-4b7e-baea-f4d71661a823",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "Designation",
+    "Source": "csv",
+    "JobId": "de11e5a5-cc92-468a-ac60-cfc2833730cb",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "Designation",
+    "Source": "paste",
+    "JobId": "c7826585-9e9c-4aab-a190-6a5a44e831d8",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "Role",
+    "Source": "xlsx",
+    "JobId": "9c23df6f-39ab-4fb2-ba89-66ac336ff2b1",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "Role",
+    "Source": "csv",
+    "JobId": "8f4bb571-31d6-420b-865e-8a4cd48157ea",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "Role",
+    "Source": "paste",
+    "JobId": "096090ac-5cfd-460d-8bf5-21b5f0d18514",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "StaffEmploymentType",
+    "Source": "xlsx",
+    "JobId": "63dfad16-5a2e-46cb-8106-cc5443b96109",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "StaffEmploymentType",
+    "Source": "csv",
+    "JobId": "514cc50c-0bdb-4945-8708-a7097564a759",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  },
+  {
+    "Master": "StaffEmploymentType",
+    "Source": "paste",
+    "JobId": "88de3063-f0cc-43b0-b7ac-c0fdb9b445bc",
+    "Result": "PASS",
+    "MatchedReportRows": 2,
+    "InstitutionId": 8
+  }
+]

@@ -1,0 +1,58 @@
+{
+  "isSucceeded": true,
+  "message": "Learning paths loaded",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 3,
+  "totalRecords": 3,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "lp-ng",
+      "title": "Aerodynamics Engineer",
+      "description": "Front-to-back path to master airflow, airfoils, and aircraft performance.",
+      "role": "Aerospace Engineer",
+      "estimatedHours": 48,
+      "progress": 55,
+      "steps": [
+        { "id": "st1", "title": "Fluid Mechanics", "status": "Completed", "durationHours": 6 },
+        { "id": "st2", "title": "Thermodynamics", "status": "Completed", "durationHours": 9 },
+        { "id": "st3", "title": "Airfoil Theory", "status": "Completed", "durationHours": 8 },
+        { "id": "st4", "title": "Compressible Flow", "status": "InProgress", "durationHours": 6 },
+        { "id": "st5", "title": "Computational Fluid Dynamics", "status": "InProgress", "durationHours": 5 },
+        { "id": "st6", "title": "Wind Tunnel Testing", "status": "NotStarted", "durationHours": 7 },
+        { "id": "st7", "title": "Aircraft Performance", "status": "NotStarted", "durationHours": 7 }
+      ]
+    },
+    {
+      "id": "lp-data",
+      "title": "Propulsion Engineer",
+      "description": "Design and analyze engines — from gas turbines to rocket propulsion.",
+      "role": "Propulsion Engineer",
+      "estimatedHours": 34,
+      "progress": 30,
+      "steps": [
+        { "id": "st1", "title": "Thermodynamics", "status": "Completed", "durationHours": 4 },
+        { "id": "st2", "title": "Gas Turbine Cycles", "status": "Completed", "durationHours": 8 },
+        { "id": "st3", "title": "Combustion", "status": "InProgress", "durationHours": 8 },
+        { "id": "st4", "title": "Nozzle Design", "status": "NotStarted", "durationHours": 7 },
+        { "id": "st5", "title": "Rocket Propulsion", "status": "NotStarted", "durationHours": 7 }
+      ]
+    },
+    {
+      "id": "lp-lead",
+      "title": "Spacecraft Systems Lead",
+      "description": "Grow from engineer into a lead for complex spacecraft programs.",
+      "role": "Systems Engineer",
+      "estimatedHours": 28,
+      "progress": 10,
+      "steps": [
+        { "id": "st1", "title": "Systems Engineering", "status": "InProgress", "durationHours": 4 },
+        { "id": "st2", "title": "Requirements & V&V", "status": "NotStarted", "durationHours": 6 },
+        { "id": "st3", "title": "Subsystem Integration", "status": "NotStarted", "durationHours": 6 },
+        { "id": "st4", "title": "Mission Design", "status": "NotStarted", "durationHours": 6 },
+        { "id": "st5", "title": "Design Reviews", "status": "NotStarted", "durationHours": 6 }
+      ]
+    }
+  ]
+}

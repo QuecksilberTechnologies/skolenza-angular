@@ -1,0 +1,36 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "jobId": "f0b8437c-08ee-4208-8e78-134d453e0649",
+    "master": 2,
+    "sourceColumns": ["DesName", "Dept"],
+    "columnMapping": {},
+    "errors": [
+      "Map the required column DesignationName.",
+      "Map the required column DepartmentName."
+    ],
+    "rows": [
+      {
+        "processed": false,
+        "rowNumber": 2,
+        "values": {},
+        "status": 3,
+        "existingId": null,
+        "departmentId": null,
+        "errors": [
+          "DesignationName is required.",
+          "DepartmentName is required.",
+          "DepartmentName must match exactly one active department in this institution; create missing departments first."
+        ]
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 0,
+    "invalidCount": 1,
+    "isValid": false,
+    "confirmationAvailable": true,
+    "canCommit": false
+  },
+  "errors": []
+}

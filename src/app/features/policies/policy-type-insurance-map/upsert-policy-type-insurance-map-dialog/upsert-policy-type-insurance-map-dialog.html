@@ -1,0 +1,83 @@
+<form
+  [formGroup]="policyTypeInsuranceMapForm!"
+  (ngSubmit)="onSubmit()"
+  class="grid grid-cols-1 gap-4">
+  <!-- Policy Type -->
+  <div class="space-y-1">
+    <label
+      for="policyType"
+      class="block font-medium">
+      Policy Type
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <p-select
+      id="policyTypeId"
+      formControlName="policyTypeId"
+      [options]="policyTypeNames()"
+      optionLabel="policyName"
+      optionValue="id"
+      [loading]="isLoadingPolicyTypeNames()"
+      placeholder="Select policy type"
+      appendTo="body"
+      [invalid]="isInvalid('policyTypeId')"
+      class="w-full"
+      panelStyleClass="select-option-truncate"
+      (onChange)="getInsurancePolicyNames($event.value)" />
+    @if ( policyTypeInsuranceMapForm.get('policyTypeId')?.invalid &&
+    policyTypeInsuranceMapForm.get('policyTypeId')?.touched ) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      @if (policyTypeInsuranceMapForm.get('policyTypeId')?.errors?.['required']) {
+      <span>Policy type is required</span>
+      }
+    </p-message>
+    }
+  </div>
+
+  <!-- Insurance Policy -->
+  <div class="space-y-1">
+    <label
+      for="insurancePolicyId"
+      class="block font-medium">
+      Insurance Policy
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <p-select
+      formControlName="insurancePolicyId"
+      id="insurancePolicyId"
+      name="insurancePolicyId"
+      [options]="insurancePolicyNames()"
+      optionLabel="insurancePolicyName"
+      optionValue="insurancePolicyId"
+      [loading]="isLoadingInsurancePolicyNames()"
+      placeholder="Select Insurance Policy"
+      [appendTo]="'body'"
+      class="w-full"
+      panelStyleClass="select-option-truncate" />
+    @if ( policyTypeInsuranceMapForm.get('insurancePolicyId')?.invalid &&
+    policyTypeInsuranceMapForm.get('insurancePolicyId')?.touched ) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      @if (policyTypeInsuranceMapForm.get('insurancePolicyId')?.errors?.['required']) {
+      <span>Insurance policy is required</span>
+      }
+    </p-message>
+    }
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <p-button
+      severity="secondary"
+      label="Cancel"
+      (click)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isSaving() ? 'Saving...' : 'Save'"
+      [loading]="isSaving()"
+      [disabled]="policyTypeInsuranceMapForm.invalid || isSaving()" />
+  </div>
+</form>

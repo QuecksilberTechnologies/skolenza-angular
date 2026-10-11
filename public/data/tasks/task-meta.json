@@ -1,0 +1,52 @@
+{
+  "isSucceeded": true,
+  "message": "Task metadata loaded",
+  "errors": [],
+  "data": {
+    "categories": [
+      "Feature",
+      "Bug",
+      "Improvement",
+      "Documentation",
+      "Research",
+      "Operations",
+      "Onboarding"
+    ],
+    "tags": [
+      "ui",
+      "onboarding",
+      "payroll",
+      "urgent",
+      "performance",
+      "docs",
+      "refactor",
+      "state",
+      "attendance",
+      "report",
+      "leave",
+      "research",
+      "tickets",
+      "sla",
+      "hr",
+      "finance",
+      "audit",
+      "reports",
+      "cleanup",
+      "export",
+      "automation",
+      "perf",
+      "kanban",
+      "security",
+      "directory",
+      "team",
+      "event"
+    ],
+    "assignees": [
+      { "id": "emp-1", "name": "Aisha Khan" },
+      { "id": "emp-2", "name": "Diego Alvarez" },
+      { "id": "emp-3", "name": "Sara Lin" },
+      { "id": "emp-4", "name": "Tomas Berg" },
+      { "id": "emp-5", "name": "Nina Patel" }
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "isSucceeded": true,
+  "message": "Leave balances retrieved successfully.",
+  "errors": [],
+  "data": [
+    {
+      "id": 1,
+      "staffMemberId": 101,
+      "staffMemberName": "Alice Johnson",
+      "staffMemberEmail": "alice.johnson@company.com",
+      "vacation": 12,
+      "sick": 8,
+      "personal": 5,
+      "maternity": 0,
+      "paternity": 0,
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "staffMemberId": 102,
+      "staffMemberName": "Bob Smith",
+      "staffMemberEmail": "bob.smith@company.com",
+      "vacation": 10,
+      "sick": 6,
+      "personal": 3,
+      "maternity": 0,
+      "paternity": 5,
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "staffMemberId": 103,
+      "staffMemberName": "Carol Lee",
+      "staffMemberEmail": "carol.lee@company.com",
+      "vacation": 15,
+      "sick": 9,
+      "personal": 4,
+      "maternity": 90,
+      "paternity": 0,
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "staffMemberId": 104,
+      "staffMemberName": "Diana Prince",
+      "staffMemberEmail": "diana.prince@company.com",
+      "vacation": 8,
+      "sick": 5,
+      "personal": 2,
+      "maternity": 0,
+      "paternity": 0,
+      "isActive": true
+    },
+    {
+      "id": 5,
+      "staffMemberId": 105,
+      "staffMemberName": "Ethan Hunt",
+      "staffMemberEmail": "ethan.hunt@company.com",
+      "vacation": 14,
+      "sick": 7,
+      "personal": 5,
+      "maternity": 0,
+      "paternity": 10,
+      "isActive": true
+    },
+    {
+      "id": 6,
+      "staffMemberId": 106,
+      "staffMemberName": "Fiona Green",
+      "staffMemberEmail": "fiona.green@company.com",
+      "vacation": 11,
+      "sick": 8,
+      "personal": 3,
+      "maternity": 90,
+      "paternity": 0,
+      "isActive": false
+    }
+  ],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalRecords": 6,
+  "totalPages": 1
+}

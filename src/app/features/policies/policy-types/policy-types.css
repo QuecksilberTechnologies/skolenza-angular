@@ -1,0 +1,9 @@
+/* Full-width "Create Ticket" split-button until lg; natural width from lg up */
+@media (max-width: 1023.98px) {
+  :host ::ng-deep .p-splitbutton {
+    width: 100%;
+  }
+  :host ::ng-deep .p-splitbutton .p-splitbutton-button {
+    flex: 1 1 auto;
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "isSucceeded": true,
+  "message": "Policy import preview saved successfully.",
+  "data": {
+    "staffMemberPatternHash": null,
+    "reservedStaffMemberSequence": null,
+    "jobId": "9318d1d0-9e4a-452b-981c-35cf4d513505",
+    "master": 14,
+    "sourceColumns": [
+      "PolicyCode",
+      "VersionNumber",
+      "StaffMemberCode",
+      "EffectiveFrom",
+      "EffectiveTo",
+      "IsMandatory"
+    ],
+    "columnMapping": {
+      "PolicyCode": "PolicyCode",
+      "VersionNumber": "VersionNumber",
+      "StaffMemberCode": "StaffMemberCode",
+      "EffectiveFrom": "EffectiveFrom",
+      "EffectiveTo": "EffectiveTo",
+      "IsMandatory": "IsMandatory"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "hostRecordId": null,
+        "proposedStaffMemberCode": null,
+        "invitationStatus": null,
+        "invitationError": null,
+        "invitationAttemptedAtUtc": null,
+        "processed": false,
+        "willReactivate": false,
+        "wasReactivated": false,
+        "rowNumber": 2,
+        "values": {
+          "PolicyCode": "INDIA_HYBRID_ATTENDANCE_LOCATION",
+          "VersionNumber": "1",
+          "StaffMemberCode": "QT/2026/0204",
+          "EffectiveFrom": "2026-09-19",
+          "EffectiveTo": "",
+          "IsMandatory": "true"
+        },
+        "status": 2,
+        "existingId": null,
+        "departmentId": null,
+        "policyVersionId": 9,
+        "targetStaffMemberId": 11,
+        "errors": []
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 1,
+    "invalidCount": 0,
+    "isValid": true,
+    "confirmationAvailable": true,
+    "canCommit": true
+  },
+  "errors": []
+}

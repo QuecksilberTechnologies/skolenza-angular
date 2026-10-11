@@ -1,0 +1,121 @@
+{
+  "attribution": {
+    "commit": "Co-Authored-By: Skolenza <sujeetjaiswara2012@gmail.com>",
+    "pr": ""
+  },
+  "permissions": {
+    "allow": [
+      "Bash(ng test:*)",
+      "Bash(ng lint:*)",
+      "Bash(ng build:*)",
+      "Bash(bun run test:*)",
+      "bunx oxfmt --check"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(git push:*)",
+      "Bash(bun publish:*)",
+      "Bash(bunx:*)",
+      "Bash(env)",
+      "Bash(printenv:*)",
+      "Bash(cat .env:*)",
+      "Read(.env*)",
+      "Edit(.env*)",
+      "Edit(node_modules/**)",
+      "Edit(.git/**)"
+    ]
+  },
+  "enabledMcpjsonServers": ["angular-cli"],
+  "skillOverrides": {
+    "sk-bundle-size-root-cause": "off",
+    "sk-clean-code": "off",
+    "sk-improve-ui": "off",
+    "sk-improve-ux": "off",
+    "sk-remove-dead-code": "off",
+    "sk-write-tests": "off",
+    "angular-new-app": "off",
+    "ask-matt": "off",
+    "cavecrew": "off",
+    "caveman-commit": "off",
+    "caveman-discover": "off",
+    "caveman-explore": "off",
+    "caveman-help": "off",
+    "caveman-manage": "off",
+    "caveman-optimize": "off",
+    "caveman-review": "off",
+    "caveman-setup": "off",
+    "caveman-stats": "off",
+    "claude-handoff": "off",
+    "caveman-compress": "off",
+    "caveman-evidence-review": "off",
+    "caveman-learn": "off",
+    "codebase-design": "off",
+    "domain-modeling": "off",
+    "handoff": "off",
+    "implement": "off",
+    "improve-codebase-architecture": "off",
+    "investigate-first": "off",
+    "loop-me": "off",
+    "migrate-to-shoehorn": "off",
+    "migration": "off",
+    "prototype": "off",
+    "resolving-merge-conflicts": "off",
+    "research": "off",
+    "safe-refactor": "off",
+    "scaffold-exercises": "off",
+    "surgical-patch": "off",
+    "tdd": "off",
+    "teach": "off",
+    "to-questionnaire": "off",
+    "to-tickets": "off",
+    "to-spec": "off",
+    "verify-and-stop": "off",
+    "wait-what": "off",
+    "wayfinder": "off",
+    "wizard": "off",
+    "writing-beats": "off",
+    "writing-for-agents": "off",
+    "writing-shape": "off",
+    "writing-fragments": "off",
+    "lean-build": "off",
+    "retro": "off",
+    "git-guardrails-claude-code": "off",
+    "grill-with-docs": "off",
+    "implement-spec": "off",
+    "setup-pre-commit": "off",
+    "setup-ts-deep-modules": "off",
+    "triage": "off",
+    "diagnosing-bugs": "off",
+    "grilling": "off",
+    "grill-me": "off",
+    "setup-matt-pocock-skills": "off",
+    "caveman": "off"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'IMPORTANT: Before responding, review skills (run /skills if unsure) and activate those relevant to this request.'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | grep -E '\\.(ts|html)$' | xargs -r bunx eslint --quiet --no-error-on-unmatched-pattern 2>/dev/null || true",
+            "async": true
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": false
+  }
+}

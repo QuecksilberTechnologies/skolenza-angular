@@ -1,0 +1,69 @@
+<div
+  class="flex flex-col gap-6 rounded-xl border border-zinc-200 bg-white p-5 lg:min-h-0 lg:flex-1 dark:border-zinc-800 dark:bg-zinc-900">
+  <!-- Description -->
+  <p class="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">{{ detail().description }}</p>
+
+  <!-- Attachments -->
+  @if (detail().attachments.length) {
+  <div>
+    <h3 class="mb-3 flex items-center gap-2 text-[10px] font-bold tracking-widest text-zinc-400 uppercase">
+      <span>Attachments</span>
+      <span
+        class="rounded-full bg-zinc-100 px-1.5 py-0.5 tracking-normal text-zinc-500 normal-case dark:bg-zinc-800 dark:text-zinc-400">
+        {{ detail().attachments.length }}
+      </span>
+    </h3>
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+      @for (att of detail().attachments; track att.id) { @let visual = attachmentVisual(att.fileName);
+      <div
+        class="group flex cursor-pointer items-center gap-3 rounded-lg border border-zinc-200 px-3 py-2 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:border-zinc-600 dark:hover:bg-zinc-800/50">
+        <div
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-md"
+          [class]="visual.tile">
+          <i [class]="visual.icon + ' text-base ' + visual.iconColor"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p
+            class="truncate text-xs font-medium text-zinc-800 dark:text-zinc-200"
+            [pTooltip]="att.fileName"
+            tooltipPosition="top">
+            {{ att.fileName }}
+          </p>
+          <p class="mt-0.5 truncate text-[10px] text-zinc-400">
+            {{ att.sizeLabel }} · {{ att.uploadedBy }} · {{ att.uploadedAt | date: 'dd MMM' }}
+          </p>
+        </div>
+        <button
+          type="button"
+          class="shrink-0 cursor-pointer rounded p-1.5 text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-zinc-200 focus:opacity-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
+          [attr.aria-label]="'Download ' + att.fileName"
+          pTooltip="Download"
+          tooltipPosition="top">
+          <i class="pi pi-download text-xs"></i>
+        </button>
+      </div>
+      }
+    </div>
+  </div>
+  }
+
+  <!-- Activity -->
+  <div class="flex flex-col lg:min-h-0 lg:flex-1">
+    <h3 class="mb-4 flex items-center gap-2 text-[10px] font-bold tracking-widest text-zinc-400 uppercase">
+      <span>Activity</span>
+      <span
+        class="rounded-full bg-zinc-100 px-1.5 py-0.5 tracking-normal text-zinc-500 normal-case dark:bg-zinc-800 dark:text-zinc-400">
+        {{ detail().conversations.length }}
+      </span>
+    </h3>
+    <div class="custom-scrollbar max-h-96 overflow-y-auto pr-1 lg:max-h-none lg:min-h-0 lg:flex-1">
+      <app-ticket-conversation [conversations]="detail().conversations" />
+    </div>
+  </div>
+
+  <!-- Reply -->
+  <div class="shrink-0">
+    <h3 class="mb-3 text-[10px] font-bold tracking-widest text-zinc-400 uppercase">Reply</h3>
+    <app-ticket-reply-input />
+  </div>
+</div>

@@ -1,0 +1,107 @@
+<ng-template #roleIcon>
+  @if (staffMember().isAssigningRole) {
+  <i class="pi pi-spin pi-spinner text-[10px]"></i>
+  } @else {
+  <i class="pi pi-shield text-[10px]"></i>
+  }
+</ng-template>
+
+@let roleView = view();
+@let assignLabel = 'Assign roles for ' + staffMember().firstName + ' ' + staffMember().lastName;
+
+<div
+  class="flex items-center gap-1.5"
+  cdkOverlayOrigin
+  #roleOrigin="cdkOverlayOrigin">
+  @if (roleView.displayName) { @if (canManage()) {
+  <button
+    type="button"
+    class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 hover:cursor-pointer hover:bg-primary-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 disabled:opacity-60 dark:border-primary-700 dark:bg-primary-900/30 dark:text-primary-200 dark:hover:bg-primary-900/50"
+    [disabled]="staffMember().isAssigningRole"
+    [pTooltip]="roleView.tooltip"
+    tooltipPosition="bottom"
+    [attr.aria-label]="assignLabel"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggle()">
+    <ng-container [ngTemplateOutlet]="roleIcon" />
+    <span class="truncate">{{ roleView.displayName }}</span>
+  </button>
+  } @else {
+  <span
+    class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:border-primary-700 dark:bg-primary-900/30 dark:text-primary-200">
+    <i class="pi pi-shield text-[10px]"></i>
+    <span class="truncate">{{ roleView.displayName }}</span>
+  </span>
+  } @if (roleView.extraCount) {
+  <span
+    class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-gray-200 px-1 text-[10px] font-semibold text-gray-700 dark:bg-zinc-700 dark:text-zinc-200"
+    [pTooltip]="roleView.secondaryNames"
+    tooltipPosition="bottom">
+    +{{ roleView.extraCount }}
+  </span>
+  } } @else if (roleView.extraCount) { @if (canManage()) {
+  <button
+    type="button"
+    class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 hover:cursor-pointer hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 disabled:opacity-60 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+    [disabled]="staffMember().isAssigningRole"
+    [pTooltip]="roleView.tooltip"
+    tooltipPosition="bottom"
+    [attr.aria-label]="'Manage ' + roleView.extraCount + ' roles for ' + staffMember().firstName + ' ' + staffMember().lastName"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggle()">
+    <ng-container [ngTemplateOutlet]="roleIcon" />
+    <span>{{ roleView.extraCount }}+</span>
+  </button>
+  } @else {
+  <span
+    class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+    [pTooltip]="roleView.tooltip"
+    tooltipPosition="bottom">
+    <i class="pi pi-shield text-[10px]"></i>
+    <span>{{ roleView.extraCount }}+</span>
+  </span>
+  } } @else { @if (canManage()) {
+  <button
+    type="button"
+    class="inline-flex items-center gap-1.5 rounded-full border border-dashed border-gray-300 bg-transparent px-2.5 py-1 text-xs font-medium whitespace-nowrap text-gray-500 hover:cursor-pointer hover:border-primary-300 hover:bg-primary-50 hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 disabled:opacity-60 dark:border-zinc-600 dark:text-zinc-400 dark:hover:border-primary-600 dark:hover:bg-primary-900/20 dark:hover:text-primary-300"
+    [disabled]="staffMember().isAssigningRole"
+    pTooltip="Click to assign roles"
+    tooltipPosition="bottom"
+    [attr.aria-label]="assignLabel"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggle()">
+    <ng-container [ngTemplateOutlet]="roleIcon" />
+    <span>Assign Role</span>
+  </button>
+  } @else {
+  <span class="text-xs whitespace-nowrap text-gray-400 dark:text-zinc-500">No role assigned</span>
+  } }
+</div>
+
+<ng-template
+  cdkConnectedOverlay
+  appRepositionOnResize
+  [cdkConnectedOverlayOrigin]="roleOrigin"
+  [cdkConnectedOverlayOpen]="isOpen()"
+  [cdkConnectedOverlayPositions]="cardOverlayPositions"
+  [cdkConnectedOverlayPush]="true"
+  [cdkConnectedOverlayViewportMargin]="8"
+  [cdkConnectedOverlayScrollStrategy]="overlayScrollStrategy"
+  (overlayOutsideClick)="onOutsideClick($event, roleOrigin.elementRef.nativeElement)"
+  (overlayKeydown)="$event.key === 'Escape' ? close() : null"
+  (detach)="close()">
+  <app-role-popup
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
+    role="dialog"
+    [attr.aria-label]="assignLabel"
+    [staffMember]="staffMember()"
+    [userStaffMemberId]="userStaffMemberId()"
+    [initialRoles]="cachedRoles()"
+    (rolesLoaded)="rolesLoaded.emit($event)"
+    (rolesAssigned)="rolesAssigned.emit($event)"
+    (closed)="close()" />
+</ng-template>

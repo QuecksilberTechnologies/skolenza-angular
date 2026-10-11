@@ -1,0 +1,5 @@
+interface:
+  display_name: "Improve UX"
+  short_description: "Audit and improve UX of an Angular component, feature, or flow"
+policy:
+  allow_implicit_invocation: false

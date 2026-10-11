@@ -1,0 +1,258 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      #dt
+      [value]="store.okrs()"
+      [loading]="store.isLoading()"
+      [showLoader]="false"
+      [lazy]="true"
+      [paginator]="true"
+      [showCurrentPageReport]="true"
+      [rows]="store.pageSize()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="store.totalRecords()"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} OKRs"
+      [selection]="selectedOkrs()"
+      (selectionChange)="selectedOkrs.set($event)"
+      dataKey="id"
+      [sortMode]="'single'"
+      [sortOrder]="-1"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '72rem' }"
+      paginatorDropdownAppendTo="body"
+      (onLazyLoad)="onLazyLoad($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <p-select
+            [options]="levelOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Level"
+            [appendTo]="'body'"
+            class="w-full min-w-40"
+            [showClear]="true"
+            [ngModel]="store.appliedFilters()?.level"
+            (onChange)="onFilterChange({ level: $event.value })" />
+          <p-select
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Status"
+            [appendTo]="'body'"
+            class="w-full min-w-40"
+            [showClear]="true"
+            [ngModel]="store.appliedFilters()?.status"
+            (onChange)="onFilterChange({ status: $event.value })" />
+          <p-select
+            [options]="quarterOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Quarter"
+            [appendTo]="'body'"
+            class="w-full min-w-36"
+            [showClear]="true"
+            [ngModel]="store.appliedFilters()?.quarter"
+            (onChange)="onFilterChange({ quarter: $event.value })" />
+          <p-select
+            [options]="departmentOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Department"
+            [appendTo]="'body'"
+            class="w-full min-w-44"
+            [showClear]="true"
+            [ngModel]="store.appliedFilters()?.departmentId"
+            (onChange)="onFilterChange({ departmentId: $event.value })" />
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input (searchTerm)="onSearch($event)" />
+            <p-button
+              label="Export"
+              icon="pi pi-download"
+              severity="secondary"
+              [outlined]="true"
+              styleClass="w-full lg:w-auto"
+              pTooltip="Export current page to CSV"
+              (onClick)="exportCsv()" />
+            @if (canManage()) {
+            <p-button
+              label="Create OKR"
+              icon="pi pi-plus"
+              styleClass="w-full lg:w-auto"
+              (onClick)="create()" />
+            }
+          </div>
+        </app-table-inline-filters>
+
+        @if (selectedOkrs().length > 0) {
+        <div
+          class="mt-2 flex flex-wrap items-center gap-3 rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 dark:border-primary-500/30 dark:bg-primary-500/10"
+          role="region"
+          aria-label="Bulk actions">
+          <span class="text-sm font-medium">{{ selectedOkrs().length }} selected</span>
+          <p-button
+            label="Archive"
+            icon="pi pi-inbox"
+            size="small"
+            severity="warn"
+            [text]="true"
+            (onClick)="confirmArchiveSelected()" />
+          <p-button
+            label="Delete"
+            icon="pi pi-trash"
+            size="small"
+            severity="danger"
+            [text]="true"
+            (onClick)="confirmBulkDelete()" />
+          <p-button
+            label="Clear"
+            icon="pi pi-times"
+            size="small"
+            severity="secondary"
+            [text]="true"
+            (onClick)="selectedOkrs.set([])" />
+        </div>
+        }
+      </ng-template>
+
+      <ng-template #header>
+        <tr>
+          <th
+            style="width: 3rem"
+            class="px-3! py-2.5!">
+            <p-tableHeaderCheckbox />
+          </th>
+          <th
+            pSortableColumn="title"
+            class="min-w-64 px-3! py-2.5!">
+            <div class="flex items-center gap-2">
+              Title
+              <p-sortIcon field="title" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="ownerName"
+            class="px-3! py-2.5!">
+            <div class="flex items-center gap-2">
+              Owner
+              <p-sortIcon field="ownerName" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="department"
+            class="px-3! py-2.5!">
+            <div class="flex items-center gap-2">
+              Department
+              <p-sortIcon field="department" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="level"
+            class="px-3! py-2.5!">
+            <div class="flex items-center gap-2">
+              Level
+              <p-sortIcon field="level" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="quarter"
+            class="px-3! py-2.5!">
+            <div class="flex items-center gap-2">
+              Quarter
+              <p-sortIcon field="quarter" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="progress"
+            class="min-w-40 px-3! py-2.5!">
+            <div class="flex items-center gap-2">
+              Progress
+              <p-sortIcon field="progress" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="status"
+            class="px-3! py-2.5!">
+            <div class="flex items-center gap-2">
+              Status
+              <p-sortIcon field="status" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="dueDate"
+            class="px-3! py-2.5!">
+            <div class="flex items-center gap-2">
+              Due Date
+              <p-sortIcon field="dueDate" />
+            </div>
+          </th>
+          <th class="px-3! py-2.5!">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-okr>
+        <tr>
+          <td class="px-3! py-2.5!">
+            <p-tableCheckbox [value]="okr" />
+          </td>
+          <td class="px-3! py-2.5!">
+            <button
+              type="button"
+              class="cursor-pointer text-left font-medium text-primary-600 hover:underline dark:text-primary-400"
+              (click)="view(okr)">
+              {{ okr.title }}
+            </button>
+            <div class="truncate text-xs text-gray-500 dark:text-zinc-400">{{ okr.objective }}</div>
+          </td>
+          <td class="px-3! py-2.5! whitespace-nowrap">{{ okr.ownerName }}</td>
+          <td class="px-3! py-2.5! whitespace-nowrap">{{ okr.department }}</td>
+          <td class="px-3! py-2.5!"><app-okr-level-badge [level]="okr.level" /></td>
+          <td class="px-3! py-2.5! whitespace-nowrap">{{ okr.quarter }}</td>
+          <td class="px-3! py-2.5!"><app-okr-progress [value]="okr.progress" /></td>
+          <td class="px-3! py-2.5!"><app-okr-status-tag [status]="okr.status" /></td>
+          <td class="px-3! py-2.5! whitespace-nowrap">{{ okr.dueDate | date: 'mediumDate' }}</td>
+          <td class="px-3! py-2.5! whitespace-nowrap">
+            <p-button
+              type="button"
+              icon="pi pi-ellipsis-h"
+              [rounded]="false"
+              severity="secondary"
+              [text]="true"
+              ariaLabel="Open row actions"
+              (click)="openRowMenu(okr); actionMenu.toggle($event)" />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.okrs().length === 0) {
+        <tr>
+          <td colspan="10"><app-table-loader /></td>
+        </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="10">
+            <app-table-empty-message
+              icon="pi pi-flag"
+              message="No OKRs found"
+              subMessage="Adjust your filters or create a new objective to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems"
+  [popup]="true"
+  appendTo="body" />
+<p-confirmDialog />

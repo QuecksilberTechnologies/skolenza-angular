@@ -1,0 +1,17 @@
+# Normalise to LF in the repo and in every working tree, on every platform.
+# oxfmt's endOfLine default is "lf"; without this, core.autocrlf=true hands
+# Windows a CRLF working tree and `bun run format:check` fails on a clean clone.
+* text=auto eol=lf
+
+# Binary assets: never touch.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary

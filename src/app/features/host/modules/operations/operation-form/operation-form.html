@@ -1,0 +1,171 @@
+<form
+  (submit)="onSubmit(); $event.preventDefault()"
+  class="flex max-h-[calc(100vh-16rem)] flex-col gap-4">
+  @if (isLoading()) {
+  <div
+    class="grid grid-cols-1 gap-4 overflow-y-auto px-1 pb-1"
+    role="status">
+    <span class="sr-only">Loading operation…</span>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <app-skeleton-field hint />
+      <app-skeleton-field
+        control="select"
+        hint />
+      <app-skeleton-field hint />
+      <app-skeleton-toggle />
+    </div>
+    <app-skeleton-field control="textarea" />
+  </div>
+  } @else {
+  <div class="grid grid-cols-1 gap-4 overflow-y-auto px-1 pb-1">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <!-- Operation name -->
+      <div class="space-y-1">
+        <label
+          for="operationName"
+          class="block font-medium">
+          Operation name
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <input
+          [formField]="f.operationName"
+          pInputText
+          [pAutoFocus]="true"
+          type="text"
+          id="operationName"
+          class="w-full"
+          placeholder="e.g. Approve" />
+        @if (((f.operationName().touched() && f.operationName().dirty()) || submitAttempted()) &&
+        f.operationName().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.operationName().errors()[0].message }}</span>
+        </p-message>
+        } @else {
+        <p class="text-xs text-gray-500 dark:text-zinc-400">Shown as a column in the permission matrix</p>
+        }
+      </div>
+
+      <!-- Operation type -->
+      <div class="space-y-1">
+        <label
+          for="operationType"
+          class="block font-medium">
+          Operation type
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-select
+          inputId="operationType"
+          class="w-full"
+          styleClass="w-full"
+          [options]="typeOptions()"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select type"
+          [appendTo]="'body'"
+          [formField]="$any(f.operationType)" />
+        @if (((f.operationType().touched() && f.operationType().dirty()) || submitAttempted()) &&
+        f.operationType().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.operationType().errors()[0].message }}</span>
+        </p-message>
+        } @else {
+        <p class="text-xs text-gray-500 dark:text-zinc-400">Groups the operation in the permission matrix</p>
+        }
+      </div>
+
+      <!-- Icon -->
+      <div class="space-y-1">
+        <label
+          for="iconImage"
+          class="block font-medium">
+          Icon
+        </label>
+        <input
+          [formField]="f.iconImage"
+          pInputText
+          type="text"
+          id="iconImage"
+          class="w-full"
+          placeholder="e.g. pi pi-check-circle" />
+        @if (((f.iconImage().touched() && f.iconImage().dirty()) || submitAttempted()) &&
+        f.iconImage().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.iconImage().errors()[0].message }}</span>
+        </p-message>
+        } @else {
+        <app-icon-help-link hint="Optional PrimeIcons class." />
+        }
+      </div>
+
+      <!-- Active -->
+      <div class="space-y-1">
+        <label
+          for="isActive"
+          class="block font-medium">
+          Active
+        </label>
+        <div class="flex items-center rounded-lg border border-gray-200 px-3 py-2 dark:border-zinc-700">
+          <p-toggleswitch
+            inputId="isActive"
+            [formField]="$any(f.isActive)" />
+        </div>
+        <p class="text-xs text-gray-500 dark:text-zinc-400">Usable by institutions</p>
+      </div>
+    </div>
+
+    <!-- Remark -->
+    <div class="space-y-1">
+      <label
+        for="remark"
+        class="block font-medium">
+        Remark
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <!-- `pTextarea` subscribes to `ngControl.valueChanges`, which Signal Forms does not provide,
+           so the value is bound by hand instead of through `[formField]`. -->
+      <textarea
+        pTextarea
+        id="remark"
+        rows="2"
+        class="w-full"
+        maxlength="200"
+        placeholder="e.g. Allows approving submitted requests"
+        [value]="model().remark"
+        (input)="onRemarkInput($event)"></textarea>
+      @if (((f.remark().touched() && f.remark().dirty()) || submitAttempted()) &&
+      f.remark().errors().length) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        <span>{{ f.remark().errors()[0].message }}</span>
+      </p-message>
+      }
+    </div>
+  </div>
+
+  }
+
+  <div class="flex shrink-0 justify-end gap-2 border-t border-gray-200 pt-4 dark:border-zinc-700">
+    <p-button
+      label="Cancel"
+      variant="text"
+      severity="secondary"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      icon="pi pi-check"
+      [label]="isSaving() ? 'Saving...' : operationId ? 'Save changes' : 'Create operation'"
+      [loading]="isSaving()"
+      [disabled]="f().invalid() || isSaving() || isLoading()" />
+  </div>
+</form>

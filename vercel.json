@@ -1,0 +1,4 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "bun run build || (cat /tmp/ng-*/angular-errors.log; exit 1)"
+}

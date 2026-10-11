@@ -1,0 +1,28 @@
+[
+  {
+    "Id": 6,
+    "InstitutionId": 8,
+    "OfficialEmail": "uiqa.staffMember.20260911.one@example.invalid",
+    "EmployementCode": "QT/2026/0145",
+    "MobileNumber": "9000000145",
+    "DateOfOnBoarding": "2026-09-01T05:30:00+05:30",
+    "ContactNumber": "9000000145",
+    "Address": "Development test address",
+    "logins": 1,
+    "roles": 1,
+    "images": 1
+  },
+  {
+    "Id": 7,
+    "InstitutionId": 8,
+    "OfficialEmail": "uiqa.staffMember.20260911.two@example.invalid",
+    "EmployementCode": "QT/2026/0200",
+    "MobileNumber": "9000000200",
+    "DateOfOnBoarding": "2026-09-02T05:30:00+05:30",
+    "ContactNumber": "9000000200",
+    "Address": "Development test address",
+    "logins": 1,
+    "roles": 1,
+    "images": 1
+  }
+]

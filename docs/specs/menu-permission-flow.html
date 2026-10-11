@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menu and Permission Flow</title>
+<style>body { margin: 0; }</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f3f6f7;
+    --surface: #ffffff;
+    --ink: #12202b;
+    --muted: #55666f;
+    --line: #d5dee2;
+    --line-strong: #9fb0b8;
+    --code-bg: #e9eff1;
+
+    /* Lane A: menu tree (my-menu) */
+    --a: #0b6e6e;
+    --a-soft: #dcefee;
+    /* Lane B: permission matrix */
+    --b: #5643b8;
+    --b-soft: #e8e4f8;
+
+    --ok: #17703f;
+    --ok-bg: #d9f0e1;
+    --warn: #8a5a00;
+    --warn-bg: #fbebc8;
+    --bad: #b3261e;
+    --bad-bg: #fbe0dd;
+
+    --display: 'Familjen Grotesk', 'Segoe UI', system-ui, sans-serif;
+    --body: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --bg: #0e161c;
+      --surface: #15212a;
+      --ink: #e6eef2;
+      --muted: #93a5af;
+      --line: #26363f;
+      --line-strong: #4a606c;
+      --code-bg: #1a2a33;
+      --a: #4fd1c5;
+      --a-soft: #123332;
+      --b: #b3a7ff;
+      --b-soft: #211d3f;
+      --ok: #78d39c;
+      --ok-bg: #123321;
+      --warn: #f2c265;
+      --warn-bg: #3a2e12;
+      --bad: #f29a93;
+      --bad-bg: #40191a;
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #0e161c;
+    --surface: #15212a;
+    --ink: #e6eef2;
+    --muted: #93a5af;
+    --line: #26363f;
+    --line-strong: #4a606c;
+    --code-bg: #1a2a33;
+    --a: #4fd1c5;
+    --a-soft: #123332;
+    --b: #b3a7ff;
+    --b-soft: #211d3f;
+    --ok: #78d39c;
+    --ok-bg: #123321;
+    --warn: #f2c265;
+    --warn-bg: #3a2e12;
+    --bad: #f29a93;
+    --bad-bg: #40191a;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.6;
+    padding-inline: 16px;
+  }
+  .wrap { max-width: 1000px; margin-inline: auto; padding-block: 0 72px; }
+
+  a { color: var(--a); }
+  a:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; border-radius: 3px; }
+
+  code, .mono { font-family: var(--mono); font-size: 0.86em; }
+  code { background: var(--code-bg); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+
+  h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 700; letter-spacing: -0.02em; }
+  h2 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.01em; }
+  h3 { font-size: 1.05rem; font-weight: 600; }
+  p { margin: 0; max-width: 68ch; }
+  .lead { font-size: 1.1rem; color: var(--muted); max-width: 62ch; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--a); margin: 0 0 10px;
+  }
+  .eyebrow.b { color: var(--b); }
+
+  header.top { padding-block: 56px 28px; display: grid; gap: 16px; }
+  .meta { color: var(--muted); font-size: 0.85rem; }
+
+  nav.jump {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+    background: var(--bg); border-block: 1px solid var(--line);
+    margin-inline: -16px; padding: 10px 16px;
+    display: flex; gap: 6px 18px; flex-wrap: wrap; font-size: 0.85rem;
+  }
+  nav.jump a { color: var(--muted); text-decoration: none; padding: 2px 0; }
+  nav.jump a:hover { color: var(--a); }
+
+  section { padding-block: 48px 0; scroll-margin-top: 64px; display: grid; gap: 20px; }
+  .sub { color: var(--muted); }
+
+  /* lane chips */
+  .lane { display: inline-block; font-family: var(--mono); font-size: 0.72rem; font-weight: 500; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .lane.a { background: var(--a-soft); color: var(--a); }
+  .lane.b { background: var(--b-soft); color: var(--b); }
+  .tag-ok { background: var(--ok-bg); color: var(--ok); }
+  .tag-warn { background: var(--warn-bg); color: var(--warn); }
+  .tag-bad { background: var(--bad-bg); color: var(--bad); }
+  .tag { display: inline-block; font-family: var(--mono); font-size: 0.74rem; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  th {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: 0; }
+  td.nw { white-space: nowrap; }
+
+  pre {
+    margin: 0; padding: 14px 16px; overflow-x: auto; background: var(--code-bg);
+    border-radius: 8px; font-family: var(--mono); font-size: 0.82rem; line-height: 1.55;
+  }
+
+  .diagram { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+  .diagram svg { display: block; min-width: 900px; width: 100%; height: auto; }
+  .diagram text { font-family: var(--body); fill: var(--ink); }
+  .diagram .t { font-size: 13px; font-weight: 600; }
+  .diagram .tm { font-family: var(--mono); font-size: 11.5px; font-weight: 500; }
+  .diagram .s { font-size: 11px; fill: var(--muted); }
+  .diagram .band-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; }
+  .diagram .band-label.a { fill: var(--a); }
+  .diagram .band-label.b { fill: var(--b); }
+  .diagram .band-a { fill: var(--a-soft); }
+  .diagram .band-b { fill: var(--b-soft); }
+  .diagram .box { fill: var(--surface); stroke-width: 1.5; }
+  .diagram .box.a { stroke: var(--a); }
+  .diagram .box.b { stroke: var(--b); }
+  .diagram .arrow { fill: none; stroke-width: 1.6; }
+  .diagram .arrow.a { stroke: var(--a); }
+  .diagram .arrow.b { stroke: var(--b); }
+  .diagram .head-a { fill: var(--a); }
+  .diagram .head-b { fill: var(--b); }
+
+  .note { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+  .note h3 { font-size: 0.95rem; }
+  .note p { font-size: 0.9rem; color: var(--muted); }
+  .note.a { border-color: var(--a); }
+  .note.b { border-color: var(--b); }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+
+  ol.steps { list-style: none; margin: 0; padding: 0; display: grid; counter-reset: s; }
+  ol.steps > li {
+    counter-increment: s; display: grid; grid-template-columns: 40px 1fr; gap: 0 14px; position: relative;
+    padding-bottom: 22px;
+  }
+  ol.steps > li::before {
+    content: counter(s); font-family: var(--mono); font-size: 0.8rem; font-weight: 500;
+    width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface); border: 1.5px solid var(--a); color: var(--a); z-index: 1;
+  }
+  ol.steps > li::after { content: ''; position: absolute; left: 15.5px; top: 32px; bottom: 0; width: 1.5px; background: var(--line-strong); }
+  ol.steps > li:last-child { padding-bottom: 0; }
+  ol.steps > li:last-child::after { display: none; }
+  .step-body { display: grid; gap: 6px; padding-top: 3px; }
+  .step-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+  .step-body p { font-size: 0.9rem; color: var(--muted); }
+
+  ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 68ch; }
+  .flowline { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; font-family: var(--mono); font-size: 0.8rem; }
+  .flowline .arr { color: var(--line-strong); }
+  .flowline span.node { background: var(--surface); border: 1px solid var(--line); padding: 3px 10px; border-radius: 6px; }
+
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; display: grid; gap: 6px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Skolenza · Navigation and access</p>
+    <h1>How the side menu, and every permission check, gets its data</h1>
+    <p class="lead">One login feeds two separate trees from the backend. One drives the sidebar and the request ids. The other drives route guards and screen gates. They use different keys and different ids, and they must not be mixed.</p>
+    <p class="meta">Read from <code>core/stores/feature-page.store.ts</code>, <code>current-user-permissions.store.ts</code>, <code>layout/app-aside-menu/</code>, <code>core/guards/</code> and <code>core/interceptors/</code>.</p>
+  </header>
+
+  <nav class="jump" aria-label="Sections">
+    <a href="#overview">Overview</a>
+    <a href="#vocab">Module, sub-module, operation</a>
+    <a href="#sidebar">Sidebar</a>
+    <a href="#operations">Menu-tree gates</a>
+    <a href="#matrix">Permission matrix</a>
+    <a href="#gates">Checks and guards</a>
+    <a href="#requests">Request ids</a>
+    <a href="#authoring">Who defines grants</a>
+    <a href="#session">Session</a>
+    <a href="#gotchas">Gotchas</a>
+  </nav>
+
+  <!-- ============ OVERVIEW ============ -->
+  <section id="overview">
+    <div>
+      <p class="eyebrow">The whole picture</p>
+      <h2>Two lanes, two stores</h2>
+    </div>
+    <p>Both lanes start from the login session. <span class="lane a">Lane A</span> is the menu tree: it decides what the sidebar shows and which ids go onto API requests. <span class="lane b">Lane B</span> is the permission matrix: it decides whether a route may open and whether a screen shows its buttons.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 980 440" role="img" aria-labelledby="ov-t ov-d">
+        <title id="ov-t">Menu tree and permission matrix data flow</title>
+        <desc id="ov-d">Lane A: GET Navigation/my-menu fills FeaturePageStore, which feeds the sidebar, button gates and the request-id interceptor. Lane B: the bootstrap endpoint and the institution operations catalog fill CurrentUserPermissionsStore, which feeds route guards, screen gates and catalog id lookups.</desc>
+        <defs>
+          <marker id="ha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path class="head-a" d="M0 0 L10 5 L0 10 z"/></marker>
+          <marker id="hb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path class="head-b" d="M0 0 L10 5 L0 10 z"/></marker>
+        </defs>
+
+        <!-- Lane A -->
+        <rect class="band-a" x="8" y="10" width="964" height="200" rx="10"/>
+        <text class="band-label a" x="24" y="30">LANE A · MENU TREE · KEYED BY moduleCode</text>
+
+        <rect class="box a" x="24" y="62" width="250" height="84" rx="8"/>
+        <text class="tm" x="40" y="90">GET /Navigation/my-menu</text>
+        <text class="s" x="40" y="110">Session-scoped tree of groups and pages</text>
+        <text class="s" x="40" y="126">Each page lists only its granted operations</text>
+
+        <rect class="box a" x="365" y="62" width="250" height="84" rx="8"/>
+        <text class="t" x="381" y="90">FeaturePageStore</text>
+        <text class="s" x="381" y="110">Cached in localStorage, revalidated on boot</text>
+        <text class="s" x="381" y="126">Index: moduleCode to moduleId + operation ids</text>
+
+        <rect class="box a" x="706" y="40" width="250" height="46" rx="8"/>
+        <text class="t" x="722" y="60">Sidebar menu</text>
+        <text class="s" x="722" y="76">ASIDE_MENU_MODULE_UI gives routes and icons</text>
+        <rect class="box a" x="706" y="96" width="250" height="46" rx="8"/>
+        <text class="t" x="722" y="116">Buttons and tabs</text>
+        <text class="s" x="722" y="132">canPerformOrUnknown(code, operation)</text>
+        <rect class="box a" x="706" y="152" width="250" height="46" rx="8"/>
+        <text class="t" x="722" y="172">Request ids</text>
+        <text class="s" x="722" y="188">moduleOperationInterceptor</text>
+
+        <path class="arrow a" d="M274 104 H363" marker-end="url(#ha)"/>
+        <path class="arrow a" d="M615 104 C660 104 660 63 704 63" marker-end="url(#ha)"/>
+        <path class="arrow a" d="M615 104 C660 104 660 119 704 119" marker-end="url(#ha)"/>
+        <path class="arrow a" d="M615 104 C660 104 660 175 704 175" marker-end="url(#ha)"/>
+
+        <text class="s" x="490" y="221" text-anchor="middle">Different keys, different ids. The two lanes never share an id.</text>
+
+        <!-- Lane B -->
+        <rect class="band-b" x="8" y="230" width="964" height="202" rx="10"/>
+        <text class="band-label b" x="24" y="250">LANE B · PERMISSION MATRIX · KEYED BY moduleName</text>
+
+        <rect class="box b" x="24" y="268" width="250" height="72" rx="8"/>
+        <text class="tm" x="40" y="294">GET …/bootstrap</text>
+        <text class="s" x="40" y="313">InstitutionUserAccess, or HostAccess for a host</text>
+        <text class="s" x="40" y="328">Granted modules and operations</text>
+
+        <rect class="box b" x="24" y="352" width="250" height="60" rx="8"/>
+        <text class="tm" x="40" y="378" style="font-size:11px">GET Institution/get-all-institution-operations</text>
+        <text class="s" x="40" y="396">Full catalog, institution sessions only</text>
+
+        <rect class="box b" x="365" y="294" width="250" height="96" rx="8"/>
+        <text class="t" x="381" y="322">CurrentUserPermissionsStore</text>
+        <text class="s" x="381" y="342">modules: what this role is granted</text>
+        <text class="s" x="381" y="358">moduleCatalog: everything that exists</text>
+        <text class="s" x="381" y="374">Memory only, rebuilt from loginInfo</text>
+
+        <rect class="box b" x="706" y="252" width="250" height="46" rx="8"/>
+        <text class="t" x="722" y="272">Route guards</text>
+        <text class="s" x="722" y="288">Module and operation guards, then access-denied</text>
+        <rect class="box b" x="706" y="308" width="250" height="46" rx="8"/>
+        <text class="t" x="722" y="328">Screen gates</text>
+        <text class="s" x="722" y="344">canAccess(name), canPerform(name, operation)</text>
+        <rect class="box b" x="706" y="364" width="250" height="46" rx="8"/>
+        <text class="t" x="722" y="384">Catalog ids</text>
+        <text class="s" x="722" y="400">identifiersOf(name, operation)</text>
+
+        <path class="arrow b" d="M274 304 C320 304 320 320 363 320" marker-end="url(#hb)"/>
+        <path class="arrow b" d="M274 382 C320 382 320 362 363 362" marker-end="url(#hb)"/>
+        <path class="arrow b" d="M615 342 C660 342 660 275 704 275" marker-end="url(#hb)"/>
+        <path class="arrow b" d="M615 342 C660 342 660 331 704 331" marker-end="url(#hb)"/>
+        <path class="arrow b" d="M615 342 C660 342 660 387 704 387" marker-end="url(#hb)"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ============ VOCAB ============ -->
+  <section id="vocab">
+    <div>
+      <p class="eyebrow">Same hierarchy, several names</p>
+      <h2>Module, sub-module, operation</h2>
+    </div>
+    <p>The backend models a tree: groups that contain pages, and pages that carry operations. Each payload names the levels differently, and the host admin screens use a third set of names. This table lines them up by role.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Role in the tree</th><th><span class="lane a">A</span> my-menu node</th><th><span class="lane b">B</span> institution bootstrap</th><th>Host admin API that creates it</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Top group</strong></td><td>Node with <code>children</code>, no operations. <code>parentModuleId</code> is null.</td><td><code>mainModuleId</code>, <code>mainModuleName</code></td><td><code>ParentModule</code> (a header)</td></tr>
+        <tr><td><strong>Nested group</strong></td><td>Node with <code>children</code> and a <code>parentModuleId</code></td><td><code>subModuleId</code>, <code>subModuleName</code></td><td><code>ParentModule</code> (a header under a header)</td></tr>
+        <tr><td><strong>Page (leaf)</strong></td><td>Node with <code>isLeafNode</code> and <code>operations[]</code>. Identified by <code>moduleCode</code>.</td><td><code>modules[]</code> under a sub-module. Identified by <code>moduleName</code>.</td><td><code>SubModule</code> (leaf modules only)</td></tr>
+        <tr><td><strong>Operation</strong></td><td><code>operations[]</code>: <code>id</code>, <code>name</code></td><td><code>operations[]</code>: <code>operationId</code>, <code>operationName</code></td><td><code>OperationsMaster</code>, linked to a page by <code>ModuleOperation</code></td></tr>
+      </tbody>
+    </table></div>
+    <div class="cols">
+      <div class="note">
+        <h3>Presence is the grant</h3>
+        <p>Both trees list only granted operations. There is no <code>hasAccess: false</code> row to read. If an operation is in the list, the session may use it.</p>
+      </div>
+      <div class="note">
+        <h3>Operation names are backend data</h3>
+        <p><code>View</code>, <code>Add</code>, <code>Update</code>, <code>Delete</code>, <code>Verify</code>, <code>Submit</code> and the rest are plain strings. The app has no enum for them, and matching ignores case.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SIDEBAR ============ -->
+  <section id="sidebar">
+    <div>
+      <p class="eyebrow">Lane A</p>
+      <h2>How the sidebar is built</h2>
+    </div>
+
+    <div class="flowline">
+      <span class="node">my-menu</span><span class="arr">→</span><span class="node">FeaturePageStore.nodes</span><span class="arr">→</span><span class="node">scope filter</span><span class="arr">→</span><span class="node">map to items</span><span class="arr">→</span><span class="node">sort</span><span class="arr">→</span><span class="node">search filter</span><span class="arr">→</span><span class="node">render</span>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <div class="step-body">
+          <h3>Fetch, with a cache in front</h3>
+          <p><code>GET /Navigation/my-menu</code> takes no parameters, because the session decides the scope. The tree is stored in localStorage as <code>feature-pages</code> and hydrated when the store starts, so the sidebar paints from cache with no skeleton. The sidebar's <code>ngOnInit</code> calls <code>ensureLoaded()</code>, which revalidates behind the cache on every boot.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Pick the scope</h3>
+          <p>Role type <code>0</code> (Host) reads nodes with <code>moduleScope</code> <code>2</code>. Admin, StaffMember and Manager read scope <code>1</code>. The <code>COMMON_MENU</code> subtree is dropped here, because it lives in the header user menu.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Map each node to a menu item</h3>
+          <p>Routes, icons and optional label overrides come from <code>ASIDE_MENU_MODULE_UI</code>, keyed by <code>moduleCode</code>. The API's own <code>urlPath</code> and <code>iconKey</code> are ignored: the paths do not match the app's routes, and the icon is null on every module.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Sort, search, highlight</h3>
+          <p>Nodes carry no ordering field, so siblings are sorted by label. Search keeps a node if it or a descendant matches. The active row is the longest menu route that is a segment-prefix of the URL, so <code>staff members</code> stays unlit on <code>staff members/password-management</code>. Ancestors of the active row auto-expand, and expanded ids persist as <code>sidebar-expanded</code>.</p>
+        </div>
+      </li>
+    </ol>
+
+    <h3>What happens to each node</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Node</th><th>Example</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Wrong scope, or the common-menu subtree</td><td><code>COMMON_MENU</code></td><td><span class="tag tag-bad">Dropped</span> Not in the sidebar. Shown in the header user menu.</td></tr>
+        <tr><td>Code not in <code>ASIDE_MENU_MODULE_UI</code>, no mapped descendants</td><td><code>EMP_BANK</code>, a tab of <code>/app/profile</code></td><td><span class="tag tag-bad">Dropped</span> Silently. See <code>ASIDE_MENU_UNMAPPED_MODULES</code>.</td></tr>
+        <tr><td>Mapped, has a route</td><td><code>EMP_LIST</code> to <code>staff members</code></td><td><span class="tag tag-ok">Link</span> Navigates to <code>/app/staff members</code>.</td></tr>
+        <tr><td>No route, two or more mapped children</td><td><code>INSTITUTION_MGMT</code></td><td><span class="tag tag-ok">Group</span> Expandable. Label from the API's <code>displayName</code>.</td></tr>
+        <tr><td>No route, exactly one mapped child</td><td><code>INSTITUTION_DASHBOARD</code> with <code>INSTITUTION_DASHBOARD_OVERVIEW</code></td><td><span class="tag tag-warn">Collapsed</span> The group becomes its child. Here the map's <code>label</code> restores "Dashboard".</td></tr>
+        <tr><td>No route, no mapped children</td><td><code>HOST_DEVICE_MGMT</code>, whose only child is unmapped</td><td><span class="tag tag-bad">Dropped</span> The group goes with its children.</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="cols">
+      <div class="note a">
+        <h3>The sidebar applies no permission filter of its own</h3>
+        <p>The code says why: <code>my-menu</code> already returns only what the session may see, so a second check could only subtract from what the API granted. A page a role cannot reach is simply not in the tree.</p>
+      </div>
+      <div class="note a">
+        <h3>A missing map row hides a granted page</h3>
+        <p>The backend can grant a module the app has no route for. Adding an entry to <code>ASIDE_MENU_UNMAPPED_MODULES</code> records that as a decision. A spec holds the two lists disjoint.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OPERATIONS (lane A) ============ -->
+  <section id="operations">
+    <div>
+      <p class="eyebrow">Lane A</p>
+      <h2>Operation checks from the menu tree</h2>
+    </div>
+    <p>After each load the store builds <code>moduleIndex</code>: a map from normalised <code>moduleCode</code> to <code>{ moduleId, displayName, operationIds }</code>. Every node is indexed, not only leaves. Because it is derived from <code>nodes()</code>, clearing the store empties it, so one institution's ids cannot leak into the next session.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Method on <code>FeaturePageStore</code></th><th>Behaviour</th><th>Use it for</th></tr></thead>
+      <tbody>
+        <tr><td><code>canPerform(code, op)</code></td><td>True only if that page publishes that operation. A page the tree does not publish denies.</td><td>Hard gates, when the module is known to be published for every session that reaches the screen.</td></tr>
+        <tr><td><code>canPerformOrUnknown(code, op)</code></td><td>Same, but a page the tree does not publish stays allowed.</td><td>Buttons and tabs. The default idiom across the feature screens.</td></tr>
+        <tr><td><code>moduleOperationIds(code, op)</code></td><td>Returns <code>{ ModuleId, OperationId }</code>. Either can be undefined.</td><td>Stamping ids onto requests.</td></tr>
+        <tr><td><code>displayNameOf(code)</code></td><td>The backend's label for the page, or undefined.</td><td>Page titles. The caller keeps a hardcoded fallback.</td></tr>
+        <tr><td><code>isKnownModule(code)</code></td><td>The page appears in this session's tree at all.</td><td>Telling "denied" from "not modelled yet".</td></tr>
+      </tbody>
+    </table></div>
+    <div class="cols">
+      <div class="note a">
+        <h3>Soft gates fail open on purpose</h3>
+        <p>Failing open costs a button that answers 403. Failing closed costs a screen nobody can use. A session that receives no tree at all must not lose every screen.</p>
+      </div>
+      <div class="note a">
+        <h3>One URL, several possible codes</h3>
+        <p>Callers can pass a list of codes. A host tree publishes <code>INSTITUTION_DEVICES</code> where a institution tree publishes <code>INSTITUTION_DEVICE_SETUP</code>. The session's own tree picks the one it has, preferring a code that publishes the requested operation.</p>
+      </div>
+    </div>
+    <div class="scroll"><table>
+      <thead><tr><th>Cached where</th><th>Key</th><th>Rules</th></tr></thead>
+      <tbody>
+        <tr><td>Menu tree</td><td><code>feature-pages</code>, cache version 3</td><td>No expiry. Revalidated every boot. A failed refresh keeps the old tree. An empty payload is never cached and removes the old cache.</td></tr>
+        <tr><td>Expanded groups</td><td><code>sidebar-expanded</code></td><td>List of group ids. Malformed data is ignored.</td></tr>
+        <tr><td>Permission matrix</td><td>Not cached</td><td>In memory only. Rebuilt from the stored <code>loginInfo</code> on each boot.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ============ MATRIX ============ -->
+  <section id="matrix">
+    <div>
+      <p class="eyebrow b">Lane B</p>
+      <h2>How the permission matrix is loaded</h2>
+    </div>
+    <p><code>CurrentUserPermissionsStore</code> starts by reading <code>loginInfo</code> from storage. That decides host or institution, and whether the user is a super admin. It then loads modules in a fixed order of preference.</p>
+
+    <div class="scroll"><table>
+      <thead><tr><th>Session</th><th>Super admin?</th><th>Load order</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Host</strong></td>
+          <td><code>hostRoleId === 1</code>. No fetch at all; every check returns true.</td>
+          <td>
+            1. <code>GET /HostAccess/bootstrap</code>, mapped one to one.<br>
+            2. If empty or failed: <code>getHostRoleModulePermissions(hostRoleId)</code>. A missing role id is recovered from <code>getHostUserById</code>.<br>
+            3. Neither works: <code>hasLoadFailed</code>, so the next guard can retry.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Institution</strong></td>
+          <td>Role name or role type name equals "super admin". Still loads, but every check returns true.</td>
+          <td>
+            1. <code>GET /InstitutionUserAccess/bootstrap</code>. The tree main module → sub module → module is flattened, and grants are unioned by <code>moduleId</code>.<br>
+            2. If empty or failed: <code>forkJoin</code> of <code>get-role-based-permissions</code> and <code>get-all-institution-operations</code>, joined by <code>enrichPermissions()</code> on <code>moduleId + operationId</code>.<br>
+            3. Neither works: <code>hasLoadFailed</code>.
+          </td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <div class="cols">
+      <div class="note b">
+        <h3>The catalog is a separate load</h3>
+        <p>Institution sessions also fetch <code>get-all-institution-operations</code> into <code>moduleCatalog</code>, unfiltered by grants. It exists to resolve numeric ids for modules the role was never granted. A host session skips it, since a host has no institution and the call would 403.</p>
+      </div>
+      <div class="note b">
+        <h3>A failed load is not a denial</h3>
+        <p>Failure sets <code>hasLoadFailed</code> and drops the cached promise. The next <code>ensureLoaded()</code> retries. Guards show "Could not load your permissions" instead of sending the user to access-denied.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GATES ============ -->
+  <section id="gates">
+    <div>
+      <p class="eyebrow b">Lane B</p>
+      <h2>Checks and guards</h2>
+    </div>
+    <div class="scroll"><table>
+      <thead><tr><th>Call on <code>CurrentUserPermissionsStore</code></th><th>Super admin</th><th>Host session</th><th>Module not in matrix</th><th>Not loaded yet</th></tr></thead>
+      <tbody>
+        <tr><td><code>canAccess(name)</code></td><td>true</td><td>Any operation granted</td><td>false</td><td>false</td></tr>
+        <tr><td><code>canAccessOrUnknown(name)</code></td><td>true</td><td>Same as <code>canAccess</code>. Host catalogs are closed, so unknown means denied.</td><td>true (untracked)</td><td>true</td></tr>
+        <tr><td><code>canPerform(name, op)</code></td><td>true</td><td>Operation granted</td><td>false</td><td>false</td></tr>
+      </tbody>
+    </table></div>
+    <p class="sub">Names match case-insensitively and nothing else. "Access" means at least one operation on the module has <code>hasAccess</code>.</p>
+
+    <h3>Route guards</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Guard</th><th>Asks</th><th>On denial</th></tr></thead>
+      <tbody>
+        <tr><td><code>roleTypeGuard([...])</code></td><td>Is the <code>roleTypeId</code> in <code>loginInfo</code> allowed? <code>0</code> Host, <code>1</code> Admin, <code>2</code> StaffMember, <code>3</code> Manager.</td><td>Toast, then redirect to the user's own dashboard. With no role at all, log out.</td></tr>
+        <tr><td><code>hasModulePermissionGuard(name)</code></td><td>Waits for <code>ensureLoaded()</code>, then <code>canAccessOrUnknown(name)</code>. Modules the backend does not model (for example Roles) pass here and rely on the role guard.</td><td>Redirect to <code>/app/access-denied?module=…</code>. If the load failed, toast and go to the dashboard.</td></tr>
+        <tr><td><code>hasModuleOperationGuard(name, op)</code></td><td>Waits for <code>ensureLoaded()</code>, then <code>canPerform(name, op)</code>. For create and edit screens that exist only to write.</td><td>Redirect to <code>/app/access-denied?module=…&amp;operation=…</code>.</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="note">
+      <h3>Menu visibility and route access are separate</h3>
+      <p>The sidebar comes from Lane A. A route is protected by the guards above, which use Lane B. Removing a link does not block the URL, and a guard does not hide a link. A screen that needs both must be covered on both lanes.</p>
+    </div>
+  </section>
+
+  <!-- ============ REQUESTS ============ -->
+  <section id="requests">
+    <div>
+      <p class="eyebrow">Lane A, on the wire</p>
+      <h2>How requests get their ModuleId and OperationId</h2>
+    </div>
+    <p>Many endpoints authorise against a module and an operation. <code>moduleOperationInterceptor</code> attaches both, so no call site has to. It runs last in the chain: <code>unavailableRoute</code>, <code>error</code>, <code>auth</code>, <code>loading</code>, <code>moduleOperation</code>. A 401 retry re-sends the original request, so ids are resolved fresh.</p>
+
+    <ol class="steps">
+      <li>
+        <div class="step-body">
+          <h3>Find the route row</h3>
+          <p>Only URLs under <code>environment.apiUrl</code> count. Lookup order is an exact <code>METHOD /path</code> row, then a wildcard row where <code>{id}</code> matches one segment, then a controller-level fallback. A hand-written row always wins. Matching ignores case.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Skip what must not be stamped</h3>
+          <p>Denied controllers get nothing: <code>Navigation</code> (so the menu request cannot wait on itself), <code>Auth</code>, <code>ModuleOperation</code>, <code>OperationsMaster</code>, <code>ParentModule</code>, <code>SubModule</code>, <code>PlanModuleMapping</code>, <code>Option</code>, <code>Enum</code>, <code>CommonMenu</code>, <code>ClientInfo</code>, <code>StatData</code>, <code>Image</code>, plus <code>/institution/get-all-institution-operations</code>.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Infer the operation when there is no row</h3>
+          <p>The fallback reads <code>GET</code> as <code>View</code>, <code>DELETE</code> as <code>Delete</code>, a path ending in <code>create</code> or <code>add</code> as <code>Add</code>, and every other write as <code>Update</code>. Reads and deletes use the query string. Other writes use the body.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Resolve ids from the menu tree</h3>
+          <p>The row's <code>moduleCode</code> and operation name go to <code>FeaturePageStore.moduleOperationIds()</code>. If the tree is already loaded it dispatches at once. On a cold start with no cache it waits for <code>ensureLoaded()</code>, which never rejects.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Write them where the endpoint binds them</h3>
+          <p>Three carriers: <code>query</code> as <code>ModuleId</code> and <code>OperationId</code>, <code>body</code> as <code>moduleId</code> and <code>operationId</code> (PascalCase inside <code>FormData</code>), or nested under <code>permissionRequest</code> for <code>/DefaultEmailConfig</code>. A value the call site already set is never overwritten.</p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="cols">
+      <div class="note a">
+        <h3>Nothing resolved means nothing sent</h3>
+        <p>If neither id resolves, the request goes out bare. An absent id is honest; a zero would be authorised against. In dev mode, a page that resolves without the operation logs a warning that names the code and the operation.</p>
+      </div>
+      <div class="note">
+        <h3>The interceptor does not enforce</h3>
+        <p>It only labels the request. The API decides. An operation missing from the tree means either a wrong route row or a grant the session does not have, and the API answers 403 for the second.</p>
+      </div>
+    </div>
+    <div class="note b">
+      <h3>Two id spaces, two methods</h3>
+      <p><code>FeaturePageStore.moduleOperationIds()</code> takes a <code>moduleCode</code> and returns ids from <code>my-menu</code>. <code>CurrentUserPermissionsStore.identifiersOf()</code> takes a <code>moduleName</code> and returns ids from the institution catalog. The differing method names are what keep them apart. Never pass one's ids where the other's are expected.</p>
+    </div>
+
+    <p class="sub">Separately, <code>unavailableRouteInterceptor</code> fails a request locally with a 404 and "This feature is not available on the server yet." when the API is known not to serve that controller or route. It runs first, and it is why some built screens show that message.</p>
+  </section>
+
+  <!-- ============ AUTHORING ============ -->
+  <section id="authoring">
+    <div>
+      <p class="eyebrow">Where the data comes from</p>
+      <h2>Who defines modules, and who grants them</h2>
+    </div>
+    <div class="cols">
+      <div class="note">
+        <h3>1. Host defines the catalog</h3>
+        <p>Host screens under <code>/app/modules</code>: <strong>Modules</strong> (groups), <strong>Sub-modules</strong> (leaf pages), <strong>Operations</strong>, and <strong>Module-operations</strong> (which operations a page offers). <code>PlanModuleMapping</code> maps modules to subscription plans.</p>
+      </div>
+      <div class="note">
+        <h3>2. Institution admin grants roles</h3>
+        <p>Roles, then Permissions. The shared <code>PermissionMatrix</code> loads the catalog (<code>get-all-institution-operations</code>) and the role's flat rows (<code>get-role-based-permissions</code>). The catalog builds the grid. The flat rows pre-tick it.</p>
+      </div>
+      <div class="note">
+        <h3>3. Save writes names and ids</h3>
+        <p><code>POST /UserModuleRolePermission/assign-role-permissions</code> takes one row per cell: <code>moduleId</code>, <code>moduleName</code>, <code>operationId</code>, <code>operationName</code>, <code>hasAccess</code>.</p>
+      </div>
+    </div>
+    <div class="note">
+      <h3>Per-staffMember grants are not served yet</h3>
+      <p><code>POST /usermodulerolepermission/assign-staffMember-permissions</code> and <code>GET /role/get-permissions</code> are on the unavailable-routes list. The staffMember permission screen exists, but the backend does not answer those calls.</p>
+    </div>
+    <p class="sub">Matrix rules: match the catalog to the flat rows by <code>moduleId</code> plus <code>operationId</code>, never by name. <code>isEnabled</code> in the catalog means "this operation exists", not "ticked". Only the flat rows say what is ticked.</p>
+  </section>
+
+  <!-- ============ SESSION ============ -->
+  <section id="session">
+    <div>
+      <p class="eyebrow">In time order</p>
+      <h2>Session lifecycle</h2>
+    </div>
+    <ol class="steps">
+      <li>
+        <div class="step-body">
+          <div class="step-head"><h3>Login succeeds</h3></div>
+          <p><code>#startSession</code> stores <code>loginInfo</code> and the tokens, then calls <code>permissionsStore.loadFromStorage()</code> to start Lane B. It then calls <code>featurePageStore.clear()</code> and <code>featurePageStore.load()</code> to start Lane A. The clear matters: a failed load keeps whatever is in <code>nodes</code>, so a new account on a shared browser could otherwise see the previous account's menu.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Redirect to the dashboard</h3>
+          <p>The sidebar is already warming while the dashboard chunk loads. Its <code>ngOnInit</code> sets the auth role type from <code>loginInfo</code> and calls <code>ensureLoaded()</code>, which joins the in-flight request rather than sending a second.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Navigating</h3>
+          <p>Guards call <code>ensureLoaded()</code> on the permission store and wait, so a decision never races an unfinished load. Screens read gates from whichever store their check belongs to.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Cold start of an existing session</h3>
+          <p>Both stores start themselves. The permission store reloads from <code>loginInfo</code>. The menu store hydrates from the cache, so the sidebar paints at once, and the sidebar then revalidates it. A grant made since the last boot appears without waiting for any expiry.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <h3>Logout</h3>
+          <p>The header clears both stores. The menu store also removes its localStorage cache.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ GOTCHAS ============ -->
+  <section id="gotchas">
+    <div>
+      <p class="eyebrow">Before you change anything here</p>
+      <h2>Gotchas</h2>
+    </div>
+    <ul class="plain">
+      <li><strong>Add a screen to the sidebar</strong> by adding its <code>moduleCode</code> to <code>ASIDE_MENU_MODULE_UI</code> with a route and a PrimeIcons class. Without that row a granted page never appears.</li>
+      <li><strong>Gate a button</strong> with <code>FeaturePageStore.canPerformOrUnknown(moduleCode, 'Operation')</code>. Gate a route with a guard from Lane B. Do not use one lane's key in the other's method.</li>
+      <li><strong>Not every module name is verified.</strong> <code>permission-modules.ts</code> says only Staff Members, Departments and Designations are confirmed against a live catalog. A wrong name resolves no id, the param is dropped, and the endpoint answers 403.</li>
+      <li><strong>The menu tree is a snapshot of one user's authorisation.</strong> It is cached but revalidated on every boot, and it is cleared on both login and logout.</li>
+      <li><strong>Documentation drift:</strong> <code>.claude/docs/architecture.md</code> says menu items soft-gate through <code>canAccessOrUnknown</code>. The current sidebar code applies no client filter and trusts <code>my-menu</code>.</li>
+      <li><strong>Codes get renamed.</strong> Old and new codes are both mapped where a rename happened (<code>DEPARTMENT</code> and <code>INSTITUTION_DEPARTMENTS</code>, for one), because an old-shape payload may still arrive.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>This page describes the code as read on 2026-09-22. Payload examples and the module lists above are current only as far as the code comments and maps are.</span>
+    <span>Files: <code>core/stores/feature-page.store.ts</code>, <code>core/feature-page-identifiers.ts</code>, <code>core/stores/current-user-permissions.store.ts</code>, <code>core/permission-modules.ts</code>, <code>layout/app-aside-menu/app-aside-menu.ts</code>, <code>aside-menu-module-map.ts</code>, <code>aside-menu-unmapped-modules.ts</code>, <code>core/guards/</code>, <code>core/interceptors/module-operation-interceptor.ts</code>, <code>module-operation-routes.ts</code>, <code>unavailable-routes.ts</code>.</span>
+  </footer>
+</div>
+</html>

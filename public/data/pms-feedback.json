@@ -1,0 +1,66 @@
+{
+  "isSucceeded": true,
+  "message": "Feedback fetched successfully",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalRecords": 5,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "f-001",
+      "fromId": "m-201",
+      "fromName": "Meera Nair",
+      "toId": "e-101",
+      "toName": "Aarav Sharma",
+      "type": "Appreciation",
+      "visibility": "Public",
+      "message": "Outstanding leadership on the NPS project — thank you!",
+      "createdAt": "2026-05-02T09:30:00Z"
+    },
+    {
+      "id": "f-002",
+      "fromId": "e-102",
+      "fromName": "Diya Patel",
+      "toId": "e-101",
+      "toName": "Aarav Sharma",
+      "type": "Suggestion",
+      "visibility": "Private",
+      "message": "Consider documenting decisions earlier so the team can follow along.",
+      "createdAt": "2026-05-05T14:10:00Z"
+    },
+    {
+      "id": "f-003",
+      "fromId": "e-101",
+      "fromName": "Aarav Sharma",
+      "toId": "e-103",
+      "toName": "Kabir Singh",
+      "type": "Appreciation",
+      "visibility": "Public",
+      "message": "Great work shipping the CI improvements ahead of time.",
+      "createdAt": "2026-05-08T11:00:00Z"
+    },
+    {
+      "id": "f-004",
+      "fromId": "m-202",
+      "fromName": "Rohan Mehta",
+      "toId": "e-102",
+      "toName": "Diya Patel",
+      "type": "Suggestion",
+      "visibility": "Private",
+      "message": "Try to scope mentoring time so it doesn't impact delivery goals.",
+      "createdAt": "2026-05-10T16:45:00Z"
+    },
+    {
+      "id": "f-005",
+      "fromId": "e-103",
+      "fromName": "Kabir Singh",
+      "toId": "e-101",
+      "toName": "Aarav Sharma",
+      "type": "Appreciation",
+      "visibility": "Public",
+      "message": "Thanks for the pairing session — learned a lot about signals.",
+      "createdAt": "2026-05-12T10:20:00Z"
+    }
+  ]
+}

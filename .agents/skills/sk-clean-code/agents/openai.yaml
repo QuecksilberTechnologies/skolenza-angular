@@ -1,0 +1,5 @@
+interface:
+  display_name: "Clean Code"
+  short_description: "Refactor code for readability and maintainability"
+policy:
+  allow_implicit_invocation: false

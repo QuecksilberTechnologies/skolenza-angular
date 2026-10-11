@@ -1,0 +1,15 @@
+<div>
+  <p-card class="m-4">
+    @if (store.isLoadingPermissions()) {
+    <app-permission-matrix-loader />
+    } @else {
+    <app-permission-matrix
+      [institutionModules]="store.hostModules()"
+      [rolePermissions]="store.rolePermissions()"
+      [isSaving]="store.isSaving()"
+      (savePermissions)="onSavePermissions($event)">
+      Select the permissions for this role by checking the corresponding boxes in the matrix.
+    </app-permission-matrix>
+    }
+  </p-card>
+</div>

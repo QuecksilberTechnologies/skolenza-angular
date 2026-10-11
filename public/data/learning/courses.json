@@ -1,0 +1,265 @@
+{
+  "isSucceeded": true,
+  "message": "Courses loaded",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 8,
+  "totalRecords": 8,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "c-ng",
+      "title": "Fundamentals of Aerodynamics",
+      "instructor": "Dr. Amelia Hart",
+      "category": "Aerodynamics",
+      "level": "Intermediate",
+      "durationHours": 12,
+      "rating": 4.8,
+      "ratingCount": 482,
+      "enrolledCount": 3120,
+      "language": "English",
+      "thumbnail": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=640&h=360&q=80",
+      "banner": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1280&h=420&q=80",
+      "tags": ["Lift & Drag", "Airfoils", "CFD"],
+      "skills": ["Aerodynamics", "Fluid Dynamics", "CFD"],
+      "description": "Understand lift, drag, and airflow over airfoils — from Bernoulli and boundary layers to compressible flow and computational fluid dynamics.",
+      "sections": [
+        {
+          "id": "s1",
+          "title": "Airflow Fundamentals",
+          "lessons": [
+            { "id": "l1", "title": "Continuity & Bernoulli", "durationMinutes": 18, "type": "video" },
+            { "id": "l2", "title": "Boundary layers & drag", "durationMinutes": 22, "type": "video" },
+            { "id": "l3", "title": "Section quiz", "durationMinutes": 10, "type": "quiz" }
+          ]
+        },
+        {
+          "id": "s2",
+          "title": "Applied Aerodynamics",
+          "lessons": [
+            { "id": "l4", "title": "Airfoil design & polars", "durationMinutes": 26, "type": "video" },
+            { "id": "l5", "title": "Compressible flow", "durationMinutes": 24, "type": "video" },
+            { "id": "l6", "title": "Intro to CFD", "durationMinutes": 20, "type": "reading" }
+          ]
+        }
+      ],
+      "resources": [
+        { "id": "r1", "title": "Slide deck", "type": "pdf", "url": "#" },
+        { "id": "r2", "title": "CFD starter cases", "type": "link", "url": "#" }
+      ],
+      "reviews": [
+        { "id": "rv1", "author": "Aman Gupta", "rating": 5, "comment": "Clearest lift explanation I've seen.", "date": "2026-05-12" },
+        { "id": "rv2", "author": "Sara Lee", "rating": 4, "comment": "Great pace, wanted more on CFD.", "date": "2026-04-28" }
+      ]
+    },
+    {
+      "id": "c-ts",
+      "title": "Aircraft Propulsion Systems",
+      "instructor": "Marco Rossi",
+      "category": "Propulsion",
+      "level": "Advanced",
+      "durationHours": 9,
+      "rating": 4.6,
+      "ratingCount": 311,
+      "enrolledCount": 2040,
+      "language": "English",
+      "thumbnail": "https://images.unsplash.com/photo-1723444577698-38ec692fd556?auto=format&fit=crop&w=640&h=360&q=80",
+      "banner": "https://images.unsplash.com/photo-1723444577698-38ec692fd556?auto=format&fit=crop&w=1280&h=420&q=80",
+      "tags": ["Jet Engines", "Turbines", "Thermodynamics"],
+      "skills": ["Propulsion", "Thermodynamics"],
+      "description": "Master gas turbine cycles, turbofans, and nozzle design for efficient, high-thrust aircraft propulsion.",
+      "sections": [
+        {
+          "id": "s1",
+          "title": "Gas Turbine Cycles",
+          "lessons": [
+            { "id": "l1", "title": "The Brayton cycle", "durationMinutes": 20, "type": "video" },
+            { "id": "l2", "title": "Compressor & turbine stages", "durationMinutes": 18, "type": "video" }
+          ]
+        }
+      ],
+      "resources": [{ "id": "r1", "title": "Cheat sheet", "type": "pdf", "url": "#" }],
+      "reviews": [
+        { "id": "rv1", "author": "Lena Park", "rating": 5, "comment": "Dense but worth it.", "date": "2026-03-19" }
+      ]
+    },
+    {
+      "id": "c-ux",
+      "title": "Aircraft Structures & Materials",
+      "instructor": "Hannah Cole",
+      "category": "Structures",
+      "level": "Beginner",
+      "durationHours": 6,
+      "rating": 4.5,
+      "ratingCount": 198,
+      "enrolledCount": 1530,
+      "language": "English",
+      "thumbnail": "https://images.unsplash.com/photo-1532364158125-02d75a0f7fb9?auto=format&fit=crop&w=640&h=360&q=80",
+      "banner": "https://images.unsplash.com/photo-1532364158125-02d75a0f7fb9?auto=format&fit=crop&w=1280&h=420&q=80",
+      "tags": ["Composites", "Fatigue", "Loads"],
+      "skills": ["Structures", "Materials"],
+      "description": "Learn load paths, fatigue, and the modern composites used to build light, strong airframes.",
+      "sections": [
+        {
+          "id": "s1",
+          "title": "Structural Principles",
+          "lessons": [
+            { "id": "l1", "title": "Load paths & stress", "durationMinutes": 16, "type": "video" },
+            { "id": "l2", "title": "Fatigue & composites", "durationMinutes": 19, "type": "reading" }
+          ]
+        }
+      ],
+      "resources": [{ "id": "r1", "title": "Checklist", "type": "pdf", "url": "#" }],
+      "reviews": [
+        { "id": "rv1", "author": "Tom Yu", "rating": 4, "comment": "Practical and concise.", "date": "2026-05-02" }
+      ]
+    },
+    {
+      "id": "c-lead",
+      "title": "Spacecraft Systems Engineering",
+      "instructor": "David Okoro",
+      "category": "Systems Engineering",
+      "level": "Intermediate",
+      "durationHours": 8,
+      "rating": 4.7,
+      "ratingCount": 256,
+      "enrolledCount": 1890,
+      "language": "English",
+      "thumbnail": "https://images.unsplash.com/photo-1614314007212-0257d6e2f7d8?auto=format&fit=crop&w=640&h=360&q=80",
+      "banner": "https://images.unsplash.com/photo-1614314007212-0257d6e2f7d8?auto=format&fit=crop&w=1280&h=420&q=80",
+      "tags": ["Systems", "Integration"],
+      "skills": ["Systems Engineering", "Integration"],
+      "description": "Frameworks for requirements, integration, and verification of complex spacecraft systems.",
+      "sections": [
+        {
+          "id": "s1",
+          "title": "Requirements & V&V",
+          "lessons": [
+            { "id": "l1", "title": "The V-model & design reviews", "durationMinutes": 21, "type": "video" }
+          ]
+        }
+      ],
+      "resources": [],
+      "reviews": [
+        { "id": "rv1", "author": "Mia Frank", "rating": 5, "comment": "Changed how I run design reviews.", "date": "2026-04-11" }
+      ]
+    },
+    {
+      "id": "c-sec",
+      "title": "Avionics & Flight Control Systems",
+      "instructor": "Ravi Kumar",
+      "category": "Avionics",
+      "level": "Intermediate",
+      "durationHours": 7,
+      "rating": 4.4,
+      "ratingCount": 174,
+      "enrolledCount": 1320,
+      "language": "English",
+      "thumbnail": "https://images.unsplash.com/photo-1761619819201-9f47092ed3c0?auto=format&fit=crop&w=640&h=360&q=80",
+      "banner": "https://images.unsplash.com/photo-1761619819201-9f47092ed3c0?auto=format&fit=crop&w=1280&h=420&q=80",
+      "tags": ["Avionics", "Fly-by-Wire", "Sensors"],
+      "skills": ["Avionics", "Control Systems"],
+      "description": "Understand avionics architectures, fly-by-wire, sensor fusion, and redundant flight control.",
+      "sections": [
+        {
+          "id": "s1",
+          "title": "Flight Control",
+          "lessons": [
+            { "id": "l1", "title": "Fly-by-wire & redundancy", "durationMinutes": 23, "type": "video" }
+          ]
+        }
+      ],
+      "resources": [{ "id": "r1", "title": "Avionics reference", "type": "link", "url": "#" }],
+      "reviews": []
+    },
+    {
+      "id": "c-data",
+      "title": "Orbital Mechanics & Astrodynamics",
+      "instructor": "Elena Petrova",
+      "category": "Astrodynamics",
+      "level": "Beginner",
+      "durationHours": 10,
+      "rating": 4.5,
+      "ratingCount": 220,
+      "enrolledCount": 1700,
+      "language": "English",
+      "thumbnail": "https://images.unsplash.com/photo-1614121181207-4b6c334d353d?auto=format&fit=crop&w=640&h=360&q=80",
+      "banner": "https://images.unsplash.com/photo-1614121181207-4b6c334d353d?auto=format&fit=crop&w=1280&h=420&q=80",
+      "tags": ["Orbits", "Trajectories", "Kepler"],
+      "skills": ["Astrodynamics", "Orbital Mechanics"],
+      "description": "Model orbits, transfers, and trajectories — from Kepler's laws to Hohmann transfers and station-keeping.",
+      "sections": [
+        {
+          "id": "s1",
+          "title": "Orbital Motion",
+          "lessons": [
+            { "id": "l1", "title": "Kepler's laws", "durationMinutes": 22, "type": "video" },
+            { "id": "l2", "title": "Hohmann transfers", "durationMinutes": 25, "type": "video" }
+          ]
+        }
+      ],
+      "resources": [],
+      "reviews": [
+        { "id": "rv1", "author": "Ken Ito", "rating": 4, "comment": "Solid foundations.", "date": "2026-02-08" }
+      ]
+    },
+    {
+      "id": "c-comm",
+      "title": "Flight Dynamics & Stability",
+      "instructor": "Grace Bennett",
+      "category": "Flight Dynamics",
+      "level": "Beginner",
+      "durationHours": 4,
+      "rating": 4.3,
+      "ratingCount": 142,
+      "enrolledCount": 2210,
+      "language": "English",
+      "thumbnail": "https://images.unsplash.com/photo-1470936038081-27e790e22397?auto=format&fit=crop&w=640&h=360&q=80",
+      "banner": "https://images.unsplash.com/photo-1470936038081-27e790e22397?auto=format&fit=crop&w=1280&h=420&q=80",
+      "tags": ["Stability", "Control"],
+      "skills": ["Flight Dynamics", "Control"],
+      "description": "Analyze aircraft stability and control — longitudinal and lateral modes, and handling qualities.",
+      "sections": [
+        {
+          "id": "s1",
+          "title": "Stability",
+          "lessons": [
+            { "id": "l1", "title": "Static & dynamic stability", "durationMinutes": 15, "type": "reading" }
+          ]
+        }
+      ],
+      "resources": [],
+      "reviews": []
+    },
+    {
+      "id": "c-cloud",
+      "title": "Rocket Propulsion & Launch Systems",
+      "instructor": "Omar Haddad",
+      "category": "Propulsion",
+      "level": "Intermediate",
+      "durationHours": 11,
+      "rating": 4.6,
+      "ratingCount": 289,
+      "enrolledCount": 1980,
+      "language": "English",
+      "thumbnail": "https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=640&h=360&q=80",
+      "banner": "https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=1280&h=420&q=80",
+      "tags": ["Rockets", "Launch", "Nozzles"],
+      "skills": ["Rocket Propulsion", "Launch Systems"],
+      "description": "Core rocket propulsion, the rocket equation, nozzle design, and launch vehicle staging.",
+      "sections": [
+        {
+          "id": "s1",
+          "title": "Rocket Fundamentals",
+          "lessons": [
+            { "id": "l1", "title": "The rocket equation & staging", "durationMinutes": 24, "type": "video" }
+          ]
+        }
+      ],
+      "resources": [{ "id": "r1", "title": "Launch profile diagram", "type": "pdf", "url": "#" }],
+      "reviews": [
+        { "id": "rv1", "author": "Nina Roy", "rating": 5, "comment": "Great mental model of launch systems.", "date": "2026-05-30" }
+      ]
+    }
+  ]
+}

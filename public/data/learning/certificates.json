@@ -1,0 +1,35 @@
+{
+  "isSucceeded": true,
+  "message": "Certificates loaded",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 3,
+  "totalRecords": 3,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "cert1",
+      "courseTitle": "Avionics & Flight Control Systems",
+      "certificateNumber": "AXP-AVI-2026-0142",
+      "completionDate": "2026-06-18",
+      "instructor": "Ravi Kumar",
+      "skills": ["Avionics", "Control Systems"]
+    },
+    {
+      "id": "cert2",
+      "courseTitle": "Orbital Mechanics & Astrodynamics",
+      "certificateNumber": "AXP-ASTRO-2026-0098",
+      "completionDate": "2026-05-29",
+      "instructor": "Elena Petrova",
+      "skills": ["Astrodynamics", "Orbital Mechanics"]
+    },
+    {
+      "id": "cert3",
+      "courseTitle": "Flight Dynamics & Stability",
+      "certificateNumber": "AXP-FLT-2026-0211",
+      "completionDate": "2026-04-15",
+      "instructor": "Grace Bennett",
+      "skills": ["Flight Dynamics", "Control"]
+    }
+  ]
+}

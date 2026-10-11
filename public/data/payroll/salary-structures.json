@@ -1,0 +1,388 @@
+{
+  "isSucceeded": true,
+  "message": "Salary structures retrieved successfully.",
+  "errors": [],
+  "data": [
+    {
+      "id": "SAL001",
+      "staffMemberId": "EMP001",
+      "staffMemberFullName": "Sujeet Kumar Jaiswal",
+      "departmentName": "Engineering",
+      "designationName": "Senior Software Engineer",
+      "effectiveFrom": "2026-01-01",
+      "components": {
+        "earnings": [
+          { "name": "Basic Salary", "type": "fixed", "amount": 50000 },
+          {
+            "name": "HRA",
+            "type": "percentage",
+            "percentage": 40,
+            "baseComponent": "Basic Salary",
+            "amount": 20000
+          },
+          { "name": "Transport Allowance", "type": "fixed", "amount": 3000 },
+          { "name": "Special Allowance", "type": "fixed", "amount": 12000 },
+          { "name": "Medical Allowance", "type": "fixed", "amount": 2500 }
+        ],
+        "deductions": [
+          {
+            "name": "Provident Fund",
+            "type": "percentage",
+            "percentage": 12,
+            "baseComponent": "Basic Salary",
+            "amount": 6000
+          },
+          { "name": "Professional Tax", "type": "fixed", "amount": 200 },
+          { "name": "Income Tax (TDS)", "type": "fixed", "amount": 5500 }
+        ]
+      },
+      "grossSalary": 87500,
+      "totalDeductions": 11700,
+      "netSalary": 75800,
+      "isActive": true
+    },
+    {
+      "id": "SAL002",
+      "staffMemberId": "EMP002",
+      "staffMemberFullName": "Priya Sharma",
+      "departmentName": "Design",
+      "designationName": "UI/UX Designer",
+      "effectiveFrom": "2026-01-01",
+      "components": {
+        "earnings": [
+          { "name": "Basic Salary", "type": "fixed", "amount": 40000 },
+          {
+            "name": "HRA",
+            "type": "percentage",
+            "percentage": 40,
+            "baseComponent": "Basic Salary",
+            "amount": 16000
+          },
+          { "name": "Transport Allowance", "type": "fixed", "amount": 2500 },
+          { "name": "Special Allowance", "type": "fixed", "amount": 8000 },
+          { "name": "Medical Allowance", "type": "fixed", "amount": 2000 }
+        ],
+        "deductions": [
+          {
+            "name": "Provident Fund",
+            "type": "percentage",
+            "percentage": 12,
+            "baseComponent": "Basic Salary",
+            "amount": 4800
+          },
+          { "name": "Professional Tax", "type": "fixed", "amount": 200 },
+          { "name": "Income Tax (TDS)", "type": "fixed", "amount": 3200 }
+        ]
+      },
+      "grossSalary": 68500,
+      "totalDeductions": 8200,
+      "netSalary": 60300,
+      "isActive": true
+    },
+    {
+      "id": "SAL003",
+      "staffMemberId": "EMP003",
+      "staffMemberFullName": "Rahul Verma",
+      "departmentName": "Engineering",
+      "designationName": "Software Engineer",
+      "effectiveFrom": "2026-01-01",
+      "components": {
+        "earnings": [
+          { "name": "Basic Salary", "type": "fixed", "amount": 35000 },
+          {
+            "name": "HRA",
+            "type": "percentage",
+            "percentage": 40,
+            "baseComponent": "Basic Salary",
+            "amount": 14000
+          },
+          { "name": "Transport Allowance", "type": "fixed", "amount": 2000 },
+          { "name": "Special Allowance", "type": "fixed", "amount": 7000 },
+          { "name": "Medical Allowance", "type": "fixed", "amount": 1500 }
+        ],
+        "deductions": [
+          {
+            "name": "Provident Fund",
+            "type": "percentage",
+            "percentage": 12,
+            "baseComponent": "Basic Salary",
+            "amount": 4200
+          },
+          { "name": "Professional Tax", "type": "fixed", "amount": 200 },
+          { "name": "Income Tax (TDS)", "type": "fixed", "amount": 2100 }
+        ]
+      },
+      "grossSalary": 59500,
+      "totalDeductions": 6500,
+      "netSalary": 53000,
+      "isActive": true
+    },
+    {
+      "id": "SAL004",
+      "staffMemberId": "EMP004",
+      "staffMemberFullName": "Anita Desai",
+      "departmentName": "Quality Assurance",
+      "designationName": "QA Engineer",
+      "effectiveFrom": "2026-01-01",
+      "components": {
+        "earnings": [
+          { "name": "Basic Salary", "type": "fixed", "amount": 33000 },
+          {
+            "name": "HRA",
+            "type": "percentage",
+            "percentage": 40,
+            "baseComponent": "Basic Salary",
+            "amount": 13200
+          },
+          { "name": "Transport Allowance", "type": "fixed", "amount": 2000 },
+          { "name": "Special Allowance", "type": "fixed", "amount": 6000 },
+          { "name": "Medical Allowance", "type": "fixed", "amount": 1500 }
+        ],
+        "deductions": [
+          {
+            "name": "Provident Fund",
+            "type": "percentage",
+            "percentage": 12,
+            "baseComponent": "Basic Salary",
+            "amount": 3960
+          },
+          { "name": "Professional Tax", "type": "fixed", "amount": 200 },
+          { "name": "Income Tax (TDS)", "type": "fixed", "amount": 1800 }
+        ]
+      },
+      "grossSalary": 55700,
+      "totalDeductions": 5960,
+      "netSalary": 49740,
+      "isActive": true
+    },
+    {
+      "id": "SAL005",
+      "staffMemberId": "EMP005",
+      "staffMemberFullName": "Vikram Singh",
+      "departmentName": "Product",
+      "designationName": "Product Manager",
+      "effectiveFrom": "2026-01-01",
+      "components": {
+        "earnings": [
+          { "name": "Basic Salary", "type": "fixed", "amount": 55000 },
+          {
+            "name": "HRA",
+            "type": "percentage",
+            "percentage": 40,
+            "baseComponent": "Basic Salary",
+            "amount": 22000
+          },
+          { "name": "Transport Allowance", "type": "fixed", "amount": 3500 },
+          { "name": "Special Allowance", "type": "fixed", "amount": 15000 },
+          { "name": "Medical Allowance", "type": "fixed", "amount": 3000 }
+        ],
+        "deductions": [
+          {
+            "name": "Provident Fund",
+            "type": "percentage",
+            "percentage": 12,
+            "baseComponent": "Basic Salary",
+            "amount": 6600
+          },
+          { "name": "Professional Tax", "type": "fixed", "amount": 200 },
+          { "name": "Income Tax (TDS)", "type": "fixed", "amount": 7000 }
+        ]
+      },
+      "grossSalary": 98500,
+      "totalDeductions": 13800,
+      "netSalary": 84700,
+      "isActive": true
+    },
+    {
+      "id": "SAL006",
+      "staffMemberId": "EMP006",
+      "staffMemberFullName": "Neha Gupta",
+      "departmentName": "Human Resources",
+      "designationName": "HR Manager",
+      "effectiveFrom": "2026-01-01",
+      "components": {
+        "earnings": [
+          { "name": "Basic Salary", "type": "fixed", "amount": 45000 },
+          {
+            "name": "HRA",
+            "type": "percentage",
+            "percentage": 40,
+            "baseComponent": "Basic Salary",
+            "amount": 18000
+          },
+          { "name": "Transport Allowance", "type": "fixed", "amount": 3000 },
+          { "name": "Special Allowance", "type": "fixed", "amount": 10000 },
+          { "name": "Medical Allowance", "type": "fixed", "amount": 2500 }
+        ],
+        "deductions": [
+          {
+            "name": "Provident Fund",
+            "type": "percentage",
+            "percentage": 12,
+            "baseComponent": "Basic Salary",
+            "amount": 5400
+          },
+          { "name": "Professional Tax", "type": "fixed", "amount": 200 },
+          { "name": "Income Tax (TDS)", "type": "fixed", "amount": 4500 }
+        ]
+      },
+      "grossSalary": 78500,
+      "totalDeductions": 10100,
+      "netSalary": 68400,
+      "isActive": true
+    },
+    {
+      "id": "SAL007",
+      "staffMemberId": "EMP007",
+      "staffMemberFullName": "Amit Patel",
+      "departmentName": "Engineering",
+      "designationName": "DevOps Engineer",
+      "effectiveFrom": "2026-01-01",
+      "components": {
+        "earnings": [
+          { "name": "Basic Salary", "type": "fixed", "amount": 48000 },
+          {
+            "name": "HRA",
+            "type": "percentage",
+            "percentage": 40,
+            "baseComponent": "Basic Salary",
+            "amount": 19200
+          },
+          { "name": "Transport Allowance", "type": "fixed", "amount": 3000 },
+          { "name": "Special Allowance", "type": "fixed", "amount": 11000 },
+          { "name": "Medical Allowance", "type": "fixed", "amount": 2500 }
+        ],
+        "deductions": [
+          {
+            "name": "Provident Fund",
+            "type": "percentage",
+            "percentage": 12,
+            "baseComponent": "Basic Salary",
+            "amount": 5760
+          },
+          { "name": "Professional Tax", "type": "fixed", "amount": 200 },
+          { "name": "Income Tax (TDS)", "type": "fixed", "amount": 5000 }
+        ]
+      },
+      "grossSalary": 83700,
+      "totalDeductions": 10960,
+      "netSalary": 72740,
+      "isActive": true
+    },
+    {
+      "id": "SAL008",
+      "staffMemberId": "EMP008",
+      "staffMemberFullName": "Kavita Nair",
+      "departmentName": "Product",
+      "designationName": "Business Analyst",
+      "effectiveFrom": "2026-01-01",
+      "components": {
+        "earnings": [
+          { "name": "Basic Salary", "type": "fixed", "amount": 38000 },
+          {
+            "name": "HRA",
+            "type": "percentage",
+            "percentage": 40,
+            "baseComponent": "Basic Salary",
+            "amount": 15200
+          },
+          { "name": "Transport Allowance", "type": "fixed", "amount": 2500 },
+          { "name": "Special Allowance", "type": "fixed", "amount": 8500 },
+          { "name": "Medical Allowance", "type": "fixed", "amount": 2000 }
+        ],
+        "deductions": [
+          {
+            "name": "Provident Fund",
+            "type": "percentage",
+            "percentage": 12,
+            "baseComponent": "Basic Salary",
+            "amount": 4560
+          },
+          { "name": "Professional Tax", "type": "fixed", "amount": 200 },
+          { "name": "Income Tax (TDS)", "type": "fixed", "amount": 2800 }
+        ]
+      },
+      "grossSalary": 66200,
+      "totalDeductions": 7560,
+      "netSalary": 58640,
+      "isActive": true
+    },
+    {
+      "id": "SAL009",
+      "staffMemberId": "EMP009",
+      "staffMemberFullName": "Rajesh Iyer",
+      "departmentName": "Engineering",
+      "designationName": "Team Lead",
+      "effectiveFrom": "2026-01-01",
+      "components": {
+        "earnings": [
+          { "name": "Basic Salary", "type": "fixed", "amount": 52000 },
+          {
+            "name": "HRA",
+            "type": "percentage",
+            "percentage": 40,
+            "baseComponent": "Basic Salary",
+            "amount": 20800
+          },
+          { "name": "Transport Allowance", "type": "fixed", "amount": 3500 },
+          { "name": "Special Allowance", "type": "fixed", "amount": 13000 },
+          { "name": "Medical Allowance", "type": "fixed", "amount": 2500 }
+        ],
+        "deductions": [
+          {
+            "name": "Provident Fund",
+            "type": "percentage",
+            "percentage": 12,
+            "baseComponent": "Basic Salary",
+            "amount": 6240
+          },
+          { "name": "Professional Tax", "type": "fixed", "amount": 200 },
+          { "name": "Income Tax (TDS)", "type": "fixed", "amount": 6000 }
+        ]
+      },
+      "grossSalary": 91800,
+      "totalDeductions": 12440,
+      "netSalary": 79360,
+      "isActive": true
+    },
+    {
+      "id": "SAL010",
+      "staffMemberId": "EMP010",
+      "staffMemberFullName": "Deepika Reddy",
+      "departmentName": "Engineering",
+      "designationName": "Frontend Developer",
+      "effectiveFrom": "2026-01-01",
+      "components": {
+        "earnings": [
+          { "name": "Basic Salary", "type": "fixed", "amount": 32000 },
+          {
+            "name": "HRA",
+            "type": "percentage",
+            "percentage": 40,
+            "baseComponent": "Basic Salary",
+            "amount": 12800
+          },
+          { "name": "Transport Allowance", "type": "fixed", "amount": 2000 },
+          { "name": "Special Allowance", "type": "fixed", "amount": 6000 },
+          { "name": "Medical Allowance", "type": "fixed", "amount": 1500 }
+        ],
+        "deductions": [
+          {
+            "name": "Provident Fund",
+            "type": "percentage",
+            "percentage": 12,
+            "baseComponent": "Basic Salary",
+            "amount": 3840
+          },
+          { "name": "Professional Tax", "type": "fixed", "amount": 200 },
+          { "name": "Income Tax (TDS)", "type": "fixed", "amount": 1600 }
+        ]
+      },
+      "grossSalary": 54300,
+      "totalDeductions": 5640,
+      "netSalary": 48660,
+      "isActive": true
+    }
+  ],
+  "totalRecords": 10
+}

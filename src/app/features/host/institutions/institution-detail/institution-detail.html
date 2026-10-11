@@ -1,0 +1,568 @@
+@let detailVal = detail(); @let countryVal = country();
+
+<!--
+  One card shell for every section: a tinted, uppercase header bar over the body. Field labels stay
+  sentence case so the two levels never read as one. Light raises with a shadow, dark with a border.
+-->
+<div class="flex h-full flex-col">
+  <!-- Header -->
+  <section
+    class="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+    <div class="flex items-center gap-3">
+      <!-- The institution's own logo when the profile carries one that loads; the building mark is the
+           fallback for both cases. -->
+      @if (logoUrl(); as logo) {
+      <img
+        [src]="logo"
+        width="40"
+        height="40"
+        loading="lazy"
+        alt=""
+        class="h-10 w-10 shrink-0 rounded-full object-cover"
+        (error)="onLogoError()" />
+      } @else {
+      <span
+        class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900">
+        <i class="pi pi-building text-2xl text-primary-600 dark:text-primary-300"></i>
+      </span>
+      }
+      <div class="min-w-0">
+        <div class="truncate text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+          {{ institution().companyName }}
+        </div>
+        <div class="text-sm text-zinc-500 dark:text-zinc-400">Institution Details</div>
+      </div>
+    </div>
+    <p-button
+      type="button"
+      icon="pi pi-times"
+      ariaLabel="Close institution details"
+      rounded="true"
+      [variant]="'text'"
+      [size]="'small'"
+      [severity]="'secondary'"
+      (onClick)="onCancel()" />
+  </section>
+
+  <!-- Content — `min-h-0` lets this shrink and scroll instead of pushing the footer off-screen. -->
+  <section
+    class="min-h-0 flex-1 space-y-4 overflow-y-auto bg-zinc-50 p-4 dark:bg-zinc-950">
+    @if (isLoading()) {
+    <!-- `role="status"` is already a polite live region; the content section must not be one, or
+         the whole aggregate is announced the moment it lands. -->
+    <div
+      role="status"
+      aria-busy="true"
+      class="space-y-4">
+      <span class="sr-only">Loading institution details...</span>
+      @for (card of [0, 1, 2, 3]; track card) {
+      <div
+        class="grid grid-cols-1 gap-4 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:grid-cols-2 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+        @for (row of [0, 1, 2, 3]; track row) {
+        <div class="space-y-1.5">
+          <p-skeleton
+            width="35%"
+            height="0.7rem"
+            borderRadius="4px" />
+          <p-skeleton
+            width="70%"
+            height="1rem"
+            borderRadius="4px" />
+        </div>
+        }
+      </div>
+      }
+    </div>
+    } @else if (hasLoadFailed() || !detailVal) {
+    <!-- Centred rather than padded: this branch owns the whole panel, and the skeleton it replaces
+         fills it. `role="alert"` covers the action too, so the way out is announced with the
+         problem. -->
+    <div
+      role="alert"
+      class="flex min-h-full flex-col items-center justify-center">
+      <app-status-message
+        severity="error"
+        icon="pi pi-exclamation-triangle"
+        message="Couldn't load institution details"
+        [subMessage]="loadErrorMessage()">
+        <p-button
+          type="button"
+          label="Retry"
+          icon="pi pi-refresh"
+          [size]="'small'"
+          [severity]="'secondary'"
+          [loading]="isRetrying()"
+          (onClick)="onRetry()" />
+      </app-status-message>
+    </div>
+    } @else {
+    <!-- Status -->
+    <section
+      aria-labelledby="institution-detail-status"
+      class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <h3
+        id="institution-detail-status"
+        class="border-b border-zinc-200 bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-400">
+        Status
+      </h3>
+      <dl class="flex flex-wrap items-start gap-6 p-4">
+        <div class="flex flex-col gap-1">
+          <dt class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Verified</dt>
+          <dd>
+            <!-- Unverified is pending, not broken. Same value, icon and severity as the grid. -->
+            <p-tag
+              [value]="detailVal.isVerified ? 'Verified' : 'Not Verified'"
+              [icon]="detailVal.isVerified ? 'pi pi-check-circle' : 'pi pi-clock'"
+              [severity]="detailVal.isVerified ? 'success' : 'warn'" />
+          </dd>
+        </div>
+        <div class="flex flex-col gap-1">
+          <dt class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Active</dt>
+          <dd>
+            <p-tag
+              [value]="detailVal.isActive ? 'Active' : 'Inactive'"
+              [icon]="detailVal.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+              [severity]="detailVal.isActive ? 'success' : 'danger'" />
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Company -->
+    <section
+      aria-labelledby="institution-detail-company"
+      class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <h3
+        id="institution-detail-company"
+        class="border-b border-zinc-200 bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-400">
+        Company
+      </h3>
+      <dl class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
+        @for (field of companyItems(); track field.label) {
+        <ng-container *ngTemplateOutlet="fieldTpl; context: { $implicit: field }" />
+        }
+        <div class="flex flex-col">
+          <dt class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Country</dt>
+          <dd class="mt-1 flex items-center gap-2 text-gray-700 dark:text-zinc-100">
+            @if (countryVal) { @if (countryVal.countryCode) {
+            <img
+              [src]="'https://flagcdn.com/' + countryVal.countryCode.toLowerCase() + '.svg'"
+              width="18"
+              height="14"
+              loading="lazy"
+              class="shrink-0"
+              alt="" />
+            }
+            {{ countryVal.countryName }}
+            } @else {
+            <ng-container *ngTemplateOutlet="emptyTpl" />
+            }
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Contact -->
+    <section
+      aria-labelledby="institution-detail-contact"
+      class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <h3
+        id="institution-detail-contact"
+        class="border-b border-zinc-200 bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-400">
+        Contact
+      </h3>
+      <dl class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
+        <div class="flex flex-col sm:col-span-2">
+          <dt class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Institution email</dt>
+          <dd class="mt-1 break-all">
+            @if (detailVal.institutionEmail) {
+            <a
+              [href]="'mailto:' + detailVal.institutionEmail"
+              class="text-primary-600 hover:underline dark:text-primary-400">
+              {{ detailVal.institutionEmail }}
+            </a>
+            } @else {
+            <ng-container *ngTemplateOutlet="emptyTpl" />
+            }
+          </dd>
+        </div>
+        @for (field of contactItems(); track field.label) {
+        <ng-container *ngTemplateOutlet="fieldTpl; context: { $implicit: field }" />
+        }
+      </dl>
+    </section>
+
+    <!-- Subscription -->
+    <section
+      aria-labelledby="institution-detail-subscription"
+      class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <h3
+        id="institution-detail-subscription"
+        class="border-b border-zinc-200 bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-400">
+        Subscription
+      </h3>
+      @if (subscription(); as plan) {
+      <dl class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
+        <div class="flex flex-col sm:col-span-2">
+          <dt class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Plan</dt>
+          <dd class="mt-1 flex flex-wrap items-center gap-2 text-gray-700 dark:text-zinc-100">
+            @if (plan.subscriptionPlanName) {
+            {{ plan.subscriptionPlanName }}
+            } @else {
+            <ng-container *ngTemplateOutlet="emptyTpl" />
+            }
+            @if (plan.isTrial) {
+            <p-tag
+              value="Trial"
+              icon="pi pi-clock"
+              [severity]="'warn'" />
+            }
+          </dd>
+        </div>
+        @for (field of subscriptionItems(); track field.label) {
+        <ng-container *ngTemplateOutlet="fieldTpl; context: { $implicit: field }" />
+        }
+      </dl>
+      } @else {
+      <p class="p-3 text-sm text-zinc-500 dark:text-zinc-400">No subscription on this institution.</p>
+      }
+    </section>
+
+    <!-- Profile -->
+    <section
+      aria-labelledby="institution-detail-profile"
+      class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <h3
+        id="institution-detail-profile"
+        class="border-b border-zinc-200 bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-400">
+        Profile
+      </h3>
+      @if (profile(); as institutionProfile) {
+      <dl class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
+        @for (field of profileItems(); track field.label) {
+        <ng-container *ngTemplateOutlet="fieldTpl; context: { $implicit: field }" />
+        }
+        <div class="flex flex-col sm:col-span-2">
+          <dt class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Website</dt>
+          <dd class="mt-1 break-all">
+            @if (institutionProfile.websiteUrl) {
+            <a
+              [href]="institutionProfile.websiteUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-primary-600 hover:underline dark:text-primary-400">
+              {{ institutionProfile.websiteUrl }}
+            </a>
+            } @else {
+            <ng-container *ngTemplateOutlet="emptyTpl" />
+            }
+          </dd>
+        </div>
+      </dl>
+      } @else {
+      <p class="p-3 text-sm text-zinc-500 dark:text-zinc-400">No profile on this institution.</p>
+      }
+    </section>
+
+    <!-- Campuses -->
+    <section
+      aria-labelledby="institution-detail-campuses"
+      class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <h3
+        id="institution-detail-campuses"
+        class="border-b border-zinc-200 bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-400">
+        Campuses
+        <span class="font-normal tracking-normal normal-case">({{ campuses().length }})</span>
+      </h3>
+      @if (campuses().length) {
+      <ul class="divide-y divide-zinc-200 dark:divide-zinc-800">
+        @for (location of visibleLocations(); track location.id) {
+        <!-- `gap`, not `space-y`: a `p-tag` on the first line is taller than its line box and the
+             collapsed margin let the address ride up into it. -->
+        <li class="flex flex-col gap-1.5 px-3 py-2.5">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-medium text-zinc-900 dark:text-zinc-50">
+              @if (location.locationName) {
+              {{ location.locationName }}
+              } @else {
+              <ng-container *ngTemplateOutlet="emptyTpl" />
+              }
+            </span>
+            @if (location.locationCode) {
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ location.locationCode }}</span>
+            }
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">
+              {{ location.locationType | getCampusType }}
+            </span>
+            <!-- Only when the type does not already say it — otherwise the row read
+                 "Head Office  Head Office". -->
+            @if (showHeadOfficeTag(location)) {
+            <p-tag
+              value="Head Office"
+              icon="pi pi-home"
+              [severity]="'info'" />
+            }
+          </div>
+          @if (locationAddress(location); as address) {
+          <p class="text-sm text-gray-700 dark:text-zinc-400">{{ address }}</p>
+          }
+          <ng-container
+            *ngTemplateOutlet="flagsTpl; context: { $implicit: locationFlags(location) }" />
+        </li>
+        }
+      </ul>
+      @if (hiddenLocationCount()) {
+      <p class="px-3 pb-2.5 text-xs text-zinc-500 dark:text-zinc-400">
+        +{{ hiddenLocationCount() }} more
+      </p>
+      }
+      } @else {
+      <p class="p-3 text-sm text-zinc-500 dark:text-zinc-400">No campuses on this institution.</p>
+      }
+    </section>
+
+    <!-- Departments -->
+    <section
+      aria-labelledby="institution-detail-departments"
+      class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <h3
+        id="institution-detail-departments"
+        class="border-b border-zinc-200 bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-400">
+        Departments
+        <span class="font-normal tracking-normal normal-case">({{ departments().length }})</span>
+      </h3>
+      @if (departments().length) {
+      <ul class="flex flex-wrap gap-2 p-3">
+        @for (department of visibleDepartments(); track department.id) {
+        <li
+          class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-medium whitespace-nowrap text-primary-700 dark:border-primary-900 dark:bg-primary-900/30 dark:text-primary-200">
+          @if (department.departmentName) {
+          {{ department.departmentName }}
+          } @else {
+          <ng-container *ngTemplateOutlet="emptyTpl" />
+          }
+          @if (department.isExecutiveOffice) {
+          <i
+            class="pi pi-star-fill text-[10px]!"
+            aria-hidden="true"></i>
+          <span class="sr-only">Executive office</span>
+          }
+        </li>
+        }
+        @if (hiddenDepartmentCount()) {
+        <li class="self-center text-xs text-zinc-500 dark:text-zinc-400">
+          +{{ hiddenDepartmentCount() }} more
+        </li>
+        }
+      </ul>
+      } @else {
+      <p class="p-3 text-sm text-zinc-500 dark:text-zinc-400">No departments in this institution.</p>
+      }
+    </section>
+
+    <!-- StaffMembers -->
+    <section
+      aria-labelledby="institution-detail-staffMembers"
+      class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <h3
+        id="institution-detail-staffMembers"
+        class="border-b border-zinc-200 bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-400">
+        StaffMembers
+        <span class="font-normal tracking-normal normal-case">({{ staffMembers().length }})</span>
+      </h3>
+      @if (staffMembers().length) {
+      <ul class="divide-y divide-zinc-200 dark:divide-zinc-800">
+        @for (staffMember of visibleStaffMembers(); track staffMember.id) {
+        <li class="flex flex-col gap-0.5 px-3 py-2.5">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-medium text-zinc-900 dark:text-zinc-50">
+              @if (staffMemberName(staffMember); as name) {
+              {{ name }}
+              } @else {
+              <ng-container *ngTemplateOutlet="emptyTpl" />
+              }
+            </span>
+            @if (staffMember.employementCode) {
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">
+              {{ staffMember.employementCode }}
+            </span>
+            }
+          </div>
+          @if (staffMemberMeta(staffMember); as meta) {
+          <p class="text-sm break-all text-gray-700 dark:text-zinc-400">{{ meta }}</p>
+          }
+        </li>
+        }
+      </ul>
+      @if (hiddenStaffMemberCount()) {
+      <p class="px-3 pb-2.5 text-xs text-zinc-500 dark:text-zinc-400">
+        +{{ hiddenStaffMemberCount() }} more
+      </p>
+      }
+      } @else {
+      <p class="p-3 text-sm text-zinc-500 dark:text-zinc-400">No staff members in this institution.</p>
+      }
+    </section>
+
+    <!--
+      The last three sections are configuration a host reads rarely; collapsed by default so the
+      panel stays scannable. `<details>` needs no state, no script and no ARIA of its own.
+    -->
+    <details
+      class="group overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <summary
+        class="flex cursor-pointer list-none items-center justify-between bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 group-open:border-b group-open:border-zinc-200 dark:bg-zinc-800/60 dark:text-zinc-400 dark:group-open:border-zinc-800 [&::-webkit-details-marker]:hidden">
+        StaffMember Code Pattern
+        <i
+          class="pi pi-chevron-down text-[10px]! transition-transform duration-200 group-open:rotate-180"
+          aria-hidden="true"></i>
+      </summary>
+      @if (codePattern()) {
+      <dl class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
+        @for (field of codePatternItems(); track field.label) {
+        <ng-container *ngTemplateOutlet="fieldTpl; context: { $implicit: field }" />
+        }
+        <div class="flex flex-col sm:col-span-2">
+          <dt class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Includes</dt>
+          <dd class="mt-1">
+            <ng-container
+              *ngTemplateOutlet="flagsTpl; context: { $implicit: codePatternFlags() }" />
+          </dd>
+        </div>
+      </dl>
+      } @else {
+      <p class="p-3 text-sm text-zinc-500 dark:text-zinc-400">No staff code pattern in this institution.</p>
+      }
+    </details>
+
+    <details
+      class="group overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <summary
+        class="flex cursor-pointer list-none items-center justify-between bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 group-open:border-b group-open:border-zinc-200 dark:bg-zinc-800/60 dark:text-zinc-400 dark:group-open:border-zinc-800 [&::-webkit-details-marker]:hidden">
+        <span>
+          Login Credentials
+          <span class="font-normal tracking-normal normal-case">
+            ({{ loginCredentials().length }})
+          </span>
+        </span>
+        <i
+          class="pi pi-chevron-down text-[10px]! transition-transform duration-200 group-open:rotate-180"
+          aria-hidden="true"></i>
+      </summary>
+      @if (loginCredentials().length) {
+      <ul class="divide-y divide-zinc-200 dark:divide-zinc-800">
+        @for (credential of visibleCredentials(); track credential.id) {
+        <li class="flex flex-col gap-1.5 px-3 py-2.5">
+          <span class="font-medium break-all text-zinc-900 dark:text-zinc-50">
+            @if (credential.loginId) {
+            {{ credential.loginId }}
+            } @else {
+            <ng-container *ngTemplateOutlet="emptyTpl" />
+            }
+          </span>
+          <ng-container
+            *ngTemplateOutlet="flagsTpl; context: { $implicit: credentialFlags(credential) }" />
+        </li>
+        }
+      </ul>
+      @if (hiddenCredentialCount()) {
+      <p class="px-3 pb-2.5 text-xs text-zinc-500 dark:text-zinc-400">
+        +{{ hiddenCredentialCount() }} more
+      </p>
+      }
+      } @else {
+      <p class="p-3 text-sm text-zinc-500 dark:text-zinc-400">No login credentials for this institution.</p>
+      }
+    </details>
+
+    <details
+      class="group overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      <summary
+        class="flex cursor-pointer list-none items-center justify-between bg-zinc-50 px-3 py-2 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 group-open:border-b group-open:border-zinc-200 dark:bg-zinc-800/60 dark:text-zinc-400 dark:group-open:border-zinc-800 [&::-webkit-details-marker]:hidden">
+        Email Configuration
+        <i
+          class="pi pi-chevron-down text-[10px]! transition-transform duration-200 group-open:rotate-180"
+          aria-hidden="true"></i>
+      </summary>
+      @if (emailConfig()) {
+      <dl class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
+        @for (field of emailConfigItems(); track field.label) {
+        <ng-container *ngTemplateOutlet="fieldTpl; context: { $implicit: field }" />
+        }
+      </dl>
+      } @else {
+      <p class="p-3 text-sm text-zinc-500 dark:text-zinc-400">
+        No email configuration on this institution.
+      </p>
+      }
+    </details>
+    }
+  </section>
+
+  <!-- Footer -->
+  <!-- Hidden on a failed load: the edit route hydrates from this same call, so the button would
+       only bounce the operator back here. -->
+  @if (canUpdate() && !hasLoadFailed()) {
+  <section
+    class="flex shrink-0 justify-end gap-2 border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">
+    <p-button
+      label="Edit Institution"
+      icon="pi pi-pencil"
+      [size]="'small'"
+      (onClick)="onEdit()" />
+  </section>
+  }
+</div>
+
+<!-- One label/value pair. Every card renders its fields through this, so the two type levels and
+     the muted placeholder are defined once. -->
+<ng-template
+  #fieldTpl
+  let-field>
+  <div
+    class="flex flex-col"
+    [class.sm:col-span-2]="field.fullWidth">
+    <dt class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">{{ field.label }}</dt>
+    <dd class="mt-1 break-words text-gray-700 dark:text-zinc-100">
+      @if (field.isEmpty) {
+      <ng-container *ngTemplateOutlet="emptyTpl" />
+      } @else {
+      {{ field.value }}
+      }
+    </dd>
+  </div>
+</ng-template>
+
+<!-- Booleans as icon + label chips. The icon carries the state as well as the colour. -->
+<ng-template
+  #flagsTpl
+  let-flags>
+  <ul class="flex flex-wrap gap-1.5">
+    @for (flag of flags; track flag.label) {
+    <li
+      class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs whitespace-nowrap"
+      [class]="
+        flag.on
+          ? 'border-primary-200 bg-primary-50 text-primary-700 dark:border-primary-900 dark:bg-primary-900/30 dark:text-primary-200'
+          : 'border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400'
+      ">
+      <i
+        class="pi text-[10px]!"
+        [class.pi-check]="flag.on"
+        [class.pi-times]="!flag.on"
+        aria-hidden="true"></i>
+      {{ flag.label }}
+    </li>
+    }
+  </ul>
+</ng-template>
+
+<!-- The sanctioned empty-value placeholder. Muted, and labelled so it announces as "Not set"
+     rather than as a stray dash. -->
+<ng-template #emptyTpl>
+  <span
+    class="text-gray-400 dark:text-zinc-500"
+    aria-label="Not set">
+    —
+  </span>
+</ng-template>

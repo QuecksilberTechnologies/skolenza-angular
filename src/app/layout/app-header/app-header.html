@@ -1,0 +1,110 @@
+<nav
+  class="flex h-[55px] items-center justify-between border-b border-gray-200 bg-primary-contrast py-2 dark:border-surface">
+  <div class="ms-3 flex min-w-0 items-center gap-4">
+    <!-- Hamburger Menu -->
+    <p-button
+      id="btnToggleAsideMenu"
+      type="button"
+      [rounded]="true"
+      [text]="true"
+      severity="secondary"
+      icon="pi pi-bars text-xl"
+      class="shrink-0 shadow-none!"
+      aria-label="Open main menu"
+      (click)="onLeftMenuToggle()" />
+
+    <!-- Displays the current page's title, description, and breadcrumb navigation -->
+    <app-page-info class="min-w-0" />
+  </div>
+
+  <div class="me-2 flex items-center gap-4">
+    <div class="flex items-center gap-2">
+      <!-- Check In / Check Out — attendance is staff-only, a host has none -->
+      @if (!authStore.isHost()) {
+      <p-button
+        [label]="checkInStore.buttonLabel()"
+        [icon]="checkInStore.buttonIcon()"
+        [severity]="checkInStore.buttonSeverity()"
+        size="small"
+        [outlined]="true"
+        [rounded]="true"
+        [attr.aria-label]="checkInStore.buttonLabel()"
+        [attr.title]="checkInStore.buttonLabel()"
+        [loading]="checkInStore.isSubmitting()"
+        [disabled]="checkInStore.isBusy()"
+        styleClass="text-xs! py-1.5! px-3! whitespace-nowrap!"
+        class="checkin-btn"
+        (onClick)="checkInStore.toggle()" />
+      }
+
+      <!-- Notifications -->
+      <p-overlaybadge
+        [value]="notificationStore.unreadCount()"
+        severity="danger"
+        badgeSize="small"
+        styleClass="top-2! right-2!">
+        <p-button
+          icon="pi pi-bell"
+          [rounded]="false"
+          [outlined]="false"
+          [text]="false"
+          severity="secondary"
+          variant="text"
+          class="bg-white dark:bg-primary-contrast"
+          aria-label="Show notifications"
+          [attr.title]="'Show notifications'"
+          (onClick)="toggleNotificationPopup($event)" />
+      </p-overlaybadge>
+    </div>
+
+    <div class="flex w-full items-center justify-between border-s border-gray-100 dark:border-zinc-700">
+      @if (authStore.isLoggedIn()) { @let staffMemberFullName = authStore.staffMemberFullName(); @let institutionName =
+      authStore.institutionName(); @let userPrimaryRole = authStore.userPrimaryRoleName(); @let profileImage =
+      authStore.profileImageLink();
+      <p-button
+        type="button"
+        variant="text"
+        severity="secondary"
+        (click)="profileMenuPopup.toggle($event)"
+        class="bg-white dark:bg-zinc-900"
+        aria-label="Open user menu"
+        [attr.title]="'Open user menu'">
+        <!-- Profile Image -->
+        <app-user-avatar
+          [imagePath]="profileImage"
+          [name]="staffMemberFullName"
+          avatarClass="size-9! text-xl!" />
+        <div class="ms-1 hidden flex-col items-start md:flex">
+          <strong class="me-4 max-w-md truncate font-semibold text-gray-900 capitalize dark:text-zinc-100">
+            {{ staffMemberFullName }}
+          </strong>
+          <div class="flex items-center leading-none">
+            <div class="truncate text-sm">{{ userPrimaryRole }}</div>
+            @if (institutionName) {
+            <div class="px-1 text-sm text-gray-400 select-none dark:text-zinc-400">/</div>
+            <div class="truncate text-sm">{{ institutionName }}</div>
+            }
+          </div>
+        </div>
+        <span class="ms-2 hidden align-middle text-xs text-gray-400 md:inline-flex dark:text-zinc-400">
+          <i class="pi pi-chevron-down"></i>
+        </span>
+      </p-button>
+      }
+    </div>
+  </div>
+</nav>
+
+<!-- Profile Menu Popup -->
+<p-popover
+  #profileMenuPopup
+  styleClass="top-menu-option w-full max-w-[250px] bg-white dark:bg-zinc-900">
+  <ng-template #content>
+    <app-user-menu
+      (closePopup)="closeProfilePopup()"
+      (logout)="logout()" />
+  </ng-template>
+</p-popover>
+
+<!-- Notification Popup -->
+<app-notification-popover #notificationPopup />

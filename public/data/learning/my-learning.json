@@ -1,0 +1,77 @@
+{
+  "isSucceeded": true,
+  "message": "My learning loaded",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 6,
+  "totalRecords": 6,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "ml1",
+      "courseId": "c-ng",
+      "title": "Fundamentals of Aerodynamics",
+      "category": "Aerodynamics",
+      "thumbnail": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=640&h=360&q=80",
+      "durationHours": 12,
+      "progress": 65,
+      "status": "InProgress",
+      "lastAccessed": "2026-06-26T09:30:00Z"
+    },
+    {
+      "id": "ml2",
+      "courseId": "c-sec",
+      "title": "Avionics & Flight Control Systems",
+      "category": "Avionics",
+      "thumbnail": "https://images.unsplash.com/photo-1761619819201-9f47092ed3c0?auto=format&fit=crop&w=640&h=360&q=80",
+      "durationHours": 7,
+      "progress": 100,
+      "status": "Completed",
+      "lastAccessed": "2026-06-18T14:10:00Z"
+    },
+    {
+      "id": "ml3",
+      "courseId": "c-ux",
+      "title": "Aircraft Structures & Materials",
+      "category": "Structures",
+      "thumbnail": "https://images.unsplash.com/photo-1532364158125-02d75a0f7fb9?auto=format&fit=crop&w=640&h=360&q=80",
+      "durationHours": 6,
+      "progress": 30,
+      "status": "InProgress",
+      "lastAccessed": "2026-06-24T11:00:00Z"
+    },
+    {
+      "id": "ml4",
+      "courseId": "c-comm",
+      "title": "Flight Dynamics & Stability",
+      "category": "Flight Dynamics",
+      "thumbnail": "https://images.unsplash.com/photo-1470936038081-27e790e22397?auto=format&fit=crop&w=640&h=360&q=80",
+      "durationHours": 4,
+      "progress": 0,
+      "status": "NotStarted",
+      "lastAccessed": "2026-06-20T08:00:00Z"
+    },
+    {
+      "id": "ml5",
+      "courseId": "c-data",
+      "title": "Orbital Mechanics & Astrodynamics",
+      "category": "Astrodynamics",
+      "thumbnail": "https://images.unsplash.com/photo-1614121181207-4b6c334d353d?auto=format&fit=crop&w=640&h=360&q=80",
+      "durationHours": 10,
+      "progress": 100,
+      "status": "Completed",
+      "lastAccessed": "2026-05-29T16:45:00Z"
+    },
+    {
+      "id": "ml6",
+      "courseId": "c-cloud",
+      "title": "Rocket Propulsion & Launch Systems",
+      "category": "Propulsion",
+      "thumbnail": "https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=640&h=360&q=80",
+      "durationHours": 11,
+      "progress": 45,
+      "status": "InProgress",
+      "lastAccessed": "2026-06-27T10:15:00Z"
+    }
+  ]
+}

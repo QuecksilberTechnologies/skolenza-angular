@@ -1,0 +1,80 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "staffMemberPatternHash": "57724CB04999605C043E97E1F5E1050FBBC12E52DDBA7D0969477D7CF2C83F03",
+    "reservedStaffMemberSequence": 201,
+    "jobId": "0005a8fa-f69b-4f7e-801a-1448899c5dee",
+    "master": 5,
+    "sourceColumns": [
+      "StaffMemberCode",
+      "FirstName",
+      "LastName",
+      "OfficialEmail",
+      "DateOfBirth",
+      "DateOfOnBoarding",
+      "GenderId",
+      "CountryId",
+      "DepartmentId",
+      "DesignationId",
+      "StaffEmploymentTypeId",
+      "RoleId",
+      "HasPermanent",
+      "IsActive"
+    ],
+    "columnMapping": {
+      "StaffMemberCode": "StaffMemberCode",
+      "FirstName": "FirstName",
+      "LastName": "LastName",
+      "OfficialEmail": "OfficialEmail",
+      "DateOfBirth": "DateOfBirth",
+      "DateOfOnBoarding": "DateOfOnBoarding",
+      "GenderId": "GenderId",
+      "CountryId": "CountryId",
+      "DepartmentId": "DepartmentId",
+      "DesignationId": "DesignationId",
+      "StaffEmploymentTypeId": "StaffEmploymentTypeId",
+      "RoleId": "RoleId",
+      "HasPermanent": "HasPermanent",
+      "IsActive": "IsActive"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "proposedStaffMemberCode": "QT/2026/0201",
+        "invitationStatus": null,
+        "invitationError": null,
+        "invitationAttemptedAtUtc": null,
+        "processed": false,
+        "rowNumber": 2,
+        "values": {
+          "StaffMemberCode": "",
+          "FirstName": "UIQA",
+          "LastName": "NextPreview",
+          "OfficialEmail": "uiqa.staffMember.20260911.next@example.invalid",
+          "DateOfBirth": "1995-01-15",
+          "DateOfOnBoarding": "2026-09-03",
+          "GenderId": "1",
+          "CountryId": "1",
+          "DepartmentId": "6",
+          "DesignationId": "6",
+          "StaffEmploymentTypeId": "7",
+          "RoleId": "24",
+          "HasPermanent": "true",
+          "IsActive": "true"
+        },
+        "status": 1,
+        "existingId": null,
+        "departmentId": null,
+        "errors": []
+      }
+    ],
+    "readyCount": 1,
+    "existingCount": 0,
+    "invalidCount": 0,
+    "isValid": true,
+    "confirmationAvailable": true,
+    "canCommit": true
+  },
+  "errors": []
+}

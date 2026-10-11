@@ -1,0 +1,107 @@
+<div
+  class="notification-container w-[min(380px,calc(100vw-2rem))] overflow-hidden rounded-2xl bg-white dark:bg-zinc-900"
+  role="region"
+  aria-label="Notifications">
+  <header class="flex flex-wrap items-center justify-between gap-2 px-3! pt-2.5! pb-1.5!">
+    <div class="flex items-center gap-2">
+      <h3 class="m-0 text-base font-semibold text-gray-900 dark:text-zinc-100">Notifications</h3>
+      @if (notificationStore.unreadCount() > 0) {
+      <span
+        class="inline-flex min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-2 py-0.5 text-xs leading-none font-semibold text-primary"
+        [attr.aria-label]="notificationStore.unreadCount() + ' unread notifications'">
+        {{ notificationStore.unreadCount() }} new
+      </span>
+      }
+    </div>
+    <p-button
+      icon="pi pi-check"
+      [text]="true"
+      label="Mark all as read"
+      severity="info"
+      size="small"
+      class="text-xs"
+      styleClass="!py-1"
+      [disabled]="!notificationStore.hasUnread()"
+      (onClick)="markAllAsRead()" />
+  </header>
+
+  <ul
+    class="notification-list m-0 max-h-[min(360px,60vh)] list-none space-y-1 overflow-y-auto px-1.5 pb-1.5"
+    role="list">
+    @for (notification of notificationStore.notifications(); track notification.id) {
+    <li
+      class="notification-item group relative flex cursor-pointer items-start gap-3 rounded-xl p-3 transition-all duration-200 hover:bg-gray-50 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:hover:bg-zinc-800/70 dark:focus-visible:ring-offset-zinc-900"
+      [class.bg-primary-50]="!notification.isRead"
+      [class.dark:bg-zinc-800]="!notification.isRead"
+      [class.pl-4]="!notification.isRead"
+      (click)="onItemClick($event, notification.id)"
+      (keydown.enter)="onItemClick($event, notification.id)"
+      (keydown.space)="onItemClick($event, notification.id)"
+      tabindex="0"
+      role="button"
+      [attr.aria-label]="
+          (notification.isRead ? 'Read' : 'Unread') +
+          ' notification: ' +
+          notification.title +
+          '. ' +
+          notification.message
+        ">
+      @if (!notification.isRead) {
+      <span
+        class="absolute top-2 bottom-2 left-0 w-1 rounded-full bg-primary"
+        aria-hidden="true"></span>
+      }
+      <div
+        class="notification-icon flex size-10 flex-shrink-0 items-center justify-center rounded-full ring-1 ring-black/5 transition-transform duration-150 group-hover:scale-105 dark:ring-white/10"
+        [class]="notification.bgColor"
+        aria-hidden="true">
+        <i [class]="notification.icon + ' ' + notification.iconColor + ' !text-lg'"></i>
+      </div>
+
+      <div class="notification-content min-w-0 flex-1">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex min-w-0 items-center gap-1.5">
+            <p
+              class="notification-title m-0 truncate text-sm leading-snug font-semibold text-gray-900 dark:text-zinc-100">
+              {{ notification.title }}
+            </p>
+          </div>
+          <span
+            class="notification-time mt-0.5 flex-shrink-0 text-xs whitespace-nowrap text-gray-500 dark:text-zinc-400">
+            {{ notification.time }}
+          </span>
+        </div>
+        <p
+          class="notification-message m-0 mt-0.5 line-clamp-2 text-sm leading-relaxed text-gray-600 dark:text-zinc-400">
+          {{ notification.message }}
+        </p>
+      </div>
+    </li>
+    } @empty {
+    <li class="flex flex-col items-center justify-center px-4 py-10 text-center">
+      <div
+        class="mb-3 flex size-12 items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-800"
+        aria-hidden="true">
+        <i class="pi pi-bell-slash !text-xl text-gray-400 dark:text-zinc-500"></i>
+      </div>
+      <p class="m-0 text-sm font-medium text-gray-700 dark:text-zinc-300">You're all caught up</p>
+      <p class="m-0 mt-1 text-xs text-gray-500 dark:text-zinc-400">No new notifications</p>
+    </li>
+    }
+  </ul>
+
+  @if (notificationStore.notifications().length > 0) {
+  <footer class="notification-footer flex justify-center border-t border-gray-100 px-3 py-1 dark:border-zinc-800">
+    <p-button
+      label="View All Notifications"
+      [text]="true"
+      icon="pi pi-arrow-right"
+      iconPos="right"
+      severity="info"
+      size="small"
+      class="text-sm"
+      styleClass="!py-1"
+      (onClick)="viewAll()" />
+  </footer>
+  }
+</div>

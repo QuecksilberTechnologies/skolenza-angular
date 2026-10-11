@@ -1,0 +1,24 @@
+{
+  "dashboard": {
+    "TotalStaff Members": "Mitarbeiter insgesamt",
+    "NewHiresThisMonth": "Neueinstellungen diesen Monat",
+    "OpenPositions": "Offene Stellen",
+    "PendingApprovals": "Ausstehende Genehmigungen",
+    "LeaveBreakdown": "Urlaubsübersicht",
+    "HRActivityHeatmap": "HR-Aktivitäts-Heatmap",
+    "ProjectsStats": "Projektstatistiken",
+    "RequestStatus": "Anfragestatus | Heute",
+    "ProjectBurndown": "Projektfortschritt",
+    "TeamProgress": "Teamfortschritt"
+  },
+  "accessDenied": {
+    "title": "Zugriff verweigert",
+    "headerDescription": "Berechtigung erforderlich",
+    "reasonModuleOperation": "Sie haben keine Berechtigung für {{operation}} in {{module}}.",
+    "reasonModule": "Sie haben keinen Zugriff auf {{module}}.",
+    "reasonGeneric": "Sie haben keine Berechtigung, diese Seite anzuzeigen.",
+    "hint": "Ihre Rolle enthält diese Berechtigung nicht. Bitten Sie einen Administrator darum oder kehren Sie zu einer zugänglichen Seite zurück.",
+    "goToDashboard": "Zum Dashboard",
+    "goBack": "Zurück"
+  }
+}

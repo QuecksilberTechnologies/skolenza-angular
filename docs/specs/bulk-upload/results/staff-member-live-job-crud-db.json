@@ -1,0 +1,31 @@
+{
+  "jobs": [
+    {
+      "Id": "abfc9cce-3561-4066-9b51-f2f95424c530",
+      "InstitutionId": 8,
+      "Status": 4,
+      "NextRow": 2
+    },
+    {
+      "Id": "df2a388c-c78e-462e-8aca-504b2bc7fcd6",
+      "InstitutionId": 8,
+      "Status": 4,
+      "NextRow": 2
+    }
+  ],
+  "crud": [
+    {
+      "InstitutionId": 8,
+      "TypeName": "UIQA-20260911-CRUD-Updated",
+      "IsActive": false,
+      "IsSoftDeleted": true
+    }
+  ],
+  "admin": [
+    {
+      "DateOfOnBoarding": "2018-07-24T05:30:00+05:30",
+      "AddedDateTime": "2026-09-09T20:50:33.14407+05:30",
+      "EmployementCode": "QT/2026/0001"
+    }
+  ]
+}

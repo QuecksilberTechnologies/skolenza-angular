@@ -1,0 +1,245 @@
+<section class="max-h-[calc(100vh-18rem)] overflow-y-auto">
+  <form
+    [formGroup]="typeForm"
+    class="grid grid-cols-1 gap-4">
+    <!-- Classification & Header -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div class="space-y-1">
+        <label
+          for="classificationId"
+          class="block font-medium">
+          Classification
+        </label>
+        <p-select
+          id="classificationId"
+          [options]="classificationOptions()"
+          optionLabel="classificationName"
+          optionValue="id"
+          placeholder="Select classification"
+          [showClear]="true"
+          appendTo="body"
+          [ngModel]="selectedClassificationId()"
+          [ngModelOptions]="{ standalone: true }"
+          (onChange)="onClassificationChange($event.value)"
+          class="w-full" />
+      </div>
+
+      <div class="space-y-1">
+        <label
+          for="ticketHeaderId"
+          class="block font-medium">
+          Header
+          <span
+            class="text-red-600 dark:text-red-400"
+            aria-hidden="true">
+            *
+          </span>
+        </label>
+        <p-select
+          id="ticketHeaderId"
+          formControlName="ticketHeaderId"
+          [options]="headerOptions()"
+          [loading]="isLoadingHeaders()"
+          optionLabel="headerName"
+          optionValue="id"
+          placeholder="Select header"
+          appendTo="body"
+          [invalid]="isInvalid('ticketHeaderId')"
+          [disabled]="selectedClassificationId() === null"
+          class="w-full"
+          aria-required="true" />
+        @if (isInvalid('ticketHeaderId')) {
+        <p-message
+          severity="error"
+          variant="simple"
+          size="small">
+          Header is required
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <!-- Type Name -->
+    <div class="space-y-1">
+      <label
+        for="ticketTypeName"
+        class="block font-medium">
+        Type Name
+        <span
+          class="text-red-600 dark:text-red-400"
+          aria-hidden="true">
+          *
+        </span>
+      </label>
+      <input
+        pInputText
+        id="ticketTypeName"
+        formControlName="ticketTypeName"
+        placeholder="Enter type name"
+        appTrimInput
+        [pAutoFocus]="true"
+        [class.ng-invalid]="isInvalid('ticketTypeName')"
+        [class.ng-dirty]="isInvalid('ticketTypeName')"
+        aria-required="true"
+        class="w-full" />
+      @if (isInvalid('ticketTypeName')) {
+      <p-message
+        severity="error"
+        variant="simple"
+        size="small">
+        Name is required (min 2 chars)
+      </p-message>
+      }
+    </div>
+
+    <!-- Description -->
+    <div class="space-y-1">
+      <label
+        for="description"
+        class="block font-medium">
+        Description
+      </label>
+      <textarea
+        pTextarea
+        id="description"
+        formControlName="description"
+        placeholder="Describe this ticket type…"
+        rows="2"
+        appTrimInput
+        class="w-full resize-none"></textarea>
+    </div>
+
+    <!-- Responsible Role & SLA -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div class="space-y-1">
+        <label
+          for="responsibleRoleId"
+          class="block font-medium">
+          Responsible Role
+        </label>
+        <p-select
+          id="responsibleRoleId"
+          formControlName="responsibleRoleId"
+          [options]="roleOptions()"
+          [loading]="isLoadingRoles()"
+          optionLabel="roleName"
+          optionValue="id"
+          placeholder="Select role"
+          [showClear]="true"
+          appendTo="body"
+          class="w-full" />
+      </div>
+
+      <div class="space-y-1">
+        <label
+          for="slaHours"
+          class="block font-medium">
+          SLA Hours
+        </label>
+        <p-inputnumber
+          id="slaHours"
+          formControlName="slaHours"
+          placeholder="Enter SLA hours"
+          [min]="0"
+          class="w-full" />
+      </div>
+    </div>
+
+    <!-- Options section -->
+    <div class="flex flex-col gap-4 rounded-lg border border-surface-200 p-4 dark:border-surface-700">
+      <span class="-mt-1 text-xs font-semibold tracking-wide text-surface-500 uppercase dark:text-surface-400">
+        Options
+      </span>
+
+      <!-- Approval Required + sub-section grouped together -->
+      <div class="flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+          <p-checkbox
+            formControlName="isApprovalRequired"
+            inputId="isApprovalRequired"
+            [binary]="true" />
+          <label
+            for="isApprovalRequired"
+            class="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-200">
+            Approval Required
+          </label>
+        </div>
+
+        @if (typeForm.controls.isApprovalRequired.value) {
+        <div class="ml-6 flex flex-col gap-3 border-l-2 border-primary-200 pl-4 dark:border-primary-800">
+          <div class="flex flex-col gap-1">
+            <label
+              for="approvalRoleId"
+              class="text-sm font-medium text-surface-700 dark:text-surface-200">
+              Approval Role
+            </label>
+            <p-select
+              id="approvalRoleId"
+              formControlName="approvalRoleId"
+              [options]="roleOptions()"
+              [loading]="isLoadingRoles()"
+              optionLabel="roleName"
+              optionValue="id"
+              placeholder="Select role"
+              [showClear]="true"
+              appendTo="body"
+              class="w-full" />
+          </div>
+          <div class="flex items-center gap-2">
+            <p-checkbox
+              formControlName="autoApproveIfSameRole"
+              inputId="autoApproveIfSameRole"
+              [binary]="true" />
+            <label
+              for="autoApproveIfSameRole"
+              class="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-200">
+              Auto-approve if Same Role
+            </label>
+          </div>
+        </div>
+        }
+      </div>
+
+      <div class="h-px bg-surface-200 dark:bg-surface-700"></div>
+
+      <!-- Remaining boolean options -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="flex items-center gap-2">
+          <p-checkbox
+            formControlName="isAttachmentRequired"
+            inputId="isAttachmentRequired"
+            [binary]="true" />
+          <label
+            for="isAttachmentRequired"
+            class="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-200">
+            Attachment Required
+          </label>
+        </div>
+        <div class="flex items-center gap-2">
+          <p-checkbox
+            formControlName="isActiveForAllUsers"
+            inputId="isActiveForAllUsers"
+            [binary]="true" />
+          <label
+            for="isActiveForAllUsers"
+            class="cursor-pointer text-sm font-medium text-surface-700 dark:text-surface-200">
+            Active for All Users
+          </label>
+        </div>
+      </div>
+    </div>
+  </form>
+</section>
+
+<div class="mt-6 flex justify-end gap-2">
+  <p-button
+    label="Cancel"
+    variant="text"
+    severity="secondary"
+    (onClick)="onCancel()" />
+  <p-button
+    [label]="isSaving() ? 'Saving...' : 'Save'"
+    [loading]="isSaving()"
+    [disabled]="typeForm.invalid || isSaving()"
+    (onClick)="onSubmit()" />
+</div>

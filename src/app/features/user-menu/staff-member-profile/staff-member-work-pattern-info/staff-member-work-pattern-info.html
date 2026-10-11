@@ -1,0 +1,245 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      dataKey="id"
+      [value]="store.patterns()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [lazy]="true"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [paginator]="true"
+      [first]="store.first()"
+      [rows]="store.pageSize()"
+      [totalRecords]="store.totalRecords()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} patterns"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      (onLazyLoad)="loadPatterns($event)"
+      [contextMenu]="canUseRowActions() ? actionContextMenu : null"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            [options]="staffMemberFilter.options()"
+            optionLabel="fullName"
+            optionValue="staffMemberId"
+            placeholder="Select StaffMember"
+            ariaLabel="Filter by staffMember"
+            [filter]="true"
+            filterBy="fullName"
+            [loading]="staffMemberFilter.isLoading()"
+            [appendTo]="'body'"
+            [showClear]="true"
+            panelStyleClass="select-option-truncate"
+            [ngModel]="store.staffMemberId() || null"
+            (onChange)="onStaffMemberChange($event.value)" />
+
+          <p-select
+            class="w-full min-w-0 lg:min-w-72"
+            [options]="arrangementOptions()"
+            optionLabel="label"
+            optionValue="id"
+            placeholder="Select Work Arrangement"
+            ariaLabel="Filter by work arrangement"
+            [disabled]="!store.staffMemberId() || store.isLoading()"
+            [ngModel]="store.currentArrangement()?.id ?? null"
+            (onChange)="onArrangementChange($event.value)" />
+
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            [options]="dayOptions"
+            optionLabel="label"
+            optionValue="id"
+            placeholder="Select Day"
+            ariaLabel="Filter by day"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [ngModel]="store.dayOfWeek()"
+            (onChange)="onDayChange($event.value)" />
+
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            [options]="statusOptions"
+            optionLabel="status"
+            optionValue="value"
+            placeholder="Select Status"
+            ariaLabel="Filter by status"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [ngModel]="store.isActive()"
+            (onChange)="onStatusChange($event.value)" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            @if (canAddPermission()) {
+              <!-- Wrapper carries the tooltip: a disabled button fires no hover events. -->
+              <span
+                class="inline-flex w-full lg:w-auto"
+                [pTooltip]="addBlockedReason()"
+                tooltipPosition="bottom">
+                <p-button
+                  label="Add Weekday Pattern"
+                  icon="pi pi-plus"
+                  class="w-full justify-center lg:w-auto"
+                  [disabled]="!canAdd()"
+                  (onClick)="openPatternForm()" />
+              </span>
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #header>
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          <th class="max-w-52 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            StaffMember
+          </th>
+          <th class="max-w-32 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">Day</th>
+          <th class="max-w-32 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Work Mode
+          </th>
+          <th class="max-w-48 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Location
+          </th>
+          <th class="max-w-28 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Working Day
+          </th>
+          <!-- Editors read status off the toggle button; everyone else needs the column. -->
+          @if (!canUpdate()) {
+            <th class="max-w-28 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+              Status
+            </th>
+          }
+          @if (canUseRowActions()) {
+            <th class="max-w-32 px-3! py-3! align-middle text-gray-700 dark:text-zinc-100">
+              <div class="flex justify-center">Actions</div>
+            </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-pattern>
+        <tr [pContextMenuRow]="pattern">
+          <td class="max-w-52 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <span
+              class="block truncate font-medium"
+              [pTooltip]="pattern.staffMemberName ?? ''"
+              tooltipPosition="bottom">
+              {{ pattern.staffMemberName ?? '-' }}
+            </span>
+          </td>
+          <td class="max-w-32 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            {{ dayLabel(pattern) }}
+          </td>
+          <td class="max-w-32 px-3! py-3! align-middle whitespace-nowrap">
+            @if (pattern.isWorkingDay) {
+              <p-tag
+                [value]="pattern.workMode | getWorkMode"
+                severity="secondary" />
+            } @else {
+              <span aria-hidden="true" class="text-gray-500 dark:text-zinc-400">—</span>
+              <span class="sr-only">No work mode, day off</span>
+            }
+          </td>
+          <td class="max-w-48 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <span
+              class="block truncate"
+              [pTooltip]="pattern.campusName ?? ''"
+              tooltipPosition="bottom">
+              {{ pattern.campusName ?? '-' }}
+            </span>
+          </td>
+          <td class="max-w-28 px-3! py-3! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="pattern.isWorkingDay ? 'Working' : 'Weekly off'"
+              [icon]="pattern.isWorkingDay ? 'pi pi-briefcase' : 'pi pi-moon'"
+              severity="secondary" />
+          </td>
+          @if (!canUpdate()) {
+            <td class="max-w-28 px-3! py-3! align-middle whitespace-nowrap">
+              <p-tag
+                [value]="pattern.isActive ? 'Active' : 'Inactive'"
+                [severity]="pattern.isActive ? 'success' : 'danger'" />
+            </td>
+          }
+          @if (canUseRowActions()) {
+            <td class="max-w-32 px-3! py-3! align-middle whitespace-nowrap">
+              <div class="flex items-center justify-center gap-2">
+                @if (canUpdate()) {
+                  <p-button
+                    class="text-xl!"
+                    [icon]="pattern.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                    [severity]="pattern.isActive ? 'success' : 'danger'"
+                    [pTooltip]="pattern.isActive ? 'Deactivate' : 'Activate'"
+                    tooltipPosition="left"
+                    [showDelay]="300"
+                    [loading]="pattern.isUpdatingStatus"
+                    [ariaLabel]="(pattern.isActive ? 'Deactivate ' : 'Activate ') + dayLabel(pattern) + ' pattern'"
+                    (onClick)="confirmToggleActive(pattern)" />
+                }
+                <app-table-action-button
+                  [ariaLabel]="'Actions for ' + dayLabel(pattern) + ' pattern'"
+                  (action)="selectedRow.set(pattern); actionMenu.toggle($event)" />
+              </div>
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.patterns().length === 0) {
+          <tr>
+            <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            @if (store.staffMemberId() && !store.currentArrangement()) {
+              <app-table-empty-message
+                icon="pi pi-sitemap"
+                message="This staffMember has no work arrangement"
+                subMessage="Add one on the StaffMember Work Arrangements page, then set their weekdays here" />
+            } @else if (hasActiveFilters()) {
+              <app-table-empty-message
+                icon="pi pi-search"
+                message="No patterns match your filters"
+                subMessage="Try a different day or status, or clear the filters" />
+            } @else {
+              <app-table-empty-message
+                icon="pi pi-calendar-minus"
+                message="No weekday patterns found"
+                subMessage="Select an staffMember and add a pattern for each day they work" />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-tieredmenu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [autoDisplay]="true"
+  [popup]="true"
+  [pt]="{ root: { class: 'staffMember-action-menu' } }"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  [pt]="{ root: { class: 'staffMember-action-menu' } }"
+  appendTo="body" />
+<p-confirmDialog />

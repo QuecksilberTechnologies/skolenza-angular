@@ -1,0 +1,56 @@
+{
+  "isSucceeded": true,
+  "message": "Meetings fetched successfully",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalRecords": 3,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "o-001",
+      "title": "Weekly sync — Aarav",
+      "managerId": "m-201",
+      "managerName": "Meera Nair",
+      "staffMemberId": "e-101",
+      "staffMemberName": "Aarav Sharma",
+      "scheduledAt": "2026-06-25T10:00:00Z",
+      "agenda": "Review NPS progress, discuss promotion path.",
+      "notes": "On track. Agreed to draft promotion case by next cycle.",
+      "actionItems": [
+        { "id": "a-1", "text": "Draft promotion case", "done": false },
+        { "id": "a-2", "text": "Share NPS dashboard", "done": true }
+      ],
+      "nextMeetingAt": "2026-07-02T10:00:00Z",
+      "status": "Completed"
+    },
+    {
+      "id": "o-002",
+      "title": "Bi-weekly — Diya",
+      "managerId": "m-201",
+      "managerName": "Meera Nair",
+      "staffMemberId": "e-102",
+      "staffMemberName": "Diya Patel",
+      "scheduledAt": "2026-06-27T15:00:00Z",
+      "agenda": "Mentoring workload, migration blockers.",
+      "notes": "",
+      "actionItems": [{ "id": "a-3", "text": "Re-scope mentoring hours", "done": false }],
+      "nextMeetingAt": "2026-07-11T15:00:00Z",
+      "status": "Pending"
+    },
+    {
+      "id": "o-003",
+      "title": "Monthly — Kabir",
+      "managerId": "m-202",
+      "managerName": "Rohan Mehta",
+      "staffMemberId": "e-103",
+      "staffMemberName": "Kabir Singh",
+      "scheduledAt": "2026-07-01T11:30:00Z",
+      "agenda": "Certification follow-up, next quarter goals.",
+      "notes": "",
+      "actionItems": [],
+      "nextMeetingAt": null,
+      "status": "Draft"
+    }
+  ]
+}

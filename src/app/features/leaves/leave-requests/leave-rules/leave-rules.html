@@ -1,0 +1,141 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      [value]="leaveRules()"
+      [loading]="isLoading()"
+      [showLoader]="false"
+      [paginator]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '52rem' }"
+      paginatorDropdownAppendTo="body">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <app-table-search-filter [filterCount]="0" />
+          @if (permissionsStore.canPerform('Leaves', 'Add')) {
+          <p-button
+            ngProjectAs="right"
+            label="Add Leave Rule"
+            icon="pi pi-plus"
+            styleClass="w-full lg:w-auto"
+            (onClick)="openNew()" />
+          }
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #colgroup>
+        <colgroup>
+          <col style="width: 16rem" />
+          <col style="width: 16rem" />
+          <col style="width: 16rem" />
+          <col style="width: 7rem" />
+        </colgroup>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">Policy Type</th>
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">Leave Type</th>
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">StaffMember Type</th>
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-rule>
+        <tr>
+          <td class="!px-3 !py-2.5 align-middle">
+            <div class="truncate">{{ rule.policyTypeName || '-' }}</div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle">
+            <div class="truncate">{{ rule.leaveTypeName || '-' }}</div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle">
+            <div class="truncate">{{ rule.staffEmploymentTypeName || '-' }}</div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <p-button
+              type="button"
+              icon="pi pi-ellipsis-h"
+              [rounded]="true"
+              [variant]="'text'"
+              severity="secondary"
+              styleClass="dark:!text-zinc-100"
+              ariaLabel="Row actions"
+              (click)="menu.toggle($event)" />
+            <p-menu
+              #menu
+              [model]="actionItems"
+              [popup]="true"
+              appendTo="body">
+              <ng-template
+                #item
+                let-item>
+                @switch (item.label) { @case ('View') {
+                <a
+                  pRipple
+                  class="p-menu-item-link flex items-center dark:text-zinc-100 dark:hover:bg-zinc-700"
+                  tabindex="0"
+                  role="button"
+                  (click)="onView(rule)">
+                  <span class="pi pi-eye"></span>
+                  View
+                </a>
+                } @case ('Edit') {
+                <a
+                  pRipple
+                  class="p-menu-item-link flex items-center dark:text-zinc-100 dark:hover:bg-zinc-700"
+                  tabindex="0"
+                  role="button"
+                  (click)="openNew(rule)">
+                  <span class="pi pi-pencil"></span>
+                  Edit
+                </a>
+                } @case ('Delete') {
+                <div class="border-t border-gray-200 dark:border-zinc-700"></div>
+                <a
+                  pRipple
+                  class="p-menu-item-link flex items-center !text-red-500 dark:!text-red-400 dark:hover:bg-zinc-700"
+                  tabindex="0"
+                  role="button"
+                  (click)="deleteType(rule)">
+                  <span class="pi pi-trash"></span>
+                  Delete
+                </a>
+                } }
+              </ng-template>
+            </p-menu>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (leaveRules().length === 0) {
+        <tr>
+          <td colspan="4">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="4">
+            <app-table-empty-message
+              icon="pi pi-users"
+              message="No leave rules found"
+              subMessage="Add a new leave rule to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<app-leave-rule-detail-drawer
+  [(visible)]="isShowDetail"
+  [leaveRule]="selectedLeaveRule()" />
+
+<p-confirmDialog
+  acceptButtonStyleClass="p-button-danger" />

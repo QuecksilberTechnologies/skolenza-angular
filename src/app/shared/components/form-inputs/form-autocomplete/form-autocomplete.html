@@ -1,0 +1,28 @@
+<app-form-field-shell
+  #shell
+  [field]="field()"
+  [inputId]="inputId()"
+  [label]="label()"
+  [required]="required()"
+  [hint]="hint()"
+  [hintIcon]="hintIcon()"
+  [submitted]="submitted()">
+  <p-autocomplete
+    class="w-full"
+    inputStyleClass="w-full"
+    appendTo="body"
+    [formField]="$any(field())"
+    [inputId]="inputId()"
+    [suggestions]="suggestions()"
+    [optionLabel]="optionLabel()"
+    [multiple]="multiple()"
+    [dropdown]="dropdown()"
+    [forceSelection]="forceSelection()"
+    [minLength]="minLength()"
+    [delay]="delay()"
+    [emptyMessage]="emptyMessage()"
+    [placeholder]="placeholder() ?? ''"
+    [invalid]="shell.showError()"
+    [pt]="pt()"
+    (completeMethod)="completeMethod.emit($event)" />
+</app-form-field-shell>

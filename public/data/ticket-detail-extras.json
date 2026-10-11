@@ -1,0 +1,118 @@
+{
+  "TIC-001": {
+    "ticketNumber": "#123456",
+    "description": "I am unable to power on my laptop. It was working yesterday, but now nothing shows or lights up when I try to start it. This happened immediately after the OS update yesterday evening.",
+    "createdAt": "2024-06-04T10:15:00",
+    "updatedAt": "2024-06-04T11:45:00",
+    "dueAt": "2024-06-04T18:15:00",
+    "slaTotalHours": 8,
+    "slaRemainingHours": 6,
+    "requesterRole": "Frontend Developer",
+    "assigneeRole": "IT Support Lead",
+    "attachments": [
+      {
+        "id": 1,
+        "fileName": "screenshot.png",
+        "sizeLabel": "284 KB",
+        "uploadedBy": "Alice Doe",
+        "uploadedAt": "2024-06-04T10:15:00"
+      },
+      {
+        "id": 2,
+        "fileName": "steps.pdf",
+        "sizeLabel": "128 KB",
+        "uploadedBy": "Alice Doe",
+        "uploadedAt": "2024-06-04T10:16:00"
+      },
+      {
+        "id": 3,
+        "fileName": "system-logs.zip",
+        "sizeLabel": "1.4 MB",
+        "uploadedBy": "Sam Smith",
+        "uploadedAt": "2024-06-04T11:20:00"
+      }
+    ],
+    "conversations": [
+      {
+        "id": 1,
+        "sender": "Alice Doe",
+        "initial": "A",
+        "role": "requester",
+        "message": "I am facing an issue with my laptop. It won't start at all this morning.",
+        "timestamp": "45 min ago"
+      },
+      {
+        "id": 2,
+        "sender": "Sam Smith",
+        "initial": "S",
+        "role": "agent",
+        "message": "Hi Alice! Sorry to hear that. Can you please tell me if any lights are coming up when you press the power button? Have you tried connecting the charger?",
+        "timestamp": "40 min ago"
+      },
+      {
+        "id": 3,
+        "sender": "Alice Doe",
+        "initial": "A",
+        "role": "requester",
+        "message": "No, there are no lights at all. I've had it plugged into the charger for the last 30 minutes but still nothing.",
+        "timestamp": "35 min ago"
+      },
+      {
+        "id": 4,
+        "sender": "Sam Smith",
+        "initial": "S",
+        "role": "agent",
+        "message": "Understood. Let's try a hard reset. Please disconnect the power adapter, and then press and hold the power button for exactly 30 seconds. After that, plug the power back in and try to start it normally.",
+        "timestamp": "28 min ago"
+      },
+      {
+        "id": 5,
+        "sender": "Alice Doe",
+        "initial": "A",
+        "role": "requester",
+        "message": "I just tried the hard reset as you described. Still no luck. The screen remains black and I don't hear any fan noise.",
+        "timestamp": "20 min ago"
+      },
+      {
+        "id": 6,
+        "sender": "Sam Smith",
+        "initial": "S",
+        "role": "agent",
+        "message": "Okay, thanks for trying that. Since it's a High priority case for the Engineering department, I'll need to inspect the hardware. Are you currently at the main office or working remotely?",
+        "timestamp": "15 min ago"
+      },
+      {
+        "id": 7,
+        "sender": "Alice Doe",
+        "initial": "A",
+        "role": "requester",
+        "message": "I am at the office today. I'm sitting at Desk 42 in the Engineering wing.",
+        "timestamp": "10 min ago"
+      },
+      {
+        "id": 8,
+        "sender": "Sam Smith",
+        "initial": "S",
+        "role": "agent",
+        "message": "Perfect. I'll be there in about 15 minutes with a loaner laptop so you can continue your work while I take yours back to the lab for diagnostics.",
+        "timestamp": "5 min ago"
+      },
+      {
+        "id": 9,
+        "sender": "Alice Doe",
+        "initial": "A",
+        "role": "requester",
+        "message": "That would be great, thank you so much! I have a deployment at 2 PM so the loaner will be a lifesaver.",
+        "timestamp": "2 min ago"
+      },
+      {
+        "id": 10,
+        "sender": "Sam Smith",
+        "initial": "S",
+        "role": "agent",
+        "message": "You're welcome! I'm on my way now. See you shortly.",
+        "timestamp": "Just now"
+      }
+    ]
+  }
+}

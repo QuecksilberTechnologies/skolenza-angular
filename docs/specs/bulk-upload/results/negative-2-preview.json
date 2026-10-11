@@ -1,0 +1,44 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "jobId": "d73b4c0c-974d-4144-ba96-dc3bf40fe5a0",
+    "master": 1,
+    "sourceColumns": ["DepartmentName"],
+    "columnMapping": {
+      "DepartmentName": "DepartmentName"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "processed": false,
+        "rowNumber": 2,
+        "values": {
+          "DepartmentName": "UIQA-20260910-Duplicate"
+        },
+        "status": 3,
+        "existingId": null,
+        "departmentId": null,
+        "errors": ["Duplicate source rows: 2, 3"]
+      },
+      {
+        "processed": false,
+        "rowNumber": 3,
+        "values": {
+          "DepartmentName": "UIQA-20260910-Duplicate"
+        },
+        "status": 3,
+        "existingId": null,
+        "departmentId": null,
+        "errors": ["Duplicate source rows: 2, 3"]
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 0,
+    "invalidCount": 2,
+    "isValid": false,
+    "confirmationAvailable": true,
+    "canCommit": false
+  },
+  "errors": []
+}

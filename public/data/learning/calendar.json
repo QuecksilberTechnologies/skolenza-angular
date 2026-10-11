@@ -1,0 +1,65 @@
+{
+  "isSucceeded": true,
+  "message": "Calendar loaded",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 6,
+  "totalRecords": 6,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "ev1",
+      "title": "Aerodynamics & CFD — Live Workshop",
+      "type": "Live Training",
+      "date": "2026-07-01",
+      "time": "10:00",
+      "host": "Dr. Amelia Hart",
+      "location": "Zoom"
+    },
+    {
+      "id": "ev2",
+      "title": "Avionics Quiz — Module 3 due",
+      "type": "Deadline",
+      "date": "2026-07-02",
+      "time": "23:59",
+      "host": "Avionics Team",
+      "location": "Online"
+    },
+    {
+      "id": "ev3",
+      "title": "Rocket Propulsion Deep-Dive Webinar",
+      "type": "Webinar",
+      "date": "2026-07-04",
+      "time": "15:00",
+      "host": "Omar Haddad",
+      "location": "YouTube Live"
+    },
+    {
+      "id": "ev4",
+      "title": "Spacecraft Design Review Session",
+      "type": "Session",
+      "date": "2026-07-07",
+      "time": "11:30",
+      "host": "David Okoro",
+      "location": "Room 4B"
+    },
+    {
+      "id": "ev5",
+      "title": "Aerodynamics Capstone — submission",
+      "type": "Deadline",
+      "date": "2026-07-10",
+      "time": "18:00",
+      "host": "Dr. Amelia Hart",
+      "location": "Online"
+    },
+    {
+      "id": "ev6",
+      "title": "Intro to Orbital Transfers",
+      "type": "Webinar",
+      "date": "2026-07-12",
+      "time": "14:00",
+      "host": "Elena Petrova",
+      "location": "Zoom"
+    }
+  ]
+}

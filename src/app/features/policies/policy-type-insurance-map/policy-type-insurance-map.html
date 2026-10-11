@@ -1,0 +1,160 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      #dt
+      [value]="policyTypeInsuranceMaps()"
+      [loading]="isLoading()"
+      [showLoader]="false"
+      [lazy]="true"
+      [paginator]="true"
+      [showCurrentPageReport]="true"
+      [rows]="pageSize()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="totalRecords()"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [globalFilterFields]="['insurancePolicyName']"
+      [selectionMode]="'single'"
+      [sortMode]="'single'"
+      [sortOrder]="-1"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '64rem' }"
+      paginatorDropdownAppendTo="body"
+      [(contextMenuSelection)]="selectedRow"
+      [contextMenu]="actionContextMenu"
+      (onLazyLoad)="getPolicyTypeInsuranceMaps($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter  -->
+
+          <!-- Advanced filter -->
+          <!-- <app-table-search-filter [filterCount]="0" /> -->
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input [debounceMs]="0" (searchTerm)="searchPolicyTypeInsuranceMap(dt, $event)" />
+            @if (((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2) {
+            <p-button
+              label="Add Policy Mapping"
+              icon="pi pi-plus"
+              class="w-full lg:w-auto"
+              styleClass="w-full lg:w-auto"
+              (click)="upsertPolicyTypeInsuranceMap()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th
+            pSortableColumn="insurancePolicyName"
+            class="w-52">
+            <div class="flex items-center gap-2 truncate">
+              Insurance Policy Name
+              <p-sortIcon field="insurancePolicyName" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="insurancePolicyNumber"
+            class="w-40">
+            <div class="flex items-center gap-2 truncate">
+              Insurance Policy Number
+              <p-sortIcon field="insurancePolicyNumber" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="providerName"
+            class="w-52">
+            <div class="flex items-center gap-2 truncate">
+              Provider Name
+              <p-sortIcon field="providerName" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="policyName"
+            class="w-52">
+            <div class="flex items-center gap-2 truncate">
+              Policy Name
+              <p-sortIcon field="policyName" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="isActive"
+            class="w-64">
+            <div class="flex items-center gap-2 truncate">
+              Status
+              <p-sortIcon field="isActive" />
+            </div>
+          </th>
+          <th class="w-52">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-policyTypeInsuranceMap>
+        <tr [pContextMenuRow]="policyTypeInsuranceMap">
+          <td>
+            <div class="w-52 truncate">{{ policyTypeInsuranceMap.insurancePolicyName }}</div>
+          </td>
+          <td>
+            <div class="w-40 truncate">{{ policyTypeInsuranceMap.insurancePolicyNumber }}</div>
+          </td>
+          <td>
+            <div class="w-52 truncate">{{ policyTypeInsuranceMap.providerName || '-' }}</div>
+          </td>
+          <td>
+            <div class="w-52 truncate">{{ policyTypeInsuranceMap.policyName || '-' }}</div>
+          </td>
+          <td>
+            <p-tag
+              [value]="policyTypeInsuranceMap.isActive ? 'Active' : 'Inactive'"
+              [severity]="policyTypeInsuranceMap.isActive ? 'success' : 'danger'" />
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <p-button
+                class="text-xl!"
+                type="button"
+                icon="pi pi-ellipsis-h"
+                [rounded]="false"
+                severity="secondary"
+                [disabled]="!policyTypeInsuranceMap?.id"
+                (onClick)="selectedRow = policyTypeInsuranceMap; actionMenu.toggle($event)" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (policyTypeInsuranceMaps().length === 0) {
+        <tr>
+          <td colspan="6">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">
+            <app-table-empty-message
+              icon="pi pi-shield"
+              message="No policy mappings found"
+              subMessage="Create a new policy mapping to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems"
+  appendTo="body" />
+<p-confirmDialog />

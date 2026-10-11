@@ -1,0 +1,202 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.filteredHostRoles()"
+      [loading]="store.isLoading()"
+      [showLoader]="false"
+      [paginator]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} roles"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [style]="{ background: 'transparent' }"
+      [globalFilterFields]="['name', 'description']"
+      [selectionMode]="'single'"
+      [sortMode]="'single'"
+      [sortOrder]="-1"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '64rem' }"
+      paginatorDropdownAppendTo="body"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter -->
+          <p-select
+            [options]="statusOptions"
+            optionLabel="status"
+            optionValue="value"
+            placeholder="Select Status"
+            ariaLabel="Filter by status"
+            [appendTo]="'body'"
+            class="w-full min-w-52"
+            [ngModel]="store.statusFilter()"
+            (onChange)="onStatusChange($event.value)" />
+
+          <!-- Advance filter -->
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input [debounceMs]="0" (searchTerm)="searchRoles(dt, $event)" />
+            @if (permissionsStore.canPerform(moduleKey, 'Add')) {
+              <p-button
+                label="Add Role"
+                icon="pi pi-plus"
+                (onClick)="createEditHostRole()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #colgroup>
+        <colgroup>
+          <col style="width: 16rem" />
+          <col style="width: 24rem" />
+          <col style="width: 11rem" />
+          <col style="width: 9rem" />
+          <col style="width: 9rem" />
+        </colgroup>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th
+            pSortableColumn="name"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              Name
+              <p-sortIcon field="name" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="description"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              Description
+              <p-sortIcon field="description" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="addedDateTime"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              Added
+              <p-sortIcon field="addedDateTime" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="isActive"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              Status
+              <p-sortIcon field="isActive" />
+            </div>
+          </th>
+          @if (canUseRowActions()) {
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex justify-center">Actions</div>
+          </th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-hostRole>
+        <tr
+          [pContextMenuRow]="hostRole"
+          [pContextMenuRowDisabled]="!hasRowActions(hostRole)">
+          <td class="!px-3 !py-2.5 align-middle">
+            <div class="flex items-center gap-2 truncate">
+              <i
+                class="pi pi-shield text-zinc-400"
+                aria-hidden="true"></i>
+              {{ hostRole.name }}
+            </div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle">
+            <div
+              class="truncate"
+              [pTooltip]="hostRole.description || '-'"
+              tooltipPosition="bottom">
+              {{ hostRole.description || '-' }}
+            </div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            {{ hostRole.addedDateTime | date: 'mediumDate' }}
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <p-tag
+              [value]="hostRole.isActive ? 'Active' : 'Inactive'"
+              [severity]="hostRole.isActive ? 'success' : 'danger'" />
+          </td>
+          @if (canUseRowActions()) {
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="flex justify-center gap-2">
+              @if (permissionsStore.canPerform(moduleKey, 'Update')) {
+              <p-button
+                class="text-xl!"
+                [disabled]="store.isOwnRole(hostRole)"
+                [icon]="hostRole.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                [severity]="hostRole.isActive ? 'success' : 'danger'"
+                [pTooltip]="
+                  store.isOwnRole(hostRole)
+                    ? 'You cannot change the status of your own role.'
+                    : hostRole.isActive
+                      ? 'Deactivate'
+                      : 'Activate'
+                "
+                tooltipPosition="left"
+                [showDelay]="300"
+                [loading]="hostRole.isUpdatingStatus"
+                [ariaLabel]="(hostRole.isActive ? 'Deactivate ' : 'Activate ') + hostRole.name"
+                (onClick)="toggleActive(hostRole)" />
+              }
+
+              @if (hasRowActions(hostRole)) {
+              <app-table-action-button
+                [ariaLabel]="'Actions for ' + hostRole.name"
+                (action)="selectedRow.set(hostRole); actionMenu.toggle($event)" />
+              }
+            </div>
+          </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (store.filteredHostRoles().length === 0) {
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            <app-table-empty-message
+              icon="pi pi-shield"
+              message="No host roles found"
+              subMessage="Add a new host role to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+
+<p-confirmDialog />

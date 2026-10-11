@@ -1,0 +1,46 @@
+<form
+  (submit)="onSubmit(); $event.preventDefault()"
+  class="flex w-full flex-col gap-4">
+  <app-form-text
+    label="Name"
+    inputId="typeName"
+    placeholder="e.g. Contractor"
+    required
+    autofocus
+    [field]="f.typeName"
+    [submitted]="submitted()" />
+
+  <app-form-textarea
+    label="Description"
+    inputId="description"
+    placeholder="What this staffMember type covers"
+    [rows]="3"
+    [field]="f.description"
+    [submitted]="submitted()" />
+
+  <app-form-select
+    label="Status"
+    inputId="isActive"
+    required
+    [field]="f.isActive"
+    [options]="statusOptions"
+    optionLabel="status"
+    optionValue="value"
+    [submitted]="submitted()" />
+
+  <app-form-textarea
+    label="Remark"
+    inputId="remark"
+    placeholder="Any additional notes"
+    [rows]="3"
+    [field]="f.remark"
+    [submitted]="submitted()" />
+
+  <app-form-action-bar
+    dialog
+    [submitLabel]="staffEmploymentType ? 'Save changes' : 'Add staffMember type'"
+    [saving]="isSaving()"
+    [disabled]="isSaving()"
+    [errorMessage]="submitted() && f().invalid() ? 'Fix the highlighted fields before saving.' : ''"
+    (cancelled)="onCancel()" />
+</form>

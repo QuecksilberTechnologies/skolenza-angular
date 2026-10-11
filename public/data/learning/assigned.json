@@ -1,0 +1,71 @@
+{
+  "isSucceeded": true,
+  "message": "Assigned courses loaded",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 5,
+  "totalRecords": 5,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "as1",
+      "courseId": "c-sec",
+      "title": "Avionics & Flight Control Systems",
+      "assignedBy": "Ravi Kumar (Avionics Lead)",
+      "assignedDate": "2026-06-10",
+      "dueDate": "2026-07-05",
+      "priority": "High",
+      "progress": 40,
+      "status": "InProgress",
+      "mandatory": true
+    },
+    {
+      "id": "as2",
+      "courseId": "c-comm",
+      "title": "Flight Dynamics & Stability",
+      "assignedBy": "Grace Bennett (Flight Test)",
+      "assignedDate": "2026-06-01",
+      "dueDate": "2026-06-20",
+      "priority": "Medium",
+      "progress": 0,
+      "status": "NotStarted",
+      "mandatory": false
+    },
+    {
+      "id": "as3",
+      "courseId": "c-ng",
+      "title": "Fundamentals of Aerodynamics",
+      "assignedBy": "Dr. Amelia Hart (Aero Lead)",
+      "assignedDate": "2026-06-15",
+      "dueDate": "2026-07-15",
+      "priority": "High",
+      "progress": 65,
+      "status": "InProgress",
+      "mandatory": true
+    },
+    {
+      "id": "as4",
+      "courseId": "c-cloud",
+      "title": "Rocket Propulsion & Launch Systems",
+      "assignedBy": "Omar Haddad (Propulsion)",
+      "assignedDate": "2026-06-20",
+      "dueDate": "2026-07-20",
+      "priority": "Low",
+      "progress": 45,
+      "status": "InProgress",
+      "mandatory": false
+    },
+    {
+      "id": "as5",
+      "courseId": "c-data",
+      "title": "Orbital Mechanics & Astrodynamics",
+      "assignedBy": "Elena Petrova (Astrodynamics)",
+      "assignedDate": "2026-05-12",
+      "dueDate": "2026-05-30",
+      "priority": "Medium",
+      "progress": 100,
+      "status": "Completed",
+      "mandatory": true
+    }
+  ]
+}

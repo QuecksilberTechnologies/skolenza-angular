@@ -1,0 +1,3 @@
+RowNumber,Status,RecordId,Values,Errors
+2,Created,9,"{""Remark"":""Development acceptance"",""IsActive"":""true"",""TypeName"":""UIQA-20260910-Contract"",""Description"":""Development contract type""}",""
+3,Created,10,"{""Remark"":""Development acceptance"",""IsActive"":""true"",""TypeName"":""UIQA-20260910-Intern"",""Description"":""Development intern type""}",""

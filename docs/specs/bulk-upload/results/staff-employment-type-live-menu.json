@@ -1,0 +1,35 @@
+{
+  "id": 79,
+  "moduleCode": "INSTITUTION_STAFF_TYPES",
+  "moduleName": "StaffMember-Types",
+  "pageName": "institution-staff-employment-types",
+  "displayName": "StaffMember Types",
+  "urlPath": "/staff-employment-types",
+  "iconKey": null,
+  "parentModuleId": 3,
+  "isLeafNode": true,
+  "moduleScope": 1,
+  "operations": [
+    {
+      "id": 1,
+      "name": "Add",
+      "iconKey": "plus-circle"
+    },
+    {
+      "id": 3,
+      "name": "Delete",
+      "iconKey": "trash3"
+    },
+    {
+      "id": 2,
+      "name": "Update",
+      "iconKey": "pencil-square"
+    },
+    {
+      "id": 4,
+      "name": "View",
+      "iconKey": "eye"
+    }
+  ],
+  "children": []
+}

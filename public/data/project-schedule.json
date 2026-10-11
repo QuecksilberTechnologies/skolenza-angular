@@ -1,0 +1,711 @@
+{
+  "isSucceeded": true,
+  "message": "Schedule retrieved successfully.",
+  "errors": [],
+  "pageNumber": 1,
+  "pageSize": 76,
+  "totalRecords": 76,
+  "totalPages": 1,
+  "data": [
+    {
+      "id": "SCH-11",
+      "title": "Sprint 1 Planning",
+      "type": "sprint",
+      "start": "2026-01-05T09:00:00.000Z",
+      "end": "2026-01-05T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "description": "Kick off the first sprint of the year.",
+      "reminder": "2026-01-05T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-12",
+      "title": "Design system audit",
+      "type": "review",
+      "start": "2026-01-09T14:00:00.000Z",
+      "end": "2026-01-09T15:30:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-02",
+      "description": "Review component library consistency."
+    },
+    {
+      "id": "SCH-13",
+      "title": "Product roadmap kickoff",
+      "type": "milestone",
+      "start": "2026-01-12T00:00:00.000Z",
+      "allDay": true,
+      "description": "2026 roadmap officially begins."
+    },
+    {
+      "id": "SCH-14",
+      "title": "Stakeholder alignment",
+      "type": "meeting",
+      "start": "2026-01-16T10:00:00.000Z",
+      "end": "2026-01-16T11:00:00.000Z",
+      "allDay": false,
+      "location": "Conference Room A",
+      "reminder": "2026-01-16T09:30:00.000Z"
+    },
+    {
+      "id": "SCH-15",
+      "title": "Wireframe submission due",
+      "type": "deadline",
+      "start": "2026-01-22T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-01",
+      "description": "Initial wireframes must be delivered."
+    },
+    {
+      "id": "SCH-16",
+      "title": "Release v1.0",
+      "type": "release",
+      "start": "2026-01-28T09:00:00.000Z",
+      "end": "2026-01-28T12:00:00.000Z",
+      "allDay": false,
+      "description": "First production deployment of the year."
+    },
+
+    {
+      "id": "SCH-17",
+      "title": "Sprint 2 Planning",
+      "type": "sprint",
+      "start": "2026-02-02T09:00:00.000Z",
+      "end": "2026-02-02T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "reminder": "2026-02-02T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-18",
+      "title": "Onboarding flow review",
+      "type": "review",
+      "start": "2026-02-06T13:00:00.000Z",
+      "end": "2026-02-06T14:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-04"
+    },
+    {
+      "id": "SCH-19",
+      "title": "Team weekly sync",
+      "type": "meeting",
+      "start": "2026-02-11T09:30:00.000Z",
+      "end": "2026-02-11T10:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom"
+    },
+    {
+      "id": "SCH-20",
+      "title": "Alpha build milestone",
+      "type": "milestone",
+      "start": "2026-02-16T00:00:00.000Z",
+      "allDay": true,
+      "description": "Alpha feature set complete."
+    },
+    {
+      "id": "SCH-21",
+      "title": "Security scan deadline",
+      "type": "deadline",
+      "start": "2026-02-20T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-09",
+      "description": "Static analysis must pass."
+    },
+    {
+      "id": "SCH-22",
+      "title": "Release v1.1",
+      "type": "release",
+      "start": "2026-02-25T09:00:00.000Z",
+      "end": "2026-02-25T12:00:00.000Z",
+      "allDay": false,
+      "description": "Patch and stability release."
+    },
+
+    {
+      "id": "SCH-23",
+      "title": "Sprint 3 Planning",
+      "type": "sprint",
+      "start": "2026-03-03T09:00:00.000Z",
+      "end": "2026-03-03T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "reminder": "2026-03-03T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-24",
+      "title": "API contract review",
+      "type": "review",
+      "start": "2026-03-09T14:00:00.000Z",
+      "end": "2026-03-09T15:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-04"
+    },
+    {
+      "id": "SCH-25",
+      "title": "Client demo meeting",
+      "type": "meeting",
+      "start": "2026-03-13T10:00:00.000Z",
+      "end": "2026-03-13T11:00:00.000Z",
+      "allDay": false,
+      "location": "Conference Room A",
+      "reminder": "2026-03-13T09:30:00.000Z"
+    },
+    {
+      "id": "SCH-26",
+      "title": "Beta launch milestone",
+      "type": "milestone",
+      "start": "2026-03-18T00:00:00.000Z",
+      "allDay": true,
+      "description": "Beta released to test group."
+    },
+    {
+      "id": "SCH-27",
+      "title": "Content freeze deadline",
+      "type": "deadline",
+      "start": "2026-03-24T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-02"
+    },
+    {
+      "id": "SCH-28",
+      "title": "Release v1.2",
+      "type": "release",
+      "start": "2026-03-30T09:00:00.000Z",
+      "end": "2026-03-30T12:00:00.000Z",
+      "allDay": false,
+      "description": "Beta feedback fixes shipped."
+    },
+
+    {
+      "id": "SCH-29",
+      "title": "Sprint 4 Planning",
+      "type": "sprint",
+      "start": "2026-04-06T09:00:00.000Z",
+      "end": "2026-04-06T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "reminder": "2026-04-06T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-30",
+      "title": "Performance review",
+      "type": "review",
+      "start": "2026-04-10T13:00:00.000Z",
+      "end": "2026-04-10T14:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-09",
+      "description": "Load-test results walkthrough."
+    },
+    {
+      "id": "SCH-31",
+      "title": "Quarterly planning",
+      "type": "meeting",
+      "start": "2026-04-15T10:00:00.000Z",
+      "end": "2026-04-15T12:00:00.000Z",
+      "allDay": false,
+      "location": "Conference Room B",
+      "reminder": "2026-04-15T09:30:00.000Z"
+    },
+    {
+      "id": "SCH-32",
+      "title": "Q2 kickoff milestone",
+      "type": "milestone",
+      "start": "2026-04-20T00:00:00.000Z",
+      "allDay": true,
+      "description": "Start of Q2 roadmap."
+    },
+    {
+      "id": "SCH-33",
+      "title": "Localization deadline",
+      "type": "deadline",
+      "start": "2026-04-24T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-01"
+    },
+    {
+      "id": "SCH-34",
+      "title": "Release v2.0",
+      "type": "release",
+      "start": "2026-04-29T09:00:00.000Z",
+      "end": "2026-04-29T12:00:00.000Z",
+      "allDay": false,
+      "description": "Major version launch."
+    },
+
+    {
+      "id": "SCH-35",
+      "title": "Sprint 5 Planning",
+      "type": "sprint",
+      "start": "2026-05-04T09:00:00.000Z",
+      "end": "2026-05-04T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "reminder": "2026-05-04T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-36",
+      "title": "Accessibility review",
+      "type": "review",
+      "start": "2026-05-08T13:00:00.000Z",
+      "end": "2026-05-08T14:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-09"
+    },
+    {
+      "id": "SCH-37",
+      "title": "Team weekly sync",
+      "type": "meeting",
+      "start": "2026-05-13T09:30:00.000Z",
+      "end": "2026-05-13T10:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom"
+    },
+    {
+      "id": "SCH-38",
+      "title": "Feature complete milestone",
+      "type": "milestone",
+      "start": "2026-05-18T00:00:00.000Z",
+      "allDay": true,
+      "description": "All v2 features merged."
+    },
+    {
+      "id": "SCH-39",
+      "title": "QA sign-off deadline",
+      "type": "deadline",
+      "start": "2026-05-22T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-04",
+      "description": "Regression suite must be green."
+    },
+    {
+      "id": "SCH-40",
+      "title": "Release v2.0.1",
+      "type": "release",
+      "start": "2026-05-28T09:00:00.000Z",
+      "end": "2026-05-28T12:00:00.000Z",
+      "allDay": false,
+      "description": "Hotfix release."
+    },
+
+    {
+      "id": "SCH-41",
+      "title": "Sprint 6 Planning",
+      "type": "sprint",
+      "start": "2026-06-01T09:00:00.000Z",
+      "end": "2026-06-01T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "reminder": "2026-06-01T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-42",
+      "title": "Code architecture review",
+      "type": "review",
+      "start": "2026-06-05T14:00:00.000Z",
+      "end": "2026-06-05T15:30:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-02"
+    },
+    {
+      "id": "SCH-43",
+      "title": "Mid-year review meeting",
+      "type": "meeting",
+      "start": "2026-06-10T10:00:00.000Z",
+      "end": "2026-06-10T11:30:00.000Z",
+      "allDay": false,
+      "location": "Conference Room A",
+      "reminder": "2026-06-10T09:30:00.000Z"
+    },
+    {
+      "id": "SCH-44",
+      "title": "Scalability milestone",
+      "type": "milestone",
+      "start": "2026-06-15T00:00:00.000Z",
+      "allDay": true,
+      "description": "Infrastructure scale targets met."
+    },
+    {
+      "id": "SCH-45",
+      "title": "Docs completion deadline",
+      "type": "deadline",
+      "start": "2026-06-19T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-01"
+    },
+    {
+      "id": "SCH-46",
+      "title": "Release v2.0.2",
+      "type": "release",
+      "start": "2026-06-26T09:00:00.000Z",
+      "end": "2026-06-26T12:00:00.000Z",
+      "allDay": false,
+      "description": "Performance patch."
+    },
+
+    {
+      "id": "SCH-01",
+      "title": "Sprint 13 Planning",
+      "type": "sprint",
+      "start": "2026-07-06T09:00:00.000Z",
+      "end": "2026-07-06T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "description": "Plan the next sprint backlog.",
+      "reminder": "2026-07-06T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-02",
+      "title": "Auth module code review",
+      "type": "review",
+      "start": "2026-07-07T14:00:00.000Z",
+      "end": "2026-07-07T15:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-01",
+      "description": "Review authentication PR."
+    },
+    {
+      "id": "SCH-03",
+      "title": "Beta feature freeze",
+      "type": "milestone",
+      "start": "2026-07-10T00:00:00.000Z",
+      "allDay": true,
+      "description": "No new features after this date."
+    },
+    {
+      "id": "SCH-04",
+      "title": "Client demo meeting",
+      "type": "meeting",
+      "start": "2026-07-09T10:00:00.000Z",
+      "end": "2026-07-09T11:00:00.000Z",
+      "allDay": false,
+      "location": "Conference Room A",
+      "reminder": "2026-07-09T09:30:00.000Z"
+    },
+    {
+      "id": "SCH-05",
+      "title": "API tests due",
+      "type": "deadline",
+      "start": "2026-07-06T12:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-04",
+      "description": "Integration tests must be merged."
+    },
+    {
+      "id": "SCH-06",
+      "title": "Release v2.1",
+      "type": "release",
+      "start": "2026-07-15T09:00:00.000Z",
+      "end": "2026-07-15T12:00:00.000Z",
+      "allDay": false,
+      "description": "Production deployment window."
+    },
+    {
+      "id": "SCH-07",
+      "title": "Accessibility review sign-off",
+      "type": "review",
+      "start": "2026-07-08T13:00:00.000Z",
+      "end": "2026-07-08T14:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-09"
+    },
+    {
+      "id": "SCH-08",
+      "title": "Design handoff deadline",
+      "type": "deadline",
+      "start": "2026-07-15T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-02"
+    },
+    {
+      "id": "SCH-09",
+      "title": "Team weekly sync",
+      "type": "meeting",
+      "start": "2026-07-13T09:30:00.000Z",
+      "end": "2026-07-13T10:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom"
+    },
+    {
+      "id": "SCH-10",
+      "title": "Q3 kickoff milestone",
+      "type": "milestone",
+      "start": "2026-07-20T00:00:00.000Z",
+      "allDay": true,
+      "description": "Start of Q3 roadmap."
+    },
+
+    {
+      "id": "SCH-47",
+      "title": "Sprint 14 Planning",
+      "type": "sprint",
+      "start": "2026-08-03T09:00:00.000Z",
+      "end": "2026-08-03T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "reminder": "2026-08-03T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-48",
+      "title": "Dashboard UI review",
+      "type": "review",
+      "start": "2026-08-07T14:00:00.000Z",
+      "end": "2026-08-07T15:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-02"
+    },
+    {
+      "id": "SCH-49",
+      "title": "Partner sync meeting",
+      "type": "meeting",
+      "start": "2026-08-12T10:00:00.000Z",
+      "end": "2026-08-12T11:00:00.000Z",
+      "allDay": false,
+      "location": "Conference Room B",
+      "reminder": "2026-08-12T09:30:00.000Z"
+    },
+    {
+      "id": "SCH-50",
+      "title": "Analytics milestone",
+      "type": "milestone",
+      "start": "2026-08-17T00:00:00.000Z",
+      "allDay": true,
+      "description": "Reporting module live."
+    },
+    {
+      "id": "SCH-51",
+      "title": "Penetration test deadline",
+      "type": "deadline",
+      "start": "2026-08-21T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-09"
+    },
+    {
+      "id": "SCH-52",
+      "title": "Release v2.2",
+      "type": "release",
+      "start": "2026-08-27T09:00:00.000Z",
+      "end": "2026-08-27T12:00:00.000Z",
+      "allDay": false,
+      "description": "Analytics feature release."
+    },
+
+    {
+      "id": "SCH-53",
+      "title": "Sprint 15 Planning",
+      "type": "sprint",
+      "start": "2026-09-07T09:00:00.000Z",
+      "end": "2026-09-07T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "reminder": "2026-09-07T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-54",
+      "title": "Payment flow review",
+      "type": "review",
+      "start": "2026-09-11T13:00:00.000Z",
+      "end": "2026-09-11T14:30:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-04"
+    },
+    {
+      "id": "SCH-55",
+      "title": "Team weekly sync",
+      "type": "meeting",
+      "start": "2026-09-15T09:30:00.000Z",
+      "end": "2026-09-15T10:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom"
+    },
+    {
+      "id": "SCH-56",
+      "title": "Billing module milestone",
+      "type": "milestone",
+      "start": "2026-09-18T00:00:00.000Z",
+      "allDay": true,
+      "description": "Subscription billing complete."
+    },
+    {
+      "id": "SCH-57",
+      "title": "Compliance sign-off deadline",
+      "type": "deadline",
+      "start": "2026-09-24T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-01"
+    },
+    {
+      "id": "SCH-58",
+      "title": "Release v2.3",
+      "type": "release",
+      "start": "2026-09-29T09:00:00.000Z",
+      "end": "2026-09-29T12:00:00.000Z",
+      "allDay": false,
+      "description": "Billing feature release."
+    },
+
+    {
+      "id": "SCH-59",
+      "title": "Sprint 16 Planning",
+      "type": "sprint",
+      "start": "2026-10-05T09:00:00.000Z",
+      "end": "2026-10-05T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "reminder": "2026-10-05T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-60",
+      "title": "Mobile responsiveness review",
+      "type": "review",
+      "start": "2026-10-09T14:00:00.000Z",
+      "end": "2026-10-09T15:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-02"
+    },
+    {
+      "id": "SCH-61",
+      "title": "Q4 kickoff meeting",
+      "type": "meeting",
+      "start": "2026-10-14T10:00:00.000Z",
+      "end": "2026-10-14T11:30:00.000Z",
+      "allDay": false,
+      "location": "Conference Room A",
+      "reminder": "2026-10-14T09:30:00.000Z"
+    },
+    {
+      "id": "SCH-62",
+      "title": "Q4 roadmap milestone",
+      "type": "milestone",
+      "start": "2026-10-19T00:00:00.000Z",
+      "allDay": true,
+      "description": "Start of Q4 roadmap."
+    },
+    {
+      "id": "SCH-63",
+      "title": "Beta signup deadline",
+      "type": "deadline",
+      "start": "2026-10-23T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-04"
+    },
+    {
+      "id": "SCH-64",
+      "title": "Release v2.4",
+      "type": "release",
+      "start": "2026-10-29T09:00:00.000Z",
+      "end": "2026-10-29T12:00:00.000Z",
+      "allDay": false,
+      "description": "Mobile improvements release."
+    },
+
+    {
+      "id": "SCH-65",
+      "title": "Sprint 17 Planning",
+      "type": "sprint",
+      "start": "2026-11-02T09:00:00.000Z",
+      "end": "2026-11-02T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "reminder": "2026-11-02T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-66",
+      "title": "Notification system review",
+      "type": "review",
+      "start": "2026-11-06T13:00:00.000Z",
+      "end": "2026-11-06T14:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-09"
+    },
+    {
+      "id": "SCH-67",
+      "title": "Vendor review meeting",
+      "type": "meeting",
+      "start": "2026-11-11T10:00:00.000Z",
+      "end": "2026-11-11T11:00:00.000Z",
+      "allDay": false,
+      "location": "Conference Room B",
+      "reminder": "2026-11-11T09:30:00.000Z"
+    },
+    {
+      "id": "SCH-68",
+      "title": "Notifications milestone",
+      "type": "milestone",
+      "start": "2026-11-16T00:00:00.000Z",
+      "allDay": true,
+      "description": "Push and email notifications live."
+    },
+    {
+      "id": "SCH-69",
+      "title": "Load test deadline",
+      "type": "deadline",
+      "start": "2026-11-20T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-04",
+      "description": "Peak-traffic simulation must pass."
+    },
+    {
+      "id": "SCH-70",
+      "title": "Release v2.5",
+      "type": "release",
+      "start": "2026-11-26T09:00:00.000Z",
+      "end": "2026-11-26T12:00:00.000Z",
+      "allDay": false,
+      "description": "Notifications feature release."
+    },
+
+    {
+      "id": "SCH-71",
+      "title": "Sprint 18 Planning",
+      "type": "sprint",
+      "start": "2026-12-07T09:00:00.000Z",
+      "end": "2026-12-07T11:00:00.000Z",
+      "allDay": false,
+      "location": "Zoom",
+      "reminder": "2026-12-07T08:30:00.000Z"
+    },
+    {
+      "id": "SCH-72",
+      "title": "Year-end code review",
+      "type": "review",
+      "start": "2026-12-10T14:00:00.000Z",
+      "end": "2026-12-10T15:30:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-02"
+    },
+    {
+      "id": "SCH-73",
+      "title": "Retrospective meeting",
+      "type": "meeting",
+      "start": "2026-12-15T10:00:00.000Z",
+      "end": "2026-12-15T11:30:00.000Z",
+      "allDay": false,
+      "location": "Conference Room A",
+      "reminder": "2026-12-15T09:30:00.000Z"
+    },
+    {
+      "id": "SCH-74",
+      "title": "Annual release milestone",
+      "type": "milestone",
+      "start": "2026-12-18T00:00:00.000Z",
+      "allDay": true,
+      "description": "2026 goals delivered."
+    },
+    {
+      "id": "SCH-75",
+      "title": "Feature freeze deadline",
+      "type": "deadline",
+      "start": "2026-12-23T17:00:00.000Z",
+      "allDay": false,
+      "linkedTaskId": "PT-01"
+    },
+    {
+      "id": "SCH-76",
+      "title": "Release v3.0",
+      "type": "release",
+      "start": "2026-12-30T09:00:00.000Z",
+      "end": "2026-12-30T12:00:00.000Z",
+      "allDay": false,
+      "description": "Major year-end release."
+    }
+  ]
+}

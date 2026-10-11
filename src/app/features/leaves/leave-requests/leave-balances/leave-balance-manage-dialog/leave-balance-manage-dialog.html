@@ -1,0 +1,158 @@
+<form
+  [formGroup]="leaveBalanceForm"
+  (ngSubmit)="onSubmit()"
+  class="grid grid-cols-1 gap-4">
+  <div class="space-y-1">
+    <label
+      for="staffMember"
+      class="block font-medium">
+      StaffMember
+      <span
+        class="text-red-600 dark:text-red-400"
+        aria-hidden="true">
+        *
+      </span>
+    </label>
+    <p-select
+      id="staffMember"
+      formControlName="staffMember"
+      [invalid]="isInvalid('staffMember')"
+      [options]="staffMembers()"
+      optionValue="employementCode"
+      placeholder="Select staffMember"
+      [appendTo]="'body'"
+      [loading]="isLoading()"
+      class="w-full">
+      <ng-template
+        #selectedItem
+        let-selectedOption>
+        @if (selectedOption) {
+        <div class="flex items-center gap-2">
+          <app-user-avatar size="large" [name]="selectedOption.firstName" avatarClass="h-6! w-6! text-base!" />
+          <div>{{ selectedOption.firstName }} {{ selectedOption.lastName }}</div>
+        </div>
+        }
+      </ng-template>
+      <ng-template
+        let-staffMember
+        #item>
+        @if (staffMember.firstName) {
+        <div class="flex items-center gap-2">
+          <app-user-avatar size="large" [name]="staffMember.firstName" avatarClass="h-8! w-8! text-base!" />
+          <div>{{ staffMember.firstName }} {{ staffMember.lastName }}</div>
+        </div>
+        }
+      </ng-template>
+    </p-select>
+    @if (leaveBalanceForm.get('staffMember')?.invalid && leaveBalanceForm.get('staffMember')?.touched) { @if
+    (leaveBalanceForm.get('staffMember')?.errors?.['required']) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      StaffMember name is required.
+    </p-message>
+    } @else if (leaveBalanceForm.get('staffMember')?.errors?.['minlength']) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      StaffMember name must be at least 3 characters.
+    </p-message>
+    } }
+  </div>
+
+  <div class="space-y-1">
+    <label
+      for="vacation"
+      class="block font-medium">
+      Vacation
+    </label>
+    <p-inputnumber
+      formControlName="vacation"
+      mode="decimal"
+      inputId="vacation"
+      [useGrouping]="false"
+      [showButtons]="true"
+      [maxlength]="2"
+      class="w-full" />
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <div class="space-y-1">
+      <label
+        for="sick"
+        class="block font-medium">
+        Sick
+      </label>
+      <p-inputnumber
+        formControlName="sick"
+        mode="decimal"
+        inputId="sick"
+        [useGrouping]="false"
+        [showButtons]="true"
+        [maxlength]="2"
+        class="w-full" />
+    </div>
+    <div class="space-y-1">
+      <label
+        for="personal"
+        class="block font-medium">
+        Personal
+      </label>
+      <p-inputnumber
+        formControlName="personal"
+        mode="decimal"
+        inputId="personal"
+        [useGrouping]="false"
+        [showButtons]="true"
+        [maxlength]="2"
+        class="w-full" />
+    </div>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <div class="space-y-1">
+      <label
+        for="maternity"
+        class="block font-medium">
+        Maternity
+      </label>
+      <p-inputnumber
+        formControlName="maternity"
+        mode="decimal"
+        inputId="maternity"
+        [useGrouping]="false"
+        [showButtons]="true"
+        [maxlength]="2"
+        class="w-full" />
+    </div>
+    <div class="space-y-1">
+      <label
+        for="paternity"
+        class="block font-medium">
+        Paternity
+      </label>
+      <p-inputnumber
+        formControlName="paternity"
+        mode="decimal"
+        inputId="paternity"
+        [useGrouping]="false"
+        [showButtons]="true"
+        [maxlength]="2"
+        class="w-full" />
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isSubmitting() ? 'Saving...' : 'Save'"
+      [loading]="isSubmitting()"
+      [disabled]="leaveBalanceForm.invalid || isSubmitting()" />
+  </div>
+</form>

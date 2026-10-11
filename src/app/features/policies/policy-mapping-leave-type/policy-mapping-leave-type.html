@@ -1,0 +1,118 @@
+<p-card class="m-3 overflow-x-auto sm:m-4">
+  <p-table
+    [value]="policyMappingLeaveTypes()"
+    [loading]="isLoadingTypes()"
+    [showLoader]="false"
+    [paginator]="true"
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [scrollable]="true"
+    scrollDirection="horizontal"
+    [tableStyle]="{ 'min-width': '64rem' }"
+    paginatorDropdownAppendTo="body">
+    <ng-template #caption>
+      <app-table-inline-filters>
+        <app-table-search-filter [filterCount]="0" />
+        <div
+          ngProjectAs="right"
+          class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+          <p-button
+            label="Map Policy Leave Type"
+            icon="pi pi-plus"
+            class="w-full lg:w-auto"
+            styleClass="w-full lg:w-auto"
+            (onClick)="openNew()" />
+        </div>
+      </app-table-inline-filters>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th class="min-w-40">Policy Type</th>
+        <th>Leave Type</th>
+        <th>Total Leaves Per Year</th>
+        <th>Applicable Gender</th>
+        <th>Married Applicable</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template
+      #body
+      let-item>
+      <tr>
+        <td>
+          <div class="flex items-center gap-2">{{ item.policyTypeName || '-' }}</div>
+        </td>
+        <td>{{ item.leaveTypeName || '-' }}</td>
+        <td>{{ item.totalLeavesPerYear || '-' }}</td>
+        <td>{{ item.applicableGenderId || '-' }}</td>
+        <td>{{ item.isMarriedApplicable || '-' }}</td>
+        <td>
+          <p-button
+            type="button"
+            icon="pi pi-ellipsis-h"
+            [rounded]="true"
+            [variant]="'text'"
+            severity="secondary"
+            styleClass="dark:!text-zinc-100"
+            (click)="menu.toggle($event)" />
+          <p-menu
+            #menu
+            [model]="actionItems"
+            [popup]="true"
+            appendTo="body">
+            <ng-template
+              #item
+              let-action>
+              @switch (action.label) { @case ('Edit') {
+              <a
+                pRipple
+                class="p-menu-item-link flex items-center dark:text-zinc-100 dark:hover:bg-zinc-700"
+                tabindex="0"
+                role="button"
+                (click)="openNew(item)">
+                <span class="pi pi-pencil"></span>
+                Edit
+              </a>
+              } @case ('Delete') {
+              <div class="border-t border-gray-200 dark:border-zinc-700"></div>
+              <a
+                pRipple
+                class="p-menu-item-link flex items-center !text-red-500 dark:!text-red-400 dark:hover:bg-zinc-700"
+                tabindex="0"
+                role="button"
+                (click)="deleteType(item)">
+                <span class="pi pi-trash"></span>
+                Delete
+              </a>
+              } }
+            </ng-template>
+          </p-menu>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #loadingbody>
+      @if (policyMappingLeaveTypes().length === 0) {
+      <tr>
+        <td colspan="6">
+          <app-table-loader />
+        </td>
+      </tr>
+      }
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6">
+          <app-table-empty-message
+            icon="pi pi-folder"
+            message="No policy mapping leave types found"
+            subMessage="Add a new policy mapping leave type to get started" />
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-card>
+
+<p-confirmDialog
+  acceptButtonStyleClass="p-button-danger" />

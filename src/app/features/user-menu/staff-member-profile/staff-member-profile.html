@@ -1,0 +1,27 @@
+<div class="relative h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <app-profile-summary />
+
+  <p-tabs
+    [value]="activeTabIndex()"
+    [scrollable]="true"
+    class="sticky top-0 z-10">
+    <p-tablist>
+      @for (tab of tabs; track tab.route) {
+      <p-tab
+        [value]="tab.route"
+        [routerLink]="['./', tab.route]"
+        [queryParams]="staffMemberId() ? { staffMemberId: staffMemberId(), countryId: countryId() } : null"
+        [fragment]="staffMemberId() ? '' : 'emp'"
+        routerLinkActive="active-tab"
+        class="flex items-center gap-2! truncate text-inherit">
+        <span [class]="tab.icon"></span>
+        <span class="truncate">{{ tab.label }}</span>
+      </p-tab>
+      }
+    </p-tablist>
+  </p-tabs>
+
+  <div class="mx-2 my-4 min-h-[calc(100vh-12rem)] sm:mx-4">
+    <router-outlet />
+  </div>
+</div>

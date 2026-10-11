@@ -1,0 +1,55 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "staffMemberPatternHash": null,
+    "reservedStaffMemberSequence": null,
+    "jobId": "18cb7cf8-7d45-4982-85a4-b49c75fa0030",
+    "master": 3,
+    "sourceColumns": [
+      "RoleName",
+      "RoleType",
+      "Remark",
+      "IsActive"
+    ],
+    "columnMapping": {
+      "RoleName": "RoleName",
+      "IsActive": "IsActive",
+      "Remark": "Remark",
+      "RoleType": "RoleType"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "hostRecordId": null,
+        "proposedStaffMemberCode": null,
+        "invitationStatus": null,
+        "invitationError": null,
+        "invitationAttemptedAtUtc": null,
+        "processed": false,
+        "willReactivate": false,
+        "wasReactivated": false,
+        "rowNumber": 2,
+        "values": {
+          "RoleName": "Customer Experience Lead",
+          "IsActive": "true",
+          "Remark": "Leads customer experience delivery",
+          "RoleType": "3"
+        },
+        "status": 2,
+        "existingId": 72,
+        "departmentId": null,
+        "policyVersionId": null,
+        "targetStaffMemberId": null,
+        "errors": []
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 1,
+    "invalidCount": 0,
+    "isValid": true,
+    "confirmationAvailable": true,
+    "canCommit": true
+  },
+  "errors": []
+}

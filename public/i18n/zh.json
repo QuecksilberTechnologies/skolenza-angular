@@ -1,0 +1,24 @@
+{
+  "dashboard": {
+    "TotalStaff Members": "员工总数",
+    "NewHiresThisMonth": "本月新员工",
+    "OpenPositions": "空缺职位",
+    "PendingApprovals": "待审批事项",
+    "LeaveBreakdown": "请假分布",
+    "HRActivityHeatmap": "人力资源活动热力图",
+    "ProjectsStats": "项目统计",
+    "RequestStatus": "申请状态 | 今天",
+    "ProjectBurndown": "项目燃尽图",
+    "TeamProgress": "团队进度"
+  },
+  "accessDenied": {
+    "title": "访问被拒绝",
+    "headerDescription": "需要权限",
+    "reasonModuleOperation": "您没有权限在 {{module}} 中执行 {{operation}}。",
+    "reasonModule": "您没有访问 {{module}} 的权限。",
+    "reasonGeneric": "您没有查看此页面的权限。",
+    "hint": "您的角色不包含此权限。请联系管理员授予权限，或返回您有权访问的页面。",
+    "goToDashboard": "前往仪表板",
+    "goBack": "返回"
+  }
+}

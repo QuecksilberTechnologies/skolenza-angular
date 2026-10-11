@@ -1,0 +1,53 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "jobId": "8420b745-0f71-4ea7-8e2c-586dbb03056f",
+    "master": 1,
+    "sourceColumns": ["DepartmentName", "Description", "Remark", "IsActive"],
+    "columnMapping": {
+      "DepartmentName": "DepartmentName",
+      "IsActive": "IsActive",
+      "Description": "Description",
+      "Remark": "Remark"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "processed": false,
+        "rowNumber": 2,
+        "values": {
+          "DepartmentName": "UIQA-20260910-Engineering",
+          "IsActive": "true",
+          "Description": "UI bulk acceptance engineering",
+          "Remark": "Development acceptance"
+        },
+        "status": 1,
+        "existingId": null,
+        "departmentId": null,
+        "errors": []
+      },
+      {
+        "processed": false,
+        "rowNumber": 3,
+        "values": {
+          "DepartmentName": "UIQA-20260910-People",
+          "IsActive": "true",
+          "Description": "UI bulk acceptance people",
+          "Remark": "Development acceptance"
+        },
+        "status": 1,
+        "existingId": null,
+        "departmentId": null,
+        "errors": []
+      }
+    ],
+    "readyCount": 2,
+    "existingCount": 0,
+    "invalidCount": 0,
+    "isValid": true,
+    "confirmationAvailable": true,
+    "canCommit": true
+  },
+  "errors": []
+}

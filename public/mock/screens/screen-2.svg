@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<rect width="1600" height="900" fill="#f8fafc"/>
+<rect width="1600" height="56" fill="#22c55e"/>
+<circle cx="32" cy="28" r="8" fill="#fff" opacity=".8"/><circle cx="58" cy="28" r="8" fill="#fff" opacity=".6"/><circle cx="84" cy="28" r="8" fill="#fff" opacity=".4"/>
+<text x="120" y="36" font-family="Segoe UI,Arial,sans-serif" font-size="22" fill="#fff">Spreadsheet</text>
+<rect x="80" y="140" width="782" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="188" width="919" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="236" width="1056" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="284" width="1193" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="332" width="630" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="380" width="767" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="428" width="904" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="476" width="1041" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="524" width="1178" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="572" width="615" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="620" width="752" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="668" width="889" height="18" rx="4" fill="#e2e8f0"/><rect x="80" y="716" width="1026" height="18" rx="4" fill="#e2e8f0"/>
+<rect x="0" y="860" width="1600" height="40" fill="#e2e8f0"/>
+<text x="1480" y="887" font-family="Segoe UI,Arial,sans-serif" font-size="18" fill="#475569">Sample</text>
+</svg>

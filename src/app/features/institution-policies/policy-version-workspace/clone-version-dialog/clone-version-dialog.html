@@ -1,0 +1,35 @@
+<form
+  (submit)="onSubmit(); $event.preventDefault()"
+  class="flex h-full min-h-0 w-full flex-col">
+  <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-1 pt-1 pb-4">
+    <p class="text-sm text-gray-600 dark:text-zinc-300">
+      The clone starts as a Draft carrying this version's rules, applicability and identity.
+      Documents, assignments and exceptions are not copied. The version it is cloned from stays
+      unchanged.
+    </p>
+
+    <app-form-date
+      label="Effective from"
+      inputId="cloneEffectiveFrom"
+      placeholder="Select a date"
+      hint="When the cloned version takes over from the current one."
+      required
+      [field]="f.effectiveFrom" />
+
+    <app-form-textarea
+      label="Change summary"
+      inputId="cloneChangeSummary"
+      placeholder="e.g. 2028 revision"
+      required
+      [rows]="3"
+      [field]="f.changeSummary" />
+  </div>
+
+  <app-form-action-bar
+    dialog
+    submitLabel="Clone version"
+    submitIcon="pi pi-copy"
+    savingLabel="Cloning..."
+    [saving]="isSaving()"
+    (cancelled)="onCancel()" />
+</form>

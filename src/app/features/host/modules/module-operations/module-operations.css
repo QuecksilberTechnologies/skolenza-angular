@@ -1,0 +1,17 @@
+:host {
+  /* Header cells paint their own background, so the row-level tint class never shows. */
+  --p-datatable-header-cell-background: var(--p-content-hover-background);
+  /* Sorted column: neutral tint; only the sort icon carries the brand colour. */
+  --p-datatable-header-cell-selected-background: var(--p-content-hover-background);
+  --p-datatable-header-cell-selected-color: var(--p-primary-color);
+}
+
+/* Full-width "Add Module Operation" split-button until lg; natural width from lg up */
+@media (max-width: 1023.98px) {
+  :host ::ng-deep .p-splitbutton {
+    width: 100%;
+  }
+  :host ::ng-deep .p-splitbutton .p-splitbutton-button {
+    flex: 1 1 auto;
+  }
+}

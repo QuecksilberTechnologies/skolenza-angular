@@ -1,0 +1,233 @@
+<section class="max-h-[calc(100vh-18rem)] overflow-y-auto">
+  <form
+    [formGroup]="projectForm"
+    class="grid grid-cols-1 gap-4">
+    <!-- Project Name -->
+    <div class="space-y-1">
+      <label
+        for="name"
+        class="block font-medium">
+        Project Name
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        id="name"
+        type="text"
+        pInputText
+        formControlName="name"
+        class="w-full"
+        [invalid]="isInvalid('name')"
+        placeholder="Enter project name" />
+      @if (projectForm.get('name')?.invalid && projectForm.get('name')?.touched) { @if
+      (projectForm.get('name')?.errors?.['required']) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        Project name is required.
+      </p-message>
+      } }
+    </div>
+
+    <!-- Status -->
+    <div class="space-y-1">
+      <label
+        for="status"
+        class="block font-medium">
+        Status
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <app-status-dot-select
+        selectId="status"
+        controlName="status"
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select status"
+        iconClass="!text-sm"
+        [invalid]="isInvalid('status')" />
+      @if (projectForm.get('status')?.invalid && projectForm.get('status')?.touched) { @if
+      (projectForm.get('status')?.errors?.['status']) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        Status is required.
+      </p-message>
+      } }
+    </div>
+
+    <!-- Priority -->
+    <div class="space-y-1">
+      <label
+        for="priority"
+        class="block font-medium">
+        Priority
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <app-status-dot-select
+        selectId="priority"
+        controlName="priority"
+        [options]="priorityOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select priority"
+        iconClass="!text-sm"
+        [invalid]="isInvalid('priority')" />
+      @if (projectForm.get('priority')?.invalid && projectForm.get('priority')?.touched) { @if
+      (projectForm.get('priority')?.errors?.['priority']) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        Priority is required.
+      </p-message>
+      } }
+    </div>
+
+    <!-- Progress -->
+    <div class="space-y-1">
+      <label
+        for="progress"
+        class="block font-medium">
+        Progress
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <p-inputnumber
+        formControlName="progress"
+        inputId="progress"
+        [min]="0"
+        [max]="100"
+        [maxlength]="3"
+        [useGrouping]="false"
+        [showButtons]="false"
+        mode="decimal"
+        suffix="%"
+        placeholder="Enter progress"
+        class="w-full" />
+      @if (projectForm.get('progress')?.invalid && projectForm.get('progress')?.touched) { @if
+      (projectForm.get('progress')?.errors?.['required']) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        Progress is required.
+      </p-message>
+      } }
+    </div>
+
+    <!-- Team Members -->
+    <div class="space-y-1">
+      <label
+        for="team"
+        class="block font-medium">
+        Team Members
+      </label>
+      <p-multiselect
+        id="team"
+        formControlName="team"
+        [invalid]="isInvalid('team')"
+        [options]="staffMembers()"
+        optionLabel="staffMemberFullName"
+        optionValue="staffMemberId"
+        placeholder="Select staffMember"
+        [appendTo]="'body'"
+        [loading]="isLoading()"
+        [maxSelectedLabels]="3"
+        display="chip"
+        class="w-full">
+        <ng-template
+          #selecteditems
+          let-selectedMembers>
+          @if (selectedMembers && selectedMembers.length > 0) { @for (selectedMember of selectedMembers; track $index) {
+          <div class="flex items-center gap-1">
+            <app-user-avatar [name]="selectedMember.staffMemberFullName" avatarClass="h-6! w-6!" />
+            <div>{{ selectedMember.staffMemberFullName }}</div>
+          </div>
+          } }
+        </ng-template>
+        <ng-template
+          let-staffMember
+          #item>
+          @if (staffMember.staffMemberFullName) {
+          <div class="flex items-center gap-2">
+            <app-user-avatar size="large" [name]="staffMember.staffMemberFullName" avatarClass="h-8! w-8! text-base!" />
+            <div>{{ staffMember.staffMemberFullName }}</div>
+          </div>
+          }
+        </ng-template>
+      </p-multiselect>
+    </div>
+
+    <!-- Timeline -->
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="space-y-1">
+        <label
+          for="startDate"
+          class="block font-medium">
+          Start Date
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-datepicker
+          id="startDate"
+          formControlName="startDate"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          placeholder="Select start date"
+          appendTo="body"
+          inputStyleClass="w-full"
+          class="w-full" />
+        @if (projectForm.get('startDate')?.invalid && projectForm.get('startDate')?.touched) { @if
+        (projectForm.get('startDate')?.errors?.['required']) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          Start date is required.
+        </p-message>
+        } }
+      </div>
+      <div class="space-y-1">
+        <label
+          for="endDate"
+          class="block font-medium">
+          End Date
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-datepicker
+          id="endDate"
+          formControlName="endDate"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          placeholder="Select end date"
+          appendTo="body"
+          inputStyleClass="w-full"
+          class="w-full" />
+        @if (projectForm.get('endDate')?.invalid && projectForm.get('endDate')?.touched) { @if
+        (projectForm.get('endDate')?.errors?.['required']) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          End date is required.
+        </p-message>
+        } }
+      </div>
+    </div>
+  </form>
+</section>
+
+<div class="mt-6 flex justify-end gap-2">
+  <p-button
+    label="Cancel"
+    variant="text"
+    severity="secondary"
+    (onClick)="onCancel()" />
+  <p-button
+    [loading]="isSaving()"
+    [label]="isEditMode ? 'Update Project' : 'Create Project'"
+    [disabled]="projectForm.invalid || isSaving()"
+    (onClick)="onSubmit()" />
+</div>
+
+<!-- <pre>{{ projectForm.value | json }}</pre> -->

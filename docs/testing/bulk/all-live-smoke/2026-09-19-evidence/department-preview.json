@@ -1,0 +1,55 @@
+{
+  "isSucceeded": true,
+  "message": "Draft saved. Review and confirm to queue import. No master records have been created.",
+  "data": {
+    "staffMemberPatternHash": null,
+    "reservedStaffMemberSequence": null,
+    "jobId": "2b9519ec-60af-4ca3-b8e9-2b23c623e770",
+    "master": 1,
+    "sourceColumns": [
+      "DepartmentName",
+      "Description",
+      "Remark",
+      "IsActive"
+    ],
+    "columnMapping": {
+      "DepartmentName": "DepartmentName",
+      "IsActive": "IsActive",
+      "Description": "Description",
+      "Remark": "Remark"
+    },
+    "errors": [],
+    "rows": [
+      {
+        "hostRecordId": null,
+        "proposedStaffMemberCode": null,
+        "invitationStatus": null,
+        "invitationError": null,
+        "invitationAttemptedAtUtc": null,
+        "processed": false,
+        "willReactivate": false,
+        "wasReactivated": false,
+        "rowNumber": 2,
+        "values": {
+          "DepartmentName": "Customer Experience Operations",
+          "IsActive": "true",
+          "Description": "Customer onboarding, adoption and service continuity",
+          "Remark": "Operational customer experience team"
+        },
+        "status": 2,
+        "existingId": 21,
+        "departmentId": null,
+        "policyVersionId": null,
+        "targetStaffMemberId": null,
+        "errors": []
+      }
+    ],
+    "readyCount": 0,
+    "existingCount": 1,
+    "invalidCount": 0,
+    "isValid": true,
+    "confirmationAvailable": true,
+    "canCommit": true
+  },
+  "errors": []
+}

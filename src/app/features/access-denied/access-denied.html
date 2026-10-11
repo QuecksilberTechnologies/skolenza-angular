@@ -1,0 +1,37 @@
+<div class="flex min-h-[calc(100vh-4.6rem)] items-center justify-center px-4 py-8">
+  <div class="flex w-full max-w-lg flex-col items-center gap-6 text-center">
+    <!-- Illustration -->
+    <div
+      class="flex h-24 w-24 items-center justify-center rounded-full bg-primary-100 dark:bg-zinc-800">
+      <i
+        class="pi pi-lock text-5xl! text-primary-600 dark:text-primary-400"
+        aria-hidden="true"></i>
+    </div>
+
+    <!-- Message. The shell header already says "Access denied", so the h1 carries the specific
+         reason instead of repeating the label. -->
+    <div class="space-y-2">
+      <h1
+        #heading
+        tabindex="-1"
+        class="text-2xl font-bold text-zinc-900 focus:outline-none dark:text-zinc-50">
+        {{ reason().key | translate: reason().params }}
+      </h1>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ 'accessDenied.hint' | translate }}</p>
+    </div>
+
+    <!-- Navigation Options -->
+    <div class="flex flex-col justify-center gap-2 sm:flex-row">
+      <p-button
+        icon="pi pi-home"
+        [label]="'accessDenied.goToDashboard' | translate"
+        (onClick)="goToDashboard()" />
+      <p-button
+        icon="pi pi-arrow-left"
+        [label]="'accessDenied.goBack' | translate"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="goBack()" />
+    </div>
+  </div>
+</div>

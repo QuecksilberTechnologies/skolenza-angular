@@ -1,0 +1,67 @@
+{
+  "isSucceeded": true,
+  "message": "",
+  "data": {
+    "jobId": "8f4bb571-31d6-420b-865e-8a4cd48157ea",
+    "master": 3,
+    "status": 4,
+    "createdAtUtc": "2026-09-10T18:04:43.676985Z",
+    "updatedAtUtc": "2026-09-10T18:04:48.30119Z",
+    "scheduledAtUtc": "2026-09-10T18:04:44.698336Z",
+    "totalRows": 2,
+    "processedRows": 2,
+    "createdCount": 0,
+    "existingCount": 2,
+    "failedCount": 0,
+    "error": null,
+    "preview": {
+      "jobId": "8f4bb571-31d6-420b-865e-8a4cd48157ea",
+      "master": 3,
+      "sourceColumns": ["RoleName", "RoleType", "Remark", "IsActive"],
+      "columnMapping": {
+        "Remark": "Remark",
+        "IsActive": "IsActive",
+        "RoleName": "RoleName",
+        "RoleType": "RoleType"
+      },
+      "errors": [],
+      "rows": [
+        {
+          "processed": true,
+          "rowNumber": 2,
+          "values": {
+            "Remark": "Development acceptance",
+            "IsActive": "true",
+            "RoleName": "UIQA-20260910-Operator",
+            "RoleType": "2"
+          },
+          "status": 2,
+          "existingId": 28,
+          "departmentId": null,
+          "errors": []
+        },
+        {
+          "processed": true,
+          "rowNumber": 3,
+          "values": {
+            "Remark": "Development acceptance",
+            "IsActive": "true",
+            "RoleName": "UIQA-20260910-Supervisor",
+            "RoleType": "3"
+          },
+          "status": 2,
+          "existingId": 29,
+          "departmentId": null,
+          "errors": []
+        }
+      ],
+      "readyCount": 0,
+      "existingCount": 2,
+      "invalidCount": 0,
+      "isValid": true,
+      "confirmationAvailable": false,
+      "canCommit": false
+    }
+  },
+  "errors": []
+}

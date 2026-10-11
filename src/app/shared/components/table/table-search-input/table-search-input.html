@@ -1,0 +1,15 @@
+<p-iconfield
+  class="block w-full"
+  [class.lg:inline-block]="!fullWidth()"
+  [class.lg:w-auto]="!fullWidth()">
+  <p-inputicon class="pi pi-search" />
+  <input
+    pInputText
+    type="search"
+    [placeholder]="placeholder()"
+    [attr.aria-label]="ariaLabel()"
+    class="w-full"
+    [class.lg:w-auto]="!fullWidth()"
+    (input)="onSearch($event)"
+    (keydown.enter)="onEnter($event)" />
+</p-iconfield>
