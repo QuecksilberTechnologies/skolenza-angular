@@ -7,3 +7,4 @@ Current Skolenza Angular verification is recorded here. Files ending in
 - [Platform Administrator routes — 2026-10-10](reconstruction/platform-administrator-routes/2026-10-10.md)
 - [Final AxionPro Angular synchronization — 2026-10-11](reconstruction/final-axion-angular-sync/2026-10-11.md)
 - [Skolenza Angular logo assets — 2026-10-11](reconstruction/skolenza-logo-assets/2026-10-11.md)
+- [Local Angular Render API environment — 2026-10-11](environment/render-api-local/2026-10-11.md)
