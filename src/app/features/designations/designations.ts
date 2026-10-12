@@ -25,6 +25,7 @@ import { TagModule } from '@openng/optimus-ui/tag';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
 
 import { Common, DesignationsApi } from '@core/services';
+import { INSTITUTION_ACCESS_MODULE_CODES } from '@core/feature-page-identifiers';
 import { FeaturePageStore, LookupStore } from '@core/stores';
 import { BulkImportDialog } from '@shared/components/bulk-import-dialog/bulk-import-dialog';
 import { TableEmptyMessage } from '@shared/components/table-empty-message/table-empty-message';
@@ -89,7 +90,7 @@ export default class Designations implements OnInit {
   protected readonly selectedRow = signal<IDesignation | null>(null);
   protected breadcrumbItems: MenuItem[] = [];
   protected isShowFilter = false;
-  protected readonly moduleCode = ['DESIGNATION', 'INSTITUTION_STAFF_DESIGNATIONS'] as const;
+  protected readonly moduleCode = INSTITUTION_ACCESS_MODULE_CODES.designation;
 
   readonly departmentStatusOptions = [
     { status: 'All', value: null },

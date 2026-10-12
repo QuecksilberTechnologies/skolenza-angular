@@ -19,6 +19,7 @@ import { SkeletonModule } from '@openng/optimus-ui/skeleton';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { forkJoin, finalize } from 'rxjs';
 
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 import { Common, RolesApi } from '@core/services';
 import {
   GetAllUserRolesReq,
@@ -71,7 +72,8 @@ export class RolePopup implements OnInit {
   /** Seeded from the list's cache, then replaced by whatever the options request returns. */
   readonly roles = linkedSignal<Role[], Role[]>({
     source: this.initialRoles,
-    computation: (incoming, previous) => (incoming.length ? incoming : (previous?.value ?? [])),
+    computation: (incoming, previous) =>
+      incoming.length ? incoming : (previous?.value ?? []),
   });
   readonly searchTerm = signal('');
   readonly selectedRoles = signal<UserRole[]>([]);
@@ -89,10 +91,12 @@ export class RolePopup implements OnInit {
     return this.existingUserRoles().find((ur) => ur.isPrimaryRole) ?? null;
   });
 
-  /** Whether the staffMember's primary role is Admin type (roleType === 1) */
+  /** Whether the staff member's primary role is the Institution Administrator type. */
   readonly isPrimaryAdmin = computed(() => {
     const primary = this.primaryUserRole();
-    return primary ? primary.roleType === 1 : false;
+    return primary
+      ? primary.roleType === InstitutionRoleTypeId.InstitutionAdministrator
+      : false;
   });
 
   /** Whether Super Admin is currently selected */
@@ -131,12 +135,16 @@ export class RolePopup implements OnInit {
   });
 
   /** The roles the staffMember holds, all the read-only view has to show. */
-  readonly heldRoles = computed(() => this.existingUserRoles().filter((role) => role.isActive));
+  readonly heldRoles = computed(() =>
+    this.existingUserRoles().filter((role) => role.isActive),
+  );
 
   /** Why Save is off, for the footer. Empty once it is on. */
   readonly saveHint = computed(() => {
     if (this.canSave()) return '';
-    return this.selectedRoles().length === 0 ? 'Select at least one role' : 'No changes to save';
+    return this.selectedRoles().length === 0
+      ? 'Select at least one role'
+      : 'No changes to save';
   });
 
   /** How many more roles can be selected */
@@ -167,7 +175,8 @@ export class RolePopup implements OnInit {
 
   isRoleDisabled(role: Role): boolean {
     // An already-selected role stays clickable so it can be deselected.
-    if (this.isRoleSelected(role.id) && !this.isPrimaryRole(role.id)) return false;
+    if (this.isRoleSelected(role.id) && !this.isPrimaryRole(role.id))
+      return false;
 
     return this.getLockReason(role) !== '';
   }
@@ -193,7 +202,7 @@ export class RolePopup implements OnInit {
     if (this.selectedRoles().length >= MAX_ROLES) {
       return `Maximum ${MAX_ROLES} roles allowed`;
     }
-    if (role.roleType === 1) {
+    if (role.roleType === InstitutionRoleTypeId.InstitutionAdministrator) {
       return 'Admin roles cannot be added as secondary roles';
     }
     return '';
@@ -257,7 +266,10 @@ export class RolePopup implements OnInit {
         takeUntilDestroyed(this.#destroyRef),
       )
       .subscribe({
-        next: (res: { roleOptions: GetRolesResponse; userRoles: GetAllUserRolesRes }) => {
+        next: (res: {
+          roleOptions: GetRolesResponse;
+          userRoles: GetAllUserRolesRes;
+        }) => {
           if (res.roleOptions.isSucceeded) {
             this.roles.set(res.roleOptions.data);
             this.rolesLoaded.emit(res.roleOptions.data);
@@ -268,7 +280,9 @@ export class RolePopup implements OnInit {
           if (res.userRoles.isSucceeded) {
             const userRoles = res.userRoles.data ?? [];
             this.existingUserRoles.set(userRoles);
-            this.selectedRoles.set(userRoles.filter((r: UserRole) => r.isActive));
+            this.selectedRoles.set(
+              userRoles.filter((r: UserRole) => r.isActive),
+            );
           } else {
             this.#commonService.showMessage(res.userRoles.message, 'error');
           }

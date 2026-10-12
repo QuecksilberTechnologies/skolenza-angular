@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 import { roleTypeGuard } from '@core/guards';
 import { environment } from '@env/environment';
 
@@ -65,7 +66,12 @@ export const LEARNING_ROUTES: Routes = [
         path: 'admin',
         loadComponent: () => import('./ld-admin/ld-admin'),
         title: `Learning Admin | ${titleSuffix}`,
-        canActivate: [roleTypeGuard([1, 3])],
+        canActivate: [
+          roleTypeGuard([
+            InstitutionRoleTypeId.InstitutionAdministrator,
+            InstitutionRoleTypeId.StaffManager,
+          ]),
+        ],
       },
     ],
   },

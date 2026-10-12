@@ -1,4 +1,7 @@
-import { ModuleCodeCandidates } from '@core/feature-page-identifiers';
+import {
+  INSTITUTION_ACCESS_MODULE_CODES,
+  ModuleCodeCandidates,
+} from '@core/feature-page-identifiers';
 import { environment } from '@env/environment';
 import { HOST_BILLING_MODULE } from '@shared/interfaces/host-billing';
 import { PROFILE_TABS } from '@shared/utilities/common-data';
@@ -39,8 +42,7 @@ type IdentifierCarrier = 'query' | 'body' | 'permissionRequest';
  * call the resolver directly.
  */
 export type RouteModule =
-  | ModuleCodeCandidates
-  | ((body: unknown) => ModuleCodeCandidates | undefined);
+  ModuleCodeCandidates | ((body: unknown) => ModuleCodeCandidates | undefined);
 
 export interface ModuleOperationRoute {
   /** Uppercase, as `HttpRequest.method` reports it. Part of the key — one path can carry two
@@ -90,20 +92,18 @@ const EMP = {
  * `INSTITUTION_DEVICE_SETUP` / `INSTITUTION_DEVICE_CONFIGURATION` to a institution. Both are named so the
  * session's own tree resolves the ids; exactly one of each pair is present per session.
  */
-const INSTITUTION_DEVICE_CODES = ['INSTITUTION_DEVICES', 'INSTITUTION_DEVICE_SETUP'] as const;
-const INSTITUTION_DEVICE_CONFIG_CODES = ['INSTITUTION_DEVICE_CONFIG', 'INSTITUTION_DEVICE_CONFIGURATION'] as const;
+const INSTITUTION_DEVICE_CODES = [
+  'INSTITUTION_DEVICES',
+  'INSTITUTION_DEVICE_SETUP',
+] as const;
+const INSTITUTION_DEVICE_CONFIG_CODES = [
+  'INSTITUTION_DEVICE_CONFIG',
+  'INSTITUTION_DEVICE_CONFIGURATION',
+] as const;
 
 /** Work sites, the same way: the host leaf is its own code, granting `View` only. */
 const CAMPUS_CODES = ['INSTITUTION_CAMPUSES', 'HOST_CAMPUS_LIST'] as const;
 
-/**
- * `my-menu` renamed these four leaves and nested them under a new parent group (read live
- * 2026-09-15: `DEPARTMENT`/`DESIGNATION`/`ROLE`/`STAFF_EMPLOYMENT_TYPES`, same module ids as the old codes).
- * Both are named so a session still served the pre-rename shape keeps resolving ids.
- */
-const INSTITUTION_DEPARTMENT_CODES = ['DEPARTMENT', 'INSTITUTION_DEPARTMENTS'] as const;
-const INSTITUTION_DESIGNATION_CODES = ['DESIGNATION', 'INSTITUTION_STAFF_DESIGNATIONS'] as const;
-const INSTITUTION_ROLE_CODES = ['ROLE', 'INSTITUTION_ACCESS'] as const;
 const INSTITUTION_STAFF_EMPLOYMENT_TYPES_CODES = 'STAFF_EMPLOYMENT_TYPES';
 /**
  * Holiday calendar, read live 2026-09-23: module id 118, operations Add 1, Delete 3, Export 23,
@@ -141,7 +141,8 @@ const PROFILE_TAB_MODULE_CODE: Readonly<Record<number, string>> = {
  * on, and that tab is the module the API authorises against.
  */
 export const moduleFromTabInfoType = (body: unknown): string | undefined => {
-  const tab = (body as { tabInfoType?: unknown } | null | undefined)?.tabInfoType;
+  const tab = (body as { tabInfoType?: unknown } | null | undefined)
+    ?.tabInfoType;
   return typeof tab === 'number' ? PROFILE_TAB_MODULE_CODE[tab] : undefined;
 };
 
@@ -157,7 +158,13 @@ export const moduleFromTabInfoType = (body: unknown): string | undefined => {
  */
 export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
   // StaffMember list (STAFF_DIRECTORY)
-  { method: 'POST', path: '/Staff/create', module: EMP.list, operation: 'Add', carrier: 'body' },
+  {
+    method: 'POST',
+    path: '/Staff/create',
+    module: EMP.list,
+    operation: 'Add',
+    carrier: 'body',
+  },
   {
     method: 'GET',
     path: '/Staff/get-all',
@@ -193,6 +200,80 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
     module: EMP.list,
     operation: 'Delete',
     carrier: 'query',
+  },
+
+  // Institution-owned staff professional masters, positions and assignments. These endpoints
+  // intentionally remain under the existing STAFF_DIRECTORY permission boundary; there is no
+  // duplicate feature-page catalogue for the professional structure workspace.
+  {
+    method: 'GET',
+    path: '/Staff/professional-structure/masters/{id}',
+    module: EMP.list,
+    operation: 'View',
+    carrier: 'query',
+  },
+  {
+    method: 'POST',
+    path: '/Staff/professional-structure/masters/{id}',
+    module: EMP.list,
+    operation: 'Add',
+    carrier: 'body',
+  },
+  {
+    method: 'PUT',
+    path: '/Staff/professional-structure/masters/{id}/{id}',
+    module: EMP.list,
+    operation: 'Update',
+    carrier: 'body',
+  },
+  {
+    method: 'DELETE',
+    path: '/Staff/professional-structure/masters/{id}/{id}',
+    module: EMP.list,
+    operation: 'Delete',
+    carrier: 'query',
+  },
+  {
+    method: 'GET',
+    path: '/Staff/professional-structure/positions',
+    module: EMP.list,
+    operation: 'View',
+    carrier: 'query',
+  },
+  {
+    method: 'POST',
+    path: '/Staff/professional-structure/positions',
+    module: EMP.list,
+    operation: 'Add',
+    carrier: 'body',
+  },
+  {
+    method: 'PUT',
+    path: '/Staff/professional-structure/positions/{id}',
+    module: EMP.list,
+    operation: 'Update',
+    carrier: 'body',
+  },
+  {
+    method: 'DELETE',
+    path: '/Staff/professional-structure/positions/{id}',
+    module: EMP.list,
+    operation: 'Delete',
+    carrier: 'query',
+  },
+  {
+    method: 'GET',
+    path: '/Staff/professional-structure/staff/{id}',
+    module: EMP.list,
+    operation: 'View',
+    carrier: 'query',
+  },
+  {
+    method: 'PUT',
+    path: '/Staff/professional-structure/capability-verification/{id}',
+    module: EMP.list,
+    operation: 'Update',
+    carrier: 'body',
   },
 
   // Password reset. Read live 2026-09-25: `my-menu` moved `Reset Password` (id 21) onto `STAFF_DIRECTORY`
@@ -1052,28 +1133,28 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
   {
     method: 'POST',
     path: '/Role/bulk/preview',
-    module: INSTITUTION_ROLE_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.role,
     operation: 'Add',
     carrier: 'body',
   },
   {
     method: 'POST',
     path: '/Role/bulk/confirm',
-    module: INSTITUTION_ROLE_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.role,
     operation: 'Add',
     carrier: 'body',
   },
   {
     method: 'POST',
     path: '/Role/bulk/retry',
-    module: INSTITUTION_ROLE_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.role,
     operation: 'Add',
     carrier: 'body',
   },
   {
     method: 'POST',
     path: '/Role/bulk/cancel',
-    module: INSTITUTION_ROLE_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.role,
     operation: 'Add',
     carrier: 'body',
   },
@@ -1082,28 +1163,28 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
   {
     method: 'POST',
     path: '/Department/bulk/preview',
-    module: INSTITUTION_DEPARTMENT_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.department,
     operation: 'Add',
     carrier: 'body',
   },
   {
     method: 'POST',
     path: '/Department/bulk/confirm',
-    module: INSTITUTION_DEPARTMENT_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.department,
     operation: 'Add',
     carrier: 'body',
   },
   {
     method: 'POST',
     path: '/Department/bulk/retry',
-    module: INSTITUTION_DEPARTMENT_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.department,
     operation: 'Add',
     carrier: 'body',
   },
   {
     method: 'POST',
     path: '/Department/bulk/cancel',
-    module: INSTITUTION_DEPARTMENT_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.department,
     operation: 'Add',
     carrier: 'body',
   },
@@ -1112,28 +1193,28 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
   {
     method: 'POST',
     path: '/Designation/bulk/preview',
-    module: INSTITUTION_DESIGNATION_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.designation,
     operation: 'Add',
     carrier: 'body',
   },
   {
     method: 'POST',
     path: '/Designation/bulk/confirm',
-    module: INSTITUTION_DESIGNATION_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.designation,
     operation: 'Add',
     carrier: 'body',
   },
   {
     method: 'POST',
     path: '/Designation/bulk/retry',
-    module: INSTITUTION_DESIGNATION_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.designation,
     operation: 'Add',
     carrier: 'body',
   },
   {
     method: 'POST',
     path: '/Designation/bulk/cancel',
-    module: INSTITUTION_DESIGNATION_CODES,
+    module: INSTITUTION_ACCESS_MODULE_CODES.designation,
     operation: 'Add',
     carrier: 'body',
   },
@@ -1631,6 +1712,7 @@ const DENY_PATHS: ReadonlySet<string> = new Set([
   '/institution/get-all-institution-operations',
   '/role/type-options',
   '/staff-member/contact/relation-options',
+  '/staff/category/options',
 ]);
 
 /**
@@ -1649,12 +1731,14 @@ const DENY_PATHS: ReadonlySet<string> = new Set([
  * `GET /Navigation/my-menu` does not publish (Asset, TicketClassification, Insurance, PolicyType)
  * has no code to name yet and is left out until it does.
  */
-const CONTROLLER_MODULE_FALLBACK: Readonly<Record<string, ModuleCodeCandidates>> = {
-  department: INSTITUTION_DEPARTMENT_CODES,
-  designation: INSTITUTION_DESIGNATION_CODES,
+const CONTROLLER_MODULE_FALLBACK: Readonly<
+  Record<string, ModuleCodeCandidates>
+> = {
+  department: INSTITUTION_ACCESS_MODULE_CODES.department,
+  designation: INSTITUTION_ACCESS_MODULE_CODES.designation,
   reportingtype: 'INSTITUTION_REPORTING_TYPES',
-  role: INSTITUTION_ROLE_CODES,
-  usermodulerolepermission: INSTITUTION_ROLE_CODES,
+  role: INSTITUTION_ACCESS_MODULE_CODES.role,
+  usermodulerolepermission: INSTITUTION_ACCESS_MODULE_CODES.role,
   institutionlocation: CAMPUS_CODES,
   campus: CAMPUS_CODES,
   institutiondevice: INSTITUTION_DEVICE_CODES,
@@ -1681,14 +1765,15 @@ const CONTROLLER_MODULE_FALLBACK: Readonly<Record<string, ModuleCodeCandidates>>
   // writes need their own `Add` override.
   module: 'HOST_MODULES',
   // `/Dashboard/*` — the Admin widget reads (`/SuperAdmin/*`) and the per-role dashboards
-  // (`/{INSTITUTION_ADMIN|PEOPLE_MANAGER|WORKFORCE_USER|EXTERNAL_USER}`), all `View` on the query.
+  // (`/{INSTITUTION_ADMIN|STAFF_MANAGER|STAFF_MEMBER|EXTERNAL_USER}`), all `View` on the query.
   dashboard: 'INSTITUTION_DASHBOARD_OVERVIEW',
 };
 
 const WILDCARD = '{id}';
 
 const literalRoutes = new Map<string, ModuleOperationRoute>();
-const wildcardRoutes: { route: ModuleOperationRoute; segments: string[] }[] = [];
+const wildcardRoutes: { route: ModuleOperationRoute; segments: string[] }[] =
+  [];
 
 for (const route of MODULE_OPERATION_ROUTES) {
   const path = route.path.toLowerCase();
@@ -1716,7 +1801,10 @@ function inferOperation(method: string, path: string): string {
 }
 
 /** A row for a controller in `CONTROLLER_MODULE_FALLBACK`, or `undefined` for anything else. */
-function fallbackRoute(method: string, path: string): ModuleOperationRoute | undefined {
+function fallbackRoute(
+  method: string,
+  path: string,
+): ModuleOperationRoute | undefined {
   if (DENY_PATHS.has(path)) return undefined;
 
   const controller = path.split('/')[1] ?? '';
@@ -1727,9 +1815,16 @@ function fallbackRoute(method: string, path: string): ModuleOperationRoute | und
 
   // Reads and deletes carry no body worth merging into; everything else does. The hand-written
   // rows override this wherever the API disagrees, which is why they are consulted first.
-  const carrier: IdentifierCarrier = method === 'GET' || method === 'DELETE' ? 'query' : 'body';
+  const carrier: IdentifierCarrier =
+    method === 'GET' || method === 'DELETE' ? 'query' : 'body';
 
-  return { method, path, module, operation: inferOperation(method, path), carrier };
+  return {
+    method,
+    path,
+    module,
+    operation: inferOperation(method, path),
+    carrier,
+  };
 }
 
 /**
@@ -1749,11 +1844,17 @@ export function resolveModuleOperationRoute(
 
   // `req.url` excludes params passed through the `params` option, but a call site is free to embed
   // a query string in the URL — strip it so the key stays literal either way.
-  const requestPath = url.slice(environment.apiUrl.length).split('?')[0].toLowerCase();
+  const requestPath = url
+    .slice(environment.apiUrl.length)
+    .split('?')[0]
+    .toLowerCase();
   const path = requestPath
     .replace(/^\/institutioncardmaster(?=\/|$)/, '/institutioncardmaster')
     .replace(/^\/institutionemailconfig(?=\/|$)/, '/institutionemailconfig')
-    .replace(/^\/institutionemailtemplate(?=\/|$)/, '/institutionemailtemplate');
+    .replace(
+      /^\/institutionemailtemplate(?=\/|$)/,
+      '/institutionemailtemplate',
+    );
 
   const literal = literalRoutes.get(`${method} ${path}`);
   if (literal) return literal;
@@ -1770,5 +1871,3 @@ export function resolveModuleOperationRoute(
 
   return wildcard ?? fallbackRoute(method, path);
 }
-
-

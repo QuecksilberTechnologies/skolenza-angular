@@ -27,6 +27,7 @@ import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { finalize } from 'rxjs';
 
 import { Common, RolesApi } from '@core/services';
+import { INSTITUTION_ACCESS_MODULE_CODES } from '@core/feature-page-identifiers';
 import { FeaturePageStore } from '@core/stores';
 import { BulkImportDialog } from '@shared/components/bulk-import-dialog/bulk-import-dialog';
 import { TableEmptyMessage } from '@shared/components/table-empty-message/table-empty-message';
@@ -107,7 +108,7 @@ export default class RolesList implements OnInit {
   protected actionMenuItems: MenuItem[] = [];
   protected roleSplitButtonItems: MenuItem[] = [];
 
-  protected readonly moduleCode = ['ROLE', 'INSTITUTION_ACCESS'] as const;
+  protected readonly moduleCode = INSTITUTION_ACCESS_MODULE_CODES.role;
 
   readonly statusOptions = [
     { status: 'All', value: null },

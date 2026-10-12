@@ -155,6 +155,14 @@
       label="Designation"
       [value]="basic.designationName" />
 
+    <app-profile-info-block
+      label="Job Family"
+      [value]="basic.professionalProfile?.jobFamilyName" />
+
+    <app-profile-info-block
+      label="Primary Position"
+      [value]="basic.professionalProfile?.positionName" />
+
     <!-- StaffMember Type -->
     <app-profile-info-block label="StaffMember Type">
       @if (basic.type) {
@@ -183,6 +191,30 @@
       }
     </app-profile-info-block>
   </app-profile-info-card>
+
+  @if (basic.professionalProfile) {
+  <app-profile-info-card>
+    <h2 class="mb-2 font-semibold" ngProjectAs="sectionTitle">Capabilities and Duties</h2>
+    <app-profile-info-block label="Capabilities">
+      @for (capability of basic.professionalProfile.capabilities; track capability.id) {
+      <span class="mr-2 inline-flex rounded-full border px-2 py-1 text-sm">
+        {{ capability.name }} · {{ capability.verificationStatusName }}
+        @if (capability.verificationStatus === 1 && canApproveCapabilities()) {
+        <button class="ml-2 text-green-700" (click)="verifyCapability(capability.id, true)">Approve</button>
+        <button class="ml-2 text-red-700" (click)="verifyCapability(capability.id, false)">Reject</button>
+        }
+      </span>
+      } @empty { <span>-</span> }
+    </app-profile-info-block>
+    <app-profile-info-block label="Active Duties">
+      @for (duty of basic.professionalProfile.duties; track duty.id) {
+      <span class="mr-2 inline-flex rounded-full border px-2 py-1 text-sm">
+        {{ duty.name }} @if (duty.frequency) { · {{ duty.frequency }} }
+      </span>
+      } @empty { <span>-</span> }
+    </app-profile-info-block>
+  </app-profile-info-card>
+  }
 
   <!-- Emergency Contact Details -->
   <app-profile-info-card>

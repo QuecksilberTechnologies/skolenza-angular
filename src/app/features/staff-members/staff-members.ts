@@ -21,11 +21,18 @@ import { CardModule } from '@openng/optimus-ui/card';
 import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
 import { ContextMenuModule } from '@openng/optimus-ui/contextmenu';
 import { Drawer } from '@openng/optimus-ui/drawer';
-import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import {
+  DialogService,
+  DynamicDialogRef,
+} from '@openng/optimus-ui/dynamicdialog';
 import { OverlayBadgeModule } from '@openng/optimus-ui/overlaybadge';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { SplitButtonModule } from '@openng/optimus-ui/splitbutton';
-import { Table, TableLazyLoadEvent, TableModule } from '@openng/optimus-ui/table';
+import {
+  Table,
+  TableLazyLoadEvent,
+  TableModule,
+} from '@openng/optimus-ui/table';
 import { TieredMenu } from '@openng/optimus-ui/tieredmenu';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
 
@@ -34,7 +41,6 @@ import { FeaturePageStore, LookupStore } from '@core/stores';
 import { AssetStatsLoader } from '@shared/components/asset/asset-stats-loader/asset-stats-loader';
 import { BulkImportDialog } from '@shared/components/bulk-import-dialog/bulk-import-dialog';
 import StaffMemberFilter from '@shared/components/staff-member/staff-member-filter/staff-member-filter';
-import { StaffMemberManageDialog } from '@shared/components/staff-member/staff-member-manage-dialog/staff-member-manage-dialog';
 import { VerificationSettings } from '@shared/components/staff-member/verification-settings/verification-settings';
 import { HeadlessDrawer } from '@shared/components/headless-drawer/headless-drawer';
 import { TableEmptyMessage } from '@shared/components/table-empty-message/table-empty-message';
@@ -45,6 +51,7 @@ import { TableActionButton } from '@shared/components/table/table-action-button/
 import { TableSearchInput } from '@shared/components/table/table-search-input/table-search-input';
 import { UserAvatar } from '@shared/components/user-avatar/user-avatar';
 import { RepositionOnResize } from '@shared/directives';
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 import {
   BulkImportDialogData,
   IStaffMember,
@@ -61,19 +68,27 @@ import {
   GetProgressTonePipe,
 } from '@shared/pipes';
 import { countryFlagUrl } from '@shared/utilities/country-flag';
-import { CARD_OVERLAY_POSITIONS, closeOverlayOnScroll } from '@shared/utilities/overlay';
+import {
+  CARD_OVERLAY_POSITIONS,
+  closeOverlayOnScroll,
+} from '@shared/utilities/overlay';
 
 import { AvatarPopup } from './avatar-popup/avatar-popup';
 import { PROFILE_SECTIONS } from './staff-member-action-menu';
-import { staffMemberBulkImportAdapter, staffMemberImportDisplay } from './staff-member-bulk-import';
+import {
+  staffMemberBulkImportAdapter,
+  staffMemberImportDisplay,
+} from './staff-member-bulk-import';
 import { staffMemberImportFields } from './staff-member-import-fields';
 import { StaffMemberResetPasswordDialog } from './staff-member-reset-password-dialog/staff-member-reset-password-dialog';
-import { StaffMemberRoleCell, resolveRoleDisplayName } from './staff-member-role-cell/staff-member-role-cell';
+import {
+  StaffMemberRoleCell,
+  resolveRoleDisplayName,
+} from './staff-member-role-cell/staff-member-role-cell';
 import StaffMemberStats from './staff-member-stats/staff-member-stats';
 import { StaffMembersStore } from './staff-members.store';
 
-/** StaffMember accounts (`roleTypeId === 2`) see the grid read-only. */
-const STAFF_MEMBER_ROLE_TYPE_ID = 2;
+/** StaffMember accounts see the grid read-only. */
 
 /** This page's leaf in `GET /Navigation/my-menu`, which publishes the operations it grants. */
 const MODULE_CODE = 'STAFF_DIRECTORY';
@@ -82,7 +97,10 @@ const MODULE_CODE = 'STAFF_DIRECTORY';
  * `Reset Password` moved from its own `EMP_PASSWORD_MANAGEMENT` leaf onto `STAFF_DIRECTORY` (read live
  * 2026-09-25). Both are named so a session still served the old shape keeps the action.
  */
-const PASSWORD_MODULE_CODE = ['STAFF_DIRECTORY', 'EMP_PASSWORD_MANAGEMENT'] as const;
+const PASSWORD_MODULE_CODE = [
+  'STAFF_DIRECTORY',
+  'EMP_PASSWORD_MANAGEMENT',
+] as const;
 
 @Component({
   selector: 'app-staff-members',
@@ -143,19 +161,24 @@ export default class StaffMembers implements OnInit {
   /** The row whose profile-summary card is open — only one at a time. */
   readonly openSummaryId = signal<string | null>(null);
   protected readonly cardOverlayPositions = CARD_OVERLAY_POSITIONS;
-  protected readonly overlayScrollStrategy = inject(Overlay).scrollStrategies.noop();
+  protected readonly overlayScrollStrategy =
+    inject(Overlay).scrollStrategies.noop();
 
   readonly departmentOptions = this.#lookupStore.departmentOptions;
   readonly staffEmploymentTypeOptions = this.#lookupStore.staffEmploymentTypes;
-  readonly isLoadingStaffEmploymentTypes = this.#lookupStore.isLoadingStaffEmploymentTypes;
+  readonly isLoadingStaffEmploymentTypes =
+    this.#lookupStore.isLoadingStaffEmploymentTypes;
   readonly isLoadingDepartments = this.#lookupStore.isLoadingDepartmentOptions;
 
   readonly loginInfo = signal<LoginInfo | null>(null);
-  readonly userStaffMemberId = computed(() => this.loginInfo()?.user?.staffMemberId ?? '');
+  readonly userStaffMemberId = computed(
+    () => this.loginInfo()?.user?.staffMemberId ?? '',
+  );
   readonly canManageStaffMembers = computed(
     () =>
-      (this.loginInfo()?.user?.primaryRole?.roleTypeId ?? STAFF_MEMBER_ROLE_TYPE_ID) !==
-      STAFF_MEMBER_ROLE_TYPE_ID,
+      (this.loginInfo()?.user?.primaryRole?.roleTypeId ??
+        InstitutionRoleTypeId.StaffMember) !==
+      InstitutionRoleTypeId.StaffMember,
   );
 
   /**
@@ -163,7 +186,9 @@ export default class StaffMembers implements OnInit {
    * `openBulkImport` because it needs an injection context, and holds its own lazy lookups — none
    * of which are fetched until the editor is actually opened.
    */
-  readonly #importFields = staffMemberImportFields(() => this.userStaffMemberId());
+  readonly #importFields = staffMemberImportFields(() =>
+    this.userStaffMemberId(),
+  );
 
   /**
    * Permissions may only ever narrow what the role check already allows.
@@ -194,13 +219,18 @@ export default class StaffMembers implements OnInit {
   readonly canUpdate = computed(() => this.#granted('Update'));
   readonly canAssignRole = computed(() => this.#granted('Assign'));
   readonly canRemove = computed(() => this.#granted('Remove'));
-  readonly canResendCredentials = computed(() => this.#granted('Resend Credentials'));
+  readonly canResendCredentials = computed(() =>
+    this.#granted('Resend Credentials'),
+  );
 
   /** Same narrowing rule as `#granted`, against the page that owns the operation. */
   readonly canResetPassword = computed(
     () =>
       this.canManageStaffMembers() &&
-      this.#featurePageStore.canPerformOrUnknown(PASSWORD_MODULE_CODE, 'Reset Password'),
+      this.#featurePageStore.canPerformOrUnknown(
+        PASSWORD_MODULE_CODE,
+        'Reset Password',
+      ),
   );
 
   readonly canUseRowActions = computed(
@@ -213,7 +243,11 @@ export default class StaffMembers implements OnInit {
 
   /** Rows belonging to someone else — the only ones that can reveal field-level masking. */
   readonly #otherRows = computed(() =>
-    this.store.staffMembers().filter((staffMember) => staffMember.staffMemberId !== this.userStaffMemberId()),
+    this.store
+      .staffMembers()
+      .filter(
+        (staffMember) => staffMember.staffMemberId !== this.userStaffMemberId(),
+      ),
   );
 
   /**
@@ -230,7 +264,9 @@ export default class StaffMembers implements OnInit {
    */
   #readable(hasValue: (staffMember: IStaffMember) => boolean): boolean {
     const others = this.#otherRows();
-    return others.length ? others.some(hasValue) : this.store.staffMembers().some(hasValue);
+    return others.length
+      ? others.some(hasValue)
+      : this.store.staffMembers().some(hasValue);
   }
 
   readonly showStaffMemberCode = computed(() =>
@@ -238,7 +274,10 @@ export default class StaffMembers implements OnInit {
   );
 
   readonly showCountry = computed(() =>
-    this.#readable((staffMember) => !!staffMember.countryCode?.trim() || !!staffMember.nationality?.trim()),
+    this.#readable(
+      (staffMember) =>
+        !!staffMember.countryCode?.trim() || !!staffMember.nationality?.trim(),
+    ),
   );
 
   protected countryCode(staffMember: IStaffMember): string {
@@ -258,7 +297,10 @@ export default class StaffMembers implements OnInit {
   readonly showRole = computed(
     () =>
       this.canAssignRole() ||
-      this.#readable((staffMember) => !!resolveRoleDisplayName(staffMember, this.cachedRoles())),
+      this.#readable(
+        (staffMember) =>
+          !!resolveRoleDisplayName(staffMember, this.cachedRoles()),
+      ),
   );
 
   readonly showProfileCompletion = computed(() =>
@@ -289,7 +331,9 @@ export default class StaffMembers implements OnInit {
   #verificationReturnFocusTo: HTMLElement | null = null;
   protected readonly selectedRow = signal<IStaffMember | null>(null);
   protected readonly actionMenuItems = computed<MenuItem[]>(() =>
-    this.buildActionMenuItems(this.selectedRow()?.staffMemberId === this.userStaffMemberId()),
+    this.buildActionMenuItems(
+      this.selectedRow()?.staffMemberId === this.userStaffMemberId(),
+    ),
   );
   protected isShowFilter = false;
 
@@ -308,7 +352,8 @@ export default class StaffMembers implements OnInit {
 
   setPageHeaderInfo() {
     this.#commonService.setPageHeaderInfo({
-      pageTitle: this.#featurePageStore.displayNameOf(MODULE_CODE) ?? 'StaffMembers',
+      pageTitle:
+        this.#featurePageStore.displayNameOf(MODULE_CODE) ?? 'StaffMembers',
       pageDescription: 'Manage staffMembers and their information',
       pageIcon: 'pi pi-users',
     });
@@ -360,25 +405,36 @@ export default class StaffMembers implements OnInit {
             { separator: true },
             {
               label: 'Remove StaffMember',
-              styleClass: '!text-red-500 dark:!text-red-400 dark:hover:bg-zinc-700 font-medium',
+              styleClass:
+                '!text-red-500 dark:!text-red-400 dark:hover:bg-zinc-700 font-medium',
               icon: 'pi pi-trash !text-red-500 dark:!text-red-400 dark:hover:bg-zinc-700',
-              command: () => this.confirmRemoveStaffMember(this.selectedRow() ?? undefined),
+              command: () =>
+                this.confirmRemoveStaffMember(this.selectedRow() ?? undefined),
             },
           ]),
     ];
   }
 
   onDepartmentChange(departmentId: number) {
-    this.store.applyFilters({ ...this.store.appliedFilters(), department: departmentId });
+    this.store.applyFilters({
+      ...this.store.appliedFilters(),
+      department: departmentId,
+    });
     this.store.loadDesignations(Number(departmentId));
   }
 
   onDesignationChange(designationId: number) {
-    this.store.applyFilters({ ...this.store.appliedFilters(), designation: designationId });
+    this.store.applyFilters({
+      ...this.store.appliedFilters(),
+      designation: designationId,
+    });
   }
 
   onTypeChange(typeId: number) {
-    this.store.applyFilters({ ...this.store.appliedFilters(), staffEmploymentType: typeId });
+    this.store.applyFilters({
+      ...this.store.appliedFilters(),
+      staffEmploymentType: typeId,
+    });
   }
 
   onFilterApplied(filters: IStaffMemberFilter | null) {
@@ -399,35 +455,19 @@ export default class StaffMembers implements OnInit {
   }
 
   createStaffMember(staffMember?: IStaffMember) {
-    const ref: DynamicDialogRef | null = this.#dialogService.open(StaffMemberManageDialog, {
-      header: staffMember ? 'Update StaffMember Details' : 'Add New StaffMember',
-      style: { width: '90vw', maxWidth: '50rem' },
-      contentStyle: { overflow: 'hidden' },
-      modal: true,
-      closable: true,
-      focusOnShow: false,
-      data: { staffMember },
+    const route = staffMember?.staffMemberId
+      ? ['/app/staff', staffMember.staffMemberId, 'edit']
+      : ['/app/staff', 'new'];
+    void this.#router.navigate(route, {
+      state: { staffMemberBasic: staffMember },
+      queryParams: staffMember?.staffMemberId
+        ? { staffMemberId: staffMember.staffMemberId }
+        : undefined,
     });
+  }
 
-    ref?.onClose.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((result) => {
-      if (!result) {
-        return;
-      }
-
-      // A brand new staffMember lands on the first page; an edit stays where the user was.
-      if (!staffMember?.staffMemberId) {
-        const table = this.table();
-        if (table) {
-          table.first = 0;
-        }
-        this.store.loadStaffMembers({ first: 0, rows: this.store.pageSize() });
-        return;
-      }
-
-      this.store.reloadStaffMembers();
-    });
-
-    this.#destroyRef.onDestroy(() => ref?.close());
+  openProfessionalStructure(): void {
+    void this.#router.navigate(['/app/staff/professional-structure']);
   }
 
   openBulkImport() {
@@ -449,30 +489,35 @@ export default class StaffMembers implements OnInit {
 
     // The dialog closes with `true` once an import job ran, so the list is refetched rather than
     // left showing the staffMembers from before the import. Imported rows land on the first page.
-    ref?.onClose.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((imported: boolean) => {
-      if (!imported) return;
+    ref?.onClose
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe((imported: boolean) => {
+        if (!imported) return;
 
-      const table = this.table();
-      if (table) {
-        table.first = 0;
-      }
-      this.store.loadStaffMembers({ first: 0, rows: this.store.pageSize() });
-    });
+        const table = this.table();
+        if (table) {
+          table.first = 0;
+        }
+        this.store.loadStaffMembers({ first: 0, rows: this.store.pageSize() });
+      });
 
     this.#destroyRef.onDestroy(() => ref?.close());
   }
 
   /** No grid reload on close - a new password changes nothing the table renders. */
   resetPassword(staffMember: IStaffMember) {
-    const ref: DynamicDialogRef | null = this.#dialogService.open(StaffMemberResetPasswordDialog, {
-      header: 'Reset Password',
-      style: { width: '90vw', maxWidth: '32rem' },
-      contentStyle: { overflow: 'hidden' },
-      modal: true,
-      closable: true,
-      focusOnShow: false,
-      data: { staffMember },
-    });
+    const ref: DynamicDialogRef | null = this.#dialogService.open(
+      StaffMemberResetPasswordDialog,
+      {
+        header: 'Reset Password',
+        style: { width: '90vw', maxWidth: '32rem' },
+        contentStyle: { overflow: 'hidden' },
+        modal: true,
+        closable: true,
+        focusOnShow: false,
+        data: { staffMember },
+      },
+    );
 
     this.#destroyRef.onDestroy(() => ref?.close());
   }
@@ -517,7 +562,9 @@ export default class StaffMembers implements OnInit {
   }
 
   private sendCredentials(staffMember: IStaffMember) {
-    const body: ResendCredentialReq = { userLoginId: staffMember.officialEmail };
+    const body: ResendCredentialReq = {
+      userLoginId: staffMember.officialEmail,
+    };
 
     this.#authApi
       .resendCredential(body)
@@ -540,12 +587,18 @@ export default class StaffMembers implements OnInit {
   }
 
   viewRolePermission(staffMember: IStaffMember) {
-    this.#router.navigate(['/app/staff-members/permissions', staffMember.staffMemberId]);
+    this.#router.navigate([
+      '/app/staff-members/permissions',
+      staffMember.staffMemberId,
+    ]);
   }
 
   copyStaffMemberCode(value: string) {
     this.#clipboard.copy(value);
-    this.#commonService.showMessage('StaffMember code copied. You can now paste it.', 'success');
+    this.#commonService.showMessage(
+      'StaffMember code copied. You can now paste it.',
+      'success',
+    );
   }
 
   onRolesLoaded(roles: Role[]) {
@@ -557,7 +610,9 @@ export default class StaffMembers implements OnInit {
   }
 
   toggleSummary(staffMemberId: string) {
-    this.openSummaryId.update((current) => (current === staffMemberId ? null : staffMemberId));
+    this.openSummaryId.update((current) =>
+      current === staffMemberId ? null : staffMemberId,
+    );
   }
 
   closeSummary() {
@@ -597,4 +652,3 @@ export default class StaffMembers implements OnInit {
     this.#verificationReturnFocusTo = null;
   }
 }
-

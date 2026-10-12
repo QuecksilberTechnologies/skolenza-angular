@@ -23,6 +23,13 @@ export type FeaturePageIndex = ReadonlyMap<string, FeaturePageIndexEntry>;
  */
 export type ModuleCodeCandidates = string | readonly string[];
 
+/** Canonical institution access-master codes published by `GET /Navigation/my-menu`. */
+export const INSTITUTION_ACCESS_MODULE_CODES = {
+  department: 'INSTITUTION_DEPARTMENTS',
+  designation: 'INSTITUTION_STAFF_DESIGNATIONS',
+  role: 'INSTITUTION_ACCESS',
+} as const;
+
 /** One code or many, always as a list. The narrowing is here once so no caller repeats it. */
 export function asCandidateList(candidates: ModuleCodeCandidates): readonly string[] {
   return typeof candidates === 'string' ? [candidates] : candidates;

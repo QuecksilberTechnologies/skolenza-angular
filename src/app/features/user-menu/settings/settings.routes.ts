@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 import { roleTypeGuard, superAdminGuard } from '@core/guards';
 import { CurrentUserPermissionsStore } from '@core/stores';
 import { environment } from '@env/environment';
@@ -8,7 +9,12 @@ import { environment } from '@env/environment';
 const titleSuffix = environment.appName;
 
 // roleTypeId: 1=Admin, 3=Manager
-const adminManager = [roleTypeGuard([1, 3])];
+const adminManager = [
+  roleTypeGuard([
+    InstitutionRoleTypeId.InstitutionAdministrator,
+    InstitutionRoleTypeId.StaffManager,
+  ]),
+];
 
 // Org-wide settings — everyone else is bounced to the one tab they can use.
 const superAdminOnly = [superAdminGuard('/app/setting/appearance')];
@@ -17,7 +23,9 @@ export const SETTINGS_ROUTES: Routes = [
   {
     path: '',
     redirectTo: () =>
-      inject(CurrentUserPermissionsStore).isSuperAdmin() ? 'brand-identity' : 'appearance',
+      inject(CurrentUserPermissionsStore).isSuperAdmin()
+        ? 'brand-identity'
+        : 'appearance',
     pathMatch: 'full',
   },
   {
@@ -39,7 +47,8 @@ export const SETTINGS_ROUTES: Routes = [
   },
   {
     path: 'notifications',
-    loadComponent: () => import('./notifications-settings/notifications-settings'),
+    loadComponent: () =>
+      import('./notifications-settings/notifications-settings'),
     title: `Notifications | ${titleSuffix}`,
     canActivate: superAdminOnly,
   },

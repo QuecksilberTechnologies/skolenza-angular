@@ -20,6 +20,7 @@ import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { Common } from '@core/services';
 import { ProfileEmpty } from '@shared/components/profile/profile-empty/profile-empty';
 import { LoginInfo } from '@shared/interfaces';
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 
 import { FileUploadDialog } from './file-upload-dialog/file-upload-dialog';
 
@@ -51,6 +52,7 @@ interface FileItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class StaffMemberFilesInfo implements OnInit {
+  protected readonly roleType = InstitutionRoleTypeId;
   readonly #dialogService = inject(DialogService);
   readonly #commonService = inject(Common);
   readonly #destroyRef = inject(DestroyRef);
@@ -64,7 +66,8 @@ export default class StaffMemberFilesInfo implements OnInit {
       icon: 'pi-id-card',
       iconColor: 'text-blue-600 dark:text-blue-400',
       iconBg: 'bg-blue-50 dark:bg-blue-900/30',
-      badgeBg: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+      badgeBg:
+        'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
     },
     {
       name: 'Aadhar Card Front.png',
@@ -74,7 +77,8 @@ export default class StaffMemberFilesInfo implements OnInit {
       icon: 'pi-file-o',
       iconColor: 'text-indigo-600 dark:text-indigo-400',
       iconBg: 'bg-indigo-50 dark:bg-indigo-900/30',
-      badgeBg: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
+      badgeBg:
+        'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
     },
     {
       name: 'Offer Letter_Deepesh.pdf',
@@ -94,7 +98,8 @@ export default class StaffMemberFilesInfo implements OnInit {
       icon: 'pi-file-excel',
       iconColor: 'text-green-600 dark:text-green-400',
       iconBg: 'bg-green-50 dark:bg-green-900/30',
-      badgeBg: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+      badgeBg:
+        'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
     },
   ]);
   protected readonly loginInfo = signal<LoginInfo | undefined>(undefined);
@@ -103,7 +108,9 @@ export default class StaffMemberFilesInfo implements OnInit {
     const query = this.searchQuery().toLowerCase().trim();
     if (!query) return this.files();
     return this.files().filter(
-      (f) => f.name.toLowerCase().includes(query) || f.type.toLowerCase().includes(query),
+      (f) =>
+        f.name.toLowerCase().includes(query) ||
+        f.type.toLowerCase().includes(query),
     );
   });
 
@@ -121,9 +128,11 @@ export default class StaffMemberFilesInfo implements OnInit {
       focusOnShow: false,
     });
 
-    ref?.onClose.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((result) => {
-      if (!result) return;
-      // TODO: Call upload API and refresh file list
-    });
+    ref?.onClose
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe((result) => {
+        if (!result) return;
+        // TODO: Call upload API and refresh file list
+      });
   }
 }

@@ -8,6 +8,8 @@ export interface CreateStaffMemberReq {
   departmentId: number;
   designationId: number;
   staffEmploymentTypeId: number;
+  staffCategoryId: number;
+  staffPositionMasterId: number;
   roleId: number;
   genderId: number;
   referalId: number;
@@ -273,4 +275,3 @@ export interface UpdateStaffMemberSectionDefaultsReq {
   operationId?: number;
   isEditAllowed: boolean;
 }
-

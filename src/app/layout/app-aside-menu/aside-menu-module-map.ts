@@ -39,9 +39,6 @@ export const ASIDE_MENU_MODULE_UI: Readonly<Record<string, AsideMenuModuleUi>> =
   INSTITUTION_MGMT: { icon: 'pi pi-building' },
   INSTITUTION_PROFILE: { route: 'institution/profile', icon: 'pi pi-building-columns' },
   INSTITUTION_AUDIT_LOGS: { route: 'institution/audit-logs', icon: 'pi pi-history' },
-  // `my-menu` renamed these four leaves and nested them under a new parent group (read live
-  // 2026-09-15: DEPARTMENT/DESIGNATION/ROLE/STAFF_EMPLOYMENT_TYPES, same module ids as the codes below).
-  // The old codes stay mapped too in case a session is still served the pre-rename shape.
   INSTITUTION_DEPARTMENTS: { route: 'departments', icon: 'pi pi-sitemap' },
   INSTITUTION_STAFF_DESIGNATIONS: { route: 'designations', icon: 'pi pi-id-card' },
   INSTITUTION_STAFF_CODE: { route: 'staff-member-code-configuration', icon: 'pi pi-hashtag' },
@@ -63,15 +60,8 @@ export const ASIDE_MENU_MODULE_UI: Readonly<Record<string, AsideMenuModuleUi>> =
   INSTITUTION_DEVICE_SETUP: { route: 'my-devices', icon: 'pi pi-desktop' },
   // `INSTITUTION_DEVICE_CONFIGURATION` is deliberately not a leaf of its own - see
   // `aside-menu-unmapped-modules.ts`.
-  // The rename's new leaves and their parent groups (see the comment above `INSTITUTION_DEPARTMENTS`).
   INSTITUTION_DASHBOARD: { icon: 'pi pi-gauge' },
   INSTITUTION_DASHBOARD_OVERVIEW: { route: 'admin-dashboard', icon: 'pi pi-gauge', label: 'Dashboard' },
-  INSTITUTION_DEPARTMENT: { icon: 'pi pi-sitemap' },
-  DEPARTMENT: { route: 'departments', icon: 'pi pi-sitemap' },
-  INSTITUTION_DESIGNATION: { icon: 'pi pi-id-card' },
-  DESIGNATION: { route: 'designations', icon: 'pi pi-id-card' },
-  INSTITUTION_ROLE: { icon: 'pi pi-shield' },
-  ROLE: { route: 'roles', icon: 'pi pi-shield' },
   // The Institution Policy tree (docs/specs/INSTITUTION_POLICY/). Policy Types and Policy Definitions ship
   // so far; the remaining siblings stay in `aside-menu-unmapped-modules.ts` until their screens exist.
   INSTITUTION_POLICIES: { icon: 'pi pi-book' },

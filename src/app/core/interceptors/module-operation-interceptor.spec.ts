@@ -308,7 +308,7 @@ describe('moduleOperationInterceptor', () => {
 
     const { request } = httpMock.expectOne((r) => r.url.endsWith('/Designation/get-all'));
     expect(request.params.get('ModuleId')).toBe('3');
-    expect(moduleOperationIds).toHaveBeenCalledWith(['DESIGNATION', 'INSTITUTION_STAFF_DESIGNATIONS'], 'View');
+    expect(moduleOperationIds).toHaveBeenCalledWith('INSTITUTION_STAFF_DESIGNATIONS', 'View');
   });
 
   it('uses Institution Device workflow permissions instead of inferred CRUD names', () => {
@@ -337,7 +337,7 @@ describe('moduleOperationInterceptor', () => {
 
     const { request } = httpMock.expectOne((r) => r.url.endsWith('/Department/add'));
     expect(request.body).toEqual({ name: 'Ops', moduleId: 3, operationId: 4 });
-    expect(moduleOperationIds).toHaveBeenCalledWith(['DEPARTMENT', 'INSTITUTION_DEPARTMENTS'], 'Add');
+    expect(moduleOperationIds).toHaveBeenCalledWith('INSTITUTION_DEPARTMENTS', 'Add');
   });
 
   it('leaves a body that owns `moduleId` for its own purpose untouched', () => {

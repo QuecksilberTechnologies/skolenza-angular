@@ -20,7 +20,7 @@ export const ROLE_IMPORT_DISPLAY: BulkImportDisplayConfig = {
   entityLabelPlural: 'roles',
   columnHints: [
     'RoleName: required, up to 100 characters',
-    'RoleType: required, 1 Admin, 2 StaffMember, 3 Manager',
+    'RoleType: required; use the ID returned by the Role Type catalogue',
     'Remark: optional, up to 200 characters',
     'IsActive: optional, true or false, blank means true',
   ],

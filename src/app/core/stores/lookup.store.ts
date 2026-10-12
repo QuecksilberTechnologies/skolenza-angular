@@ -5,10 +5,11 @@ import { catchError, map, of } from 'rxjs';
 
 import { Common } from '@core/services/common';
 import { DepartmentsApi } from '@core/services/departments-api';
-import { StaffMemberContactsAPI } from '@core/services/staff-member-contacts-api';
-import { StaffEmploymentTypesAPI } from '@core/services/staff-employment-types-api';
 import { EnumApi } from '@core/services/enum-api';
 import { LocationsApi } from '@core/services/locations-api';
+import { StaffCategoriesAPI } from '@core/services/staff-categories-api';
+import { StaffEmploymentTypesAPI } from '@core/services/staff-employment-types-api';
+import { StaffMemberContactsAPI } from '@core/services/staff-member-contacts-api';
 import { UsersApi } from '@core/services/users-api';
 import {
   Country,
@@ -16,6 +17,7 @@ import {
   Department,
   District,
   StaffEmploymentType,
+  StaffCategory,
   IGender,
   Locality,
   Relation,
@@ -30,6 +32,7 @@ export const LookupStore = signalStore(
     const usersApi = inject(UsersApi);
     const staffMemberContactsApi = inject(StaffMemberContactsAPI);
     const staffEmploymentTypesApi = inject(StaffEmploymentTypesAPI);
+    const staffCategoriesApi = inject(StaffCategoriesAPI);
     const departmentsApi = inject(DepartmentsApi);
     const enumApi = inject(EnumApi);
     const staffMemberId = signal<string | undefined>(undefined);
@@ -148,6 +151,18 @@ export const LookupStore = signalStore(
           ),
     });
 
+    const staffCategoriesResource = rxResource({
+      params: () => (staffMemberId() !== undefined ? {} : undefined),
+      stream: () =>
+        staffCategoriesApi.getOptions().pipe(
+          map((res) => {
+            if (!res.isSucceeded) commonService.showMessage(res.message, 'error');
+            return res.isSucceeded ? res.data : [];
+          }),
+          catchError(() => of([] as StaffCategory[])),
+        ),
+    });
+
     const departmentOptionsResource = rxResource({
       params: () => {
         const id = staffMemberId();
@@ -207,7 +222,9 @@ export const LookupStore = signalStore(
       params: () => {
         const id = globalOptionsStaffMemberId();
         const stateId = districtsStateId();
-        return id !== undefined && stateId !== undefined ? { staffMemberId: id, stateId } : undefined;
+        return id !== undefined && stateId !== undefined
+          ? { staffMemberId: id, stateId }
+          : undefined;
       },
       stream: ({ params }) =>
         locationsApi
@@ -265,6 +282,7 @@ export const LookupStore = signalStore(
       currenciesResource,
       contactRelationsResource,
       staffEmploymentTypesResource,
+      staffCategoriesResource,
       departmentOptionsResource,
       statesResource,
       districtsResource,
@@ -278,6 +296,7 @@ export const LookupStore = signalStore(
       currenciesResource,
       contactRelationsResource,
       staffEmploymentTypesResource,
+      staffCategoriesResource,
       departmentOptionsResource,
       statesResource,
       districtsResource,
@@ -295,8 +314,13 @@ export const LookupStore = signalStore(
       relations: computed<Relation[]>(() => contactRelationsResource.value() ?? []),
       isLoadingRelations: computed(() => contactRelationsResource.isLoading()),
 
-      staffEmploymentTypes: computed<StaffEmploymentType[]>(() => staffEmploymentTypesResource.value() ?? []),
+      staffEmploymentTypes: computed<StaffEmploymentType[]>(
+        () => staffEmploymentTypesResource.value() ?? [],
+      ),
       isLoadingStaffEmploymentTypes: computed(() => staffEmploymentTypesResource.isLoading()),
+
+      staffCategories: computed<StaffCategory[]>(() => staffCategoriesResource.value() ?? []),
+      isLoadingStaffCategories: computed(() => staffCategoriesResource.isLoading()),
 
       departmentOptions: computed<Department[]>(() => departmentOptionsResource.value() ?? []),
       isLoadingDepartmentOptions: computed(() => departmentOptionsResource.isLoading()),

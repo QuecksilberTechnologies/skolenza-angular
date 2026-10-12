@@ -1,625 +1,717 @@
-<section class="max-h-[calc(100vh-18rem)] overflow-y-auto">
-  <form
-    [formGroup]="staffMemberForm"
-    class="grid grid-cols-1 gap-4">
-    <!-- First Name -->
-    <div class="space-y-1">
-      <label
-        for="firstName"
-        class="block font-medium">
-        First Name
-        <span class="text-red-600 dark:text-red-400">*</span>
-      </label>
-      <input
-        formControlName="firstName"
-        appTrimInput
-        id="firstName"
-        type="text"
-        pInputText
-        [pAutoFocus]="true"
-        [invalid]="isInvalid('firstName')"
-        class="w-full"
-        placeholder="e.g. Jane" />
-      @if (staffMemberForm.get('firstName')?.invalid && staffMemberForm.get('firstName')?.touched) { @if
-      (staffMemberForm.get('firstName')?.errors?.['required']) {
-      <p-message
-        severity="error"
-        size="small"
-        variant="simple">
-        First name is required.
-      </p-message>
-      } @else if (staffMemberForm.get('firstName')?.errors?.['minlength']) {
-      <p-message
-        severity="error"
-        size="small"
-        variant="simple">
-        First name must be at least 3 characters
-      </p-message>
-      } @else if (staffMemberForm.get('firstName')?.errors?.['pattern']) {
-      <p-message
-        severity="error"
-        size="small"
-        variant="simple">
-        First name must contain letters, spaces, and hyphens only.
-      </p-message>
-      } }
-    </div>
-
-    <!-- Middle Name -->
-    <div class="space-y-1">
-      <label
-        for="middleName"
-        class="block font-medium">
-        Middle Name
-      </label>
-      <input
-        formControlName="middleName"
-        appTrimInput
-        id="middleName"
-        type="text"
-        pInputText
-        [invalid]="isInvalid('middleName')"
-        class="w-full"
-        placeholder="e.g. Ann" />
-      @if (staffMemberForm.get('middleName')?.invalid && staffMemberForm.get('middleName')?.touched) { @if
-      (staffMemberForm.get('middleName')?.errors?.['pattern']) {
-      <p-message
-        severity="error"
-        size="small"
-        variant="simple">
-        Middle name must contain letters, spaces, and hyphens only.
-      </p-message>
-      } }
-    </div>
-
-    <!-- Last Name -->
-    <div class="space-y-1">
-      <label
-        for="lastName"
-        class="block font-medium">
-        Last Name
-        <span class="text-red-600 dark:text-red-400">*</span>
-      </label>
-      <input
-        formControlName="lastName"
-        appTrimInput
-        id="lastName"
-        type="text"
-        pInputText
-        [invalid]="isInvalid('lastName')"
-        class="w-full"
-        placeholder="e.g. Doe" />
-      @if (isInvalid('lastName')) { @if (staffMemberForm.get('lastName')?.errors?.['required']) {
-      <p-message
-        severity="error"
-        size="small"
-        variant="simple">
-        Last name is required.
-      </p-message>
-      } @else if (staffMemberForm.get('lastName')?.errors?.['pattern']) {
-      <p-message
-        severity="error"
-        size="small"
-        variant="simple">
-        Last name must contain letters, spaces, and hyphens only.
-      </p-message>
-      } }
-    </div>
-
-    <!-- Official Email -->
-    <div class="space-y-1">
-      <label
-        for="officialEmail"
-        class="block font-medium">
-        Official Email
-        <span class="text-red-600 dark:text-red-400">*</span>
-      </label>
-      <input
-        formControlName="officialEmail"
-        appTrimInput
-        id="officialEmail"
-        type="email"
-        pInputText
-        class="w-full"
-        [invalid]="isInvalid('officialEmail')"
-        placeholder="e.g. jane.doe@company.com" />
-      @if ( staffMemberForm.get('officialEmail')?.errors?.['required'] && staffMemberForm.get('officialEmail')?.touched ) {
-      <p-message
-        severity="error"
-        size="small"
-        variant="simple">
-        Official email is required.
-      </p-message>
-      } @if ( staffMemberForm.get('officialEmail')?.errors?.['email'] && staffMemberForm.get('officialEmail')?.touched ) {
-      <p-message
-        severity="error"
-        size="small"
-        variant="simple">
-        Please enter a valid email address.
-      </p-message>
-      }
-    </div>
-
-    <div class="grid gap-4 md:grid-cols-2">
-      <!-- Date of Birth -->
-      <div class="flex flex-col space-y-1">
-        <label
-          for="dateOfBirth"
-          class="block font-medium">
-          Date of Birth
-          <span class="text-red-600 dark:text-red-400">*</span>
-        </label>
-        <p-datepicker
-          formControlName="dateOfBirth"
-          inputId="dateOfBirth"
-          [maxDate]="maxDateOfBirth"
-          [invalid]="isInvalid('dateOfBirth')"
-          [appendTo]="'body'"
-          class="w-full"
-          placeholder="Select date of birth"
-          inputStyleClass="w-full" />
-        @if (isInvalid('dateOfBirth')) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          Date of birth is required.
-        </p-message>
+<div class="relative h-full overflow-y-auto">
+  <form [formGroup]="staffMemberForm" class="flex min-h-full w-full flex-col">
+    <div
+      class="flex w-full flex-col"
+      [class.mx-auto]="isPageMode"
+      [class.max-w-5xl]="isPageMode"
+      [class.px-3]="isPageMode"
+      [class.pt-3]="isPageMode"
+      [class.pb-6]="isPageMode"
+      [class.sm:px-4]="isPageMode"
+      [class.sm:pt-4]="isPageMode"
+    >
+      <section
+        [class.max-h-[calc(100vh-18rem)]]="!isPageMode"
+        [class.overflow-y-auto]="!isPageMode"
+        [class.rounded-xl]="isPageMode"
+        [class.border]="isPageMode"
+        [class.border-gray-200]="isPageMode"
+        [class.bg-white]="isPageMode"
+        [class.p-4]="isPageMode"
+        [class.shadow-sm]="isPageMode"
+        [class.sm:p-5]="isPageMode"
+        [class.dark:border-zinc-700]="isPageMode"
+        [class.dark:bg-zinc-900]="isPageMode"
+      >
+        @if (isPageMode) {
+        <div class="mb-5">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-user-plus text-primary"></i>
+            <h2 class="text-lg font-semibold">
+              {{ staffMemberBasic()?.id ? 'Staff employment details' : 'New
+              staff details' }}
+            </h2>
+          </div>
+          <p class="mt-1 text-sm text-gray-500 dark:text-zinc-400">
+            Personal, employment and professional assignment information for
+            this staff account.
+          </p>
+        </div>
         }
-      </div>
+        <div class="grid grid-cols-1 gap-4">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <!-- First Name -->
+            <div class="space-y-1">
+              <label for="firstName" class="block font-medium">
+                First Name
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <input
+                formControlName="firstName"
+                appTrimInput
+                id="firstName"
+                type="text"
+                pInputText
+                [pAutoFocus]="true"
+                [invalid]="isInvalid('firstName')"
+                class="w-full"
+                placeholder="e.g. Jane"
+              />
+              @if (staffMemberForm.get('firstName')?.invalid &&
+              staffMemberForm.get('firstName')?.touched) { @if
+              (staffMemberForm.get('firstName')?.errors?.['required']) {
+              <p-message severity="error" size="small" variant="simple">
+                First name is required.
+              </p-message>
+              } @else if
+              (staffMemberForm.get('firstName')?.errors?.['minlength']) {
+              <p-message severity="error" size="small" variant="simple">
+                First name must be at least 3 characters
+              </p-message>
+              } @else if (staffMemberForm.get('firstName')?.errors?.['pattern'])
+              {
+              <p-message severity="error" size="small" variant="simple">
+                First name must contain letters, spaces, and hyphens only.
+              </p-message>
+              } }
+            </div>
 
-      <!-- Date of Onboarding -->
-      <div class="flex flex-col space-y-1">
-        <label
-          for="dateOfOnBoarding"
-          class="block font-medium">
-          Date of Onboarding
-          <span class="text-red-600 dark:text-red-400">*</span>
-        </label>
-        <p-datepicker
-          formControlName="dateOfOnBoarding"
-          inputId="dateOfOnBoarding"
-          [invalid]="isInvalid('dateOfOnBoarding')"
-          [appendTo]="'body'"
-          placeholder="Select date of onboarding"
-          class="w-full"
-          inputStyleClass="w-full" />
-        @if (isInvalid('dateOfOnBoarding')) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          Date of onboarding is required.
-        </p-message>
-        }
-      </div>
+            <!-- Middle Name -->
+            <div class="space-y-1">
+              <label for="middleName" class="block font-medium">
+                Middle Name
+              </label>
+              <input
+                formControlName="middleName"
+                appTrimInput
+                id="middleName"
+                type="text"
+                pInputText
+                [invalid]="isInvalid('middleName')"
+                class="w-full"
+                placeholder="e.g. Ann"
+              />
+              @if (staffMemberForm.get('middleName')?.invalid &&
+              staffMemberForm.get('middleName')?.touched) { @if
+              (staffMemberForm.get('middleName')?.errors?.['pattern']) {
+              <p-message severity="error" size="small" variant="simple">
+                Middle name must contain letters, spaces, and hyphens only.
+              </p-message>
+              } }
+            </div>
+
+            <!-- Last Name -->
+            <div class="space-y-1">
+              <label for="lastName" class="block font-medium">
+                Last Name
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <input
+                formControlName="lastName"
+                appTrimInput
+                id="lastName"
+                type="text"
+                pInputText
+                [invalid]="isInvalid('lastName')"
+                class="w-full"
+                placeholder="e.g. Doe"
+              />
+              @if (isInvalid('lastName')) { @if
+              (staffMemberForm.get('lastName')?.errors?.['required']) {
+              <p-message severity="error" size="small" variant="simple">
+                Last name is required.
+              </p-message>
+              } @else if (staffMemberForm.get('lastName')?.errors?.['pattern'])
+              {
+              <p-message severity="error" size="small" variant="simple">
+                Last name must contain letters, spaces, and hyphens only.
+              </p-message>
+              } }
+            </div>
+          </div>
+
+          <!-- Official Email -->
+          <div class="space-y-1">
+            <label for="officialEmail" class="block font-medium">
+              Official Email
+              <span class="text-red-600 dark:text-red-400">*</span>
+            </label>
+            <input
+              formControlName="officialEmail"
+              appTrimInput
+              id="officialEmail"
+              type="email"
+              pInputText
+              class="w-full"
+              [invalid]="isInvalid('officialEmail')"
+              placeholder="e.g. jane.doe@company.com"
+            />
+            @if ( staffMemberForm.get('officialEmail')?.errors?.['required'] &&
+            staffMemberForm.get('officialEmail')?.touched ) {
+            <p-message severity="error" size="small" variant="simple">
+              Official email is required.
+            </p-message>
+            } @if ( staffMemberForm.get('officialEmail')?.errors?.['email'] &&
+            staffMemberForm.get('officialEmail')?.touched ) {
+            <p-message severity="error" size="small" variant="simple">
+              Please enter a valid email address.
+            </p-message>
+            }
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <!-- Date of Birth -->
+            <div class="flex flex-col space-y-1">
+              <label for="dateOfBirth" class="block font-medium">
+                Date of Birth
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-datepicker
+                formControlName="dateOfBirth"
+                inputId="dateOfBirth"
+                [maxDate]="maxDateOfBirth"
+                [invalid]="isInvalid('dateOfBirth')"
+                [appendTo]="'body'"
+                class="w-full"
+                placeholder="Select date of birth"
+                inputStyleClass="w-full"
+              />
+              @if (isInvalid('dateOfBirth')) {
+              <p-message severity="error" size="small" variant="simple">
+                Date of birth is required.
+              </p-message>
+              }
+            </div>
+
+            <!-- Date of Onboarding -->
+            <div class="flex flex-col space-y-1">
+              <label for="dateOfOnBoarding" class="block font-medium">
+                Date of Onboarding
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-datepicker
+                formControlName="dateOfOnBoarding"
+                inputId="dateOfOnBoarding"
+                [invalid]="isInvalid('dateOfOnBoarding')"
+                [appendTo]="'body'"
+                placeholder="Select date of onboarding"
+                class="w-full"
+                inputStyleClass="w-full"
+              />
+              @if (isInvalid('dateOfOnBoarding')) {
+              <p-message severity="error" size="small" variant="simple">
+                Date of onboarding is required.
+              </p-message>
+              }
+            </div>
+          </div>
+
+          <div
+            class="grid gap-4"
+            [class.md:grid-cols-2]="staffMemberForm.controls.bloodGroup.enabled"
+          >
+            <!-- Gender -->
+            <div class="space-y-1">
+              <label for="genderId" class="block font-medium">
+                Gender
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                formControlName="genderId"
+                id="genderId"
+                [options]="gendersOptions()"
+                optionLabel="genderName"
+                optionValue="id"
+                [loading]="isLoadingGenders()"
+                placeholder="Select Gender"
+                [appendTo]="'body'"
+                class="w-full"
+                [invalid]="isInvalid('genderId')"
+              />
+              @if (staffMemberForm.get('genderId')?.touched &&
+              staffMemberForm.get('genderId')?.errors) { @if
+              (staffMemberForm.get('genderId')?.errors?.['required']) {
+              <p-message severity="error" size="small" variant="simple">
+                Please select a gender
+              </p-message>
+              } }
+            </div>
+
+            <!-- Blood Group -->
+            @if (staffMemberForm.controls.bloodGroup.enabled) {
+            <div class="space-y-1">
+              <label for="bloodGroup" class="block font-medium">
+                Blood Group
+              </label>
+              <p-select
+                formControlName="bloodGroup"
+                id="bloodGroup"
+                [options]="bloodGroupOptions()"
+                optionLabel="label"
+                optionValue="code"
+                placeholder="Select Blood Group"
+                [appendTo]="'body'"
+                class="w-full"
+                [invalid]="isInvalid('bloodGroup')"
+              >
+                <ng-template #selectedItem let-selectedOption>
+                  <div class="flex items-center gap-2">
+                    <lucide-angular
+                      [img]="Droplet"
+                      size="16"
+                      class="text-red-500"
+                    />
+                    <strong class="w-3rem">{{ selectedOption.code }}</strong>
+                    <span class="text-gray-500"
+                      >({{ selectedOption.label }})</span
+                    >
+                  </div>
+                </ng-template>
+                <ng-template let-item #item>
+                  <div class="flex items-center gap-2">
+                    <lucide-angular
+                      [img]="Droplet"
+                      size="16"
+                      class="text-red-500"
+                    />
+                    <strong class="w-3rem">{{ item.code }}</strong>
+                    <span class="text-gray-500">({{ item.label }})</span>
+                  </div>
+                </ng-template>
+              </p-select>
+            </div>
+            }
+          </div>
+
+          <div
+            class="grid gap-4"
+            [class.md:grid-cols-2]="staffMemberForm.controls.roleId.enabled"
+          >
+            <!-- Country -->
+            <div class="space-y-1">
+              <label for="countryId" class="block font-medium">
+                Country
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <div>
+                <app-country-select
+                  selectId="countryId"
+                  controlName="countryId"
+                  [options]="countries()"
+                  [loading]="isLoadingCountries()"
+                  [invalid]="isInvalid('countryId')"
+                  (selectionChange)="onCountryChange($event.value)"
+                />
+              </div>
+              @if (staffMemberForm.get('countryId')?.touched &&
+              staffMemberForm.get('countryId')?.errors) { @if
+              (staffMemberForm.get('countryId')?.errors?.['required']) {
+              <p-message severity="error" size="small" variant="simple">
+                Please select a country
+              </p-message>
+              } }
+            </div>
+
+            <!-- Role -->
+            @if (staffMemberForm.controls.roleId.enabled) {
+            <div class="space-y-1">
+              <label for="roleId" class="block font-medium">
+                Role
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                formControlName="roleId"
+                id="roleId"
+                [options]="roleOptions()"
+                optionLabel="roleName"
+                optionValue="id"
+                [loading]="isLoadingRoles()"
+                placeholder="Select Role"
+                [appendTo]="'body'"
+                [invalid]="isInvalid('roleId')"
+                class="w-full"
+                panelStyleClass="select-option-truncate"
+              />
+              @if (staffMemberForm.controls.roleId.invalid &&
+              staffMemberForm.controls.roleId.touched) {
+              <p-message severity="error" size="small" variant="simple">
+                @if (staffMemberForm.controls.roleId.hasError('required')) {
+                <span>Role is required.</span>
+                }
+              </p-message>
+              }
+            </div>
+            }
+          </div>
+
+          @if ( staffMemberForm.controls.mobileNumber.enabled ||
+          staffMemberForm.controls.emergencyContactPerson.enabled ||
+          staffMemberForm.controls.emergencyContactNumber.enabled ||
+          staffMemberForm.controls.relation.enabled ) {
+          <div class="grid gap-4 md:grid-cols-2">
+            <!-- Mobile Number -->
+            @if (staffMemberForm.controls.mobileNumber.enabled) {
+            <div class="space-y-1">
+              <label for="mobileNumber" class="block font-medium">
+                Mobile Number
+              </label>
+              <p-inputgroup>
+                @if (selectedDialCode()) {
+                <p-inputgroup-addon
+                  >{{ selectedDialCode() }}</p-inputgroup-addon
+                >
+                }
+                <input
+                  formControlName="mobileNumber"
+                  appTrimInput
+                  id="mobileNumber"
+                  type="text"
+                  pInputText
+                  [invalid]="isInvalid('mobileNumber')"
+                  class="w-full"
+                  placeholder="e.g. 9876543210"
+                />
+              </p-inputgroup>
+              @if ( staffMemberForm.get('mobileNumber')?.invalid &&
+              staffMemberForm.get('mobileNumber')?.touched ) { @if
+              (staffMemberForm.get('mobileNumber')?.errors?.['pattern']) {
+              <p-message severity="error" size="small" variant="simple">
+                Enter a valid phone number (digits only)
+              </p-message>
+              } @if
+              (staffMemberForm.get('mobileNumber')?.errors?.['phoneLength']; as
+              phoneLength) {
+              <p-message severity="error" size="small" variant="simple">
+                @if (phoneLength.min === phoneLength.max) { Phone number must be
+                exactly {{ phoneLength.min }} digits } @else { Phone number must
+                be {{ phoneLength.min }}-{{ phoneLength.max }} digits }
+              </p-message>
+              } }
+            </div>
+            }
+
+            <!-- Emergency Contact Name -->
+            @if (staffMemberForm.controls.emergencyContactPerson.enabled) {
+            <div class="space-y-1">
+              <label for="emergencyContactPerson" class="block font-medium">
+                Emergency Contact Name
+              </label>
+              <input
+                formControlName="emergencyContactPerson"
+                appTrimInput
+                id="emergencyContactPerson"
+                type="text"
+                pInputText
+                [invalid]="isInvalid('emergencyContactPerson')"
+                class="w-full"
+                placeholder="e.g. John Doe"
+              />
+              @if ( staffMemberForm.get('emergencyContactPerson')?.invalid &&
+              staffMemberForm.get('emergencyContactPerson')?.touched ) {
+              <p-message severity="error" size="small" variant="simple">
+                @if
+                (staffMemberForm.get('emergencyContactPerson')?.errors?.['minlength'])
+                { Contact name must be at least 3 characters. } @else if
+                (staffMemberForm.get('emergencyContactPerson')?.errors?.['maxlength'])
+                { Contact name cannot exceed 50 characters. } @else if
+                (staffMemberForm.get('emergencyContactPerson')?.errors?.['pattern'])
+                { Contact name must contain letters, spaces, and hyphens only. }
+              </p-message>
+              }
+            </div>
+            }
+
+            <!-- Emergency Contact Number -->
+            @if (staffMemberForm.controls.emergencyContactNumber.enabled) {
+            <div class="space-y-1">
+              <label for="emergencyContactNumber" class="block font-medium">
+                Emergency Contact Number
+              </label>
+              <p-inputgroup>
+                @if (selectedDialCode()) {
+                <p-inputgroup-addon
+                  >{{ selectedDialCode() }}</p-inputgroup-addon
+                >
+                }
+                <input
+                  formControlName="emergencyContactNumber"
+                  appTrimInput
+                  id="emergencyContactNumber"
+                  type="text"
+                  pInputText
+                  [invalid]="isInvalid('emergencyContactNumber')"
+                  class="w-full"
+                  placeholder="e.g. 9876543211"
+                />
+              </p-inputgroup>
+              @if ( staffMemberForm.get('emergencyContactNumber')?.invalid &&
+              staffMemberForm.get('emergencyContactNumber')?.touched ) { @if
+              (staffMemberForm.get('emergencyContactNumber')?.errors?.['pattern'])
+              {
+              <p-message severity="error" size="small" variant="simple">
+                Enter a valid phone number (digits only)
+              </p-message>
+              } @if (
+              staffMemberForm.get('emergencyContactNumber')?.errors?.['phoneLength'];
+              as phoneLength ) {
+              <p-message severity="error" size="small" variant="simple">
+                @if (phoneLength.min === phoneLength.max) { Phone number must be
+                exactly {{ phoneLength.min }} digits } @else { Phone number must
+                be {{ phoneLength.min }}-{{ phoneLength.max }} digits }
+              </p-message>
+              } }
+            </div>
+            }
+
+            <!-- Relation -->
+            @if (staffMemberForm.controls.relation.enabled) {
+            <div class="space-y-1">
+              <label for="relation" class="block font-medium">
+                Emergency Contact Relation
+              </label>
+              <p-select
+                formControlName="relation"
+                id="relation"
+                [options]="relationsOptions()"
+                optionLabel="label"
+                optionValue="id"
+                [loading]="isLoadingRelations()"
+                placeholder="Select Relation"
+                [appendTo]="'body'"
+                class="w-full"
+                [invalid]="isInvalid('relation')"
+              />
+            </div>
+            }
+          </div>
+          }
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <!-- Department -->
+            <div class="space-y-1">
+              <label for="departmentId" class="block font-medium">
+                Department
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                formControlName="departmentId"
+                id="departmentId"
+                [options]="departmentOptions()"
+                optionLabel="departmentName"
+                optionValue="id"
+                [loading]="isLoadingDepartments()"
+                placeholder="Select Department"
+                [appendTo]="'body'"
+                class="w-full"
+                [invalid]="isInvalid('departmentId')"
+                panelStyleClass="select-option-truncate"
+                (onChange)="onDepartmentChange($event.value)"
+              />
+              @if (isInvalid('departmentId')) {
+              <p-message severity="error" size="small" variant="simple">
+                Department is required.
+              </p-message>
+              }
+            </div>
+
+            <!-- Designation -->
+            <div class="space-y-1">
+              <label for="designationId" class="block font-medium">
+                Designation
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                formControlName="designationId"
+                id="designationId"
+                [options]="designationOptions()"
+                optionLabel="designationName"
+                optionValue="id"
+                [loading]="isLoadingDesignation()"
+                placeholder="Select Designation"
+                [appendTo]="'body'"
+                [invalid]="isInvalid('designationId')"
+                class="w-full"
+                panelStyleClass="select-option-truncate"
+              />
+              @if (isInvalid('designationId')) {
+              <p-message severity="error" size="small" variant="simple">
+                Designation is required.
+              </p-message>
+              }
+            </div>
+          </div>
+
+          <div
+            class="grid gap-4"
+            [class.md:grid-cols-2]="staffMemberForm.controls.roleId.enabled"
+          >
+            <!-- Employment Type -->
+            <div class="space-y-1">
+              <label for="staffEmploymentTypeId" class="block font-medium">
+                Employment Type
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                formControlName="staffEmploymentTypeId"
+                id="staffEmploymentTypeId"
+                [options]="staffEmploymentTypeOptions()"
+                optionLabel="typeName"
+                optionValue="id"
+                [loading]="isLoadingStaffEmploymentTypes()"
+                placeholder="Select Employment Type"
+                [appendTo]="'body'"
+                [invalid]="isInvalid('staffEmploymentTypeId')"
+                class="w-full"
+                panelStyleClass="select-option-truncate"
+              />
+              @if (isInvalid('staffEmploymentTypeId')) {
+              <p-message severity="error" size="small" variant="simple">
+                Employment type is required.
+              </p-message>
+              }
+            </div>
+
+            <!-- Staff Category -->
+            <div class="space-y-1">
+              <label for="staffCategoryId" class="block font-medium">
+                Staff Category
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                formControlName="staffCategoryId"
+                id="staffCategoryId"
+                [options]="staffCategoryOptions()"
+                optionLabel="label"
+                optionValue="id"
+                [loading]="isLoadingStaffCategories()"
+                placeholder="Select Staff Category"
+                [appendTo]="'body'"
+                [invalid]="isInvalid('staffCategoryId')"
+                (onChange)="onStaffCategoryChange($event.value)"
+                class="w-full"
+                panelStyleClass="select-option-truncate"
+              />
+              @if (isInvalid('staffCategoryId')) {
+              <p-message severity="error" size="small" variant="simple">
+                Staff category is required.
+              </p-message>
+              }
+            </div>
+
+            <!-- Job Family -->
+            <div class="space-y-1">
+              <label for="staffJobFamilyMasterId" class="block font-medium">
+                Job Family <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                formControlName="staffJobFamilyMasterId"
+                id="staffJobFamilyMasterId"
+                [options]="jobFamilyOptions()"
+                optionLabel="name"
+                optionValue="id"
+                [loading]="isLoadingProfessionalStructure()"
+                [disabled]="!staffMemberForm.controls.staffCategoryId.value"
+                placeholder="Select Job Family"
+                [appendTo]="'body'"
+                (onChange)="onJobFamilyChange($event.value)"
+                [invalid]="isInvalid('staffJobFamilyMasterId')"
+                class="w-full"
+              />
+              @if (isInvalid('staffJobFamilyMasterId')) {
+              <p-message severity="error" size="small" variant="simple"
+                >Job family is required.</p-message
+              >
+              }
+            </div>
+
+            <!-- Position -->
+            <div class="space-y-1">
+              <label for="staffPositionMasterId" class="block font-medium">
+                Position <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                formControlName="staffPositionMasterId"
+                id="staffPositionMasterId"
+                [options]="positionOptions()"
+                optionLabel="name"
+                optionValue="id"
+                [loading]="isLoadingProfessionalStructure()"
+                [disabled]="
+                  !staffMemberForm.controls.staffJobFamilyMasterId.value
+                "
+                placeholder="Select Position"
+                [appendTo]="'body'"
+                [invalid]="isInvalid('staffPositionMasterId')"
+                class="w-full"
+              />
+              @if (isInvalid('staffPositionMasterId')) {
+              <p-message severity="error" size="small" variant="simple"
+                >Position is required.</p-message
+              >
+              }
+            </div>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            @if (staffMemberBasic()?.id) {
+            <!-- Marital Status -->
+            <div class="flex items-center leading-0">
+              <p-checkbox
+                inputId="isMarried"
+                formControlName="isMarried"
+                class="mr-2"
+                [binary]="true"
+              />
+              <label for="isMarried" class="block font-medium"> Married </label>
+            </div>
+
+            <!-- Confirmed StaffMember (Permanent Status) -->
+            <div class="flex items-center leading-0">
+              <p-checkbox
+                inputId="hasPermanent"
+                formControlName="hasPermanent"
+                class="mr-2"
+                [binary]="true"
+              />
+              <label for="hasPermanent" class="block font-medium">
+                Confirmed StaffMember (Permanent Status)
+              </label>
+            </div>
+            }
+          </div>
+        </div>
+      </section>
     </div>
 
     <div
-      class="grid gap-4"
-      [class.md:grid-cols-2]="staffMemberForm.controls.bloodGroup.enabled">
-      <!-- Gender -->
-      <div class="space-y-1">
-        <label
-          for="genderId"
-          class="block font-medium">
-          Gender
-          <span class="text-red-600 dark:text-red-400">*</span>
-        </label>
-        <p-select
-          formControlName="genderId"
-          id="genderId"
-          [options]="gendersOptions()"
-          optionLabel="genderName"
-          optionValue="id"
-          [loading]="isLoadingGenders()"
-          placeholder="Select Gender"
-          [appendTo]="'body'"
-          class="w-full"
-          [invalid]="isInvalid('genderId')" />
-        @if (staffMemberForm.get('genderId')?.touched && staffMemberForm.get('genderId')?.errors) { @if
-        (staffMemberForm.get('genderId')?.errors?.['required']) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          Please select a gender
-        </p-message>
-        } }
-      </div>
-
-      <!-- Blood Group -->
-      @if (staffMemberForm.controls.bloodGroup.enabled) {
-      <div class="space-y-1">
-        <label
-          for="bloodGroup"
-          class="block font-medium">
-          Blood Group
-        </label>
-        <p-select
-          formControlName="bloodGroup"
-          id="bloodGroup"
-          [options]="bloodGroupOptions()"
-          optionLabel="label"
-          optionValue="code"
-          placeholder="Select Blood Group"
-          [appendTo]="'body'"
-          class="w-full"
-          [invalid]="isInvalid('bloodGroup')">
-          <ng-template
-            #selectedItem
-            let-selectedOption>
-            <div class="flex items-center gap-2">
-              <lucide-angular
-                [img]="Droplet"
-                size="16"
-                class="text-red-500" />
-              <strong class="w-3rem">{{ selectedOption.code }}</strong>
-              <span class="text-gray-500">({{ selectedOption.label }})</span>
-            </div>
-          </ng-template>
-          <ng-template
-            let-item
-            #item>
-            <div class="flex items-center gap-2">
-              <lucide-angular
-                [img]="Droplet"
-                size="16"
-                class="text-red-500" />
-              <strong class="w-3rem">{{ item.code }}</strong>
-              <span class="text-gray-500">({{ item.label }})</span>
-            </div>
-          </ng-template>
-        </p-select>
-      </div>
-      }
-    </div>
-
-    <!-- Country -->
-    <div class="space-y-1">
-      <label
-        for="countryId"
-        class="block font-medium">
-        Country
-        <span class="text-red-600 dark:text-red-400">*</span>
-      </label>
-      <div>
-        <app-country-select
-          selectId="countryId"
-          controlName="countryId"
-          [options]="countries()"
-          [loading]="isLoadingCountries()"
-          [invalid]="isInvalid('countryId')"
-          (selectionChange)="onCountryChange($event.value)" />
-      </div>
-      @if (staffMemberForm.get('countryId')?.touched && staffMemberForm.get('countryId')?.errors) { @if
-      (staffMemberForm.get('countryId')?.errors?.['required']) {
-      <p-message
-        severity="error"
-        size="small"
-        variant="simple">
-        Please select a country
-      </p-message>
-      } }
-    </div>
-
-    @if ( staffMemberForm.controls.mobileNumber.enabled || staffMemberForm.controls.emergencyContactPerson.enabled ||
-    staffMemberForm.controls.emergencyContactNumber.enabled || staffMemberForm.controls.relation.enabled ) {
-    <div class="grid gap-4 md:grid-cols-2">
-      <!-- Mobile Number -->
-      @if (staffMemberForm.controls.mobileNumber.enabled) {
-      <div class="space-y-1">
-        <label
-          for="mobileNumber"
-          class="block font-medium">
-          Mobile Number
-        </label>
-        <p-inputgroup>
-          @if (selectedDialCode()) {
-          <p-inputgroup-addon>{{ selectedDialCode() }}</p-inputgroup-addon>
-          }
-          <input
-            formControlName="mobileNumber"
-            appTrimInput
-            id="mobileNumber"
-            type="text"
-            pInputText
-            [invalid]="isInvalid('mobileNumber')"
-            class="w-full"
-            placeholder="e.g. 9876543210" />
-        </p-inputgroup>
-        @if ( staffMemberForm.get('mobileNumber')?.invalid && staffMemberForm.get('mobileNumber')?.touched ) { @if
-        (staffMemberForm.get('mobileNumber')?.errors?.['pattern']) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          Enter a valid phone number (digits only)
-        </p-message>
-        } @if (staffMemberForm.get('mobileNumber')?.errors?.['phoneLength']; as phoneLength) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          @if (phoneLength.min === phoneLength.max) { Phone number must be exactly {{ phoneLength.min }} digits } @else
-          { Phone number must be {{ phoneLength.min }}-{{ phoneLength.max }} digits }
-        </p-message>
-        } }
-      </div>
-      }
-
-      <!-- Emergency Contact Name -->
-      @if (staffMemberForm.controls.emergencyContactPerson.enabled) {
-      <div class="space-y-1">
-        <label
-          for="emergencyContactPerson"
-          class="block font-medium">
-          Emergency Contact Name
-        </label>
-        <input
-          formControlName="emergencyContactPerson"
-          appTrimInput
-          id="emergencyContactPerson"
-          type="text"
-          pInputText
-          [invalid]="isInvalid('emergencyContactPerson')"
-          class="w-full"
-          placeholder="e.g. John Doe" />
-        @if ( staffMemberForm.get('emergencyContactPerson')?.invalid && staffMemberForm.get('emergencyContactPerson')?.touched
-        ) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          @if (staffMemberForm.get('emergencyContactPerson')?.errors?.['minlength']) { Contact name must be at least 3
-          characters. } @else if (staffMemberForm.get('emergencyContactPerson')?.errors?.['maxlength']) { Contact name
-          cannot exceed 50 characters. } @else if (staffMemberForm.get('emergencyContactPerson')?.errors?.['pattern']) {
-          Contact name must contain letters, spaces, and hyphens only. }
-        </p-message>
-        }
-      </div>
-      }
-
-      <!-- Emergency Contact Number -->
-      @if (staffMemberForm.controls.emergencyContactNumber.enabled) {
-      <div class="space-y-1">
-        <label
-          for="emergencyContactNumber"
-          class="block font-medium">
-          Emergency Contact Number
-        </label>
-        <p-inputgroup>
-          @if (selectedDialCode()) {
-          <p-inputgroup-addon>{{ selectedDialCode() }}</p-inputgroup-addon>
-          }
-          <input
-            formControlName="emergencyContactNumber"
-            appTrimInput
-            id="emergencyContactNumber"
-            type="text"
-            pInputText
-            [invalid]="isInvalid('emergencyContactNumber')"
-            class="w-full"
-            placeholder="e.g. 9876543211" />
-        </p-inputgroup>
-        @if ( staffMemberForm.get('emergencyContactNumber')?.invalid && staffMemberForm.get('emergencyContactNumber')?.touched
-        ) { @if (staffMemberForm.get('emergencyContactNumber')?.errors?.['pattern']) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          Enter a valid phone number (digits only)
-        </p-message>
-        } @if ( staffMemberForm.get('emergencyContactNumber')?.errors?.['phoneLength']; as phoneLength ) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          @if (phoneLength.min === phoneLength.max) { Phone number must be exactly {{ phoneLength.min }} digits } @else
-          { Phone number must be {{ phoneLength.min }}-{{ phoneLength.max }} digits }
-        </p-message>
-        } }
-      </div>
-      }
-
-      <!-- Relation -->
-      @if (staffMemberForm.controls.relation.enabled) {
-      <div class="space-y-1">
-        <label
-          for="relation"
-          class="block font-medium">
-          Emergency Contact Relation
-        </label>
-        <p-select
-          formControlName="relation"
-          id="relation"
-          [options]="relationsOptions()"
-          optionLabel="label"
-          optionValue="id"
-          [loading]="isLoadingRelations()"
-          placeholder="Select Relation"
-          [appendTo]="'body'"
-          class="w-full"
-          [invalid]="isInvalid('relation')" />
-      </div>
-      }
-    </div>
-    }
-
-    <div class="grid gap-4 md:grid-cols-2">
-      <!-- Department -->
-      <div class="space-y-1">
-        <label
-          for="departmentId"
-          class="block font-medium">
-          Department
-          <span class="text-red-600 dark:text-red-400">*</span>
-        </label>
-        <p-select
-          formControlName="departmentId"
-          id="departmentId"
-          [options]="departmentOptions()"
-          optionLabel="departmentName"
-          optionValue="id"
-          [loading]="isLoadingDepartments()"
-          placeholder="Select Department"
-          [appendTo]="'body'"
-          class="w-full"
-          [invalid]="isInvalid('departmentId')"
-          panelStyleClass="select-option-truncate"
-          (onChange)="onDepartmentChange($event.value)" />
-        @if (isInvalid('departmentId')) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          Department is required.
-        </p-message>
-        }
-      </div>
-
-      <!-- Designation -->
-      <div class="space-y-1">
-        <label
-          for="designationId"
-          class="block font-medium">
-          Designation
-          <span class="text-red-600 dark:text-red-400">*</span>
-        </label>
-        <p-select
-          formControlName="designationId"
-          id="designationId"
-          [options]="designationOptions()"
-          optionLabel="designationName"
-          optionValue="id"
-          [loading]="isLoadingDesignation()"
-          placeholder="Select Designation"
-          [appendTo]="'body'"
-          [invalid]="isInvalid('designationId')"
-          class="w-full"
-          panelStyleClass="select-option-truncate" />
-        @if (isInvalid('designationId')) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          Designation is required.
-        </p-message>
-        }
-      </div>
-    </div>
-
-    <div
-      class="grid gap-4"
-      [class.md:grid-cols-2]="staffMemberForm.controls.roleId.enabled">
-      <!-- StaffMember Type -->
-      <div class="space-y-1">
-        <label
-          for="staffEmploymentTypeId"
-          class="block font-medium">
-          StaffMember Type
-          <span class="text-red-600 dark:text-red-400">*</span>
-        </label>
-        <p-select
-          formControlName="staffEmploymentTypeId"
-          id="staffEmploymentTypeId"
-          [options]="staffEmploymentTypeOptions()"
-          optionLabel="typeName"
-          optionValue="id"
-          [loading]="isLoadingStaffEmploymentTypes()"
-          placeholder="Select StaffMember Type"
-          [appendTo]="'body'"
-          [invalid]="isInvalid('staffEmploymentTypeId')"
-          class="w-full"
-          panelStyleClass="select-option-truncate" />
-        @if (isInvalid('staffEmploymentTypeId')) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          StaffMember type is required.
-        </p-message>
-        }
-      </div>
-
-      <!-- Role -->
-      @if (staffMemberForm.controls.roleId.enabled) {
-      <div class="space-y-1">
-        <label
-          for="roleId"
-          class="block font-medium">
-          Role
-          <span class="text-red-600 dark:text-red-400">*</span>
-        </label>
-        <p-select
-          formControlName="roleId"
-          id="roleId"
-          [options]="roleOptions()"
-          optionLabel="roleName"
-          optionValue="id"
-          [loading]="isLoadingRoles()"
-          placeholder="Select Role"
-          [appendTo]="'body'"
-          [invalid]="isInvalid('roleId')"
-          class="w-full"
-          panelStyleClass="select-option-truncate" />
-        @if (staffMemberForm.controls.roleId.invalid && staffMemberForm.controls.roleId.touched) {
-        <p-message
-          severity="error"
-          size="small"
-          variant="simple">
-          @if (staffMemberForm.controls.roleId.hasError('required')) {
-          <span>Role is required.</span>
-          }
-        </p-message>
-        }
-      </div>
-      }
-    </div>
-
-    <div class="grid gap-4 md:grid-cols-2">
-      @if (staffMemberBasic()?.id) {
-      <!-- Marital Status -->
-      <div class="flex items-center leading-0">
-        <p-checkbox
-          inputId="isMarried"
-          formControlName="isMarried"
-          class="mr-2"
-          [binary]="true" />
-        <label
-          for="isMarried"
-          class="block font-medium">
-          Married
-        </label>
-      </div>
-
-      <!-- Confirmed StaffMember (Permanent Status) -->
-      <div class="flex items-center leading-0">
-        <p-checkbox
-          inputId="hasPermanent"
-          formControlName="hasPermanent"
-          class="mr-2"
-          [binary]="true" />
-        <label
-          for="hasPermanent"
-          class="block font-medium">
-          Confirmed StaffMember (Permanent Status)
-        </label>
-      </div>
-      }
+      class="flex justify-end gap-2"
+      [class.mt-6]="!isPageMode"
+      [class.sticky]="isPageMode"
+      [class.bottom-0]="isPageMode"
+      [class.z-10]="isPageMode"
+      [class.border-t]="isPageMode"
+      [class.border-gray-200]="isPageMode"
+      [class.bg-white]="isPageMode"
+      [class.px-3]="isPageMode"
+      [class.py-3]="isPageMode"
+      [class.sm:px-4]="isPageMode"
+      [class.dark:border-zinc-700]="isPageMode"
+      [class.dark:bg-zinc-900]="isPageMode"
+    >
+      <p-button [severity]="'secondary'" label="Cancel" (click)="onCancel()" />
+      <p-button
+        [severity]="'primary'"
+        [label]="
+          isSaving()
+            ? 'Saving...'
+            : staffMemberBasic()?.id
+              ? 'Save changes'
+              : 'Create staff member'
+        "
+        [loading]="isSaving()"
+        [disabled]="staffMemberForm.invalid || isSaving()"
+        (onClick)="onCreate()"
+      />
     </div>
   </form>
-</section>
-
-<div class="mt-6 flex justify-end gap-2">
-  <p-button
-    [severity]="'secondary'"
-    label="Cancel"
-    (click)="onCancel()" />
-  <p-button
-    [severity]="'primary'"
-    [label]="isSaving() ? 'Saving...' : 'Save'"
-    [loading]="isSaving()"
-    [disabled]="staffMemberForm.invalid || isSaving()"
-    (onClick)="onCreate()" />
 </div>

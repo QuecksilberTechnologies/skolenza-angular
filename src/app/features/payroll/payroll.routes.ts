@@ -1,9 +1,16 @@
 import { Routes } from '@angular/router';
 
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 import { hasModulePermissionGuard, roleTypeGuard } from '@core/guards';
 
 // Admin(1) / Manager(3) only. StaffMembers reach payroll solely via 'payslips'.
-const adminGuards = [roleTypeGuard([1, 3]), hasModulePermissionGuard('Payroll')];
+const adminGuards = [
+  roleTypeGuard([
+    InstitutionRoleTypeId.InstitutionAdministrator,
+    InstitutionRoleTypeId.StaffManager,
+  ]),
+  hasModulePermissionGuard('Payroll'),
+];
 
 export const PAYROLL_ROUTES: Routes = [
   {
@@ -23,7 +30,8 @@ export const PAYROLL_ROUTES: Routes = [
       },
       {
         path: 'salary-structure',
-        loadComponent: () => import('./payroll-salary-structure/payroll-salary-structure'),
+        loadComponent: () =>
+          import('./payroll-salary-structure/payroll-salary-structure'),
         canActivate: adminGuards,
         title: 'Salary Structure',
       },
@@ -34,7 +42,8 @@ export const PAYROLL_ROUTES: Routes = [
       },
       {
         path: 'tax-settings',
-        loadComponent: () => import('./payroll-tax-settings/payroll-tax-settings'),
+        loadComponent: () =>
+          import('./payroll-tax-settings/payroll-tax-settings'),
         canActivate: adminGuards,
         title: 'Tax Settings',
       },

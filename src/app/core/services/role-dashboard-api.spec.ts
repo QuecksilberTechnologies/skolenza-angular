@@ -21,7 +21,7 @@ describe('RoleDashboardApi', () => {
 
   afterEach(() => httpMock.verify());
 
-  it.each<RoleDashboardCode>(['INSTITUTION_ADMIN', 'PEOPLE_MANAGER', 'WORKFORCE_USER', 'EXTERNAL_USER'])(
+  it.each<RoleDashboardCode>(['INSTITUTION_ADMIN', 'STAFF_MANAGER', 'STAFF_MEMBER', 'EXTERNAL_USER'])(
     'reads the %s dashboard from its own path',
     (code) => {
       api.getDashboard(code).subscribe();

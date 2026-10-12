@@ -12,6 +12,7 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { CardModule } from '@openng/optimus-ui/card';
 import { TabsModule } from '@openng/optimus-ui/tabs';
 
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 import { AuthApi, Common } from '@core/services';
 import { CurrentUserPermissionsStore } from '@core/stores';
 import { ProBadge } from '@shared/components/pro-badge/pro-badge';
@@ -42,7 +43,8 @@ export default class Settings implements OnInit {
       route: 'brand-identity',
       label: 'Brand Identity',
       icon: 'pi pi-verified',
-      description: "Customize how your organization's brand appears across the portal.",
+      description:
+        "Customize how your organization's brand appears across the portal.",
       pro: true,
       superAdminOnly: true,
     },
@@ -70,7 +72,8 @@ export default class Settings implements OnInit {
       route: 'staffMember-editing',
       label: 'StaffMember Editing',
       icon: 'pi pi-user-edit',
-      description: 'Choose which profile sections staffMembers may edit themselves.',
+      description:
+        'Choose which profile sections staffMembers may edit themselves.',
       superAdminOnly: true,
       autoSave: true,
     },
@@ -80,9 +83,15 @@ export default class Settings implements OnInit {
   // Billing tab is Admin (1) / Manager (3) only, mirroring the subscription route guard.
   readonly tabs = computed<SettingsTab[]>(() => {
     const isSuperAdmin = this.#permissionsStore.isSuperAdmin();
-    const visible = this.#baseTabs.filter((tab) => !tab.superAdminOnly || isSuperAdmin);
+    const visible = this.#baseTabs.filter(
+      (tab) => !tab.superAdminOnly || isSuperAdmin,
+    );
     const roleTypeId = this.#authApi.authRoleType();
-    if (roleTypeId !== 1 && roleTypeId !== 3) return visible;
+    if (
+      roleTypeId !== InstitutionRoleTypeId.InstitutionAdministrator &&
+      roleTypeId !== InstitutionRoleTypeId.StaffManager
+    )
+      return visible;
     return [
       ...visible,
       {
@@ -97,7 +106,8 @@ export default class Settings implements OnInit {
   readonly activeTab = signal(FALLBACK_TAB);
 
   readonly activeTabMeta = computed(
-    () => this.tabs().find((t) => t.route === this.activeTab()) ?? this.tabs()[0],
+    () =>
+      this.tabs().find((t) => t.route === this.activeTab()) ?? this.tabs()[0],
   );
 
   constructor() {
@@ -111,11 +121,13 @@ export default class Settings implements OnInit {
 
   ngOnInit(): void {
     this.#syncFromUrl(this.#router.url);
-    this.#router.events.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        this.#syncFromUrl(event.urlAfterRedirects);
-      }
-    });
+    this.#router.events
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          this.#syncFromUrl(event.urlAfterRedirects);
+        }
+      });
   }
 
   #syncFromUrl(url: string): void {

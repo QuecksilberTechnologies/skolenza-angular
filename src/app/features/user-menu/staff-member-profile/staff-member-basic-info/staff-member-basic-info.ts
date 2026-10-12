@@ -10,18 +10,16 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { CardModule } from '@openng/optimus-ui/card';
 import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
-import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { Droplet, LucideAngularModule } from 'lucide-angular';
 import { finalize } from 'rxjs';
 
-import { Common, StaffMemberBasicAPI, ProfileAccessApi } from '@core/services';
-import { AuthStore, LookupStore } from '@core/stores';
-import { StaffMemberManageDialog } from '@shared/components/staff-member/staff-member-manage-dialog/staff-member-manage-dialog';
+import { Common, StaffMemberBasicAPI, ProfileAccessApi, StaffProfessionalStructureApi } from '@core/services';
+import { AuthStore, FeaturePageStore, LookupStore } from '@core/stores';
 import { ProfileEmpty } from '@shared/components/profile/profile-empty/profile-empty';
 import { ProfileHeader } from '@shared/components/profile/profile-header/profile-header';
 import { ProfileInfoBlock } from '@shared/components/profile/profile-info-block/profile-info-block';
@@ -54,12 +52,14 @@ import { PROFILE_TABS } from '@shared/utilities/common-data';
 export default class StaffMemberBasicInfo implements OnInit {
   readonly #staffMemberBasicAPI = inject(StaffMemberBasicAPI);
   readonly #profileAccessApi = inject(ProfileAccessApi);
+  readonly #professionalApi = inject(StaffProfessionalStructureApi);
   readonly #commonService = inject(Common);
   readonly #destroyRef = inject(DestroyRef);
   readonly #route = inject(ActivatedRoute);
-  readonly #dialogService = inject(DialogService);
+  readonly #router = inject(Router);
   readonly #authStore = inject(AuthStore);
   readonly #lookupStore = inject(LookupStore);
+  readonly #featurePageStore = inject(FeaturePageStore);
   readonly profileHeader = viewChild<ProfileHeader>('profileHeader');
   readonly staffMemberBasics = computed(() => this.#staffMemberBasicAPI.staffMemberBasics());
   readonly completionPercentage = computed(() => this.#staffMemberBasicAPI.completionPercentage());
@@ -131,26 +131,11 @@ export default class StaffMemberBasicInfo implements OnInit {
   }
 
   async addBasic(staffMemberBasic?: IStaffMemberBasicInfo) {
-    const ref: DynamicDialogRef | null = this.#dialogService.open(StaffMemberManageDialog, {
-      header: staffMemberBasic ? 'Edit Basic Info' : 'Add Basic Info',
-      style: { width: '90vw', maxWidth: '50rem' },
-      contentStyle: { overflow: 'hidden' },
-      modal: true,
-      closable: true,
-      focusOnShow: false,
-      data: { staffMemberBasic },
+    const staffMemberId = staffMemberBasic?.id ?? this.#getTargetStaffMemberId();
+    await this.#router.navigate(['/app/staff', staffMemberId, 'edit'], {
+      queryParams: { staffMemberId },
+      state: { staffMemberBasic },
     });
-
-    ref?.onClose.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe(async (data) => {
-      if (!data) {
-        return;
-      }
-      // Refresh summary and menu first, while basics still has the updated data from the dialog
-      this.#refreshProfileSummaryAndMenu();
-      await this.getStaffMemberBasics();
-    });
-
-    this.#destroyRef.onDestroy(() => ref?.close());
   }
 
   #refreshProfileSummaryAndMenu() {
@@ -180,5 +165,22 @@ export default class StaffMemberBasicInfo implements OnInit {
   updateEditStatus(status: boolean, id: string) {
     this.getStaffMemberBasics();
     this.#staffMemberBasicAPI.toggleEditSignal(status, id);
+  }
+
+  canApproveCapabilities(): boolean {
+    const roleType = this.loginInfo?.user?.primaryRole?.roleTypeId;
+    return roleType === 1 || (roleType === 3 && this.#featurePageStore.canPerform('STAFF_DIRECTORY', 'Approve'));
+  }
+
+  verifyCapability(assignmentId: number, isApproved: boolean): void {
+    this.#professionalApi.verifyCapability(assignmentId, isApproved).pipe(
+      takeUntilDestroyed(this.#destroyRef),
+    ).subscribe({
+      next: async (response) => {
+        this.#commonService.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
+        if (response.isSucceeded) await this.getStaffMemberBasics();
+      },
+      error: (error) => this.#commonService.showMessage(error.message, 'error'),
+    });
   }
 }

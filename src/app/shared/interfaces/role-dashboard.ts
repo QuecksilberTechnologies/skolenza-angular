@@ -16,8 +16,8 @@ import {
  */
 export type RoleDashboardCode =
   | 'INSTITUTION_ADMIN'
-  | 'PEOPLE_MANAGER'
-  | 'WORKFORCE_USER'
+  | 'STAFF_MANAGER'
+  | 'STAFF_MEMBER'
   | 'EXTERNAL_USER';
 
 export interface RoleDashboardRes extends ApiEnvelope<RoleDashboardData | null> {
@@ -30,8 +30,8 @@ export interface RoleDashboardData {
   /** ISO date-time. */
   generatedAtUtc: string;
   institutionAdministrator?: InstitutionAdministratorDashboard | null;
-  peopleManager?: PeopleManagerDashboard | null;
-  workforceUser?: WorkforceUserDashboard | null;
+  staffManager?: StaffManagerDashboard | null;
+  staffMember?: StaffMemberDashboard | null;
   externalUser?: ExternalUserDashboard | null;
 }
 
@@ -96,7 +96,7 @@ export interface InstitutionAdministratorDashboard {
   hiringPipeline: DashboardSection<SuperAdminHiringPipeline>;
 }
 
-export interface PeopleManagerDashboard {
+export interface StaffManagerDashboard {
   teamSummary: DashboardSection<DashboardMetricCollection>;
   teamAttendance: DashboardSection<DashboardMetricCollection>;
   teamMembersOnNotice: DashboardSection<NoticePeriodStaffMember[] | null>;
@@ -105,7 +105,7 @@ export interface PeopleManagerDashboard {
   recentTeamOnboarding: DashboardSection<DashboardWidgetItem[] | null>;
 }
 
-export interface WorkforceUserDashboard {
+export interface StaffMemberDashboard {
   myProfile: DashboardSection<DashboardMetricCollection>;
   myAttendance: DashboardSection<DashboardMetricCollection>;
   myLeave: DashboardSection<DashboardMetricCollection>;

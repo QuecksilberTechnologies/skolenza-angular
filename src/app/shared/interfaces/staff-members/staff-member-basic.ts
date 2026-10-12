@@ -46,6 +46,8 @@ export interface IStaffMemberBasicInfo {
   departmentId: number;
   designationId: number;
   staffEmploymentTypeId: number;
+  staffCategoryId: number;
+  professionalProfile?: import('./staff-professional-structure').StaffProfessionalProfile;
   officialEmail: string;
   hasPermanent: boolean;
   isActive: boolean;
@@ -118,6 +120,9 @@ export interface BasicForm {
   departmentId: FormControl<number | undefined>;
   designationId: FormControl<number | undefined>;
   staffEmploymentTypeId: FormControl<number | undefined>;
+  staffCategoryId: FormControl<number | undefined>;
+  staffJobFamilyMasterId: FormControl<number | undefined>;
+  staffPositionMasterId: FormControl<number | undefined>;
   roleId: FormControl<number | undefined>;
   officialEmail: FormControl<string>;
   staffMemberDocumentId: FormControl<string>;
@@ -152,6 +157,8 @@ export interface UpdateStaffMemberOfficialReq {
   countryId: number;
   departmentId: number;
   staffEmploymentTypeId: number;
+  staffCategoryId: number;
+  staffPositionMasterId: number;
   genderId: number;
   dateOfBirth: string;
   dateOfOnBoarding: string;

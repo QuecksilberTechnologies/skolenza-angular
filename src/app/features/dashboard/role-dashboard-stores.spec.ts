@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 
 import { RoleDashboardApi } from '@core/services';
 
-import { WorkforceDashboardStore } from './dashboard-staff-member/workforce-dashboard.store';
+import { StaffMemberDashboardStore } from './dashboard-staff-member/staff-member-dashboard.store';
 import { ExternalDashboardStore } from './dashboard-external/external-dashboard.store';
 import { ManagerDashboardStore } from './dashboard-manager/manager-dashboard.store';
 
@@ -32,7 +32,7 @@ describe('persona dashboard stores', () => {
     TestBed.configureTestingModule({
       providers: [
         ManagerDashboardStore,
-        WorkforceDashboardStore,
+        StaffMemberDashboardStore,
         ExternalDashboardStore,
         { provide: RoleDashboardApi, useValue: apiMock },
       ],
@@ -41,30 +41,30 @@ describe('persona dashboard stores', () => {
 
   const settle = () => TestBed.inject(ApplicationRef).whenStable();
 
-  it('manager store reads PEOPLE_MANAGER and exposes its sections', async () => {
+  it('manager store reads STAFF_MANAGER and exposes its sections', async () => {
     apiMock.getDashboard.mockReturnValue(
-      reply({ peopleManager: { teamSummary: metrics, teamLeave: items } }),
+      reply({ staffManager: { teamSummary: metrics, teamLeave: items } }),
     );
 
     const store = TestBed.inject(ManagerDashboardStore);
     await settle();
 
-    expect(apiMock.getDashboard).toHaveBeenCalledWith('PEOPLE_MANAGER');
+    expect(apiMock.getDashboard).toHaveBeenCalledWith('STAFF_MANAGER');
     expect(store.teamSummary()?.data.metrics).toHaveLength(1);
     expect(store.teamSummary()?.isPlaceholder).toBe(true);
     expect(store.teamLeave()?.data).toHaveLength(1);
     expect(store.teamBirthdays()).toBeNull();
   });
 
-  it('workforce store reads WORKFORCE_USER and exposes its sections', async () => {
+  it('workforce store reads STAFF_MEMBER and exposes its sections', async () => {
     apiMock.getDashboard.mockReturnValue(
-      reply({ workforceUser: { myLeave: metrics, myTasks: items } }),
+      reply({ staffMember: { myLeave: metrics, myTasks: items } }),
     );
 
-    const store = TestBed.inject(WorkforceDashboardStore);
+    const store = TestBed.inject(StaffMemberDashboardStore);
     await settle();
 
-    expect(apiMock.getDashboard).toHaveBeenCalledWith('WORKFORCE_USER');
+    expect(apiMock.getDashboard).toHaveBeenCalledWith('STAFF_MEMBER');
     expect(store.myLeave()?.data.metrics?.[0].value).toBe(4);
     expect(store.myTasks()?.data).toHaveLength(1);
     expect(store.announcements()).toBeNull();
@@ -114,7 +114,7 @@ describe('persona dashboard stores', () => {
     });
     apiMock.getDashboard.mockReturnValue(
       reply({
-        peopleManager: {
+        staffManager: {
           teamSummary: {
             ...metrics,
             isPlaceholder: false,
@@ -159,7 +159,7 @@ describe('persona dashboard stores', () => {
 
   it('reports all-sample-data only when every present section is a placeholder', async () => {
     apiMock.getDashboard.mockReturnValue(
-      reply({ peopleManager: { teamSummary: metrics, teamLeave: items } }),
+      reply({ staffManager: { teamSummary: metrics, teamLeave: items } }),
     );
 
     const store = TestBed.inject(ManagerDashboardStore);
@@ -171,7 +171,7 @@ describe('persona dashboard stores', () => {
 
   it('reports all-sample-data when every section is a placeholder', async () => {
     apiMock.getDashboard.mockReturnValue(
-      reply({ peopleManager: { teamSummary: metrics, teamAttendance: metrics } }),
+      reply({ staffManager: { teamSummary: metrics, teamAttendance: metrics } }),
     );
 
     const store = TestBed.inject(ManagerDashboardStore);
@@ -181,7 +181,7 @@ describe('persona dashboard stores', () => {
   });
 
   it('does not flag a successful read', async () => {
-    apiMock.getDashboard.mockReturnValue(reply({ peopleManager: {} }));
+    apiMock.getDashboard.mockReturnValue(reply({ staffManager: {} }));
 
     const store = TestBed.inject(ManagerDashboardStore);
     await settle();

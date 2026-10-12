@@ -318,33 +318,6 @@ describe('AppAsideMenu', () => {
     });
   });
 
-  it('keeps the API name on a collapsed leaf the module map names no label for', async () => {
-    const { component } = await setup({
-      nodes: [
-        node({
-          id: 99,
-          moduleCode: 'INSTITUTION_DEPARTMENT',
-          moduleName: 'Institution-Department',
-          displayName: 'Institution Department',
-          children: [
-            node({
-              id: 25,
-              moduleCode: 'DEPARTMENT',
-              moduleName: 'Departments',
-              displayName: 'Departments',
-              isLeafNode: true,
-            }),
-          ],
-        }),
-      ],
-    });
-
-    // The mirror of the test above: here the header is the worse of the two names, so the leaf's
-    // own wins. Only a code carrying `label` in the map overrides its `displayName`.
-    expect(ASIDE_MENU_MODULE_UI['DEPARTMENT'].label).toBeUndefined();
-    expect(component.sections()[0].items[0]).toMatchObject({ label: 'Departments' });
-  });
-
   it('drops a header whose every child is unmapped', async () => {
     const { component } = await setup({
       nodes: [

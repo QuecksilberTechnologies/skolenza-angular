@@ -1,11 +1,18 @@
 import { Routes } from '@angular/router';
 
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 import { hasModulePermissionGuard, roleTypeGuard } from '@core/guards';
 import { environment } from '@env/environment';
 
 const titleSuffix = environment.appName;
 
-const adminGuards = [roleTypeGuard([1, 3]), hasModulePermissionGuard('Leaves')];
+const adminGuards = [
+  roleTypeGuard([
+    InstitutionRoleTypeId.InstitutionAdministrator,
+    InstitutionRoleTypeId.StaffManager,
+  ]),
+  hasModulePermissionGuard('Leaves'),
+];
 
 export const LEAVES_ROUTES: Routes = [
   { path: '', redirectTo: 'my', pathMatch: 'full' },
@@ -41,7 +48,8 @@ export const LEAVES_ROUTES: Routes = [
   },
   {
     path: 'balances',
-    loadComponent: () => import('./leave-requests/leave-balances/leave-balances'),
+    loadComponent: () =>
+      import('./leave-requests/leave-balances/leave-balances'),
     canActivate: adminGuards,
     title: `Leave Balances | ${titleSuffix}`,
   },

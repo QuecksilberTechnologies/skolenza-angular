@@ -15,7 +15,7 @@ import { RequestStatusCardComponent } from '@shared/components/dashboad/request-
 import { WidgetListCard } from '@shared/components/dashboad/widget-list-card/widget-list-card';
 
 import { DashboardGreeting } from '../dashboard-greeting/dashboard-greeting';
-import { WorkforceDashboardStore } from './workforce-dashboard.store';
+import { StaffMemberDashboardStore } from './staff-member-dashboard.store';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,14 +33,14 @@ import { WorkforceDashboardStore } from './workforce-dashboard.store';
     MetricsCard,
     WidgetListCard,
   ],
-  providers: [DatePipe, WorkforceDashboardStore],
+  providers: [DatePipe, StaffMemberDashboardStore],
   templateUrl: './dashboard.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class DashboardStaffMember {
   readonly #commonService = inject(Common);
   readonly #datePipe = inject(DatePipe);
-  protected readonly store = inject(WorkforceDashboardStore);
+  protected readonly store = inject(StaffMemberDashboardStore);
 
   readonly attendanceTitle = 'Attendance | Sat';
   readonly leaveGraphTitle = 'Leave | By Graph';

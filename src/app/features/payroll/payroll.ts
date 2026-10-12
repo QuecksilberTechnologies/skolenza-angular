@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { TabsModule } from '@openng/optimus-ui/tabs';
 
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 import { Common } from '@core/services';
 import { AuthStore } from '@core/stores';
 
@@ -37,18 +38,24 @@ export default class Payroll implements OnInit {
 
   readonly allTabs = [
     { label: 'Payroll Overview', route: 'overview', icon: 'pi pi-list' },
-    { label: 'Salary Structure', route: 'salary-structure', icon: 'pi pi-money-bill' },
+    {
+      label: 'Salary Structure',
+      route: 'salary-structure',
+      icon: 'pi pi-money-bill',
+    },
     { label: 'Payslips', route: 'payslips', icon: 'pi pi-file' },
     { label: 'Tax Settings', route: 'tax-settings', icon: 'pi pi-percentage' },
   ];
 
   readonly tabs = computed(() =>
-    this.isAdmin() ? this.allTabs : this.allTabs.filter((t) => t.route === 'payslips'),
+    this.isAdmin()
+      ? this.allTabs
+      : this.allTabs.filter((t) => t.route === 'payslips'),
   );
 
   constructor() {
     const roleTypeId = this.#authStore.roleTypeId();
-    const isStaffMember = roleTypeId === 2;
+    const isStaffMember = roleTypeId === InstitutionRoleTypeId.StaffMember;
 
     this.#commonService.setPageHeaderInfo({
       pageTitle: isStaffMember ? 'My Payslips' : 'Payroll Management',
@@ -72,7 +79,9 @@ export default class Payroll implements OnInit {
     // Fail closed: only a positively identified admin (1) or manager (3) sees every
     // payslip. `primaryRole` is optional, so an unknown role stays scoped to the user.
     const roleTypeId = sessionUser?.primaryRole?.roleTypeId;
-    const isStaffMember = roleTypeId !== 1 && roleTypeId !== 3;
+    const isStaffMember =
+      roleTypeId !== InstitutionRoleTypeId.InstitutionAdministrator &&
+      roleTypeId !== InstitutionRoleTypeId.StaffManager;
 
     if (isStaffMember && sessionUser) {
       this.store.setStaffMemberFilter(sessionUser.staffMemberId);
@@ -80,11 +89,13 @@ export default class Payroll implements OnInit {
     }
 
     this.#setActiveTabFromUrl(this.#router.url);
-    this.#router.events.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        this.#setActiveTabFromUrl(event.urlAfterRedirects);
-      }
-    });
+    this.#router.events
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          this.#setActiveTabFromUrl(event.urlAfterRedirects);
+        }
+      });
   }
 
   #setActiveTabFromUrl(url: string): void {

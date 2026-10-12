@@ -48,11 +48,11 @@ function mergeOverview(
 /** The manager page's cards that carry their own refresh. */
 type ManagerSection = 'notice' | 'leave' | 'birthdays' | 'onboarding';
 
-/** The People Manager dashboard, read from the single `PEOPLE_MANAGER` dashboard call. */
+/** The Staff Manager dashboard, read from the single `STAFF_MANAGER` dashboard call. */
 export const ManagerDashboardStore = signalStore(
-  withRoleDashboard<ManagerSection>('PEOPLE_MANAGER'),
+  withRoleDashboard<ManagerSection>('STAFF_MANAGER'),
   withComputed((store) => {
-    const manager = computed(() => store.dashboard()?.peopleManager ?? null);
+    const manager = computed(() => store.dashboard()?.staffManager ?? null);
     const teamSummary = computed(() => manager()?.teamSummary ?? null);
     const teamAttendance = computed(() => manager()?.teamAttendance ?? null);
     const teamMembersOnNotice = computed(() => manager()?.teamMembersOnNotice ?? null);

@@ -40,6 +40,7 @@ export { StaffMemberExperienceAPI } from './staff-member-experience-api';
 export { StaffMemberIdentityApi } from './staff-member-identity-api';
 export { StaffMemberInsuranceApi } from './staff-member-insurance-api';
 export { StaffEmploymentTypesAPI } from './staff-employment-types-api';
+export { StaffCategoriesAPI } from './staff-categories-api';
 
 // Policy
 export { HolidayCalandarApi } from './holiday-calandar-api';
@@ -98,6 +99,7 @@ export { StaffMemberWorkPatternApi } from './staff-member-work-pattern-api';
 export { CampusApi } from './campus-api';
 export { ReportTypeApi } from './report-type-api';
 export { LoadingStore } from './loading-store';
+export { StaffProfessionalStructureApi } from './staff-professional-structure-api';
 
 // Institution Policy
 export { InstitutionPolicyApi } from './institution-policy-api';

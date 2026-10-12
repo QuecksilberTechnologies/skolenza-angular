@@ -2,11 +2,18 @@
   @let fileList = filteredFiles();
 
   <!-- Header -->
-  <div class="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+  <div
+    class="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center"
+  >
     <div>
-      <h2 class="text-text-main-light dark:text-text-main-dark text-lg font-semibold">Documents</h2>
+      <h2
+        class="text-text-main-light dark:text-text-main-dark text-lg font-semibold"
+      >
+        Documents
+      </h2>
       <p class="text-text-sub-light dark:text-text-sub-dark mt-0.5 text-sm">
-        {{ files().length }} {{ files().length === 1 ? 'file' : 'files' }} uploaded
+        {{ files().length }} {{ files().length === 1 ? 'file' : 'files' }}
+        uploaded
       </p>
     </div>
     <div class="flex items-center gap-3">
@@ -19,14 +26,18 @@
           [ngModel]="searchQuery()"
           (ngModelChange)="searchQuery.set($event)"
           class="w-56"
-          aria-label="Search files" />
+          aria-label="Search files"
+        />
       </p-iconfield>
 
-      @if ( loginInfo()?.user?.primaryRole?.roleTypeId === 1 || loginInfo()?.user?.primaryRole?.roleTypeId === 3 ) {
+      @if ( loginInfo()?.user?.primaryRole?.roleTypeId ===
+      roleType.InstitutionAdministrator ||
+      loginInfo()?.user?.primaryRole?.roleTypeId === roleType.StaffManager ) {
       <p-button
         label="Upload"
         icon="pi pi-upload"
-        (onClick)="openUploadDialog()" />
+        (onClick)="openUploadDialog()"
+      />
       }
     </div>
   </div>
@@ -34,10 +45,12 @@
   <!-- File Table -->
   @if (fileList.length) {
   <div
-    class="overflow-hidden rounded-xl border border-surface-200 bg-surface-0 dark:border-surface-700 dark:bg-surface-900">
+    class="overflow-hidden rounded-xl border border-surface-200 bg-surface-0 dark:border-surface-700 dark:bg-surface-900"
+  >
     <!-- Table Header -->
     <div
-      class="text-text-sub-light dark:text-text-sub-dark hidden grid-cols-[minmax(200px,2fr)_80px_80px_120px_120px] items-center gap-4 border-b border-surface-200 bg-surface-50 px-5 py-3 text-xs font-semibold tracking-wider uppercase sm:grid dark:border-surface-700 dark:bg-surface-800">
+      class="text-text-sub-light dark:text-text-sub-dark hidden grid-cols-[minmax(200px,2fr)_80px_80px_120px_120px] items-center gap-4 border-b border-surface-200 bg-surface-50 px-5 py-3 text-xs font-semibold tracking-wider uppercase sm:grid dark:border-surface-700 dark:bg-surface-800"
+    >
       <span>File Name</span>
       <span>Type</span>
       <span>Size</span>
@@ -51,36 +64,49 @@
       class="group grid grid-cols-1 items-center gap-2 px-5 py-3.5 transition-colors hover:bg-surface-50 sm:grid-cols-[minmax(200px,2fr)_80px_80px_120px_120px] sm:gap-4 dark:hover:bg-surface-800"
       [class.border-b]="!last"
       [class.border-surface-200]="!last"
-      [class.dark:border-surface-700]="!last">
+      [class.dark:border-surface-700]="!last"
+    >
       <!-- File Name with Icon -->
       <div class="flex items-center gap-3">
         <div
           class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-          [class]="file.iconBg">
+          [class]="file.iconBg"
+        >
           <span
             [class]="'pi ' + file.icon + ' ' + file.iconColor"
-            class="text-2xl!"></span>
+            class="text-2xl!"
+          ></span>
         </div>
-        <span class="text-text-main-light dark:text-text-main-dark truncate text-sm font-medium">{{ file.name }}</span>
+        <span
+          class="text-text-main-light dark:text-text-main-dark truncate text-sm font-medium"
+          >{{ file.name }}</span
+        >
       </div>
 
       <!-- Type Badge -->
       <div>
         <span
           class="inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase"
-          [class]="file.badgeBg">
+          [class]="file.badgeBg"
+        >
           {{ file.type }}
         </span>
       </div>
 
       <!-- Size -->
-      <span class="text-text-sub-light dark:text-text-sub-dark text-sm">{{ file.size }}</span>
+      <span class="text-text-sub-light dark:text-text-sub-dark text-sm"
+        >{{ file.size }}</span
+      >
 
       <!-- Updated On -->
-      <span class="text-text-sub-light dark:text-text-sub-dark text-sm">{{ file.updatedOn }}</span>
+      <span class="text-text-sub-light dark:text-text-sub-dark text-sm"
+        >{{ file.updatedOn }}</span
+      >
 
       <!-- Actions -->
-      <div class="flex items-center justify-end gap-1 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+      <div
+        class="flex items-center justify-end gap-1 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+      >
         <p-button
           icon="pi pi-download"
           [rounded]="true"
@@ -89,7 +115,8 @@
           size="small"
           pTooltip="Download"
           tooltipPosition="top"
-          [ariaLabel]="'Download ' + file.name" />
+          [ariaLabel]="'Download ' + file.name"
+        />
         <p-button
           icon="pi pi-eye"
           [rounded]="true"
@@ -98,7 +125,8 @@
           size="small"
           pTooltip="Preview"
           tooltipPosition="top"
-          [ariaLabel]="'Preview ' + file.name" />
+          [ariaLabel]="'Preview ' + file.name"
+        />
         <p-button
           icon="pi pi-trash"
           [rounded]="true"
@@ -107,7 +135,8 @@
           size="small"
           pTooltip="Delete"
           tooltipPosition="top"
-          [ariaLabel]="'Delete ' + file.name" />
+          [ariaLabel]="'Delete ' + file.name"
+        />
       </div>
     </div>
     }
@@ -119,6 +148,7 @@
         searchQuery() ? 'Try a different search term' : 'Upload your first document to get started'
       "
     [tabIcon]="'pi pi-folder-open'"
-    [isShowAddBtn]="false" />
+    [isShowAddBtn]="false"
+  />
   }
 </p-card>

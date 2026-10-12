@@ -30,9 +30,10 @@ const FEATURE_PAGES_KEY = 'feature-pages';
  * Bump when `FeaturePageNode` changes shape — an older payload is discarded, not migrated. Also
  * bumped when the backend renames a `moduleCode`: the interceptor stamps ids off the hydrated tree
  * before revalidation, so a pre-rename cache would send the old module's id (4: the
- * `INSTITUTION_POLICY_HOLIDAY` rename, 2026-09-23).
+ * `INSTITUTION_POLICY_HOLIDAY` rename, 2026-09-23; 5: institution Department,
+ * Designation and Role leaves moved to their canonical module codes, 2026-10-12).
  */
-const CACHE_VERSION = 4;
+const CACHE_VERSION = 5;
 
 interface FeaturePageCache {
   version: number;

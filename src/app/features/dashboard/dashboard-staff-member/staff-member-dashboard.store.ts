@@ -12,11 +12,11 @@ type WorkforceSection =
   | 'my-documents'
   | 'announcements';
 
-/** The Workforce User's own figures, read from the single `WORKFORCE_USER` dashboard call. */
-export const WorkforceDashboardStore = signalStore(
-  withRoleDashboard<WorkforceSection>('WORKFORCE_USER'),
+/** The Staff Member's own figures, read from the single `STAFF_MEMBER` dashboard call. */
+export const StaffMemberDashboardStore = signalStore(
+  withRoleDashboard<WorkforceSection>('STAFF_MEMBER'),
   withComputed((store) => {
-    const workforce = computed(() => store.dashboard()?.workforceUser ?? null);
+    const workforce = computed(() => store.dashboard()?.staffMember ?? null);
 
     return {
       myProfile: computed(() => workforce()?.myProfile ?? null),

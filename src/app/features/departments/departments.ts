@@ -26,6 +26,7 @@ import { TagModule } from '@openng/optimus-ui/tag';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
 
 import { Common, DepartmentsApi } from '@core/services';
+import { INSTITUTION_ACCESS_MODULE_CODES } from '@core/feature-page-identifiers';
 import { FeaturePageStore } from '@core/stores';
 import { BulkImportDialog } from '@shared/components/bulk-import-dialog/bulk-import-dialog';
 import { DepartmentFilter } from '@shared/components/department/department-filter/department-filter';
@@ -89,7 +90,7 @@ export default class Departments implements OnInit {
   protected readonly loginInfo = signal<LoginInfo | null>(null);
   protected readonly selectedRow = signal<Department | null>(null);
   protected readonly isFilterDrawerOpen = signal(false);
-  protected readonly moduleCode = ['DEPARTMENT', 'INSTITUTION_DEPARTMENTS'] as const;
+  protected readonly moduleCode = INSTITUTION_ACCESS_MODULE_CODES.department;
 
   protected readonly departmentStatusOptions = [
     { status: 'All', value: null },

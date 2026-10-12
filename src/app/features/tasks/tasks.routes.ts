@@ -1,12 +1,18 @@
 import { Routes } from '@angular/router';
 
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 import { roleTypeGuard } from '@core/guards';
 import { environment } from '@env/environment';
 
 const titleSuffix = environment.appName;
 
 // roleTypeId: 0=Host, 1=Admin, 2=StaffMember, 3=Manager
-const adminManager = [roleTypeGuard([1, 3])];
+const adminManager = [
+  roleTypeGuard([
+    InstitutionRoleTypeId.InstitutionAdministrator,
+    InstitutionRoleTypeId.StaffManager,
+  ]),
+];
 
 export const TASKS_ROUTES: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },

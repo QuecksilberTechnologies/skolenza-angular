@@ -42,26 +42,13 @@ describe('ASIDE_MENU_MODULE_UI', () => {
     expect(both).toEqual([]);
   });
 
-  it('never maps two modules to the same route, except a documented host/institution or rename pair', () => {
+  it('never maps two modules to the same route, except a documented host/institution pair', () => {
     // `INSTITUTION_CAMPUSES` and `HOST_CAMPUS_LIST` point at the same `campuses`
     // route on purpose: one session only ever carries one of the two codes, never both, and
     // `my-menu` scopes the operations each grants differently (see the map's own comment).
-    //
-    // The `DEPARTMENT`/`DESIGNATION`/`ROLE`/`STAFF_EMPLOYMENT_TYPES` codes and their `INSTITUTION_..._`
-    // predecessors are a different kind of pair: `my-menu` renamed the leaf (read live
-    // 2026-09-15), so these four share a route with their own old code instead, kept mapped only
-    // as a fallback for a session still on the pre-rename shape (see the map's own comment).
     const sharedRoutePairs = new Set([
       'INSTITUTION_CAMPUSES',
       'HOST_CAMPUS_LIST',
-      'DEPARTMENT',
-      'INSTITUTION_DEPARTMENTS',
-      'DESIGNATION',
-      'INSTITUTION_STAFF_DESIGNATIONS',
-      'ROLE',
-      'INSTITUTION_ACCESS',
-      'STAFF_EMPLOYMENT_TYPES',
-      'STAFF_EMPLOYMENT_TYPES',
     ]);
     const routes = entries
       .filter(([code]) => !sharedRoutePairs.has(code))
