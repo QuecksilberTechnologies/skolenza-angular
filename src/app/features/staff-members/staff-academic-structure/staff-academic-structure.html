@@ -1,0 +1,88 @@
+<div class="min-h-[calc(100vh-4.6rem)] overflow-y-auto">
+  <p-card class="m-3 p-3! sm:m-4 sm:p-4!">
+    @if (!staffMemberId()) {
+      <nav class="flex flex-wrap gap-2 border-b pb-3" aria-label="Academic structure sections">
+        @for (tab of tabs; track tab) {
+          <p-button [label]="tab" [outlined]="selectedTab() !== tab" (onClick)="selectTab(tab)" />
+        }
+      </nav>
+
+      <section class="mt-5 grid gap-5 lg:grid-cols-[1fr_25rem]">
+        <div class="overflow-hidden rounded-xl border bg-white">
+          @for (item of records(); track item.id) {
+            <article class="flex items-center justify-between gap-4 border-b p-4">
+              <div>
+                <strong>{{ item.name }}</strong>
+                <div class="text-sm text-gray-500">{{ item.code }} · {{ item.description }}</div>
+              </div>
+              <div class="flex gap-2">
+                <p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="edit(item)" />
+                <p-button label="Remove" icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="delete(item)" />
+              </div>
+            </article>
+          } @empty { <p class="p-5 text-gray-500">No records configured.</p> }
+        </div>
+
+        <form class="space-y-3 rounded-xl border bg-white p-5" (ngSubmit)="saveMaster()">
+          <h2 class="font-semibold">{{ masterForm.id ? 'Edit' : 'Add' }} {{ selectedTab() }}</h2>
+          <label class="block">Code<input pInputText class="mt-1 w-full" name="code" [(ngModel)]="masterForm.code" required /></label>
+          <label class="block">Name<input pInputText class="mt-1 w-full" name="name" [(ngModel)]="masterForm.name" required /></label>
+          <label class="block">Description<textarea pTextarea class="mt-1 w-full" name="description" [(ngModel)]="masterForm.description"></textarea></label>
+          @if (selectedTab() === masterTypes.Session) {
+            <label class="block">Start date<input pInputText type="date" class="mt-1 w-full" name="startDate" [(ngModel)]="masterForm.startDate" required /></label>
+            <label class="block">End date<input pInputText type="date" class="mt-1 w-full" name="endDate" [(ngModel)]="masterForm.endDate" required /></label>
+          }
+          @if (selectedTab() === masterTypes.Programme) {
+            <label class="block">Level<input pInputText class="mt-1 w-full" name="level" [(ngModel)]="masterForm.level" /></label>
+          }
+          @if (selectedTab() === masterTypes.Group) {
+            <label class="block">Session<p-select class="mt-1 w-full" name="session" [(ngModel)]="masterForm.academicSessionId" [options]="sessions()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Programme<p-select class="mt-1 w-full" name="programme" [(ngModel)]="masterForm.academicProgrammeId" [options]="programmes()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+          }
+          @if (selectedTab() === masterTypes.Section) {
+            <label class="block">Academic group<p-select class="mt-1 w-full" name="group" [(ngModel)]="masterForm.academicGroupId" [options]="groups()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Capacity<input pInputText type="number" class="mt-1 w-full" name="capacity" [(ngModel)]="masterForm.capacity" /></label>
+          }
+          @if (selectedTab() === masterTypes.CourseOffering) {
+            <label class="block">Session<p-select class="mt-1 w-full" name="offeringSession" [(ngModel)]="masterForm.academicSessionId" [options]="sessions()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Academic group<p-select class="mt-1 w-full" name="offeringGroup" [(ngModel)]="masterForm.academicGroupId" [options]="groups()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Subject<p-select class="mt-1 w-full" name="subject" [(ngModel)]="masterForm.subjectId" [options]="subjects()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Curriculum version<input pInputText class="mt-1 w-full" name="curriculumVersion" [(ngModel)]="masterForm.curriculumVersion" /></label>
+          }
+          <label class="flex items-center gap-2"><p-checkbox name="active" [(ngModel)]="masterForm.isActive" [binary]="true" />Active</label>
+          <div class="flex justify-end gap-2"><p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="masterForm = { id: 0, code: '', name: '', description: '', isActive: true, type: 1 }" /><p-button type="submit" label="Save" icon="pi pi-check" /></div>
+        </form>
+      </section>
+    } @else {
+      <section class="grid gap-5 xl:grid-cols-2">
+        <div class="rounded-xl border bg-white p-5">
+          <h2 class="mb-4 text-lg font-semibold">Subject teaching assignment</h2>
+          <form class="space-y-3" (ngSubmit)="saveTeaching()">
+            <label class="block">Course offering<p-select class="mt-1 w-full" name="offering" [(ngModel)]="teachingForm.courseOfferingId" [options]="offerings()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Section<p-select class="mt-1 w-full" name="teachingSection" [(ngModel)]="teachingForm.classSectionId" [options]="teachingSections()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Assignment role<p-select class="mt-1 w-full" name="assignmentType" [(ngModel)]="teachingForm.assignmentType" [options]="assignmentTypes()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Contribution %<input pInputText type="number" min="1" max="100" class="mt-1 w-full" name="contributionPercent" [(ngModel)]="teachingForm.contributionPercent" /></label>
+            <label class="block">Effective from<input pInputText type="date" class="mt-1 w-full" name="teachingFrom" [(ngModel)]="teachingForm.effectiveFrom" /></label>
+            <label class="block">Effective to<input pInputText type="date" class="mt-1 w-full" name="teachingTo" [(ngModel)]="teachingForm.effectiveTo" /></label>
+            <label class="flex items-center gap-2"><p-checkbox name="teachingPrimary" [(ngModel)]="teachingForm.isPrimary" [binary]="true" />Primary responsibility</label>
+            <label class="flex items-center gap-2"><p-checkbox name="teachingActive" [(ngModel)]="teachingForm.isActive" [binary]="true" />Active</label>
+            <div class="flex gap-2"><p-button type="submit" [label]="teachingForm.id ? 'Update teaching assignment' : 'Save teaching assignment'" icon="pi pi-check" /><p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="teachingForm = emptyTeaching(staffMemberId() ?? '')" /></div>
+          </form>
+          <div class="mt-5 border-t pt-3">@for (item of academicProfile().teachingAssignments; track item.id) {<article class="mb-3 flex items-center justify-between gap-3"><p><strong>{{ item.subjectName }}</strong> · {{ item.academicGroupName }} / {{ item.classSectionName }}<br /><span class="text-sm text-gray-500">{{ item.assignmentTypeName }} · {{ item.contributionPercent }}%</span></p><div class="flex gap-2"><p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editTeaching(item)" /><p-button label="Remove" icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="deleteTeaching(item)" /></div></article>} @empty {<p class="text-gray-500">No teaching assignments.</p>}</div>
+        </div>
+        <div class="rounded-xl border bg-white p-5">
+          <h2 class="mb-4 text-lg font-semibold">Class teacher responsibility</h2>
+          <form class="space-y-3" (ngSubmit)="saveClassTeacher()">
+            <label class="block">Section<p-select class="mt-1 w-full" name="classTeacherSection" [(ngModel)]="classTeacherForm.classSectionId" [options]="sections()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Effective from<input pInputText type="date" class="mt-1 w-full" name="classTeacherFrom" [(ngModel)]="classTeacherForm.effectiveFrom" /></label>
+            <label class="block">Effective to<input pInputText type="date" class="mt-1 w-full" name="classTeacherTo" [(ngModel)]="classTeacherForm.effectiveTo" /></label>
+            <label class="flex items-center gap-2"><p-checkbox name="classTeacherPrimary" [(ngModel)]="classTeacherForm.isPrimary" [binary]="true" />Primary class teacher</label>
+            <label class="flex items-center gap-2"><p-checkbox name="classTeacherActive" [(ngModel)]="classTeacherForm.isActive" [binary]="true" />Active</label>
+            <div class="flex gap-2"><p-button type="submit" [label]="classTeacherForm.id ? 'Update responsibility' : 'Save class teacher responsibility'" icon="pi pi-check" /><p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="classTeacherForm = emptyClassTeacher(staffMemberId() ?? '')" /></div>
+          </form>
+          <div class="mt-5 border-t pt-3">@for (item of academicProfile().classTeacherAssignments; track item.id) {<article class="mb-3 flex items-center justify-between gap-3"><p><strong>{{ item.academicGroupName }}</strong> · {{ item.classSectionName }}</p><div class="flex gap-2"><p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editClassTeacher(item)" /><p-button label="Remove" icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="deleteClassTeacher(item)" /></div></article>} @empty {<p class="text-gray-500">No class teacher responsibilities.</p>}</div>
+        </div>
+      </section>
+    }
+  </p-card>
+</div>

@@ -156,6 +156,10 @@
       [value]="basic.designationName" />
 
     <app-profile-info-block
+      label="Staff Category"
+      [value]="basic.staffCategoryName" />
+
+    <app-profile-info-block
       label="Job Family"
       [value]="basic.professionalProfile?.jobFamilyName" />
 
@@ -211,6 +215,26 @@
       <span class="mr-2 inline-flex rounded-full border px-2 py-1 text-sm">
         {{ duty.name }} @if (duty.frequency) { · {{ duty.frequency }} }
       </span>
+      } @empty { <span>-</span> }
+    </app-profile-info-block>
+  </app-profile-info-card>
+  }
+
+  @if (academicProfile().teachingAssignments.length || academicProfile().classTeacherAssignments.length) {
+  <app-profile-info-card>
+    <h2 class="mb-2 font-semibold" ngProjectAs="sectionTitle">Academic Responsibilities</h2>
+    <app-profile-info-block label="Subjects and Sections">
+      @for (assignment of academicProfile().teachingAssignments; track assignment.id) {
+        <span class="mr-2 inline-flex rounded-full border px-2 py-1 text-sm">
+          {{ assignment.subjectName }} · {{ assignment.academicGroupName }} / {{ assignment.classSectionName }}
+        </span>
+      } @empty { <span>-</span> }
+    </app-profile-info-block>
+    <app-profile-info-block label="Class Teacher">
+      @for (assignment of academicProfile().classTeacherAssignments; track assignment.id) {
+        <span class="mr-2 inline-flex rounded-full border px-2 py-1 text-sm">
+          {{ assignment.academicGroupName }} / {{ assignment.classSectionName }}
+        </span>
       } @empty { <span>-</span> }
     </app-profile-info-block>
   </app-profile-info-card>

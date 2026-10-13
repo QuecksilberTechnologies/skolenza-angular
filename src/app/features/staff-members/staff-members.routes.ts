@@ -45,6 +45,18 @@ export const STAFF_MEMBERS_ROUTES: Routes = [
     canActivate: adminManager,
   },
   {
+    path: 'academic-structure',
+    loadComponent: () => import('./staff-academic-structure/staff-academic-structure'),
+    title: `Academic Structure | ${titleSuffix}`,
+    canActivate: adminManager,
+  },
+  {
+    path: ':staffMemberId/academic-assignments',
+    loadComponent: () => import('./staff-academic-structure/staff-academic-structure'),
+    title: `Staff Academic Assignments | ${titleSuffix}`,
+    canActivate: adminManager,
+  },
+  {
     path: ':staffMemberId/edit',
     loadComponent: () =>
       import('@shared/components/staff-member/staff-member-manage-dialog/staff-member-manage-dialog').then(

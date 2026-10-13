@@ -47,6 +47,7 @@ export interface IStaffMemberBasicInfo {
   designationId: number;
   staffEmploymentTypeId: number;
   staffCategoryId: number;
+  staffCategoryName?: string;
   professionalProfile?: import('./staff-professional-structure').StaffProfessionalProfile;
   officialEmail: string;
   hasPermanent: boolean;

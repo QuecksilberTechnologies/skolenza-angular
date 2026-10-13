@@ -18,8 +18,9 @@ import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { Droplet, LucideAngularModule } from 'lucide-angular';
 import { finalize } from 'rxjs';
 
-import { Common, StaffMemberBasicAPI, ProfileAccessApi, StaffProfessionalStructureApi } from '@core/services';
+import { Common, StaffAcademicStructureApi, StaffMemberBasicAPI, ProfileAccessApi, StaffProfessionalStructureApi } from '@core/services';
 import { AuthStore, FeaturePageStore, LookupStore } from '@core/stores';
+import { StaffAcademicProfile } from '@shared/interfaces';
 import { ProfileEmpty } from '@shared/components/profile/profile-empty/profile-empty';
 import { ProfileHeader } from '@shared/components/profile/profile-header/profile-header';
 import { ProfileInfoBlock } from '@shared/components/profile/profile-info-block/profile-info-block';
@@ -53,6 +54,7 @@ export default class StaffMemberBasicInfo implements OnInit {
   readonly #staffMemberBasicAPI = inject(StaffMemberBasicAPI);
   readonly #profileAccessApi = inject(ProfileAccessApi);
   readonly #professionalApi = inject(StaffProfessionalStructureApi);
+  readonly #academicApi = inject(StaffAcademicStructureApi);
   readonly #commonService = inject(Common);
   readonly #destroyRef = inject(DestroyRef);
   readonly #route = inject(ActivatedRoute);
@@ -69,6 +71,7 @@ export default class StaffMemberBasicInfo implements OnInit {
   readonly profileEmptyTabIcon = 'pi pi-user';
   // True from the start: ngOnInit awaits the session before the request goes out.
   readonly isLoading = signal(true);
+  readonly academicProfile = signal<StaffAcademicProfile>({ teachingAssignments: [], classTeacherAssignments: [] });
   readonly isVerifying = computed(() => this.#profileAccessApi.isVerifying());
   readonly isEditing = computed(() => this.#profileAccessApi.isEditing());
   readonly Droplet = Droplet;
@@ -119,6 +122,7 @@ export default class StaffMemberBasicInfo implements OnInit {
           if (res.isSucceeded) {
             this.#staffMemberBasicAPI.setStaffMemberBasics(res.data ?? []);
             this.#staffMemberBasicAPI.setCompletionPercentage(res.completionPercentage);
+            this.#loadAcademicProfile(this.#getTargetStaffMemberId());
           } else {
             this.#staffMemberBasicAPI.setStaffMemberBasics([]);
             this.#commonService.showMessage(res.message, 'error');
@@ -128,6 +132,15 @@ export default class StaffMemberBasicInfo implements OnInit {
           this.#commonService.showMessage(err.message, 'error');
         },
       });
+  }
+
+  #loadAcademicProfile(staffMemberId: string): void {
+    this.#academicApi.getStaffProfile(staffMemberId).pipe(takeUntilDestroyed(this.#destroyRef)).subscribe({
+      next: (response) => this.academicProfile.set(
+        response.isSucceeded ? response.data : { teachingAssignments: [], classTeacherAssignments: [] },
+      ),
+      error: () => this.academicProfile.set({ teachingAssignments: [], classTeacherAssignments: [] }),
+    });
   }
 
   async addBasic(staffMemberBasic?: IStaffMemberBasicInfo) {

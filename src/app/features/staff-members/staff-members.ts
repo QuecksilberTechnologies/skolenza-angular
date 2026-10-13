@@ -376,6 +376,11 @@ export default class StaffMembers implements OnInit {
       },
       { separator: true },
       {
+        label: 'Academic Responsibilities',
+        icon: 'pi pi-book',
+        command: () => this.openAcademicAssignments(this.selectedRow()!),
+      },
+      {
         label: 'Assign Project <br/><span class="text-xs">(coming soon)</span>',
         icon: 'pi pi-briefcase',
         disabled: true,
@@ -468,6 +473,18 @@ export default class StaffMembers implements OnInit {
 
   openProfessionalStructure(): void {
     void this.#router.navigate(['/app/staff/professional-structure']);
+  }
+
+  openAcademicStructure(): void {
+    void this.#router.navigate(['/app/staff/academic-structure']);
+  }
+
+  openAcademicAssignments(staffMember: IStaffMember): void {
+    void this.#router.navigate([
+      '/app/staff',
+      staffMember.staffMemberId,
+      'academic-assignments',
+    ]);
   }
 
   openBulkImport() {
