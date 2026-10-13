@@ -409,6 +409,22 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
         carrier: 'body',
       }) as ModuleOperationRoute,
   ),
+  ...[
+    '/Staff/curriculum-delivery/frameworks/{id}',
+    '/Staff/curriculum-delivery/units/{id}',
+    '/Staff/curriculum-delivery/topics/{id}',
+    '/Staff/curriculum-delivery/lesson-plans/{id}',
+    '/Staff/curriculum-delivery/lesson-deliveries/{id}',
+  ].map(
+    (path) =>
+      ({
+        method: 'DELETE',
+        path,
+        module: EMP.list,
+        operation: 'Delete',
+        carrier: 'query',
+      }) as ModuleOperationRoute,
+  ),
 
   // Password reset. Read live 2026-09-25: `my-menu` moved `Reset Password` (id 21) onto `STAFF_DIRECTORY`
   // and no longer publishes `EMP_PASSWORD_MANAGEMENT`. Both are named so a session still served

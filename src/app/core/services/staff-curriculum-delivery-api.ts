@@ -81,6 +81,14 @@ export class StaffCurriculumDeliveryApi extends BaseService {
       .put<ApiDataResponse<LessonDelivery>>(`${this.#url}/lesson-deliveries/${id}/review`, value)
       .pipe(catchError(this.handleError<ApiDataResponse<LessonDelivery>>('reviewLessonDelivery')));
   }
+  deleteRecord(
+    path: 'frameworks' | 'units' | 'topics' | 'lesson-plans' | 'lesson-deliveries',
+    id: number,
+  ): Observable<ApiDataResponse<boolean>> {
+    return this.#http
+      .delete<ApiDataResponse<boolean>>(`${this.#url}/${path}/${id}`)
+      .pipe(catchError(this.handleError<ApiDataResponse<boolean>>(`delete${path}`)));
+  }
   getProgress(courseOfferingId?: number): Observable<ApiDataResponse<SyllabusProgress[]>> {
     const params = courseOfferingId
       ? new HttpParams().set('courseOfferingId', courseOfferingId)

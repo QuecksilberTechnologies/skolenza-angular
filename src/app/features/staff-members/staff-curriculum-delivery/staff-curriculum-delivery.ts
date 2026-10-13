@@ -8,9 +8,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { ConfirmationService } from '@openng/optimus-ui/api';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { CardModule } from '@openng/optimus-ui/card';
 import { CheckboxModule } from '@openng/optimus-ui/checkbox';
+import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
 import { SelectModule } from '@openng/optimus-ui/select';
@@ -47,6 +49,7 @@ type CurriculumTab =
     ButtonModule,
     CardModule,
     CheckboxModule,
+    ConfirmDialogModule,
     FormsModule,
     InputTextModule,
     MultiSelectModule,
@@ -61,6 +64,7 @@ export default class StaffCurriculumDelivery implements OnInit {
   readonly #academicApi = inject(StaffAcademicStructureApi);
   readonly #common = inject(Common);
   readonly #destroyRef = inject(DestroyRef);
+  readonly #confirmationService = inject(ConfirmationService);
   readonly tabs: CurriculumTab[] = [
     'Frameworks',
     'Units & Topics',
@@ -283,6 +287,22 @@ export default class StaffCurriculumDelivery implements OnInit {
         error: (error) => this.error(error),
       });
   }
+  confirmDelete(
+    path: 'frameworks' | 'units' | 'topics' | 'lesson-plans' | 'lesson-deliveries',
+    id: number,
+    label: string,
+  ): void {
+    this.#confirmationService.confirm({
+      header: `Delete ${label}`,
+      message: `Delete "${label}"? Records already in use must be removed first.`,
+      icon: 'pi pi-trash !text-red-400 !text-xl',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary',
+      accept: () => this.deleteRecord(path, id),
+    });
+  }
   allTopics(): CurriculumUnit['topics'] {
     return this.units().flatMap((unit) => unit.topics);
   }
@@ -362,6 +382,28 @@ export default class StaffCurriculumDelivery implements OnInit {
       .getProgress()
       .pipe(takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => this.progress.set(response.data ?? []));
+  }
+  private deleteRecord(
+    path: 'frameworks' | 'units' | 'topics' | 'lesson-plans' | 'lesson-deliveries',
+    id: number,
+  ): void {
+    this.#api
+      .deleteRecord(path, id)
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.notify(response);
+          if (!response.isSucceeded) return;
+          if (path === 'frameworks') this.loadFrameworks();
+          if (path === 'units' || path === 'topics') this.loadUnits();
+          if (path === 'lesson-plans') this.loadPlans();
+          if (path === 'lesson-deliveries') {
+            this.loadDeliveries();
+            this.loadProgress();
+          }
+        },
+        error: (error) => this.error(error),
+      });
   }
   private notify(response: { message: string; isSucceeded: boolean }): void {
     this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
