@@ -127,7 +127,6 @@ export interface BasicForm {
   roleId: FormControl<number | undefined>;
   officialEmail: FormControl<string>;
   staffMemberDocumentId: FormControl<string>;
-  referalId: FormControl<string>;
   hasPermanent: FormControl<boolean>;
   isEditAllowed: FormControl<boolean>;
   isInfoVerified: FormControl<boolean>;

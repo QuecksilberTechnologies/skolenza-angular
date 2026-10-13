@@ -292,7 +292,6 @@ export class StaffMemberManageDialog implements OnInit {
       }),
       officialEmail: ['', [Validators.required, Validators.email]],
       staffMemberDocumentId: [''],
-      referalId: [''],
       mobileNumber: [{ value: '', disabled: true }, contactNumberValidator('')],
       emergencyContactPerson: [
         { value: '', disabled: true },
@@ -329,7 +328,6 @@ export class StaffMemberManageDialog implements OnInit {
     ) {
       this.staffMemberForm.controls.officialEmail.disable();
       this.staffMemberForm.controls.staffMemberDocumentId.disable();
-      this.staffMemberForm.controls.referalId.disable();
       this.staffMemberForm.controls.hasPermanent.enable();
       this.staffMemberForm.controls.isEditAllowed.disable();
       this.staffMemberForm.controls.isInfoVerified?.disable();
@@ -592,7 +590,6 @@ export class StaffMemberManageDialog implements OnInit {
       staffPositionMasterId: Number(form.staffPositionMasterId) || 0,
       roleId: Number(form.roleId) || 0,
       genderId: Number(form.genderId) || 0,
-      referalId: Number(form.referalId) || 0,
       userStaffMemberId: sessionUser?.staffMemberId,
       staffMemberDocumentId: Number(form.staffMemberDocumentId) || 0,
       countryId: Number(form.countryId) || 0,

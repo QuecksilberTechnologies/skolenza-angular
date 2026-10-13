@@ -12,7 +12,6 @@ export interface CreateStaffMemberReq {
   staffPositionMasterId: number;
   roleId: number;
   genderId: number;
-  referalId: number;
   userStaffMemberId?: string;
   staffMemberDocumentId: number;
   countryId: number;
