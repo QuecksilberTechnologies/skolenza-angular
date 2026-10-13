@@ -11,6 +11,7 @@ import {
   SaveStaffQueryCategory,
   SaveTimetableEntry,
   SaveTimetablePeriod,
+  SaveTimetableWorkflow,
   StaffConversation,
   StaffConversationDetail,
   StaffAbsenceImpact,
@@ -19,6 +20,7 @@ import {
   SubstituteWorkflow,
   TimetableEntry,
   TimetablePeriod,
+  TimetableWorkflow,
 } from '@shared/interfaces';
 
 import { BaseService } from './base-service';
@@ -41,6 +43,30 @@ export class StaffOperationsApi extends BaseService {
   }
   saveEntry(value: SaveTimetableEntry) {
     return this.#save<TimetableEntry>('timetable/entries', value.id, value);
+  }
+  getTimetableWorkflows() {
+    return this.#get<TimetableWorkflow[]>('timetable/workflows');
+  }
+  saveTimetableWorkflow(value: SaveTimetableWorkflow) {
+    return this.#save<TimetableWorkflow>('timetable/workflows', value.id, value);
+  }
+  submitTimetableEntry(id: number) {
+    return this.#http.post<ApiDataResponse<TimetableEntry>>(
+      `${this.#url}/timetable/entries/${id}/submit`,
+      {},
+    );
+  }
+  actOnTimetableEntry(id: number, actionCode: 'APPROVE' | 'REJECT' | 'PUBLISH', remark?: string) {
+    return this.#http.post<ApiDataResponse<TimetableEntry>>(
+      `${this.#url}/timetable/entries/${id}/actions`,
+      { actionCode, remark },
+    );
+  }
+  createTimetableRevision(id: number) {
+    return this.#http.post<ApiDataResponse<TimetableEntry>>(
+      `${this.#url}/timetable/entries/${id}/revisions`,
+      {},
+    );
   }
   getWorkflows() {
     return this.#get<SubstituteWorkflow[]>('substitute-workflows');

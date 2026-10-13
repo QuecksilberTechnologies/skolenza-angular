@@ -38,6 +38,7 @@ import {
   SubstituteWorkflow,
   TimetableEntry,
   TimetablePeriod,
+  TimetableWorkflow,
 } from '@shared/interfaces';
 
 type OperationsTab = 'Timetable' | 'Substitute workflow' | 'Staff communication';
@@ -71,6 +72,7 @@ export default class StaffOperations implements OnInit {
   readonly offerings = signal<AcademicMaster[]>([]);
   readonly assignments = signal<StaffTeachingAssignment[]>([]);
   readonly workflows = signal<SubstituteWorkflow[]>([]);
+  readonly timetableWorkflows = signal<TimetableWorkflow[]>([]);
   readonly absenceImpacts = signal<StaffAbsenceImpact[]>([]);
   readonly conversations = signal<StaffConversation[]>([]);
   readonly selectedConversation = signal<StaffConversationDetail | null>(null);
@@ -86,6 +88,7 @@ export default class StaffOperations implements OnInit {
   periodForm = this.emptyPeriod();
   entryForm = this.emptyEntry();
   workflowForm = this.emptyWorkflow();
+  timetableWorkflowForm = this.emptyTimetableWorkflow();
   setting: CommunicationSetting = {
     enableInApp: true,
     enableEmail: false,
@@ -149,6 +152,10 @@ export default class StaffOperations implements OnInit {
       .pipe(takeUntilDestroyed(this.#destroy))
       .subscribe((r) => this.workflows.set(r.data ?? []));
     this.#api
+      .getTimetableWorkflows()
+      .pipe(takeUntilDestroyed(this.#destroy))
+      .subscribe((r) => this.timetableWorkflows.set(r.data ?? []));
+    this.#api
       .getAbsenceImpacts()
       .pipe(takeUntilDestroyed(this.#destroy))
       .subscribe((r) => this.absenceImpacts.set(r.data ?? []));
@@ -193,6 +200,37 @@ export default class StaffOperations implements OnInit {
         this.loadAll();
       }
     });
+  }
+  submitEntry(item: TimetableEntry) {
+    this.#api.submitTimetableEntry(item.id).subscribe(() => this.loadAll());
+  }
+  timetableAction(item: TimetableEntry, actionCode: 'APPROVE' | 'REJECT' | 'PUBLISH') {
+    this.#api.actOnTimetableEntry(item.id, actionCode).subscribe(() => this.loadAll());
+  }
+  createRevision(item: TimetableEntry) {
+    this.#api.createTimetableRevision(item.id).subscribe(() => this.loadAll());
+  }
+  saveTimetableWorkflow() {
+    this.#api.saveTimetableWorkflow(this.timetableWorkflowForm).subscribe((r) => {
+      if (r.isSucceeded) {
+        this.timetableWorkflowForm = this.emptyTimetableWorkflow();
+        this.loadAll();
+      }
+    });
+  }
+  editTimetableWorkflow(item: TimetableWorkflow) {
+    this.timetableWorkflowForm = structuredClone(item);
+  }
+  addTimetableStep() {
+    this.timetableWorkflowForm.steps.push({
+      sequence: this.timetableWorkflowForm.steps.length + 1,
+      approverTypeCode: 'MANAGER',
+      isActive: true,
+    });
+  }
+  removeTimetableStep(index: number) {
+    this.timetableWorkflowForm.steps.splice(index, 1);
+    this.timetableWorkflowForm.steps.forEach((x, i) => (x.sequence = i + 1));
   }
   saveWorkflow() {
     this.#api.saveWorkflow(this.workflowForm).subscribe((r) => {
@@ -364,6 +402,19 @@ export default class StaffOperations implements OnInit {
       requiresSubstituteAcceptance: true,
       allowSelfNomination: false,
       autoApproveWhenNoSteps: false,
+      isActive: true,
+      steps: [],
+    };
+  }
+  emptyTimetableWorkflow(): TimetableWorkflow {
+    return {
+      id: 0,
+      code: '',
+      name: '',
+      description: '',
+      allowTeacherDraftProposal: true,
+      autoPublishAfterFinalApproval: true,
+      isDefault: false,
       isActive: true,
       steps: [],
     };
