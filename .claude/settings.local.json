@@ -9,7 +9,7 @@
       "Bash(ng lint:*)",
       "Bash(ng build:*)",
       "Bash(bun run test:*)",
-      "bunx oxfmt --check"
+      "Bash(bunx oxfmt --check:*)"
     ],
     "deny": [
       "Bash(rm -rf:*)",
