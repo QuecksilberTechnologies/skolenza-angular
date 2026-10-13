@@ -460,6 +460,53 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
         carrier: 'query',
       }) as ModuleOperationRoute,
   ),
+  ...[
+    '/Staff/operations/timetable/periods',
+    '/Staff/operations/timetable/entries',
+    '/Staff/operations/substitute-workflows',
+    '/Staff/operations/communication/settings',
+    '/Staff/operations/communication/conversations',
+  ].map(
+    (path) =>
+      ({
+        method: 'GET',
+        path,
+        module: EMP.list,
+        operation: 'View',
+        carrier: 'query',
+      }) as ModuleOperationRoute,
+  ),
+  ...[
+    '/Staff/operations/timetable/periods',
+    '/Staff/operations/timetable/entries',
+    '/Staff/operations/substitute-workflows',
+    '/Staff/operations/communication/conversations',
+    '/Staff/operations/communication/conversations/{id}/messages',
+  ].map(
+    (path) =>
+      ({
+        method: 'POST',
+        path,
+        module: EMP.list,
+        operation: 'Add',
+        carrier: 'body',
+      }) as ModuleOperationRoute,
+  ),
+  ...[
+    '/Staff/operations/timetable/periods/{id}',
+    '/Staff/operations/timetable/entries/{id}',
+    '/Staff/operations/substitute-workflows/{id}',
+    '/Staff/operations/communication/settings',
+  ].map(
+    (path) =>
+      ({
+        method: 'PUT',
+        path,
+        module: EMP.list,
+        operation: 'Update',
+        carrier: 'body',
+      }) as ModuleOperationRoute,
+  ),
 
   // Password reset. Read live 2026-09-25: `my-menu` moved `Reset Password` (id 21) onto `STAFF_DIRECTORY`
   // and no longer publishes `EMP_PASSWORD_MANAGEMENT`. Both are named so a session still served

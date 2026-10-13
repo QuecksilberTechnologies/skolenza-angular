@@ -56,6 +56,12 @@ export const STAFF_MEMBERS_ROUTES: Routes = [
     canActivate: adminManager,
   },
   {
+    path: 'operations',
+    loadComponent: () => import('./staff-operations/staff-operations'),
+    title: `Timetable, Coverage & Communication | ${titleSuffix}`,
+    canActivate: adminManager,
+  },
+  {
     path: ':staffMemberId/academic-assignments',
     loadComponent: () => import('./staff-academic-structure/staff-academic-structure'),
     title: `Staff Academic Assignments | ${titleSuffix}`,
