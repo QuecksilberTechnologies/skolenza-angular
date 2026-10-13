@@ -392,6 +392,7 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
     carrier: 'query',
   },
   ...[
+    '/Staff/operations/options',
     '/Staff/curriculum-delivery/workflow-statuses',
     '/Staff/curriculum-delivery/frameworks',
     '/Staff/curriculum-delivery/teaching-assignments',
@@ -464,8 +465,11 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
     '/Staff/operations/timetable/periods',
     '/Staff/operations/timetable/entries',
     '/Staff/operations/substitute-workflows',
+    '/Staff/operations/absence-impacts',
     '/Staff/operations/communication/settings',
+    '/Staff/operations/communication/query-categories',
     '/Staff/operations/communication/conversations',
+    '/Staff/operations/communication/conversations/{id}',
   ].map(
     (path) =>
       ({
@@ -480,8 +484,14 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
     '/Staff/operations/timetable/periods',
     '/Staff/operations/timetable/entries',
     '/Staff/operations/substitute-workflows',
+    '/Staff/operations/absence-impacts/leave/{leaveRequestId}/synchronize',
+    '/Staff/operations/substitute-assignments',
+    '/Staff/operations/substitute-assignments/{id}/actions',
+    '/Staff/operations/communication/query-categories',
     '/Staff/operations/communication/conversations',
     '/Staff/operations/communication/conversations/{id}/messages',
+    '/Staff/operations/communication/conversations/{id}/read',
+    '/Staff/operations/communication/conversations/{id}/close',
   ].map(
     (path) =>
       ({
@@ -497,6 +507,7 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
     '/Staff/operations/timetable/entries/{id}',
     '/Staff/operations/substitute-workflows/{id}',
     '/Staff/operations/communication/settings',
+    '/Staff/operations/communication/query-categories/{id}',
   ].map(
     (path) =>
       ({
@@ -507,6 +518,13 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
         carrier: 'body',
       }) as ModuleOperationRoute,
   ),
+  {
+    method: 'DELETE',
+    path: '/Staff/operations/communication/query-categories/{id}',
+    module: EMP.list,
+    operation: 'Delete',
+    carrier: 'query',
+  },
 
   // Password reset. Read live 2026-09-25: `my-menu` moved `Reset Password` (id 21) onto `STAFF_DIRECTORY`
   // and no longer publishes `EMP_PASSWORD_MANAGEMENT`. Both are named so a session still served

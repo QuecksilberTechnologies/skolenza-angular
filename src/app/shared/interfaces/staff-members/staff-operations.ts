@@ -64,6 +64,14 @@ export interface CommunicationSetting {
   enablePush: boolean;
   retentionDays: number;
 }
+export interface StaffQueryCategory {
+  id: number;
+  code: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+}
+export type SaveStaffQueryCategory = StaffQueryCategory;
 export interface StaffAudience {
   audienceTypeCode: 'CAMPUS' | 'DEPARTMENT' | 'STAFF_CATEGORY' | 'ACCESS_ROLE' | 'STAFF_MEMBER';
   targetId: number;
@@ -78,6 +86,51 @@ export interface StaffConversation {
   participantCount: number;
   messageCount: number;
   isClosed: boolean;
+}
+export interface StaffConversationMessage {
+  id: number;
+  senderStaffMemberId: number;
+  senderName: string;
+  body: string;
+  sentDateTime: string;
+}
+export interface StaffConversationDetail extends StaffConversation {
+  queryCategoryName?: string;
+  messages: StaffConversationMessage[];
+}
+export interface StaffOperationsOption {
+  id: number;
+  name: string;
+}
+export interface StaffOperationsOptions {
+  staffMembers: StaffOperationsOption[];
+  campuses: StaffOperationsOption[];
+  departments: StaffOperationsOption[];
+  staffCategories: StaffOperationsOption[];
+  accessRoles: StaffOperationsOption[];
+  staffPositions: StaffOperationsOption[];
+}
+export interface StaffAbsenceImpact {
+  id: number;
+  leaveRequestId: number;
+  absentStaffMemberId: number;
+  absentStaffMemberName: string;
+  timetableEntryId: number;
+  impactDate: string;
+  sectionName: string;
+  courseOfferingName: string;
+  periodName: string;
+  statusCode: string;
+  substituteAssignmentId?: number;
+  substituteStaffMemberId?: number;
+  substituteStaffMemberName?: string;
+  substituteStatusCode?: string;
+}
+export interface SubstituteAssignmentRequest {
+  staffAbsenceImpactId: number;
+  substituteWorkflowMasterId: number;
+  substituteStaffMemberId: number;
+  remark?: string;
 }
 export interface CreateStaffConversation {
   conversationTypeCode: 'DIRECT' | 'QUERY' | 'BROADCAST';
