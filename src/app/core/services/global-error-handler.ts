@@ -1,6 +1,8 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { ErrorHandler, Injectable } from '@angular/core';
 
+import { environment } from '@env/environment';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -39,7 +41,7 @@ export class GlobalErrorHandler implements ErrorHandler {
     // Client-side (0) and server (5xx) failures are real incidents; 4xx is already surfaced to
     // the user by errorInterceptor and would just be Sentry noise.
     const isNoisyHttp = err instanceof HttpErrorResponse && err.status !== 0 && err.status < 500;
-    if (!isNoisyHttp) {
+    if (environment.sentryDsn && !isNoisyHttp) {
       import('@sentry/angular').then(({ captureException }) => captureException(err));
     }
   }
