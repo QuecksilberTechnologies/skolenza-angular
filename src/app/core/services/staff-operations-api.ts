@@ -8,9 +8,14 @@ import {
   CommunicationSetting,
   CreateStaffConversation,
   SaveSubstituteWorkflow,
+  SaveStaffQueryCategory,
   SaveTimetableEntry,
   SaveTimetablePeriod,
   StaffConversation,
+  StaffConversationDetail,
+  StaffAbsenceImpact,
+  StaffOperationsOptions,
+  StaffQueryCategory,
   SubstituteWorkflow,
   TimetableEntry,
   TimetablePeriod,
@@ -22,6 +27,9 @@ import { BaseService } from './base-service';
 export class StaffOperationsApi extends BaseService {
   readonly #http = inject(HttpClient);
   readonly #url = `${environment.apiUrl}/Staff/operations`;
+  getOptions() {
+    return this.#get<StaffOperationsOptions>('options');
+  }
   getPeriods() {
     return this.#get<TimetablePeriod[]>('timetable/periods');
   }
@@ -36,6 +44,34 @@ export class StaffOperationsApi extends BaseService {
   }
   getWorkflows() {
     return this.#get<SubstituteWorkflow[]>('substitute-workflows');
+  }
+  getAbsenceImpacts() {
+    return this.#get<StaffAbsenceImpact[]>('absence-impacts');
+  }
+  synchronizeLeaveImpacts(leaveRequestId: number) {
+    return this.#http
+      .post<ApiDataResponse<StaffAbsenceImpact[]>>(
+        `${this.#url}/absence-impacts/leave/${leaveRequestId}/synchronize`,
+        {},
+      )
+      .pipe(
+        catchError(
+          this.handleError<ApiDataResponse<StaffAbsenceImpact[]>>('synchronizeLeaveImpacts'),
+        ),
+      );
+  }
+  assignSubstitute(value: object) {
+    return this.#http
+      .post<ApiDataResponse<StaffAbsenceImpact>>(`${this.#url}/substitute-assignments`, value)
+      .pipe(catchError(this.handleError<ApiDataResponse<StaffAbsenceImpact>>('assignSubstitute')));
+  }
+  actOnSubstitute(id: number, actionCode: string, remark?: string) {
+    return this.#http
+      .post<ApiDataResponse<StaffAbsenceImpact>>(
+        `${this.#url}/substitute-assignments/${id}/actions`,
+        { actionCode, remark },
+      )
+      .pipe(catchError(this.handleError<ApiDataResponse<StaffAbsenceImpact>>('actOnSubstitute')));
   }
   saveWorkflow(value: SaveSubstituteWorkflow) {
     return this.#save<SubstituteWorkflow>('substitute-workflows', value.id, value);
@@ -54,8 +90,50 @@ export class StaffOperationsApi extends BaseService {
         ),
       );
   }
+  getQueryCategories(activeOnly = false) {
+    return this.#http
+      .get<ApiDataResponse<StaffQueryCategory[]>>(
+        `${this.#url}/communication/query-categories?activeOnly=${activeOnly}`,
+      )
+      .pipe(
+        catchError(this.handleError<ApiDataResponse<StaffQueryCategory[]>>('getQueryCategories')),
+      );
+  }
+  saveQueryCategory(value: SaveStaffQueryCategory) {
+    return this.#save<StaffQueryCategory>('communication/query-categories', value.id, value);
+  }
+  deactivateQueryCategory(id: number) {
+    return this.#http
+      .delete<ApiDataResponse<boolean>>(`${this.#url}/communication/query-categories/${id}`)
+      .pipe(catchError(this.handleError<ApiDataResponse<boolean>>('deactivateQueryCategory')));
+  }
   getConversations() {
     return this.#get<StaffConversation[]>('communication/conversations');
+  }
+  getConversation(id: number) {
+    return this.#get<StaffConversationDetail>(`communication/conversations/${id}`);
+  }
+  markConversationRead(id: number) {
+    return this.#http
+      .post<ApiDataResponse<StaffConversationDetail>>(
+        `${this.#url}/communication/conversations/${id}/read`,
+        {},
+      )
+      .pipe(
+        catchError(
+          this.handleError<ApiDataResponse<StaffConversationDetail>>('markConversationRead'),
+        ),
+      );
+  }
+  closeConversation(id: number) {
+    return this.#http
+      .post<ApiDataResponse<StaffConversationDetail>>(
+        `${this.#url}/communication/conversations/${id}/close`,
+        {},
+      )
+      .pipe(
+        catchError(this.handleError<ApiDataResponse<StaffConversationDetail>>('closeConversation')),
+      );
   }
   createConversation(
     value: CreateStaffConversation,

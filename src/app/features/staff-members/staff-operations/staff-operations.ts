@@ -12,6 +12,7 @@ import { ButtonModule } from '@openng/optimus-ui/button';
 import { CardModule } from '@openng/optimus-ui/card';
 import { CheckboxModule } from '@openng/optimus-ui/checkbox';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TextareaModule } from '@openng/optimus-ui/textarea';
 
@@ -26,7 +27,13 @@ import {
   AcademicMasterType,
   CommunicationSetting,
   CreateStaffConversation,
+  StaffAbsenceImpact,
+  StaffAudience,
   StaffConversation,
+  StaffConversationDetail,
+  StaffOperationsOption,
+  StaffOperationsOptions,
+  StaffQueryCategory,
   StaffTeachingAssignment,
   SubstituteWorkflow,
   TimetableEntry,
@@ -42,6 +49,7 @@ type OperationsTab = 'Timetable' | 'Substitute workflow' | 'Staff communication'
     CardModule,
     CheckboxModule,
     InputTextModule,
+    MultiSelectModule,
     SelectModule,
     TextareaModule,
   ],
@@ -63,7 +71,18 @@ export default class StaffOperations implements OnInit {
   readonly offerings = signal<AcademicMaster[]>([]);
   readonly assignments = signal<StaffTeachingAssignment[]>([]);
   readonly workflows = signal<SubstituteWorkflow[]>([]);
+  readonly absenceImpacts = signal<StaffAbsenceImpact[]>([]);
   readonly conversations = signal<StaffConversation[]>([]);
+  readonly selectedConversation = signal<StaffConversationDetail | null>(null);
+  readonly options = signal<StaffOperationsOptions>({
+    staffMembers: [],
+    campuses: [],
+    departments: [],
+    staffCategories: [],
+    accessRoles: [],
+    staffPositions: [],
+  });
+  readonly queryCategories = signal<StaffQueryCategory[]>([]);
   periodForm = this.emptyPeriod();
   entryForm = this.emptyEntry();
   workflowForm = this.emptyWorkflow();
@@ -81,6 +100,10 @@ export default class StaffOperations implements OnInit {
     participantStaffMemberIds: [],
     audiences: [],
   };
+  queryCategoryForm: StaffQueryCategory = this.emptyQueryCategory();
+  leaveRequestId?: number;
+  replyBody = '';
+  audienceDraft: StaffAudience = { audienceTypeCode: 'DEPARTMENT', targetId: 0 };
   readonly weekdays = [
     { id: 1, name: 'Monday' },
     { id: 2, name: 'Tuesday' },
@@ -110,6 +133,10 @@ export default class StaffOperations implements OnInit {
   }
   loadAll() {
     this.#api
+      .getOptions()
+      .pipe(takeUntilDestroyed(this.#destroy))
+      .subscribe((r) => this.options.set(r.data ?? this.options()));
+    this.#api
       .getPeriods()
       .pipe(takeUntilDestroyed(this.#destroy))
       .subscribe((r) => this.periods.set(r.data ?? []));
@@ -121,6 +148,10 @@ export default class StaffOperations implements OnInit {
       .getWorkflows()
       .pipe(takeUntilDestroyed(this.#destroy))
       .subscribe((r) => this.workflows.set(r.data ?? []));
+    this.#api
+      .getAbsenceImpacts()
+      .pipe(takeUntilDestroyed(this.#destroy))
+      .subscribe((r) => this.absenceImpacts.set(r.data ?? []));
     this.#api
       .getCommunicationSetting()
       .pipe(takeUntilDestroyed(this.#destroy))
@@ -139,6 +170,10 @@ export default class StaffOperations implements OnInit {
       .getMasters(AcademicMasterType.CourseOffering)
       .subscribe((r) => this.offerings.set(r.data ?? []));
     this.#curriculum.getTeachingAssignments().subscribe((r) => this.assignments.set(r.data ?? []));
+    this.#api
+      .getQueryCategories()
+      .pipe(takeUntilDestroyed(this.#destroy))
+      .subscribe((r) => this.queryCategories.set(r.data ?? []));
   }
   savePeriod() {
     this.#api.savePeriod(this.periodForm).subscribe((r) => {
@@ -181,6 +216,45 @@ export default class StaffOperations implements OnInit {
     this.workflowForm.steps.splice(index, 1);
     this.workflowForm.steps.forEach((x, i) => (x.sequence = i + 1));
   }
+  approverOptions(step: SubstituteWorkflow['steps'][number]): StaffOperationsOption[] {
+    if (step.approverTypeCode === 'ACCESS_ROLE') return this.options().accessRoles;
+    if (step.approverTypeCode === 'POSITION') return this.options().staffPositions;
+    if (step.approverTypeCode === 'STAFF_MEMBER') return this.options().staffMembers;
+    return [];
+  }
+  getStepTarget(step: SubstituteWorkflow['steps'][number]): number | undefined {
+    if (step.approverTypeCode === 'ACCESS_ROLE') return step.accessRoleId;
+    if (step.approverTypeCode === 'POSITION') return step.staffPositionMasterId;
+    if (step.approverTypeCode === 'STAFF_MEMBER') return step.staffMemberId;
+    return undefined;
+  }
+  setStepTarget(step: SubstituteWorkflow['steps'][number], value: number) {
+    step.accessRoleId = undefined;
+    step.staffPositionMasterId = undefined;
+    step.staffMemberId = undefined;
+    if (step.approverTypeCode === 'ACCESS_ROLE') step.accessRoleId = value;
+    if (step.approverTypeCode === 'POSITION') step.staffPositionMasterId = value;
+    if (step.approverTypeCode === 'STAFF_MEMBER') step.staffMemberId = value;
+  }
+  synchronizeLeave() {
+    if (!this.leaveRequestId) return;
+    this.#api.synchronizeLeaveImpacts(this.leaveRequestId).subscribe(() => this.loadAll());
+  }
+  assignSubstitute(impact: StaffAbsenceImpact, workflowId: number, staffMemberId: number) {
+    this.#api
+      .assignSubstitute({
+        staffAbsenceImpactId: impact.id,
+        substituteWorkflowMasterId: workflowId,
+        substituteStaffMemberId: staffMemberId,
+      })
+      .subscribe(() => this.loadAll());
+  }
+  actOnSubstitute(impact: StaffAbsenceImpact, actionCode: string) {
+    if (!impact.substituteAssignmentId) return;
+    this.#api
+      .actOnSubstitute(impact.substituteAssignmentId, actionCode)
+      .subscribe(() => this.loadAll());
+  }
   saveSetting() {
     this.#api.saveCommunicationSetting(this.setting).subscribe();
   }
@@ -194,6 +268,62 @@ export default class StaffOperations implements OnInit {
           participantStaffMemberIds: [],
           audiences: [],
         };
+        this.loadAll();
+      }
+    });
+  }
+  audienceOptions(): StaffOperationsOption[] {
+    const type = this.audienceDraft.audienceTypeCode;
+    if (type === 'CAMPUS') return this.options().campuses;
+    if (type === 'DEPARTMENT') return this.options().departments;
+    if (type === 'STAFF_CATEGORY') return this.options().staffCategories;
+    if (type === 'ACCESS_ROLE') return this.options().accessRoles;
+    return this.options().staffMembers;
+  }
+  addAudience() {
+    if (!this.audienceDraft.targetId) return;
+    this.conversationForm.audiences.push({ ...this.audienceDraft });
+    this.audienceDraft.targetId = 0;
+  }
+  removeAudience(index: number) {
+    this.conversationForm.audiences.splice(index, 1);
+  }
+  openConversation(id: number) {
+    this.#api
+      .markConversationRead(id)
+      .subscribe((r) => this.selectedConversation.set(r.data ?? null));
+  }
+  sendReply() {
+    const conversation = this.selectedConversation();
+    if (!conversation || !this.replyBody.trim()) return;
+    this.#api.addMessage(conversation.id, this.replyBody.trim()).subscribe(() => {
+      this.replyBody = '';
+      this.openConversation(conversation.id);
+      this.loadAll();
+    });
+  }
+  closeConversation() {
+    const conversation = this.selectedConversation();
+    if (!conversation) return;
+    this.#api.closeConversation(conversation.id).subscribe((r) => {
+      this.selectedConversation.set(r.data ?? null);
+      this.loadAll();
+    });
+  }
+  saveQueryCategory() {
+    this.#api.saveQueryCategory(this.queryCategoryForm).subscribe((response) => {
+      if (response.isSucceeded) {
+        this.queryCategoryForm = this.emptyQueryCategory();
+        this.loadAll();
+      }
+    });
+  }
+  editQueryCategory(value: StaffQueryCategory) {
+    this.queryCategoryForm = { ...value };
+  }
+  deactivateQueryCategory(id: number) {
+    this.#api.deactivateQueryCategory(id).subscribe((response) => {
+      if (response.isSucceeded) {
         this.loadAll();
       }
     });
@@ -237,5 +367,8 @@ export default class StaffOperations implements OnInit {
       isActive: true,
       steps: [],
     };
+  }
+  emptyQueryCategory(): StaffQueryCategory {
+    return { id: 0, code: '', name: '', description: '', isActive: true };
   }
 }
