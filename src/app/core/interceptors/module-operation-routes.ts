@@ -464,6 +464,8 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
   ...[
     '/Staff/operations/timetable/periods',
     '/Staff/operations/timetable/entries',
+    '/Staff/operations/timetable/workflows',
+    '/Staff/operations/timetable/entries/{id}/history',
     '/Staff/operations/substitute-workflows',
     '/Staff/operations/absence-impacts',
     '/Staff/operations/communication/settings',
@@ -483,6 +485,10 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
   ...[
     '/Staff/operations/timetable/periods',
     '/Staff/operations/timetable/entries',
+    '/Staff/operations/timetable/workflows',
+    '/Staff/operations/timetable/entries/{id}/submit',
+    '/Staff/operations/timetable/entries/{id}/actions',
+    '/Staff/operations/timetable/entries/{id}/revisions',
     '/Staff/operations/substitute-workflows',
     '/Staff/operations/absence-impacts/leave/{leaveRequestId}/synchronize',
     '/Staff/operations/substitute-assignments',
@@ -505,6 +511,7 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
   ...[
     '/Staff/operations/timetable/periods/{id}',
     '/Staff/operations/timetable/entries/{id}',
+    '/Staff/operations/timetable/workflows/{id}',
     '/Staff/operations/substitute-workflows/{id}',
     '/Staff/operations/communication/settings',
     '/Staff/operations/communication/query-categories/{id}',

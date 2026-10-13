@@ -29,10 +29,29 @@ export interface TimetableEntry {
   courseOfferingName: string;
   periodName: string;
   teacherName: string;
+  statusCode: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'PUBLISHED' | 'REJECTED';
+  revisionNumber: number;
+  currentApprovalSequence: number;
+  canEdit: boolean;
+  canSubmit: boolean;
+  canReview: boolean;
+  canPublish: boolean;
+  reviewRemark?: string;
 }
 export type SaveTimetableEntry = Omit<
   TimetableEntry,
-  'sectionName' | 'courseOfferingName' | 'periodName' | 'teacherName'
+  | 'sectionName'
+  | 'courseOfferingName'
+  | 'periodName'
+  | 'teacherName'
+  | 'statusCode'
+  | 'revisionNumber'
+  | 'currentApprovalSequence'
+  | 'canEdit'
+  | 'canSubmit'
+  | 'canReview'
+  | 'canPublish'
+  | 'reviewRemark'
 >;
 
 export interface SubstituteWorkflowStep {
@@ -56,6 +75,21 @@ export interface SubstituteWorkflow {
   steps: SubstituteWorkflowStep[];
 }
 export type SaveSubstituteWorkflow = SubstituteWorkflow;
+
+export interface TimetableWorkflow {
+  id: number;
+  code: string;
+  name: string;
+  description?: string;
+  campusId?: number;
+  classSectionId?: number;
+  allowTeacherDraftProposal: boolean;
+  autoPublishAfterFinalApproval: boolean;
+  isDefault: boolean;
+  isActive: boolean;
+  steps: SubstituteWorkflowStep[];
+}
+export type SaveTimetableWorkflow = TimetableWorkflow;
 
 export interface CommunicationSetting {
   enableInApp: boolean;
