@@ -25,7 +25,9 @@
       "Edit(.git/**)"
     ]
   },
-  "enabledMcpjsonServers": ["angular-cli"],
+  "enabledMcpjsonServers": [
+    "angular-cli"
+  ],
   "skillOverrides": {
     "sk-bundle-size-root-cause": "off",
     "sk-clean-code": "off",
@@ -116,6 +118,7 @@
     ]
   },
   "enabledPlugins": {
-    "context7@claude-plugins-official": false
+    "context7@claude-plugins-official": false,
+    "mattpocock-skills@claude-plugins-official": false
   }
 }
