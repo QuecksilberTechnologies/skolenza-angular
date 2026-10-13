@@ -67,6 +67,7 @@
     "eslint": "^10.11.0",
     "husky": "^9.1.7",
     "jsdom": "30.0.1",
+    "lint-staged": "^17.6.0",
     "oxfmt": "^0.70.0",
     "source-map-explorer": "^2.5.3",
     "tailwindcss": "^4.3.3",
