@@ -102,6 +102,7 @@ export { LoadingStore } from './loading-store';
 export { StaffProfessionalStructureApi } from './staff-professional-structure-api';
 export { StaffAcademicStructureApi } from './staff-academic-structure-api';
 export { StaffCurriculumDeliveryApi } from './staff-curriculum-delivery-api';
+export { StaffOperationsApi } from './staff-operations-api';
 
 // Institution Policy
 export { InstitutionPolicyApi } from './institution-policy-api';
