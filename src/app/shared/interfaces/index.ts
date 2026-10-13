@@ -47,6 +47,7 @@ export * from './staff-members/staff-employment-type';
 export * from './staff-members/staff-category';
 export * from './staff-members/staff-professional-structure';
 export * from './staff-members/staff-academic-structure';
+export * from './staff-members/staff-curriculum-delivery';
 export * from './staff-members/profile-access';
 export * from './staff-members/sensitive';
 export * from './holiday';

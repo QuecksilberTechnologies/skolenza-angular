@@ -42,7 +42,8 @@ type IdentifierCarrier = 'query' | 'body' | 'permissionRequest';
  * call the resolver directly.
  */
 export type RouteModule =
-  ModuleCodeCandidates | ((body: unknown) => ModuleCodeCandidates | undefined);
+  | ModuleCodeCandidates
+  | ((body: unknown) => ModuleCodeCandidates | undefined);
 
 export interface ModuleOperationRoute {
   /** Uppercase, as `HttpRequest.method` reports it. Part of the key — one path can carry two
@@ -92,10 +93,7 @@ const EMP = {
  * `INSTITUTION_DEVICE_SETUP` / `INSTITUTION_DEVICE_CONFIGURATION` to a institution. Both are named so the
  * session's own tree resolves the ids; exactly one of each pair is present per session.
  */
-const INSTITUTION_DEVICE_CODES = [
-  'INSTITUTION_DEVICES',
-  'INSTITUTION_DEVICE_SETUP',
-] as const;
+const INSTITUTION_DEVICE_CODES = ['INSTITUTION_DEVICES', 'INSTITUTION_DEVICE_SETUP'] as const;
 const INSTITUTION_DEVICE_CONFIG_CODES = [
   'INSTITUTION_DEVICE_CONFIG',
   'INSTITUTION_DEVICE_CONFIGURATION',
@@ -141,8 +139,7 @@ const PROFILE_TAB_MODULE_CODE: Readonly<Record<number, string>> = {
  * on, and that tab is the module the API authorises against.
  */
 export const moduleFromTabInfoType = (body: unknown): string | undefined => {
-  const tab = (body as { tabInfoType?: unknown } | null | undefined)
-    ?.tabInfoType;
+  const tab = (body as { tabInfoType?: unknown } | null | undefined)?.tabInfoType;
   return typeof tab === 'number' ? PROFILE_TAB_MODULE_CODE[tab] : undefined;
 };
 
@@ -359,6 +356,59 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
     operation: 'Delete',
     carrier: 'query',
   },
+  ...[
+    '/Staff/curriculum-delivery/workflow-statuses',
+    '/Staff/curriculum-delivery/frameworks',
+    '/Staff/curriculum-delivery/teaching-assignments',
+    '/Staff/curriculum-delivery/lesson-plans',
+    '/Staff/curriculum-delivery/lesson-deliveries',
+    '/Staff/curriculum-delivery/syllabus-progress',
+    '/Staff/curriculum-delivery/frameworks/{id}/units',
+  ].map(
+    (path) =>
+      ({
+        method: 'GET',
+        path,
+        module: EMP.list,
+        operation: 'View',
+        carrier: 'query',
+      }) as ModuleOperationRoute,
+  ),
+  ...[
+    '/Staff/curriculum-delivery/frameworks',
+    '/Staff/curriculum-delivery/units',
+    '/Staff/curriculum-delivery/topics',
+    '/Staff/curriculum-delivery/lesson-plans',
+    '/Staff/curriculum-delivery/lesson-deliveries',
+  ].map(
+    (path) =>
+      ({
+        method: 'POST',
+        path,
+        module: EMP.list,
+        operation: 'Add',
+        carrier: 'body',
+      }) as ModuleOperationRoute,
+  ),
+  ...[
+    '/Staff/curriculum-delivery/frameworks/{id}',
+    '/Staff/curriculum-delivery/frameworks/{id}/review',
+    '/Staff/curriculum-delivery/units/{id}',
+    '/Staff/curriculum-delivery/topics/{id}',
+    '/Staff/curriculum-delivery/lesson-plans/{id}',
+    '/Staff/curriculum-delivery/lesson-plans/{id}/review',
+    '/Staff/curriculum-delivery/lesson-deliveries/{id}',
+    '/Staff/curriculum-delivery/lesson-deliveries/{id}/review',
+  ].map(
+    (path) =>
+      ({
+        method: 'PUT',
+        path,
+        module: EMP.list,
+        operation: 'Update',
+        carrier: 'body',
+      }) as ModuleOperationRoute,
+  ),
 
   // Password reset. Read live 2026-09-25: `my-menu` moved `Reset Password` (id 21) onto `STAFF_DIRECTORY`
   // and no longer publishes `EMP_PASSWORD_MANAGEMENT`. Both are named so a session still served
@@ -1815,9 +1865,7 @@ const DENY_PATHS: ReadonlySet<string> = new Set([
  * `GET /Navigation/my-menu` does not publish (Asset, TicketClassification, Insurance, PolicyType)
  * has no code to name yet and is left out until it does.
  */
-const CONTROLLER_MODULE_FALLBACK: Readonly<
-  Record<string, ModuleCodeCandidates>
-> = {
+const CONTROLLER_MODULE_FALLBACK: Readonly<Record<string, ModuleCodeCandidates>> = {
   department: INSTITUTION_ACCESS_MODULE_CODES.department,
   designation: INSTITUTION_ACCESS_MODULE_CODES.designation,
   reportingtype: 'INSTITUTION_REPORTING_TYPES',
@@ -1856,8 +1904,7 @@ const CONTROLLER_MODULE_FALLBACK: Readonly<
 const WILDCARD = '{id}';
 
 const literalRoutes = new Map<string, ModuleOperationRoute>();
-const wildcardRoutes: { route: ModuleOperationRoute; segments: string[] }[] =
-  [];
+const wildcardRoutes: { route: ModuleOperationRoute; segments: string[] }[] = [];
 
 for (const route of MODULE_OPERATION_ROUTES) {
   const path = route.path.toLowerCase();
@@ -1885,10 +1932,7 @@ function inferOperation(method: string, path: string): string {
 }
 
 /** A row for a controller in `CONTROLLER_MODULE_FALLBACK`, or `undefined` for anything else. */
-function fallbackRoute(
-  method: string,
-  path: string,
-): ModuleOperationRoute | undefined {
+function fallbackRoute(method: string, path: string): ModuleOperationRoute | undefined {
   if (DENY_PATHS.has(path)) return undefined;
 
   const controller = path.split('/')[1] ?? '';
@@ -1899,8 +1943,7 @@ function fallbackRoute(
 
   // Reads and deletes carry no body worth merging into; everything else does. The hand-written
   // rows override this wherever the API disagrees, which is why they are consulted first.
-  const carrier: IdentifierCarrier =
-    method === 'GET' || method === 'DELETE' ? 'query' : 'body';
+  const carrier: IdentifierCarrier = method === 'GET' || method === 'DELETE' ? 'query' : 'body';
 
   return {
     method,
@@ -1928,17 +1971,11 @@ export function resolveModuleOperationRoute(
 
   // `req.url` excludes params passed through the `params` option, but a call site is free to embed
   // a query string in the URL — strip it so the key stays literal either way.
-  const requestPath = url
-    .slice(environment.apiUrl.length)
-    .split('?')[0]
-    .toLowerCase();
+  const requestPath = url.slice(environment.apiUrl.length).split('?')[0].toLowerCase();
   const path = requestPath
     .replace(/^\/institutioncardmaster(?=\/|$)/, '/institutioncardmaster')
     .replace(/^\/institutionemailconfig(?=\/|$)/, '/institutionemailconfig')
-    .replace(
-      /^\/institutionemailtemplate(?=\/|$)/,
-      '/institutionemailtemplate',
-    );
+    .replace(/^\/institutionemailtemplate(?=\/|$)/, '/institutionemailtemplate');
 
   const literal = literalRoutes.get(`${method} ${path}`);
   if (literal) return literal;

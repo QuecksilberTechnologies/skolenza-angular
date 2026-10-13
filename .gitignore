@@ -64,3 +64,7 @@ Thumbs.db
 # Local migration/rename recovery copies
 /src_broken_*/
 /src_rename_attempt_*/
+
+# Local Angular environment override
+/src/environments/environment.ts
+/src/environments/environment,development.ts

@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 
-import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 import { roleTypeGuard } from '@core/guards';
 import { environment } from '@env/environment';
 import { modulePlaceholderRoute } from '@shared/components/module-placeholder/module-placeholder-route';
+import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
 
 const titleSuffix = environment.appName;
 
@@ -39,8 +39,7 @@ export const STAFF_MEMBERS_ROUTES: Routes = [
   },
   {
     path: 'professional-structure',
-    loadComponent: () =>
-      import('./staff-professional-structure/staff-professional-structure'),
+    loadComponent: () => import('./staff-professional-structure/staff-professional-structure'),
     title: `Staff Professional Structure | ${titleSuffix}`,
     canActivate: adminManager,
   },
@@ -48,6 +47,12 @@ export const STAFF_MEMBERS_ROUTES: Routes = [
     path: 'academic-structure',
     loadComponent: () => import('./staff-academic-structure/staff-academic-structure'),
     title: `Academic Structure | ${titleSuffix}`,
+    canActivate: adminManager,
+  },
+  {
+    path: 'curriculum-delivery',
+    loadComponent: () => import('./staff-curriculum-delivery/staff-curriculum-delivery'),
+    title: `Curriculum & Lesson Delivery | ${titleSuffix}`,
     canActivate: adminManager,
   },
   {
@@ -67,21 +72,16 @@ export const STAFF_MEMBERS_ROUTES: Routes = [
   },
   {
     path: 'permissions/:staff-memberId',
-    loadComponent: () =>
-      import('./staff-members-permissions/staff-members-permissions'),
+    loadComponent: () => import('./staff-members-permissions/staff-members-permissions'),
     title: `StaffMember Permissions | ${titleSuffix}`,
   },
   // The `EMP_*` siblings `GET /Navigation/my-menu` publishes under `STAFF_MGMT` as their own pages.
   // Reached from the side menu only; they are no longer tabs under `/app/profile`.
   ...[
-    modulePlaceholderRoute(
-      'password-management',
-      'StaffMember Password Management',
-      {
-        label: 'Back to StaffMembers',
-        url: '/app/staff-members',
-      },
-    ),
+    modulePlaceholderRoute('password-management', 'StaffMember Password Management', {
+      label: 'Back to StaffMembers',
+      url: '/app/staff-members',
+    }),
     {
       path: 'device-enrollment',
       loadComponent: () =>
