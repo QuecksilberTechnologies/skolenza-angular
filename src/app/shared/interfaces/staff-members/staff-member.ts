@@ -8,7 +8,7 @@ export interface CreateStaffMemberReq {
   departmentId: number;
   designationId: number;
   staffEmploymentTypeId: number;
-  staffCategoryId: number;
+  institutionStaffCategoryMasterId: number;
   staffPositionMasterId: number;
   roleId: number;
   genderId: number;

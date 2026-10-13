@@ -5,6 +5,8 @@ import { catchError, Observable } from 'rxjs';
 import { environment } from '@env/environment';
 import {
   ApiDataResponse,
+  InstitutionStaffCategory,
+  SaveInstitutionStaffCategory,
   SaveStaffPositionMaster,
   SaveStaffProfessionalMaster,
   StaffPositionMaster,
@@ -25,12 +27,9 @@ export class StaffProfessionalStructureApi extends BaseService {
     activeOnly = true,
   ): Observable<ApiDataResponse<StaffProfessionalMaster[]>> {
     return this.#http
-      .get<ApiDataResponse<StaffProfessionalMaster[]>>(
-        `${this.#url}/masters/${type}`,
-        {
-          params: new HttpParams().set('activeOnly', activeOnly),
-        },
-      )
+      .get<ApiDataResponse<StaffProfessionalMaster[]>>(`${this.#url}/masters/${type}`, {
+        params: new HttpParams().set('activeOnly', activeOnly),
+      })
       .pipe(
         catchError(
           this.handleError<ApiDataResponse<StaffProfessionalMaster[]>>(
@@ -40,33 +39,78 @@ export class StaffProfessionalStructureApi extends BaseService {
       );
   }
 
-  getPositions(
-    staffCategoryId?: number,
-    activeOnly = true,
-  ): Observable<ApiDataResponse<StaffPositionMaster[]>> {
-    let params = new HttpParams().set('activeOnly', activeOnly);
-    if (staffCategoryId)
-      params = params.set('staffCategoryId', staffCategoryId);
+  getCategories(activeOnly = true): Observable<ApiDataResponse<InstitutionStaffCategory[]>> {
     return this.#http
-      .get<ApiDataResponse<StaffPositionMaster[]>>(`${this.#url}/positions`, {
-        params,
+      .get<ApiDataResponse<InstitutionStaffCategory[]>>(`${this.#url}/categories`, {
+        params: new HttpParams().set('activeOnly', activeOnly),
       })
       .pipe(
         catchError(
-          this.handleError<ApiDataResponse<StaffPositionMaster[]>>(
-            'getStaffPositions',
+          this.handleError<ApiDataResponse<InstitutionStaffCategory[]>>(
+            'getInstitutionStaffCategories',
           ),
         ),
       );
   }
 
-  getProfile(
-    staffMemberId: string,
-  ): Observable<ApiDataResponse<StaffProfessionalProfile | null>> {
+  saveCategory(
+    value: SaveInstitutionStaffCategory,
+  ): Observable<ApiDataResponse<InstitutionStaffCategory>> {
+    const request = value.id
+      ? this.#http.put<ApiDataResponse<InstitutionStaffCategory>>(
+          `${this.#url}/categories/${value.id}`,
+          value,
+        )
+      : this.#http.post<ApiDataResponse<InstitutionStaffCategory>>(
+          `${this.#url}/categories`,
+          value,
+        );
+    return request.pipe(
+      catchError(
+        this.handleError<ApiDataResponse<InstitutionStaffCategory>>('saveInstitutionStaffCategory'),
+      ),
+    );
+  }
+
+  setCategoryJobFamilies(
+    categoryId: number,
+    staffJobFamilyMasterIds: number[],
+  ): Observable<ApiDataResponse<boolean>> {
     return this.#http
-      .get<ApiDataResponse<StaffProfessionalProfile | null>>(
-        `${this.#url}/staff/${staffMemberId}`,
-      )
+      .put<ApiDataResponse<boolean>>(`${this.#url}/categories/${categoryId}/job-families`, {
+        institutionStaffCategoryMasterId: categoryId,
+        staffJobFamilyMasterIds,
+      })
+      .pipe(catchError(this.handleError<ApiDataResponse<boolean>>('setStaffCategoryJobFamilies')));
+  }
+
+  setCategoryActive(categoryId: number, isActive: boolean): Observable<ApiDataResponse<boolean>> {
+    return this.#http
+      .put<ApiDataResponse<boolean>>(`${this.#url}/categories/${categoryId}/active/${isActive}`, {})
+      .pipe(
+        catchError(this.handleError<ApiDataResponse<boolean>>('setInstitutionStaffCategoryActive')),
+      );
+  }
+
+  getPositions(
+    institutionStaffCategoryMasterId?: number,
+    activeOnly = true,
+  ): Observable<ApiDataResponse<StaffPositionMaster[]>> {
+    let params = new HttpParams().set('activeOnly', activeOnly);
+    if (institutionStaffCategoryMasterId)
+      params = params.set('institutionStaffCategoryMasterId', institutionStaffCategoryMasterId);
+    return this.#http
+      .get<ApiDataResponse<StaffPositionMaster[]>>(`${this.#url}/positions`, {
+        params,
+      })
+      .pipe(
+        catchError(this.handleError<ApiDataResponse<StaffPositionMaster[]>>('getStaffPositions')),
+      );
+  }
+
+  getProfile(staffMemberId: string): Observable<ApiDataResponse<StaffProfessionalProfile | null>> {
+    return this.#http
+      .get<ApiDataResponse<StaffProfessionalProfile | null>>(`${this.#url}/staff/${staffMemberId}`)
       .pipe(
         catchError(
           this.handleError<ApiDataResponse<StaffProfessionalProfile | null>>(
@@ -82,19 +126,12 @@ export class StaffProfessionalStructureApi extends BaseService {
     remark?: string,
   ): Observable<ApiDataResponse<boolean>> {
     return this.#http
-      .put<ApiDataResponse<boolean>>(
-        `${this.#url}/capability-verification/${assignmentId}`,
-        {
-          assignmentId,
-          isApproved,
-          remark,
-        },
-      )
-      .pipe(
-        catchError(
-          this.handleError<ApiDataResponse<boolean>>('verifyStaffCapability'),
-        ),
-      );
+      .put<ApiDataResponse<boolean>>(`${this.#url}/capability-verification/${assignmentId}`, {
+        assignmentId,
+        isApproved,
+        remark,
+      })
+      .pipe(catchError(this.handleError<ApiDataResponse<boolean>>('verifyStaffCapability')));
   }
 
   saveMaster(
@@ -112,9 +149,7 @@ export class StaffProfessionalStructureApi extends BaseService {
         );
     return request.pipe(
       catchError(
-        this.handleError<ApiDataResponse<StaffProfessionalMaster>>(
-          'saveStaffProfessionalMaster',
-        ),
+        this.handleError<ApiDataResponse<StaffProfessionalMaster>>('saveStaffProfessionalMaster'),
       ),
     );
   }
@@ -126,42 +161,25 @@ export class StaffProfessionalStructureApi extends BaseService {
     return this.#http
       .delete<ApiDataResponse<boolean>>(`${this.#url}/masters/${type}/${id}`)
       .pipe(
-        catchError(
-          this.handleError<ApiDataResponse<boolean>>(
-            'deleteStaffProfessionalMaster',
-          ),
-        ),
+        catchError(this.handleError<ApiDataResponse<boolean>>('deleteStaffProfessionalMaster')),
       );
   }
 
-  savePosition(
-    value: SaveStaffPositionMaster,
-  ): Observable<ApiDataResponse<StaffPositionMaster>> {
+  savePosition(value: SaveStaffPositionMaster): Observable<ApiDataResponse<StaffPositionMaster>> {
     const request = value.id
       ? this.#http.put<ApiDataResponse<StaffPositionMaster>>(
           `${this.#url}/positions/${value.id}`,
           value,
         )
-      : this.#http.post<ApiDataResponse<StaffPositionMaster>>(
-          `${this.#url}/positions`,
-          value,
-        );
+      : this.#http.post<ApiDataResponse<StaffPositionMaster>>(`${this.#url}/positions`, value);
     return request.pipe(
-      catchError(
-        this.handleError<ApiDataResponse<StaffPositionMaster>>(
-          'saveStaffPosition',
-        ),
-      ),
+      catchError(this.handleError<ApiDataResponse<StaffPositionMaster>>('saveStaffPosition')),
     );
   }
 
   deletePosition(id: number): Observable<ApiDataResponse<boolean>> {
     return this.#http
       .delete<ApiDataResponse<boolean>>(`${this.#url}/positions/${id}`)
-      .pipe(
-        catchError(
-          this.handleError<ApiDataResponse<boolean>>('deleteStaffPosition'),
-        ),
-      );
+      .pipe(catchError(this.handleError<ApiDataResponse<boolean>>('deleteStaffPosition')));
   }
 }

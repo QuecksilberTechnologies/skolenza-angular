@@ -6,16 +6,42 @@
     class="flex flex-wrap gap-2 border-b pb-3"
     aria-label="Professional structure sections"
   >
+    <p-button label="Staff Categories" [outlined]="selectedTab() !== 'categories'" (onClick)="selectTab('categories')" />
     <p-button label="Job Families" [outlined]="selectedTab() !== masterTypes.JobFamily" (onClick)="selectTab(masterTypes.JobFamily)" />
     <p-button label="Positions" [outlined]="selectedTab() !== 'positions'" (onClick)="selectTab('positions')" />
     <p-button label="Capabilities" [outlined]="selectedTab() !== masterTypes.Capability" (onClick)="selectTab(masterTypes.Capability)" />
     <p-button label="Duties" [outlined]="selectedTab() !== masterTypes.DutyDefinition" (onClick)="selectTab(masterTypes.DutyDefinition)" />
+    <p-select class="ml-auto min-w-36" name="statusFilter" [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value" />
   </nav>
 
-  @if (selectedTab() !== 'positions') {
+  @if (selectedTab() === 'categories') {
   <section class="grid gap-5 lg:grid-cols-[1fr_24rem]">
     <div class="overflow-hidden rounded-xl border bg-white">
-      @for (item of masters(); track item.id) {
+      @for (item of visibleCategories(); track item.id) {
+      <article class="flex items-center justify-between gap-4 border-b p-4">
+        <div><strong>{{ item.name }}</strong><div class="text-sm text-gray-500">{{ item.code }} · {{ item.staffCategoryTypeName }} · {{ item.activeJobFamilyCount }} job families · {{ item.activePositionCount }} positions · {{ item.activeStaffCount }} staff</div></div>
+        <div class="flex gap-2">
+          <p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editCategory(item)" />
+          <p-button [label]="item.isActive ? 'Deactivate' : 'Activate'" [icon]="item.isActive ? 'pi pi-ban' : 'pi pi-check-circle'" [severity]="item.isActive ? 'danger' : 'success'" [outlined]="true" size="small" (onClick)="setCategoryActive(item)" />
+        </div>
+      </article>
+      } @empty { <p class="p-5 text-gray-500">No Staff Categories configured.</p> }
+    </div>
+    <form class="space-y-3 rounded-xl border bg-white p-5" (ngSubmit)="saveCategory()">
+      <h2 class="font-semibold">{{ categoryForm.id ? 'Edit' : 'Add' }} Staff Category</h2>
+      <label class="block">Category type<p-select class="mt-1 w-full" name="categoryType" [(ngModel)]="categoryForm.staffCategoryTypeId" [options]="canonicalCategories()" optionLabel="label" optionValue="id" placeholder="Select category type" appendTo="body" required /></label>
+      <label class="block">Code<input pInputText class="mt-1 w-full" name="categoryCode" [(ngModel)]="categoryForm.code" required /></label>
+      <label class="block">Name<input pInputText class="mt-1 w-full" name="categoryName" [(ngModel)]="categoryForm.name" required /></label>
+      <label class="block">Description<textarea pTextarea class="mt-1 w-full" name="categoryDescription" [(ngModel)]="categoryForm.description"></textarea></label>
+      <label class="block">Allowed job families<p-multiselect class="mt-1 w-full" name="categoryJobFamilies" [(ngModel)]="categoryForm.staffJobFamilyMasterIds" [options]="jobFamilies()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+      <label class="flex items-center gap-2"><p-checkbox name="categoryActive" [(ngModel)]="categoryForm.isActive" [binary]="true" />Active</label>
+      <div class="flex justify-end gap-2"><p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="resetForm()" /><p-button type="submit" label="Save" icon="pi pi-check" /></div>
+    </form>
+  </section>
+  } @else if (selectedTab() !== 'positions') {
+  <section class="grid gap-5 lg:grid-cols-[1fr_24rem]">
+    <div class="overflow-hidden rounded-xl border bg-white">
+      @for (item of visibleMasters(); track item.id) {
       <article class="flex items-center justify-between gap-4 border-b p-4">
         <div>
           <strong>{{ item.name }}</strong>
@@ -25,7 +51,8 @@
         </div>
         <div class="flex gap-2">
           <p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editMaster(item)" />
-          <p-button label="Remove" icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="deleteMaster(item)" />
+          @if (item.isActive) { <p-button label="Deactivate" icon="pi pi-ban" severity="danger" [outlined]="true" size="small" (onClick)="deleteMaster(item)" /> }
+          @else { <p-button label="Activate" icon="pi pi-check-circle" severity="success" [outlined]="true" size="small" (onClick)="activateMaster(item)" /> }
         </div>
       </article>
       } @empty {
@@ -85,7 +112,7 @@
   } @else {
   <section class="grid gap-5 lg:grid-cols-[1fr_28rem]">
     <div class="overflow-hidden rounded-xl border bg-white">
-      @for (item of positions(); track item.id) {
+      @for (item of visiblePositions(); track item.id) {
       <article class="flex items-center justify-between gap-4 border-b p-4">
         <div>
           <strong>{{ item.name }}</strong>
@@ -95,7 +122,8 @@
         </div>
         <div class="flex gap-2">
           <p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editPosition(item)" />
-          <p-button label="Remove" icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="deletePosition(item)" />
+          @if (item.isActive) { <p-button label="Deactivate" icon="pi pi-ban" severity="danger" [outlined]="true" size="small" (onClick)="deletePosition(item)" /> }
+          @else { <p-button label="Activate" icon="pi pi-check-circle" severity="success" [outlined]="true" size="small" (onClick)="activatePosition(item)" /> }
         </div>
       </article>
       } @empty {
@@ -113,7 +141,8 @@
         >Category<p-select
           class="mt-1 w-full"
           name="category"
-          [(ngModel)]="positionForm.staffCategoryId"
+          [(ngModel)]="positionForm.institutionStaffCategoryMasterId"
+          (ngModelChange)="onPositionCategoryChange()"
           [options]="categories()"
           optionLabel="label"
           optionValue="id"
@@ -127,7 +156,7 @@
           class="mt-1 w-full"
           name="family"
           [(ngModel)]="positionForm.staffJobFamilyMasterId"
-          [options]="jobFamilies()"
+          [options]="mappedJobFamilies()"
           optionLabel="name"
           optionValue="id"
           placeholder="Select family"
@@ -156,23 +185,32 @@
         @for (item of capabilities(); track item.id) {<label
           class="mr-3 inline-flex gap-2"
           ><p-checkbox
-            [ngModel]="positionForm.capabilityIds.includes(item.id)"
+            [ngModel]="requirementSelected(positionForm.capabilities, item.id)"
             [ngModelOptions]="{ standalone: true }"
             [binary]="true"
             (ngModelChange)="toggleCapability(item.id, $event)"
-          />{{ item.name }}</label
+          />{{ item.name }}
+          @if (requirementSelected(positionForm.capabilities, item.id)) {
+            <p-checkbox [ngModel]="requirementMandatory(positionForm.capabilities, item.id)" [ngModelOptions]="{ standalone: true }" [binary]="true" (ngModelChange)="setRequirementMandatory(positionForm.capabilities, item.id, $event)" /> Required
+          }
+          </label
         >}
       </fieldset>
+      <label class="flex items-center gap-2"><p-checkbox name="positionActive" [(ngModel)]="positionForm.isActive" [binary]="true" />Active</label>
       <fieldset>
         <legend class="font-medium">Default duties</legend>
         @for (item of duties(); track item.id) {<label
           class="mr-3 inline-flex gap-2"
           ><p-checkbox
-            [ngModel]="positionForm.dutyDefinitionIds.includes(item.id)"
+            [ngModel]="requirementSelected(positionForm.duties, item.id)"
             [ngModelOptions]="{ standalone: true }"
             [binary]="true"
             (ngModelChange)="toggleDuty(item.id, $event)"
-          />{{ item.name }}</label
+          />{{ item.name }}
+          @if (requirementSelected(positionForm.duties, item.id)) {
+            <p-checkbox [ngModel]="requirementMandatory(positionForm.duties, item.id)" [ngModelOptions]="{ standalone: true }" [binary]="true" (ngModelChange)="setRequirementMandatory(positionForm.duties, item.id, $event)" /> Required
+          }
+          </label
         >}
       </fieldset>
       <div class="flex justify-end gap-2">

@@ -204,6 +204,41 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
   // duplicate feature-page catalogue for the professional structure workspace.
   {
     method: 'GET',
+    path: '/Staff/professional-structure/categories',
+    module: EMP.list,
+    operation: 'View',
+    carrier: 'query',
+  },
+  {
+    method: 'POST',
+    path: '/Staff/professional-structure/categories',
+    module: EMP.list,
+    operation: 'Add',
+    carrier: 'body',
+  },
+  {
+    method: 'PUT',
+    path: '/Staff/professional-structure/categories/{id}',
+    module: EMP.list,
+    operation: 'Update',
+    carrier: 'body',
+  },
+  {
+    method: 'PUT',
+    path: '/Staff/professional-structure/categories/{id}/job-families',
+    module: EMP.list,
+    operation: 'Update',
+    carrier: 'body',
+  },
+  {
+    method: 'PUT',
+    path: '/Staff/professional-structure/categories/{id}/active/{id}',
+    module: EMP.list,
+    operation: 'Update',
+    carrier: 'body',
+  },
+  {
+    method: 'GET',
     path: '/Staff/professional-structure/masters/{id}',
     module: EMP.list,
     operation: 'View',

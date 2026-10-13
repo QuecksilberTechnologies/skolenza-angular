@@ -17,14 +17,36 @@ export interface StaffProfessionalMaster {
   requiresEvidence: boolean;
 }
 
-export type SaveStaffProfessionalMaster = Omit<
-  StaffProfessionalMaster,
-  'id'
-> & { id?: number };
+export type SaveStaffProfessionalMaster = Omit<StaffProfessionalMaster, 'id'> & { id?: number };
+
+export interface InstitutionStaffCategory {
+  id: number;
+  staffCategoryTypeId: number;
+  staffCategoryTypeName: string;
+  code: string;
+  name: string;
+  description?: string;
+  displayOrder: number;
+  isActive: boolean;
+  activeJobFamilyCount: number;
+  staffJobFamilyMasterIds: number[];
+  activePositionCount: number;
+  activeStaffCount: number;
+}
+
+export type SaveInstitutionStaffCategory = Pick<
+  InstitutionStaffCategory,
+  'staffCategoryTypeId' | 'code' | 'name' | 'description' | 'displayOrder' | 'isActive'
+> & { id?: number; staffJobFamilyMasterIds: number[] };
+
+export interface StaffPositionRequirement extends StaffProfessionalMaster {
+  isMandatory: boolean;
+}
 
 export interface StaffPositionMaster {
   id: number;
   staffJobFamilyMasterId: number;
+  institutionStaffCategoryMasterId?: number;
   jobFamilyName: string;
   staffCategoryId: number;
   staffCategoryName: string;
@@ -35,14 +57,14 @@ export interface StaffPositionMaster {
   description?: string;
   displayOrder: number;
   isActive: boolean;
-  capabilities: StaffProfessionalMaster[];
-  duties: StaffProfessionalMaster[];
+  capabilities: StaffPositionRequirement[];
+  duties: StaffPositionRequirement[];
 }
 
 export interface SaveStaffPositionMaster {
   id?: number;
   staffJobFamilyMasterId: number;
-  staffCategoryId: number;
+  institutionStaffCategoryMasterId: number;
   departmentId?: number;
   designationId?: number;
   code: string;
@@ -50,8 +72,8 @@ export interface SaveStaffPositionMaster {
   description?: string;
   displayOrder: number;
   isActive: boolean;
-  capabilityIds: number[];
-  dutyDefinitionIds: number[];
+  capabilities: { id: number; isMandatory: boolean; displayOrder: number }[];
+  duties: { id: number; isMandatory: boolean; displayOrder: number }[];
 }
 
 export interface StaffProfessionalProfile {

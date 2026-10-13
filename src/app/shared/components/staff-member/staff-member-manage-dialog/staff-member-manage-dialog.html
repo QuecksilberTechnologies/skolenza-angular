@@ -247,7 +247,7 @@
                 formControlName="bloodGroup"
                 id="bloodGroup"
                 [options]="bloodGroupOptions()"
-                optionLabel="label"
+                optionLabel="name"
                 optionValue="code"
                 placeholder="Select Blood Group"
                 [appendTo]="'body'"
@@ -573,25 +573,25 @@
 
             <!-- Staff Category -->
             <div class="space-y-1">
-              <label for="staffCategoryId" class="block font-medium">
+              <label for="institutionStaffCategoryMasterId" class="block font-medium">
                 Staff Category
                 <span class="text-red-600 dark:text-red-400">*</span>
               </label>
               <p-select
-                formControlName="staffCategoryId"
-                id="staffCategoryId"
+                formControlName="institutionStaffCategoryMasterId"
+                id="institutionStaffCategoryMasterId"
                 [options]="staffCategoryOptions()"
                 optionLabel="label"
                 optionValue="id"
                 [loading]="isLoadingStaffCategories()"
                 placeholder="Select Staff Category"
                 [appendTo]="'body'"
-                [invalid]="isInvalid('staffCategoryId')"
+                [invalid]="isInvalid('institutionStaffCategoryMasterId')"
                 (onChange)="onStaffCategoryChange($event.value)"
                 class="w-full"
                 panelStyleClass="select-option-truncate"
               />
-              @if (isInvalid('staffCategoryId')) {
+              @if (isInvalid('institutionStaffCategoryMasterId')) {
               <p-message severity="error" size="small" variant="simple">
                 Staff category is required.
               </p-message>
@@ -610,7 +610,7 @@
                 optionLabel="name"
                 optionValue="id"
                 [loading]="isLoadingProfessionalStructure()"
-                [disabled]="!staffMemberForm.controls.staffCategoryId.value"
+                [disabled]="!staffMemberForm.controls.institutionStaffCategoryMasterId.value"
                 placeholder="Select Job Family"
                 [appendTo]="'body'"
                 (onChange)="onJobFamilyChange($event.value)"

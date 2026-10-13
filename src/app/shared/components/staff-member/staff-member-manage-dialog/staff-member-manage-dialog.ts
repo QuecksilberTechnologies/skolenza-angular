@@ -20,10 +20,7 @@ import { AutoFocusModule } from '@openng/optimus-ui/autofocus';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { CheckboxModule } from '@openng/optimus-ui/checkbox';
 import { DatePickerModule } from '@openng/optimus-ui/datepicker';
-import {
-  DynamicDialogConfig,
-  DynamicDialogRef,
-} from '@openng/optimus-ui/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
 import { InputGroupModule } from '@openng/optimus-ui/inputgroup';
 import { InputGroupAddonModule } from '@openng/optimus-ui/inputgroupaddon';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
@@ -48,6 +45,7 @@ import {
   GetRolesReq,
   IDesignation,
   IStaffMemberBasicInfo,
+  InstitutionStaffCategory,
   LoginInfo,
   Role,
   StaffPositionMaster,
@@ -100,9 +98,7 @@ export class StaffMemberManageDialog implements OnInit {
   readonly #route = inject(ActivatedRoute);
   readonly #lookupStore = inject(LookupStore);
   protected readonly isPageMode = !this.#dialogRef;
-  readonly staffMemberBasic = signal<IStaffMemberBasicInfo | undefined>(
-    undefined,
-  );
+  readonly staffMemberBasic = signal<IStaffMemberBasicInfo | undefined>(undefined);
   readonly designationOptions = signal<IDesignation[]>([]);
   readonly departmentOptions = this.#lookupStore.departmentOptions;
   readonly roleOptions = signal<Role[]>([]);
@@ -119,16 +115,14 @@ export class StaffMemberManageDialog implements OnInit {
   readonly gendersOptions = this.#lookupStore.genders;
   readonly isLoadingGenders = this.#lookupStore.isLoadingGenders;
   readonly staffEmploymentTypeOptions = this.#lookupStore.staffEmploymentTypes;
-  readonly isLoadingStaffEmploymentTypes =
-    this.#lookupStore.isLoadingStaffEmploymentTypes;
-  readonly staffCategoryOptions = this.#lookupStore.staffCategories;
+  readonly isLoadingStaffEmploymentTypes = this.#lookupStore.isLoadingStaffEmploymentTypes;
+  readonly staffCategoryOptions = signal<InstitutionStaffCategory[]>([]);
   readonly allJobFamilyOptions = signal<StaffProfessionalMaster[]>([]);
   readonly jobFamilyOptions = signal<StaffProfessionalMaster[]>([]);
   readonly categoryPositionOptions = signal<StaffPositionMaster[]>([]);
   readonly positionOptions = signal<StaffPositionMaster[]>([]);
   readonly isLoadingProfessionalStructure = signal(false);
-  readonly isLoadingStaffCategories =
-    this.#lookupStore.isLoadingStaffCategories;
+  readonly isLoadingStaffCategories = signal(false);
   readonly countries = this.#lookupStore.countries;
   readonly isLoadingCountries = this.#lookupStore.isLoadingCountries;
   protected staffMemberForm!: FormGroup<BasicForm>;
@@ -143,8 +137,7 @@ export class StaffMemberManageDialog implements OnInit {
   constructor() {
     const navigationState = this.#router.getCurrentNavigation()?.extras.state;
     this.staffMemberBasic.set(
-      this.#dynamicDialogConfig?.data?.staffMemberBasic ??
-        navigationState?.['staffMemberBasic'],
+      this.#dynamicDialogConfig?.data?.staffMemberBasic ?? navigationState?.['staffMemberBasic'],
     );
 
     this.initForm();
@@ -155,8 +148,7 @@ export class StaffMemberManageDialog implements OnInit {
       this.designationOptions.set(designations);
 
       // Clear designationId if the current value is not in the loaded options
-      const currentDesignationId =
-        this.staffMemberForm?.controls.designationId.value;
+      const currentDesignationId = this.staffMemberForm?.controls.designationId.value;
       if (
         currentDesignationId &&
         designations.length > 0 &&
@@ -191,8 +183,7 @@ export class StaffMemberManageDialog implements OnInit {
               },
             );
           }
-          const emergency =
-            this.staffMemberForm.controls.emergencyContactNumber.value;
+          const emergency = this.staffMemberForm.controls.emergencyContactNumber.value;
           if (emergency?.startsWith(country.stdCode)) {
             this.staffMemberForm.controls.emergencyContactNumber.setValue(
               emergency.slice(country.stdCode.length),
@@ -206,9 +197,7 @@ export class StaffMemberManageDialog implements OnInit {
 
   async ngOnInit() {
     if (this.isPageMode) {
-      const pageTitle = this.staffMemberBasic()?.id
-        ? 'Edit Staff Member'
-        : 'Add Staff Member';
+      const pageTitle = this.staffMemberBasic()?.id ? 'Edit Staff Member' : 'Add Staff Member';
       this.#commonService.setPageHeaderInfo({
         pageTitle,
         pageDescription: this.staffMemberBasic()?.id
@@ -240,17 +229,10 @@ export class StaffMemberManageDialog implements OnInit {
     this.staffMemberForm = this.#fb.group({
       firstName: [
         '',
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.pattern(PERSON_NAME_PATTERN),
-        ],
+        [Validators.required, Validators.minLength(3), Validators.pattern(PERSON_NAME_PATTERN)],
       ],
       middleName: ['', [Validators.pattern(PERSON_NAME_PATTERN)]],
-      lastName: [
-        '',
-        [Validators.required, Validators.pattern(PERSON_NAME_PATTERN)],
-      ],
+      lastName: ['', [Validators.required, Validators.pattern(PERSON_NAME_PATTERN)]],
       dateOfBirth: [this.maxDateOfBirth, Validators.required],
       dateOfOnBoarding: [new Date(), Validators.required],
       dateOfExit: [new Date()],
@@ -274,7 +256,7 @@ export class StaffMemberManageDialog implements OnInit {
         nonNullable: true,
         validators: [Validators.required],
       }),
-      staffCategoryId: new FormControl<number | undefined>(undefined, {
+      institutionStaffCategoryMasterId: new FormControl<number | undefined>(undefined, {
         nonNullable: true,
         validators: [Validators.required],
       }),
@@ -301,10 +283,7 @@ export class StaffMemberManageDialog implements OnInit {
           Validators.pattern(PERSON_NAME_PATTERN),
         ],
       ],
-      emergencyContactNumber: [
-        { value: '', disabled: true },
-        contactNumberValidator(''),
-      ],
+      emergencyContactNumber: [{ value: '', disabled: true }, contactNumberValidator('')],
       bloodGroup: [{ value: '', disabled: true }],
       relation: [{ value: 0, disabled: true }],
       isMarried: [{ value: false, disabled: false }],
@@ -317,8 +296,7 @@ export class StaffMemberManageDialog implements OnInit {
 
   async patchForm() {
     const roleTypeId = this.loginInfo?.user?.primaryRole?.roleTypeId;
-    const isEdit =
-      this.staffMemberBasic() && this.staffMemberBasic()?.id ? true : false;
+    const isEdit = this.staffMemberBasic() && this.staffMemberBasic()?.id ? true : false;
 
     // Disable the following fields if the user is Admin (roleTypeId 1) or HR (roleTypeId 3)
     if (
@@ -349,7 +327,7 @@ export class StaffMemberManageDialog implements OnInit {
       this.staffMemberForm.controls.designationId.disable();
       this.staffMemberForm.controls.departmentId?.disable();
       this.staffMemberForm.controls.staffEmploymentTypeId.disable();
-      this.staffMemberForm.controls.staffCategoryId.disable();
+      this.staffMemberForm.controls.institutionStaffCategoryMasterId.disable();
       this.staffMemberForm.controls.dateOfExit.disable();
       this.staffMemberForm.controls.hasPermanent.disable();
       this.staffMemberForm.controls.isEditAllowed.disable();
@@ -363,13 +341,9 @@ export class StaffMemberManageDialog implements OnInit {
 
     await this.getDesignations(this.staffMemberBasic()?.departmentId);
 
-    const role = this.roleOptions().find(
-      (r) => r.id === this.staffMemberBasic()?.roleId,
-    );
+    const role = this.roleOptions().find((r) => r.id === this.staffMemberBasic()?.roleId);
 
-    const country = this.countries().find(
-      (c) => c.id === this.staffMemberBasic()?.countryId,
-    );
+    const country = this.countries().find((c) => c.id === this.staffMemberBasic()?.countryId);
     const dialCode = country?.stdCode ?? '';
     this.selectedDialCode.set(dialCode);
     this.#updatePhoneValidators(country?.countryCode ?? '');
@@ -389,20 +363,15 @@ export class StaffMemberManageDialog implements OnInit {
       departmentId: this.staffMemberBasic()?.departmentId,
       designationId: this.staffMemberBasic()?.designationId,
       staffEmploymentTypeId: this.staffMemberBasic()?.staffEmploymentTypeId,
-      staffCategoryId: this.staffMemberBasic()?.staffCategoryId,
-      staffJobFamilyMasterId:
-        this.staffMemberBasic()?.professionalProfile?.staffJobFamilyMasterId,
-      staffPositionMasterId:
-        this.staffMemberBasic()?.professionalProfile?.staffPositionMasterId,
+      institutionStaffCategoryMasterId: this.staffMemberBasic()?.institutionStaffCategoryMasterId,
+      staffJobFamilyMasterId: this.staffMemberBasic()?.professionalProfile?.staffJobFamilyMasterId,
+      staffPositionMasterId: this.staffMemberBasic()?.professionalProfile?.staffPositionMasterId,
       roleId: role?.id,
       hasPermanent: this.staffMemberBasic()?.hasPermanent,
       isEditAllowed: this.staffMemberBasic()?.isEditAllowed,
       isInfoVerified: this.staffMemberBasic()?.isInfoVerified,
       isActive: this.staffMemberBasic()?.isActive,
-      mobileNumber: this.#stripDialCode(
-        this.staffMemberBasic()?.mobileNumber,
-        dialCode,
-      ),
+      mobileNumber: this.#stripDialCode(this.staffMemberBasic()?.mobileNumber, dialCode),
       emergencyContactPerson: this.staffMemberBasic()?.emergencyContactPerson,
       emergencyContactNumber: this.#stripDialCode(
         this.staffMemberBasic()?.emergencyContactNumber,
@@ -424,10 +393,10 @@ export class StaffMemberManageDialog implements OnInit {
     await this.getDesignations(Number(departmentId));
   }
 
-  onStaffCategoryChange(staffCategoryId: number): void {
+  onStaffCategoryChange(institutionStaffCategoryMasterId: number): void {
     this.staffMemberForm.controls.staffJobFamilyMasterId.setValue(undefined);
     this.staffMemberForm.controls.staffPositionMasterId.setValue(undefined);
-    this.loadPositions(staffCategoryId);
+    this.loadPositions(institutionStaffCategoryMasterId);
   }
 
   onJobFamilyChange(jobFamilyId: number): void {
@@ -437,27 +406,36 @@ export class StaffMemberManageDialog implements OnInit {
 
   private loadProfessionalStructure(): void {
     this.isLoadingProfessionalStructure.set(true);
+    this.isLoadingStaffCategories.set(true);
+    this.#professionalApi
+      .getCategories()
+      .pipe(
+        finalize(() => this.isLoadingStaffCategories.set(false)),
+        takeUntilDestroyed(this.#destroyRef),
+      )
+      .subscribe({
+        next: (response) =>
+          this.staffCategoryOptions.set(response.isSucceeded ? response.data : []),
+        error: (error) => this.#commonService.showMessage(error.message, 'error'),
+      });
     this.#professionalApi
       .getMasters(StaffProfessionalMasterType.JobFamily)
       .pipe(takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
-          this.allJobFamilyOptions.set(
-            response.isSucceeded ? response.data : [],
-          );
+          this.allJobFamilyOptions.set(response.isSucceeded ? response.data : []);
           this.loadPositions(
-            this.staffMemberForm.controls.staffCategoryId.value,
+            this.staffMemberForm.controls.institutionStaffCategoryMasterId.value,
             this.staffMemberForm.controls.staffJobFamilyMasterId.value,
           );
         },
-        error: (error) =>
-          this.#commonService.showMessage(error.message, 'error'),
+        error: (error) => this.#commonService.showMessage(error.message, 'error'),
       });
   }
 
-  private loadPositions(staffCategoryId?: number, jobFamilyId?: number): void {
+  private loadPositions(institutionStaffCategoryMasterId?: number, jobFamilyId?: number): void {
     this.#professionalApi
-      .getPositions(staffCategoryId)
+      .getPositions(institutionStaffCategoryMasterId)
       .pipe(
         finalize(() => this.isLoadingProfessionalStructure.set(false)),
         takeUntilDestroyed(this.#destroyRef),
@@ -470,14 +448,11 @@ export class StaffMemberManageDialog implements OnInit {
             positions.map((position) => position.staffJobFamilyMasterId),
           );
           this.jobFamilyOptions.set(
-            this.allJobFamilyOptions().filter((family) =>
-              availableFamilyIds.has(family.id),
-            ),
+            this.allJobFamilyOptions().filter((family) => availableFamilyIds.has(family.id)),
           );
           this.filterPositions(jobFamilyId);
         },
-        error: (error) =>
-          this.#commonService.showMessage(error.message, 'error'),
+        error: (error) => this.#commonService.showMessage(error.message, 'error'),
       });
   }
 
@@ -511,9 +486,7 @@ export class StaffMemberManageDialog implements OnInit {
       )
       .subscribe({
         next: (res) => {
-          this.#designationsApi.setDesignations(
-            res.isSucceeded ? res.data : [],
-          );
+          this.#designationsApi.setDesignations(res.isSucceeded ? res.data : []);
           if (!res.isSucceeded) {
             this.#commonService.showMessage(res.message, 'error');
           }
@@ -579,14 +552,12 @@ export class StaffMemberManageDialog implements OnInit {
       middleName: form.middleName?.trim() ?? undefined,
       lastName: form.lastName?.trim() ?? '',
       dateOfBirth: form.dateOfBirth ? form.dateOfBirth.toISOString() : '',
-      dateOfOnBoarding: form.dateOfOnBoarding
-        ? form.dateOfOnBoarding.toISOString()
-        : '',
+      dateOfOnBoarding: form.dateOfOnBoarding ? form.dateOfOnBoarding.toISOString() : '',
       officialEmail: form.officialEmail?.trim() || '',
       departmentId: Number(form.departmentId) || 0,
       designationId: Number(form.designationId) || 0,
       staffEmploymentTypeId: Number(form.staffEmploymentTypeId) || 0,
-      staffCategoryId: Number(form.staffCategoryId) || 0,
+      institutionStaffCategoryMasterId: Number(form.institutionStaffCategoryMasterId) || 0,
       staffPositionMasterId: Number(form.staffPositionMasterId) || 0,
       roleId: Number(form.roleId) || 0,
       genderId: Number(form.genderId) || 0,
@@ -606,10 +577,7 @@ export class StaffMemberManageDialog implements OnInit {
       )
       .subscribe({
         next: async (res) => {
-          this.#commonService.showMessage(
-            res.message,
-            res.isSucceeded ? 'success' : 'error',
-          );
+          this.#commonService.showMessage(res.message, res.isSucceeded ? 'success' : 'error');
           if (res.isSucceeded) {
             this.finish(res);
           }
@@ -621,8 +589,7 @@ export class StaffMemberManageDialog implements OnInit {
   }
 
   processUpdateByAdminHR() {
-    const queryStaffMemberId =
-      this.#route.snapshot.queryParamMap.get('staffMemberId');
+    const queryStaffMemberId = this.#route.snapshot.queryParamMap.get('staffMemberId');
     const sessionUser = this.loginInfo?.user;
     if (!sessionUser) return;
     const form = this.staffMemberForm.getRawValue();
@@ -636,14 +603,12 @@ export class StaffMemberManageDialog implements OnInit {
       departmentId: form.departmentId || 0,
       designationId: form.designationId || 0,
       staffEmploymentTypeId: form.staffEmploymentTypeId || 0,
-      staffCategoryId: form.staffCategoryId || 0,
+      institutionStaffCategoryMasterId: form.institutionStaffCategoryMasterId || 0,
       staffPositionMasterId: form.staffPositionMasterId || 0,
       genderId: form.genderId || 0,
       countryId: form.countryId || 0,
       dateOfBirth: form.dateOfBirth ? form.dateOfBirth.toISOString() : '',
-      dateOfOnBoarding: form.dateOfOnBoarding
-        ? form.dateOfOnBoarding.toISOString()
-        : '',
+      dateOfOnBoarding: form.dateOfOnBoarding ? form.dateOfOnBoarding.toISOString() : '',
       dateOfExit: form.dateOfExit ? form.dateOfExit.toISOString() : '',
       isMarried: form.isMarried ?? false,
       isEditAllowed: form.isEditAllowed,
@@ -652,9 +617,7 @@ export class StaffMemberManageDialog implements OnInit {
       hasPermanent: form.hasPermanent,
       mobileNumber: this.#prependDialCode(form.mobileNumber),
       emergencyContactPerson: form.emergencyContactPerson?.trim() || '',
-      emergencyContactNumber: this.#prependDialCode(
-        form.emergencyContactNumber,
-      ),
+      emergencyContactNumber: this.#prependDialCode(form.emergencyContactNumber),
       bloodGroup: form.bloodGroup?.trim() || '',
       relation: Number(form.relation) || 0,
       description: '',
@@ -670,15 +633,9 @@ export class StaffMemberManageDialog implements OnInit {
       )
       .subscribe({
         next: async (res) => {
-          this.#commonService.showMessage(
-            res.message,
-            res.isSucceeded ? 'success' : 'error',
-          );
+          this.#commonService.showMessage(res.message, res.isSucceeded ? 'success' : 'error');
           if (res.isSucceeded) {
-            this.#staffMemberBasicAPI.updateStaffMemberOfficialSignal(
-              body,
-              this.gendersOptions(),
-            );
+            this.#staffMemberBasicAPI.updateStaffMemberOfficialSignal(body, this.gendersOptions());
             this.finish(res);
           }
         },
@@ -689,8 +646,7 @@ export class StaffMemberManageDialog implements OnInit {
   }
 
   processUpdateByStaffMember() {
-    const queryStaffMemberId =
-      this.#route.snapshot.queryParamMap.get('staffMemberId');
+    const queryStaffMemberId = this.#route.snapshot.queryParamMap.get('staffMemberId');
 
     const sessionUser = this.loginInfo?.user;
     if (!sessionUser) return;
@@ -707,8 +663,7 @@ export class StaffMemberManageDialog implements OnInit {
       isMarried: form.isMarried ?? false,
       mobileNumber: this.staffMemberBasic()?.mobileNumber ?? '',
       emergencyContactPerson: form.emergencyContactPerson?.trim() || '',
-      emergencyContactNumber:
-        this.staffMemberBasic()?.emergencyContactNumber?.toString() || '',
+      emergencyContactNumber: this.staffMemberBasic()?.emergencyContactNumber?.toString() || '',
       bloodGroup: this.staffMemberBasic()?.bloodGroup || '',
       relation: Number(this.staffMemberBasic()?.relation) || 0,
       description: '',
@@ -724,15 +679,9 @@ export class StaffMemberManageDialog implements OnInit {
       )
       .subscribe({
         next: async (res) => {
-          this.#commonService.showMessage(
-            res.message,
-            res.isSucceeded ? 'success' : 'error',
-          );
+          this.#commonService.showMessage(res.message, res.isSucceeded ? 'success' : 'error');
           if (res.isSucceeded) {
-            this.#staffMemberBasicAPI.updateStaffMemberBasicSignal(
-              body,
-              this.gendersOptions(),
-            );
+            this.#staffMemberBasicAPI.updateStaffMemberBasicSignal(body, this.gendersOptions());
             this.finish(res);
           }
         },
@@ -774,9 +723,7 @@ export class StaffMemberManageDialog implements OnInit {
 
   #stripDialCode(number: string | undefined, dialCode: string): string {
     const trimmed = number?.trim() || '';
-    return dialCode && trimmed.startsWith(dialCode)
-      ? trimmed.slice(dialCode.length)
-      : trimmed;
+    return dialCode && trimmed.startsWith(dialCode) ? trimmed.slice(dialCode.length) : trimmed;
   }
 
   #prependDialCode(number: string | undefined): string {
