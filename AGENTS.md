@@ -38,17 +38,14 @@ Skills live once, under `.agents/skills/` — Codex reads them there. Claude Cod
 ### Issue tracker
 
 GitHub Issues on `QuecksilberTechnologies/Skolenza-app`, via the `gh` CLI.
-See `docs/agents/issue-tracker_old.md`.
 
 ### Triage labels
 
 The five canonical roles, each label string equal to its name.
-See `docs/agents/triage-labels_old.md`.
 
 ### Domain docs
 
 Single-context: `CONTEXT.md` and `docs/adr/` at the repo root.
-See `docs/agents/domain_old.md`.
 
 ## Skolenza documentation lifecycle
 
