@@ -1078,7 +1078,7 @@
             Design tokens, interaction rules and Angular&nbsp;CDK patterns for
             <strong>custom-built</strong> Skolenza components - the ones Optimus UI does not ship, or
             ships in a shape we cannot use. Every value below is derived from what the app already
-            renders (<code>src/styles.css</code>, <code>core/axion-preset.ts</code>, and the class
+            renders (<code>src/styles.css</code>, <code>core/skolenza-preset.ts</code>, and the class
             frequencies across <code>src/app/**/*.html</code>), so adopting it does not restyle the
             product.
           </p>
@@ -1097,7 +1097,7 @@
                 <tbody>
                   <tr>
                     <td><code>--p-*</code></td>
-                    <td>Optimus UI / Aura preset (<code>core/axion-preset.ts</code>)</td>
+                    <td>Optimus UI / Aura preset (<code>core/skolenza-preset.ts</code>)</td>
                     <td>
                       Palette + component tokens. <strong>Source of truth for colour.</strong> Custom
                       components read these, never re-declare them.
@@ -1301,9 +1301,11 @@
         <section id="color">
           <h2>Color</h2>
           <p class="lede">
-            Neutrals are <strong>zinc</strong> end to end (<code>axion-preset.ts</code> maps the
-            whole <code>surface</code> ramp to zinc in both schemes). Primary is user-chosen at
-            runtime. Semantics come from the Optimus palette.
+            Neutrals are <strong>zinc</strong> in light mode and <strong>slate</strong> in dark mode
+            (<code>skolenza-preset.ts</code> maps the whole <code>surface</code> ramp per scheme). Primary is user-chosen at
+            runtime. Semantics come from the Optimus palette. Templates keep their
+            <code>dark:*-zinc-*</code> utilities: <code>src/styles.css</code> remaps the zinc scale to
+            slate under <code>.dark</code>.
           </p>
 
           <h3>Surfaces &amp; text</h3>
@@ -1322,37 +1324,37 @@
                   <td>App ground</td>
                   <td><code>--color-surface-ground-light/dark</code></td>
                   <td>#fafafa (zinc-50)</td>
-                  <td>#09090b (zinc-950)</td>
+                  <td>#020617 (slate-950)</td>
                 </tr>
                 <tr>
                   <td>Raised surface (card, panel, overlay)</td>
                   <td><code>--color-surface-light/dark</code></td>
                   <td>#ffffff</td>
-                  <td>#18181b (zinc-900)</td>
+                  <td>#0f172a (slate-900)</td>
                 </tr>
                 <tr>
                   <td>Recessed / hover fill</td>
                   <td><code>--p-surface-100</code> / <code>--p-surface-800</code></td>
                   <td>#f4f4f5</td>
-                  <td>#27272a</td>
+                  <td>#1e293b</td>
                 </tr>
                 <tr>
                   <td>Border</td>
                   <td><code>--color-border-light/dark</code></td>
                   <td>#e4e4e7 (zinc-200)</td>
-                  <td>#27272a (zinc-800)</td>
+                  <td>#1e293b (slate-800)</td>
                 </tr>
                 <tr>
                   <td>Text primary</td>
                   <td><code>--color-text-primary-light/dark</code></td>
                   <td>#18181b (zinc-900)</td>
-                  <td>#fafafa (zinc-50)</td>
+                  <td>#f8fafc (slate-50)</td>
                 </tr>
                 <tr>
                   <td>Text secondary / muted</td>
                   <td><code>--color-text-secondary-light/dark</code></td>
                   <td>#71717a (zinc-500)</td>
-                  <td>#a1a1aa (zinc-400)</td>
+                  <td>#94a3b8 (slate-400)</td>
                 </tr>
               </tbody>
             </table>
@@ -1629,8 +1631,8 @@ const primary = getComputedStyle(document.documentElement)
             <li>Width is always <strong>1px</strong>. A 2px border means "focus ring", nothing else.</li>
             <li>Style is always <code>solid</code>. Dashed is reserved for drop targets and empty
               placeholders (<code>border-dashed</code> + muted colour).</li>
-            <li>Colour is <code>--ax-border-color</code> (zinc-200 / zinc-800). A
-              <em>strong</em> border (control outline, zinc-300 / zinc-700) is for interactive
+            <li>Colour is <code>--ax-border-color</code> (zinc-200 / slate-800). A
+              <em>strong</em> border (control outline, zinc-300 / slate-700) is for interactive
               controls that must read as editable: inputs, select triggers, outlined buttons.</li>
             <li>Dividers inside a surface use the same 1px border, never a shadow.</li>
           </ul>
@@ -1955,7 +1957,7 @@ protected readonly isHandset = toSignal(
                 </tr>
                 <tr>
                   <td>Hover</td>
-                  <td>Background steps one surface level (zinc-50 / zinc-800); borders darken one step. Never move the element.</td>
+                  <td>Background steps one surface level (zinc-50 / slate-800); borders darken one step. Never move the element.</td>
                   <td><code>:hover</code>, 150ms background transition. Pointer devices only: wrap in <code>@media (hover: hover)</code>.</td>
                 </tr>
                 <tr>
@@ -2074,7 +2076,7 @@ protected readonly isHandset = toSignal(
           <ul>
             <li><strong>Contrast:</strong> 4.5:1 body text, 3:1 for &ge;19px bold text, UI borders and
               icons that carry meaning. Muted zinc-500 on white is 4.6:1 - fine; zinc-400 on white is
-              not, which is why dark mode uses zinc-400 and light mode zinc-500.</li>
+              not, which is why dark mode uses slate-400 and light mode zinc-500.</li>
             <li><strong>Focus visibility:</strong> a 2px ring with 2px offset against the adjacent
               colour at &ge;3:1 (WCAG 2.4.11).</li>
             <li><strong>Announce async change:</strong> CDK <code>LiveAnnouncer</code> for "12 results",
@@ -2438,7 +2440,7 @@ protected readonly portal = new TemplatePortal(this.tpl(), this.vcr);</code></pr
               <tbody>
                 <tr><td>Type / padding</td><td>11.5px, <code>5px 9px</code></td></tr>
                 <tr><td>Radius / shadow</td><td><code>--ax-radius-md</code> / <code>--ax-shadow-md</code></td></tr>
-                <tr><td>Colour</td><td>Inverted surface (zinc-900 on light, zinc-100 on dark) - the one place we invert</td></tr>
+                <tr><td>Colour</td><td>Inverted surface (zinc-900 on light, slate-100 on dark) - the one place we invert</td></tr>
                 <tr><td>Offset / width</td><td>6px from the trigger; <code>max-width: 240px</code></td></tr>
                 <tr><td>Delay</td><td>Show 300ms, hide 100ms; no delay if another tooltip is already open</td></tr>
                 <tr><td>Motion</td><td>Fade + 4px travel, 150ms</td></tr>
@@ -2832,7 +2834,7 @@ export class InspectorPopover {
               <tbody>
                 <tr><td><code>--ax-radius-sm / md / lg / xl / 2xl</code></td><td colspan="2">4 / 6 / 8 / 12 / 16px</td><td>px, not rem</td></tr>
                 <tr><td><code>--ax-border-width</code></td><td colspan="2">1px</td><td>2px means focus, nothing else</td></tr>
-                <tr><td><code>--ax-border-color</code></td><td>zinc-200</td><td>zinc-800</td><td>Alias of <code>--p-content-border-color</code></td></tr>
+                <tr><td><code>--ax-border-color</code></td><td>zinc-200</td><td>slate-800</td><td>Alias of <code>--p-content-border-color</code></td></tr>
                 <tr><td><code>--ax-control-h-sm / md / lg</code></td><td colspan="2">28 / 34 / 40px</td><td>md is the default</td></tr>
                 <tr><td><code>--ax-control-px</code></td><td colspan="2">10px</td><td>Inline padding for controls</td></tr>
                 <tr><td><code>--ax-icon-xs &hellip; xl</code></td><td colspan="2">12 / 14 / 16 / 20 / 24px</td><td>16px pairs with <code>text-sm</code></td></tr>
@@ -2870,7 +2872,7 @@ export class InspectorPopover {
 
         <footer class="page">
           Skolenza Design System &middot; derived from <code>src/styles.css</code>,
-          <code>core/axion-preset.ts</code>, <code>shared/utilities/overlay.ts</code> and the
+          <code>core/skolenza-preset.ts</code>, <code>shared/utilities/overlay.ts</code> and the
           component conventions in <code>src/app/shared/components/</code>. Update this file in the
           same PR as any change to those sources.
         </footer>
