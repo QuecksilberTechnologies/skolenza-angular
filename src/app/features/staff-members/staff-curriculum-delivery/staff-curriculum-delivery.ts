@@ -43,6 +43,19 @@ type CurriculumTab =
   | 'Delivery Logs'
   | 'Syllabus Progress';
 
+export function topicsForTeachingAssignment(
+  units: CurriculumUnit[],
+  assignments: StaffTeachingAssignment[],
+  assignmentId: number,
+): CurriculumUnit['topics'] {
+  const courseOfferingId = assignments.find((item) => item.id === assignmentId)?.courseOfferingId;
+  return courseOfferingId
+    ? units
+        .filter((unit) => unit.courseOfferingId === courseOfferingId)
+        .flatMap((unit) => unit.topics)
+    : [];
+}
+
 @Component({
   selector: 'app-staff-curriculum-delivery',
   imports: [
@@ -229,6 +242,12 @@ export default class StaffCurriculumDelivery implements OnInit {
       curriculumTopicIds: item.topics.map((topic) => topic.id),
     };
   }
+  onPlanAssignmentChange(): void {
+    const validTopicIds = new Set(this.availablePlanTopics().map((topic) => topic.id));
+    this.planForm.curriculumTopicIds = this.planForm.curriculumTopicIds.filter((id) =>
+      validTopicIds.has(id),
+    );
+  }
   reviewPlan(item: LessonPlan, code: 'SUBMITTED' | 'APPROVED' | 'REJECTED'): void {
     const status = this.statuses().find((option) => option.code === code);
     if (!status) return;
@@ -306,6 +325,13 @@ export default class StaffCurriculumDelivery implements OnInit {
   allTopics(): CurriculumUnit['topics'] {
     return this.units().flatMap((unit) => unit.topics);
   }
+  availablePlanTopics(): CurriculumUnit['topics'] {
+    return topicsForTeachingAssignment(
+      this.units(),
+      this.assignments(),
+      this.planForm.staffTeachingAssignmentId,
+    );
+  }
   approvedPlans(): LessonPlan[] {
     return this.plans().filter(
       (plan) =>
@@ -313,7 +339,7 @@ export default class StaffCurriculumDelivery implements OnInit {
     );
   }
   assignmentLabel(item: StaffTeachingAssignment): string {
-    return `${item.subjectName} · ${item.academicGroupName} / ${item.classSectionName}`;
+    return `${item.staffMemberName} · ${item.subjectName} · ${item.academicGroupName} / ${item.classSectionName}`;
   }
   planLabel(item: LessonPlan | undefined): string {
     return item ? `${item.courseOfferingName} · ${item.plannedDate}` : 'Lesson plan';

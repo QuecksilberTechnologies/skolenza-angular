@@ -14,8 +14,8 @@ describe('ASIDE_MENU_MODULE_UI', () => {
   it('points every route at a real feature route', () => {
     const unknown = entries
       .filter(([, ui]) => ui.route)
-      .map(([code, ui]) => [code, ui.route!.split('/')[0]] as const)
-      .filter(([, segment]) => !topLevelPaths.has(segment));
+      .map(([code, ui]) => [code, ui.route!, ui.route!.split('/')[0]] as const)
+      .filter(([, route, segment]) => !topLevelPaths.has(route) && !topLevelPaths.has(segment));
 
     expect(unknown).toEqual([]);
   });
@@ -46,10 +46,7 @@ describe('ASIDE_MENU_MODULE_UI', () => {
     // `INSTITUTION_CAMPUSES` and `HOST_CAMPUS_LIST` point at the same `campuses`
     // route on purpose: one session only ever carries one of the two codes, never both, and
     // `my-menu` scopes the operations each grants differently (see the map's own comment).
-    const sharedRoutePairs = new Set([
-      'INSTITUTION_CAMPUSES',
-      'HOST_CAMPUS_LIST',
-    ]);
+    const sharedRoutePairs = new Set(['INSTITUTION_CAMPUSES', 'HOST_CAMPUS_LIST']);
     const routes = entries
       .filter(([code]) => !sharedRoutePairs.has(code))
       .map(([, ui]) => ui.route)
@@ -58,5 +55,3 @@ describe('ASIDE_MENU_MODULE_UI', () => {
     expect(new Set(routes).size).toBe(routes.length);
   });
 });
-
-

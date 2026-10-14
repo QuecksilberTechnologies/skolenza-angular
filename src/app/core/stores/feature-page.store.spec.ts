@@ -46,7 +46,7 @@ function envelope(items: FeaturePageNode[]): GetMyMenuRes {
   };
 }
 
-function writeCache(data: FeaturePageNode[], fetchedAt: number, version = 4): void {
+function writeCache(data: FeaturePageNode[], fetchedAt: number, version = 5): void {
   localStorage.setItem(CACHE_KEY, JSON.stringify({ version, fetchedAt, data }));
 }
 
@@ -157,7 +157,7 @@ describe('FeaturePageStore', () => {
     await store.load();
 
     const cache = JSON.parse(localStorage.getItem(CACHE_KEY)!);
-    expect(cache.version).toBe(4);
+    expect(cache.version).toBe(5);
     expect(cache.data).toHaveLength(1);
     expect(cache.fetchedAt).toBeGreaterThan(0);
     expect(store.isLoaded()).toBe(true);
@@ -268,4 +268,3 @@ describe('FeaturePageStore', () => {
     expect(store.displayNameOf('EMP_NOWHERE')).toBeUndefined();
   });
 });
-

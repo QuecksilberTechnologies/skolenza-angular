@@ -8,9 +8,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { ConfirmationService } from '@openng/optimus-ui/api';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { CardModule } from '@openng/optimus-ui/card';
 import { CheckboxModule } from '@openng/optimus-ui/checkbox';
+import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
 import { SelectModule } from '@openng/optimus-ui/select';
@@ -29,6 +31,16 @@ import {
 } from '@shared/interfaces';
 
 type StructureTab = StaffProfessionalMasterType | 'categories' | 'positions';
+export type DependencyOption<T> = T & { disabled: boolean };
+
+export function buildDependencyOptions<T extends { id: number; isActive: boolean }>(
+  values: T[],
+  selectedIds: ReadonlySet<number>,
+): DependencyOption<T>[] {
+  return values
+    .filter((item) => item.isActive || selectedIds.has(item.id))
+    .map((item) => ({ ...item, disabled: !item.isActive }));
+}
 
 @Component({
   selector: 'app-staff-professional-structure',
@@ -36,6 +48,7 @@ type StructureTab = StaffProfessionalMasterType | 'categories' | 'positions';
     ButtonModule,
     CardModule,
     CheckboxModule,
+    ConfirmDialogModule,
     FormsModule,
     InputTextModule,
     SelectModule,
@@ -48,11 +61,12 @@ type StructureTab = StaffProfessionalMasterType | 'categories' | 'positions';
 export default class StaffProfessionalStructure implements OnInit {
   readonly #api = inject(StaffProfessionalStructureApi);
   readonly #common = inject(Common);
+  readonly #confirmationService = inject(ConfirmationService);
   readonly #destroyRef = inject(DestroyRef);
   readonly #lookups = inject(LookupStore);
 
   readonly masterTypes = StaffProfessionalMasterType;
-  readonly selectedTab = signal<StructureTab>('categories');
+  readonly selectedTab = signal<StructureTab>(StaffProfessionalMasterType.JobFamily);
   readonly masters = signal<StaffProfessionalMaster[]>([]);
   readonly positions = signal<StaffPositionMaster[]>([]);
   readonly jobFamilies = signal<StaffProfessionalMaster[]>([]);
@@ -66,7 +80,7 @@ export default class StaffProfessionalStructure implements OnInit {
     { label: 'Active', value: 'active' },
     { label: 'Inactive', value: 'inactive' },
   ];
-  statusFilter: 'all' | 'active' | 'inactive' = 'active';
+  statusFilter: 'all' | 'active' | 'inactive' = 'all';
 
   masterForm: SaveStaffProfessionalMaster = this.emptyMaster();
   categoryForm: SaveInstitutionStaffCategory = this.emptyCategory();
@@ -187,6 +201,10 @@ export default class StaffProfessionalStructure implements OnInit {
       });
   }
 
+  confirmCategoryActive(item: InstitutionStaffCategory): void {
+    this.confirmStatusChange(item.name, item.isActive, () => this.setCategoryActive(item));
+  }
+
   saveMaster(): void {
     const tab = this.selectedTab();
     if (typeof tab === 'string' || !this.masterForm.code.trim() || !this.masterForm.name.trim())
@@ -237,6 +255,12 @@ export default class StaffProfessionalStructure implements OnInit {
         },
         error: (error) => this.#common.showMessage(error.message, 'error'),
       });
+  }
+
+  confirmMasterActive(item: StaffProfessionalMaster): void {
+    this.confirmStatusChange(item.name, item.isActive, () =>
+      item.isActive ? this.deleteMaster(item) : this.activateMaster(item),
+    );
   }
 
   editPosition(item: StaffPositionMaster): void {
@@ -329,6 +353,12 @@ export default class StaffProfessionalStructure implements OnInit {
       });
   }
 
+  confirmPositionActive(item: StaffPositionMaster): void {
+    this.confirmStatusChange(item.name, item.isActive, () =>
+      item.isActive ? this.deletePosition(item) : this.activatePosition(item),
+    );
+  }
+
   toggleCapability(id: number, checked: boolean): void {
     this.positionForm.capabilities = this.toggleRequirement(
       this.positionForm.capabilities,
@@ -349,7 +379,7 @@ export default class StaffProfessionalStructure implements OnInit {
 
   private loadReferenceData(): void {
     this.#api
-      .getCategories()
+      .getCategories(false)
       .pipe(takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => {
         this.categories.set(response.isSucceeded ? response.data : []);
@@ -360,7 +390,7 @@ export default class StaffProfessionalStructure implements OnInit {
       StaffProfessionalMasterType.DutyDefinition,
     ]) {
       this.#api
-        .getMasters(type)
+        .getMasters(type, false)
         .pipe(takeUntilDestroyed(this.#destroyRef))
         .subscribe((response) => {
           const values = response.isSucceeded ? response.data : [];
@@ -420,6 +450,41 @@ export default class StaffProfessionalStructure implements OnInit {
       : [];
   }
 
+  categoryJobFamilyOptions(): DependencyOption<StaffProfessionalMaster>[] {
+    return this.dependencyOptions(
+      this.jobFamilies(),
+      new Set(this.categoryForm.staffJobFamilyMasterIds),
+    );
+  }
+
+  positionCategoryOptions(): DependencyOption<InstitutionStaffCategory>[] {
+    return this.dependencyOptions(
+      this.categories(),
+      new Set([this.positionForm.institutionStaffCategoryMasterId]),
+    );
+  }
+
+  positionJobFamilyOptions(): DependencyOption<StaffProfessionalMaster>[] {
+    return this.dependencyOptions(
+      this.mappedJobFamilies(),
+      new Set([this.positionForm.staffJobFamilyMasterId]),
+    );
+  }
+
+  capabilityOptions(): DependencyOption<StaffProfessionalMaster>[] {
+    return this.dependencyOptions(
+      this.capabilities(),
+      new Set(this.positionForm.capabilities.map((item) => item.id)),
+    );
+  }
+
+  dutyOptions(): DependencyOption<StaffProfessionalMaster>[] {
+    return this.dependencyOptions(
+      this.duties(),
+      new Set(this.positionForm.duties.map((item) => item.id)),
+    );
+  }
+
   visibleCategories(): InstitutionStaffCategory[] {
     return this.filterByStatus(this.categories());
   }
@@ -461,5 +526,28 @@ export default class StaffProfessionalStructure implements OnInit {
     return this.statusFilter === 'all'
       ? values
       : values.filter((item) => item.isActive === (this.statusFilter === 'active'));
+  }
+
+  private dependencyOptions<T extends { id: number; isActive: boolean }>(
+    values: T[],
+    selectedIds: ReadonlySet<number>,
+  ): DependencyOption<T>[] {
+    return buildDependencyOptions(values, selectedIds);
+  }
+
+  private confirmStatusChange(name: string, isActive: boolean, accept: () => void): void {
+    const action = isActive ? 'Deactivate' : 'Activate';
+    this.#confirmationService.confirm({
+      message: `${action} <strong>${name}</strong>?${
+        isActive ? ' It will no longer be available for new dependent selections.' : ''
+      }`,
+      header: `${action} this record`,
+      icon: 'pi pi-exclamation-circle text-amber-500! text-2xl!',
+      acceptLabel: action,
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-primary',
+      rejectButtonStyleClass: 'p-button-secondary',
+      accept,
+    });
   }
 }
