@@ -86,7 +86,7 @@
         color-scheme: light;
       }
       html.dark {
-        background-color: #09090b;
+        background-color: #020617;
         color-scheme: dark;
       }
       .root-loader {
@@ -104,7 +104,7 @@
         color: #71717a;
       }
       html.dark .root-loader p {
-        color: #a1a1aa;
+        color: #94a3b8;
       }
       .root-loader img {
         height: 4.2rem;
@@ -113,6 +113,10 @@
       }
       html:not(.dark) .root-loader img {
         mix-blend-mode: multiply;
+      }
+      html.dark .root-loader .logo-on-light,
+      html:not(.dark) .root-loader .logo-on-dark {
+        display: none;
       }
       @keyframes flash {
         0%,
@@ -129,7 +133,12 @@
     <app-root>
       <div class="root-loader">
         <img
-          src="brand/skolenza-logo-system/skolenza-horizontal-full-color-256.png"
+          class="logo-on-light"
+          src="images/skolenza-logo-on-light.png"
+          alt="logo" />
+        <img
+          class="logo-on-dark"
+          src="images/skolenza-logo-on-dark.png"
           alt="logo" />
         <p>
           Preparing your Skolenza experience

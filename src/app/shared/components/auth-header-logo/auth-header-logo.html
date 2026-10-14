@@ -7,11 +7,18 @@
       class="absolute inset-0 h-full w-full object-contain" />
     } @else {
     <img
-      ngSrc="brand/skolenza-logo-system/skolenza-horizontal-full-color-256.png"
+      ngSrc="images/skolenza-logo-on-light.png"
       fill
       priority
       placeholder="data:image/png;base64,iVBORw0K..."
-      class="logo object-contain mix-blend-multiply dark:mix-blend-lighten"
+      class="logo object-contain mix-blend-multiply dark:hidden"
+      alt="" />
+    <img
+      ngSrc="images/skolenza-logo-on-dark.png"
+      fill
+      priority
+      placeholder="data:image/png;base64,iVBORw0K..."
+      class="logo hidden object-contain dark:block"
       alt="" />
     }
   </div>

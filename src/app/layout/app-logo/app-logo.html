@@ -15,11 +15,19 @@
       class="absolute inset-0 h-full w-full object-contain" />
     } @else {
     <img
-      ngSrc="brand/skolenza-logo-system/skolenza-horizontal-full-color-256.png"
+      ngSrc="images/skolenza-logo-on-light.png"
       fill
       priority
       placeholder="data:image/png;base64,iVBORw0K..."
-      alt="App logo" />
+      alt="App logo"
+      class="dark:hidden" />
+    <img
+      ngSrc="images/skolenza-logo-on-dark.png"
+      fill
+      priority
+      placeholder="data:image/png;base64,iVBORw0K..."
+      alt="App logo"
+      class="hidden dark:block" />
     }
   </div>
   } @else { @if (platform.ANDROID || platform.IOS) {
@@ -31,12 +39,19 @@
       class="absolute inset-0 h-full w-full object-contain" />
     } @else {
     <img
-      ngSrc="brand/skolenza-logo-system/skolenza-horizontal-full-color-256.png"
+      ngSrc="images/skolenza-logo-on-light.png"
       fill
       priority
       placeholder="data:image/png;base64,iVBORw0K..."
       alt="App logo"
-      class="w-full" />
+      class="w-full dark:hidden" />
+    <img
+      ngSrc="images/skolenza-logo-on-dark.png"
+      fill
+      priority
+      placeholder="data:image/png;base64,iVBORw0K..."
+      alt="App logo"
+      class="w-full hidden dark:block" />
     }
   </div>
   } @else {
