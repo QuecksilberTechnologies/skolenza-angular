@@ -14,6 +14,7 @@ import {
   SaveTimetableWorkflow,
   StaffConversation,
   StaffConversationDetail,
+  StaffMessageAttachment,
   StaffAbsenceImpact,
   StaffOperationsOptions,
   StaffQueryCategory,
@@ -175,6 +176,20 @@ export class StaffOperationsApi extends BaseService {
         { body },
       )
       .pipe(catchError(this.handleError<ApiDataResponse<StaffConversation>>('addMessage')));
+  }
+  uploadMessageAttachment(messageId: number, file: File) {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    return this.#http
+      .post<ApiDataResponse<StaffMessageAttachment>>(
+        `${this.#url}/communication/messages/${messageId}/attachments`,
+        form,
+      )
+      .pipe(
+        catchError(
+          this.handleError<ApiDataResponse<StaffMessageAttachment>>('uploadMessageAttachment'),
+        ),
+      );
   }
   #get<T>(path: string): Observable<ApiDataResponse<T>> {
     return this.#http

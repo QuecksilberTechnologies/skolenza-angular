@@ -127,6 +127,15 @@ export interface StaffConversationMessage {
   senderName: string;
   body: string;
   sentDateTime: string;
+  canAttach: boolean;
+  attachments: StaffMessageAttachment[];
+}
+export interface StaffMessageAttachment {
+  id: number;
+  fileName: string;
+  contentType: string;
+  fileSize: number;
+  fileUrl: string;
 }
 export interface StaffConversationDetail extends StaffConversation {
   queryCategoryName?: string;
@@ -143,6 +152,7 @@ export interface StaffOperationsOptions {
   staffCategories: StaffOperationsOption[];
   accessRoles: StaffOperationsOption[];
   staffPositions: StaffOperationsOption[];
+  approvedLeaveRequests: StaffOperationsOption[];
 }
 export interface StaffAbsenceImpact {
   id: number;
