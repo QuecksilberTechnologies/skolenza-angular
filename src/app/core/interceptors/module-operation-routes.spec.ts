@@ -108,6 +108,7 @@ const LIVE_PAGES: Readonly<Record<string, readonly string[]>> = {
   HOST_BILLING_REFUNDS: ['View', 'Add'],
   HOST_BILLING_RECONCILIATION: ['View', 'Update'],
   HOST_BILLING_AUDIT: ['View'],
+  HOST_STAFF_CATEGORY_CATALOGUE: ['View', 'Add', 'Update'],
 };
 
 /**
@@ -500,6 +501,9 @@ describe('resolveModuleOperationRoute', () => {
       ['GET', '/host/billing/reconciliation', 'HOST_BILLING_RECONCILIATION', 'View', 'query'],
       ['POST', '/host/billing/webhooks/42/retry', 'HOST_BILLING_RECONCILIATION', 'Update', 'body'],
       ['GET', '/host/billing/audit', 'HOST_BILLING_AUDIT', 'View', 'query'],
+      ['GET', '/Staff/Category/host', 'HOST_STAFF_CATEGORY_CATALOGUE', 'View', 'query'],
+      ['POST', '/Staff/Category/host', 'HOST_STAFF_CATEGORY_CATALOGUE', 'Add', 'body'],
+      ['PUT', '/Staff/Category/host/7', 'HOST_STAFF_CATEGORY_CATALOGUE', 'Update', 'body'],
     ];
 
     for (const [method, path, module, operation, carrier] of cases) {

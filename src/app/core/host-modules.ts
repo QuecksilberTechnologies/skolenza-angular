@@ -14,4 +14,5 @@ export const HOST_MODULE = {
   hostRole: 'HostRole',
   subscriptionPlan: 'Subscription-Plan',
   billing: 'Billing',
+  staffCategoryCatalogue: 'Host-Staff-Category-Catalogue',
 } as const;

@@ -103,6 +103,11 @@ export const ASIDE_MENU_MODULE_UI: Readonly<Record<string, AsideMenuModuleUi>> =
 
   // Host management
   HOST_MANAGEMENT: { icon: 'pi pi-shield' },
+  HOST_INSTITUTION_MASTER_DATA: { icon: 'pi pi-database' },
+  HOST_STAFF_CATEGORY_CATALOGUE: {
+    route: 'institution-master-data/staff-categories',
+    icon: 'pi pi-users',
+  },
   HOST_USERS: { route: 'host-users', icon: 'pi pi-users' },
   HOST_ROLES: { route: 'host-roles', icon: 'pi pi-shield' },
   HOST_MODULES: { route: 'modules', icon: 'pi pi-table' },

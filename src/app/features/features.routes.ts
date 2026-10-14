@@ -409,6 +409,12 @@ export const FEATURES_ROUTES: Routes = [
       hasModulePermissionGuard(HOST_MODULE.subscriptionPlan),
     ],
   },
+  {
+    path: 'institution-master-data/staff-categories',
+    loadComponent: () => import('./host/institution-master-data/staff-category-catalogue'),
+    title: `Staff Category Catalogue | ${titleSuffix}`,
+    canActivate: [...hostOnly, hasModulePermissionGuard(HOST_MODULE.staffCategoryCatalogue)],
+  },
   // The seven `HOST_BILLING_*` leaves. Not in the `get-host-modules` catalog, so there is no
   // `HOST_MODULE` key to guard on — each screen gates its actions on its own `moduleCode`.
   {

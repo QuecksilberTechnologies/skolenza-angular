@@ -116,6 +116,9 @@ const HOST_DEFAULT_EMAIL_CONFIG = 'HOST_DEFAULT_EMAIL_CONFIG';
 /** The Host-side mail template catalog. Sibling leaf to the SMTP screen above. */
 const HOST_EMAIL_TEMPLATE = 'HOST_EMAIL_TEMPLATE';
 
+/** Host-owned semantic category catalogue consumed by every Institution. */
+const HOST_STAFF_CATEGORY_CATALOGUE = 'HOST_STAFF_CATEGORY_CATALOGUE';
+
 /** The Institution's own template catalog. A child leaf of `INSTITUTION_EMAIL_CONFIG` in `my-menu`. */
 const INSTITUTION_EMAIL_TEMPLATE = 'INSTITUTION_EMAIL_TEMPLATE';
 
@@ -1231,6 +1234,28 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
     module: HOST_EMAIL_TEMPLATE,
     operation: 'Update',
     carrier: 'permissionRequest',
+  },
+
+  {
+    method: 'GET',
+    path: '/Staff/Category/host',
+    module: HOST_STAFF_CATEGORY_CATALOGUE,
+    operation: 'View',
+    carrier: 'query',
+  },
+  {
+    method: 'POST',
+    path: '/Staff/Category/host',
+    module: HOST_STAFF_CATEGORY_CATALOGUE,
+    operation: 'Add',
+    carrier: 'body',
+  },
+  {
+    method: 'PUT',
+    path: '/Staff/Category/host/{id}',
+    module: HOST_STAFF_CATEGORY_CATALOGUE,
+    operation: 'Update',
+    carrier: 'body',
   },
 
   // Host billing (`/api/host/billing/*`). Every leaf is its own `my-menu` code under

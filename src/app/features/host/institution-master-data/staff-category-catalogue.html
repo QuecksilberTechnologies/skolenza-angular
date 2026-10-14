@@ -1,0 +1,171 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-y-auto">
+  <p-card class="m-3 sm:m-4">
+    <main class="space-y-5">
+      <header class="border-b pb-3">
+        <h1 class="text-xl font-semibold">Staff Category Catalogue</h1>
+        <p class="text-sm text-gray-500">
+          Manage the platform categories Institutions use in staff records.
+        </p>
+      </header>
+
+      <section class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_24rem]">
+        <div class="min-w-0 overflow-hidden rounded-xl border bg-white dark:bg-zinc-900">
+          @if (loading()) {
+            <p class="p-5 text-gray-500" role="status">Loading Staff Categories...</p>
+          } @else {
+            @for (item of categories(); track item.id) {
+              <article
+                class="flex flex-col gap-3 border-b p-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <strong>{{ item.name }}</strong>
+                    <span class="rounded-full px-2 py-0.5 text-xs" [class.bg-blue-50]="item.isSystemDefined">
+                      {{ item.isSystemDefined ? 'System' : 'Custom' }}
+                    </span>
+                    <span
+                      class="rounded-full px-2 py-0.5 text-xs"
+                      [class.bg-green-50]="item.isActive"
+                      [class.text-green-700]="item.isActive"
+                      [class.bg-gray-100]="!item.isActive"
+                      [class.text-gray-600]="!item.isActive">
+                      {{ item.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </div>
+                  <p class="mt-1 break-words text-sm text-gray-500">
+                    {{ item.code }} · Order {{ item.displayOrder }}
+                  </p>
+                  @if (item.description) {
+                    <p class="mt-1 break-words text-sm text-gray-500">{{ item.description }}</p>
+                  }
+                </div>
+
+                @if (canUpdate()) {
+                  <div class="flex shrink-0 gap-2">
+                    <p-button
+                      label="Edit"
+                      icon="pi pi-pencil"
+                      severity="secondary"
+                      [outlined]="true"
+                      size="small"
+                      [ariaLabel]="'Edit ' + item.name"
+                      (onClick)="edit(item)" />
+                    <p-button
+                      [label]="item.isActive ? 'Deactivate' : 'Activate'"
+                      [icon]="item.isActive ? 'pi pi-ban' : 'pi pi-check-circle'"
+                      [severity]="item.isActive ? 'danger' : 'success'"
+                      [outlined]="true"
+                      size="small"
+                      [ariaLabel]="(item.isActive ? 'Deactivate ' : 'Activate ') + item.name"
+                      (onClick)="toggle(item)" />
+                  </div>
+                }
+              </article>
+            } @empty {
+              <p class="p-5 text-gray-500">No Staff Categories configured.</p>
+            }
+          }
+        </div>
+
+        @if (canAdd() || (canUpdate() && model().id !== null)) {
+          <form
+            class="space-y-4 rounded-xl border bg-white p-5 dark:bg-zinc-900"
+            (submit)="onSubmit(); $event.preventDefault()">
+            <h2 class="font-semibold">{{ model().id ? 'Edit' : 'Add' }} Staff Category</h2>
+
+            <div class="space-y-1">
+              <label for="categoryCode" class="block font-medium">
+                Code <span class="text-red-600">*</span>
+              </label>
+              <input
+                id="categoryCode"
+                pInputText
+                class="w-full"
+                [formField]="f.code"
+                autocomplete="off" />
+              @if (submitted() && f.code().errors().length) {
+                <p-message severity="error" size="small" variant="simple">
+                  {{ f.code().errors()[0].message }}
+                </p-message>
+              }
+            </div>
+
+            <div class="space-y-1">
+              <label for="categoryName" class="block font-medium">
+                Name <span class="text-red-600">*</span>
+              </label>
+              <input
+                id="categoryName"
+                pInputText
+                class="w-full"
+                [formField]="f.name"
+                autocomplete="off" />
+              @if (submitted() && f.name().errors().length) {
+                <p-message severity="error" size="small" variant="simple">
+                  {{ f.name().errors()[0].message }}
+                </p-message>
+              }
+            </div>
+
+            <div class="space-y-1">
+              <label for="categoryDescription" class="block font-medium">Description</label>
+              <textarea
+                id="categoryDescription"
+                pInputText
+                class="w-full"
+                [formField]="f.description"
+                rows="3"></textarea>
+              @if (submitted() && f.description().errors().length) {
+                <p-message severity="error" size="small" variant="simple">
+                  {{ f.description().errors()[0].message }}
+                </p-message>
+              }
+            </div>
+
+            <div class="space-y-1">
+              <label for="categoryDisplayOrder" class="block font-medium">Display order</label>
+              <p-inputnumber
+                inputId="categoryDisplayOrder"
+                class="w-full"
+                styleClass="w-full"
+                [showButtons]="false"
+                [formField]="$any(f.displayOrder)" />
+              @if (submitted() && f.displayOrder().errors().length) {
+                <p-message severity="error" size="small" variant="simple">
+                  {{ f.displayOrder().errors()[0].message }}
+                </p-message>
+              }
+            </div>
+
+            <div class="flex items-center justify-between gap-3 rounded-lg border p-3">
+              <label for="categoryActive" class="font-medium">Active</label>
+              <p-toggleswitch
+                inputId="categoryActive"
+                [formField]="$any(f.isActive)" />
+            </div>
+
+            <div class="flex justify-end gap-2 border-t pt-4">
+              @if (model().id !== null) {
+                <p-button
+                  type="button"
+                  label="Cancel"
+                  severity="secondary"
+                  [text]="true"
+                  (onClick)="reset()" />
+              }
+              <p-button
+                type="submit"
+                label="Save"
+                icon="pi pi-check"
+                [loading]="saving()"
+                [disabled]="saving() || f().invalid()" />
+            </div>
+          </form>
+        } @else if (canUpdate()) {
+          <div class="rounded-xl border bg-white p-5 text-sm text-gray-500 dark:bg-zinc-900">
+            Select a category to edit it.
+          </div>
+        }
+      </section>
+    </main>
+  </p-card>
+</div>
