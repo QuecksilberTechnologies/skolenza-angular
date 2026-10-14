@@ -5,8 +5,9 @@ import { RouterModule } from '@angular/router';
 import AuthHeaderLogo from '@shared/components/auth-header-logo/auth-header-logo';
 
 /**
- * Two-panel `/auth/*` shell: a decorative brand panel on the left (lg and up) and the page's own
- * form on the right. Same landmark, logo and heading contract as `AuthCard`.
+ * The shell every `/auth/*` page sits in: a decorative brand panel on the left (lg and up), and
+ * the landmark, logo, optional `[card-icon]` and heading above the page's own form on the right.
+ * Page templates project only their own content.
  */
 @Component({
   selector: 'app-auth-split-card',

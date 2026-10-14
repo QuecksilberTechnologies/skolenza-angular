@@ -3,11 +3,11 @@ import { RouterModule } from '@angular/router';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { CheckCircle, LucideAngularModule } from 'lucide-angular';
 
-import AuthCard from '@shared/components/auth-card/auth-card';
+import AuthSplitCard from '@shared/components/auth-split-card/auth-split-card';
 
 @Component({
   selector: 'app-reset-success',
-  imports: [AuthCard, RouterModule, ButtonModule, LucideAngularModule],
+  imports: [AuthSplitCard, RouterModule, ButtonModule, LucideAngularModule],
   templateUrl: './reset-success.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -16,7 +16,7 @@ import { LucideAngularModule, Mail } from 'lucide-angular';
 import { finalize } from 'rxjs';
 
 import { AuthApi, Common } from '@core/services';
-import AuthCard from '@shared/components/auth-card/auth-card';
+import AuthSplitCard from '@shared/components/auth-split-card/auth-split-card';
 import { ForgotPasswordRequest, ValidateForgotPassOtpReq } from '@shared/interfaces';
 
 @Component({
@@ -24,7 +24,7 @@ import { ForgotPasswordRequest, ValidateForgotPassOtpReq } from '@shared/interfa
   imports: [
     ButtonModule,
     ReactiveFormsModule,
-    AuthCard,
+    AuthSplitCard,
     InputOtpModule,
     LucideAngularModule,
     MessageModule,

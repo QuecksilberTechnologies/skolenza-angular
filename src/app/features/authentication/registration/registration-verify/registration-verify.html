@@ -1,4 +1,4 @@
-<app-auth-card
+<app-auth-split-card
   [heading]="isLoading() ? 'Verifying your email' : isError() ? 'There was an error verifying your email' : 'Successfully verified'"
   [subheading]="null">
   <div
@@ -54,4 +54,4 @@
       [fluid]="true"
       (onClick)="navigateToLogin()" />
   }
-</app-auth-card>
+</app-auth-split-card>

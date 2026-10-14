@@ -25,7 +25,7 @@ import { CheckCircle2, LucideAngularModule } from 'lucide-angular';
 import { finalize } from 'rxjs';
 
 import { AuthApi, Common } from '@core/services';
-import AuthCard from '@shared/components/auth-card/auth-card';
+import AuthSplitCard from '@shared/components/auth-split-card/auth-split-card';
 import { UpdateLoginPasswordReq } from '@shared/interfaces';
 
 @Component({
@@ -39,7 +39,7 @@ import { UpdateLoginPasswordReq } from '@shared/interfaces';
     InputIconModule,
     MessageModule,
     LucideAngularModule,
-    AuthCard,
+    AuthSplitCard,
   ],
   templateUrl: './registration-password.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

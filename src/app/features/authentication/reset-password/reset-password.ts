@@ -25,7 +25,7 @@ import { CheckCircle2, LockKeyhole, LucideAngularModule } from 'lucide-angular';
 import { finalize } from 'rxjs';
 
 import { AuthApi, Common } from '@core/services';
-import AuthCard from '@shared/components/auth-card/auth-card';
+import AuthSplitCard from '@shared/components/auth-split-card/auth-split-card';
 import { CreateNewPasswordReq } from '@shared/interfaces';
 
 @Component({
@@ -37,7 +37,7 @@ import { CreateNewPasswordReq } from '@shared/interfaces';
     ReactiveFormsModule,
     IconFieldModule,
     InputIconModule,
-    AuthCard,
+    AuthSplitCard,
     LucideAngularModule,
     MessageModule,
   ],

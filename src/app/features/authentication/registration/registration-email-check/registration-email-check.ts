@@ -11,11 +11,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { LucideAngularModule, Mail } from 'lucide-angular';
 
-import AuthCard from '@shared/components/auth-card/auth-card';
+import AuthSplitCard from '@shared/components/auth-split-card/auth-split-card';
 
 @Component({
   selector: 'app-registration-email-check',
-  imports: [AuthCard, ButtonModule, LucideAngularModule],
+  imports: [AuthSplitCard, ButtonModule, LucideAngularModule],
   templateUrl: './registration-email-check.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

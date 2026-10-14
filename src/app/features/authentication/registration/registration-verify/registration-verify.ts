@@ -14,11 +14,11 @@ import { CircleCheckBig, CircleX, LucideAngularModule, Mail } from 'lucide-angul
 import { finalize } from 'rxjs';
 
 import { Common, InstitutionsApi } from '@core/services';
-import AuthCard from '@shared/components/auth-card/auth-card';
+import AuthSplitCard from '@shared/components/auth-split-card/auth-split-card';
 
 @Component({
   selector: 'app-registration-verify',
-  imports: [AuthCard, ButtonModule, ProgressSpinnerModule, LucideAngularModule],
+  imports: [AuthSplitCard, ButtonModule, ProgressSpinnerModule, LucideAngularModule],
   templateUrl: './registration-verify.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
