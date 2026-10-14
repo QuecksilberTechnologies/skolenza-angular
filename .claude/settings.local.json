@@ -21,8 +21,12 @@
       "Edit(.git/**)"
     ]
   },
-  "enabledMcpjsonServers": ["angular-cli"],
-  "skillOverrides": {},
+  "enabledMcpjsonServers": [
+    "angular-cli"
+  ],
+  "skillOverrides": {
+    "angular-new-app": "off"
+  },
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -47,5 +51,11 @@
       }
     ]
   },
-  "enabledPlugins": {}
+  "enabledPlugins": {
+    "context7@claude-plugins-official": false,
+    "mattpocock-skills@claude-plugins-official": false
+  },
+  "disabledMcpjsonServers": [
+    "angular-cli"
+  ]
 }
