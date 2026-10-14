@@ -20,7 +20,7 @@ import { catchError, finalize, map, of } from 'rxjs';
 
 import { AuthApi, Common, IndustriesApi, InstitutionsApi } from '@core/services';
 import { LookupStore } from '@core/stores';
-import AuthCard from '@shared/components/auth-card/auth-card';
+import AuthSplitCard from '@shared/components/auth-split-card/auth-split-card';
 import { FormCountry } from '@shared/components/form-inputs/form-country/form-country';
 import { FormPhone } from '@shared/components/form-inputs/form-phone/form-phone';
 import { FormSelect } from '@shared/components/form-inputs/form-select/form-select';
@@ -49,7 +49,15 @@ const emptyModel: RegistrationModel = {
 
 @Component({
   selector: 'app-register',
-  imports: [RouterModule, ButtonModule, AuthCard, FormText, FormSelect, FormCountry, FormPhone],
+  imports: [
+    RouterModule,
+    ButtonModule,
+    AuthSplitCard,
+    FormText,
+    FormSelect,
+    FormCountry,
+    FormPhone,
+  ],
   templateUrl: './registration.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

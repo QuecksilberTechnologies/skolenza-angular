@@ -1,0 +1,101 @@
+<main
+  class="auth-surface relative flex min-h-dvh items-center justify-center bg-zinc-100 p-3 sm:p-6 dark:bg-slate-950">
+  <div
+    class="grid w-full overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+    [class]="width() === 'lg' ? 'max-w-7xl lg:grid-cols-[2fr_3fr]' : 'max-w-6xl lg:grid-cols-2'">
+    <!-- Brand panel: decorative marketing, hidden below lg. -->
+    <section
+      aria-label="About Skolenza"
+      class="relative hidden overflow-hidden bg-linear-to-br from-blue-800 via-blue-900 to-slate-950 p-10 text-white lg:flex lg:flex-col">
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute -top-24 -left-24 size-80 rounded-full bg-blue-500/30 blur-3xl"></div>
+      <div
+        aria-hidden="true"
+        class="pointer-events-none absolute -right-20 -bottom-28 size-96 rounded-full bg-blue-400/25 blur-3xl"></div>
+
+      <div class="relative h-10 w-40">
+        <img
+          ngSrc="images/skolenza-logo-on-dark.png"
+          fill
+          priority
+          class="object-contain object-left"
+          alt="Skolenza" />
+      </div>
+
+      <div class="relative mt-10">
+        <span class="inline-block rounded-full border border-blue-300/40 bg-white/10 px-3 py-1 text-xs text-blue-100">
+          Smarter Learning, Brighter Future
+        </span>
+        <p class="mt-5 text-4xl leading-tight font-bold xl:text-5xl">
+          Your Learning
+          <br />
+          <span class="text-blue-300">Journey</span> Starts Here
+        </p>
+        <p class="mt-4 max-w-md text-blue-100">
+          Skolenza helps you learn, grow, and achieve your goals with a modern and engaging learning experience.
+        </p>
+
+        <ul class="mt-8 space-y-5">
+          @for (feature of features; track feature.title) {
+            <li class="flex items-center gap-4">
+              <span
+                aria-hidden="true"
+                class="flex size-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-blue-500/25">
+                <i [class]="'pi ' + feature.icon + ' text-lg text-blue-200'"></i>
+              </span>
+              <span>
+                <span class="block font-semibold">{{ feature.title }}</span>
+                <span class="block text-sm text-blue-200">{{ feature.description }}</span>
+              </span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Illustration: stacked books under a glass video card. -->
+      <div
+        aria-hidden="true"
+        class="relative mt-auto flex justify-end pt-10">
+        <div class="relative h-44 w-72">
+          <div
+            class="absolute top-0 right-4 flex h-28 w-48 items-center justify-center rounded-xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-sm">
+            <i class="pi pi-play-circle text-4xl text-blue-100"></i>
+          </div>
+          <div class="absolute bottom-10 left-6 h-9 w-52 rounded-lg bg-blue-500 shadow-lg ring-4 ring-white/80"></div>
+          <div class="absolute bottom-0 left-2 h-9 w-56 rounded-lg bg-blue-600 shadow-lg ring-4 ring-white/70"></div>
+          <div
+            class="absolute bottom-[4.5rem] left-14 flex size-14 items-center justify-center rounded-lg bg-slate-900 shadow-xl">
+            <i class="pi pi-book text-2xl text-amber-400"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form panel. -->
+    <section class="flex flex-col justify-center p-6 sm:p-10">
+      <div
+        class="mx-auto w-full"
+        [class]="width() === 'lg' ? 'max-w-3xl' : 'max-w-md'">
+        @if (logoLink(); as link) {
+          <a
+            [routerLink]="link"
+            class="block rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+            aria-label="Skolenza home">
+            <app-auth-header-logo />
+          </a>
+        } @else {
+          <app-auth-header-logo />
+        }
+
+        <h1 class="mb-2 text-center text-3xl font-bold text-zinc-900 dark:text-zinc-100">{{ heading() }}</h1>
+
+        @if (subheading(); as subtitle) {
+          <p class="mb-6 text-center text-base text-zinc-500 dark:text-zinc-400">{{ subtitle }}</p>
+        }
+
+        <ng-content />
+      </div>
+    </section>
+  </div>
+</main>

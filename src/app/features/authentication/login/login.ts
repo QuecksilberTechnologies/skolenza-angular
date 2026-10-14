@@ -19,7 +19,7 @@ import { finalize } from 'rxjs';
 
 import { AuthApi, Common } from '@core/services';
 import { AuthStore, CurrentUserPermissionsStore, FeaturePageStore } from '@core/stores';
-import AuthCard from '@shared/components/auth-card/auth-card';
+import AuthSplitCard from '@shared/components/auth-split-card/auth-split-card';
 import { TrimInput } from '@shared/directives';
 import { DetectDevice, LoginInfo, LoginRequest, LoginResponse } from '@shared/interfaces';
 import { resolveRoleTypeId } from '@shared/utilities/login-info';
@@ -38,7 +38,7 @@ import { LoginModel, loginSchema } from './login.schema';
     ButtonModule,
     MessageModule,
     TrimInput,
-    AuthCard,
+    AuthSplitCard,
   ],
   templateUrl: './login.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,6 +53,16 @@ export default class Login implements OnInit {
   readonly #router = inject(Router);
 
   readonly isSaving = signal<boolean>(false);
+
+  /** UI only: the login API has no persistent-session flag yet. */
+  protected readonly rememberMe = signal(false);
+
+  /** Visual only until the backend supports SSO. */
+  protected readonly ssoProviders = [
+    { name: 'Google', icon: 'pi-google' },
+    { name: 'Microsoft', icon: 'pi-microsoft' },
+    { name: 'Apple', icon: 'pi-apple' },
+  ] as const;
   protected deviceInfo?: DetectDevice;
 
   protected readonly model = signal<LoginModel>({ email: '', password: '' });

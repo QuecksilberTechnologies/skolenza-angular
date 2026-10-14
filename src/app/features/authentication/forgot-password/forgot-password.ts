@@ -17,7 +17,7 @@ import { MessageModule } from '@openng/optimus-ui/message';
 import { finalize } from 'rxjs';
 
 import { AuthApi, Common } from '@core/services';
-import AuthCard from '@shared/components/auth-card/auth-card';
+import AuthSplitCard from '@shared/components/auth-split-card/auth-split-card';
 import { TrimInput } from '@shared/directives';
 import { ForgotForm, ForgotPasswordRequest, ForgotPasswordResponse } from '@shared/interfaces';
 import { EMAIL_PATTERN } from '@shared/utilities/validation-regex';
@@ -33,7 +33,7 @@ import { EMAIL_PATTERN } from '@shared/utilities/validation-regex';
     MessageModule,
     RouterModule,
     TrimInput,
-    AuthCard,
+    AuthSplitCard,
   ],
   templateUrl: './forgot-password.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
