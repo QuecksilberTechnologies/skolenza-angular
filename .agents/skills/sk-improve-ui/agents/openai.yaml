@@ -1,5 +1,0 @@
-interface:
-  display_name: "Improve UI"
-  short_description: "Audit and improve visual UI of an Angular component or feature"
-policy:
-  allow_implicit_invocation: false

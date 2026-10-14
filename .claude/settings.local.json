@@ -1,8 +1,4 @@
 {
-  "attribution": {
-    "commit": "Co-Authored-By: Skolenza <sujeetjaiswara2012@gmail.com>",
-    "pr": ""
-  },
   "permissions": {
     "allow": [
       "Bash(ng test:*)",
@@ -25,74 +21,8 @@
       "Edit(.git/**)"
     ]
   },
-  "enabledMcpjsonServers": [
-    "angular-cli"
-  ],
-  "skillOverrides": {
-    "sk-bundle-size-root-cause": "off",
-    "sk-clean-code": "off",
-    "sk-improve-ui": "off",
-    "sk-improve-ux": "off",
-    "sk-remove-dead-code": "off",
-    "sk-write-tests": "off",
-    "angular-new-app": "off",
-    "ask-matt": "off",
-    "cavecrew": "off",
-    "caveman-commit": "off",
-    "caveman-discover": "off",
-    "caveman-explore": "off",
-    "caveman-help": "off",
-    "caveman-manage": "off",
-    "caveman-optimize": "off",
-    "caveman-review": "off",
-    "caveman-setup": "off",
-    "caveman-stats": "off",
-    "claude-handoff": "off",
-    "caveman-compress": "off",
-    "caveman-evidence-review": "off",
-    "caveman-learn": "off",
-    "codebase-design": "off",
-    "domain-modeling": "off",
-    "handoff": "off",
-    "implement": "off",
-    "improve-codebase-architecture": "off",
-    "investigate-first": "off",
-    "loop-me": "off",
-    "migrate-to-shoehorn": "off",
-    "migration": "off",
-    "prototype": "off",
-    "resolving-merge-conflicts": "off",
-    "research": "off",
-    "safe-refactor": "off",
-    "scaffold-exercises": "off",
-    "surgical-patch": "off",
-    "tdd": "off",
-    "teach": "off",
-    "to-questionnaire": "off",
-    "to-tickets": "off",
-    "to-spec": "off",
-    "verify-and-stop": "off",
-    "wait-what": "off",
-    "wayfinder": "off",
-    "wizard": "off",
-    "writing-beats": "off",
-    "writing-for-agents": "off",
-    "writing-shape": "off",
-    "writing-fragments": "off",
-    "lean-build": "off",
-    "retro": "off",
-    "git-guardrails-claude-code": "off",
-    "grill-with-docs": "off",
-    "implement-spec": "off",
-    "setup-pre-commit": "off",
-    "setup-ts-deep-modules": "off",
-    "triage": "off",
-    "diagnosing-bugs": "off",
-    "grilling": "off",
-    "grill-me": "off",
-    "setup-matt-pocock-skills": "off",
-    "caveman": "off"
-  },
+  "enabledMcpjsonServers": ["angular-cli"],
+  "skillOverrides": {},
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -117,8 +47,5 @@
       }
     ]
   },
-  "enabledPlugins": {
-    "context7@claude-plugins-official": false,
-    "mattpocock-skills@claude-plugins-official": false
-  }
+  "enabledPlugins": {}
 }

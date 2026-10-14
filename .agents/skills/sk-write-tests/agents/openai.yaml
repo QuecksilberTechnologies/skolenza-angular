@@ -1,5 +1,0 @@
-interface:
-  display_name: "Write Tests"
-  short_description: "Write meaningful unit and component tests for Angular code"
-policy:
-  allow_implicit_invocation: false

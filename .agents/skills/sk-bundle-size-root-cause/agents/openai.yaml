@@ -1,5 +1,0 @@
-interface:
-  display_name: "Find Bundle Size Increase Root Cause"
-  short_description: "Find the root cause of an Angular build/bundle size increase"
-policy:
-  allow_implicit_invocation: false
