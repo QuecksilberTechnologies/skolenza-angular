@@ -33,21 +33,39 @@
 
 @theme {
   --color-text-secondary-light: #71717a; /* zinc-500 */
-  --color-text-secondary-dark: #a1a1aa; /* zinc-400 */
+  --color-text-secondary-dark: #94a3b8; /* slate-400 */
 
   --color-border-light: #e4e4e7; /* zinc-200 */
-  --color-border-dark: #27272a; /* zinc-800 */
+  --color-border-dark: #1e293b; /* slate-800 */
 
   --color-text-primary-light: #18181b; /* zinc-900 */
-  --color-text-primary-dark: #fafafa; /* zinc-50 */
+  --color-text-primary-dark: #f8fafc; /* slate-50 */
 
   --color-surface-light: #ffffff;
-  --color-surface-dark: #18181b; /* zinc-900 */
+  --color-surface-dark: #0f172a; /* slate-900 */
 
   --color-surface-ground-light: #fafafa; /* zinc-50 */
-  --color-surface-ground-dark: #09090b; /* zinc-950 */
+  --color-surface-ground-dark: #020617; /* slate-950 */
 
   --container-dialog-sm: 28rem;
+}
+
+/*
+ * Dark mode is slate (blue-tinted), light mode stays zinc. Templates spell dark colors as
+ * `dark:*-zinc-*`, so remap the zinc scale to slate under `.dark` instead of rewriting them.
+ */
+.dark {
+  --color-zinc-50: var(--color-slate-50);
+  --color-zinc-100: var(--color-slate-100);
+  --color-zinc-200: var(--color-slate-200);
+  --color-zinc-300: var(--color-slate-300);
+  --color-zinc-400: var(--color-slate-400);
+  --color-zinc-500: var(--color-slate-500);
+  --color-zinc-600: var(--color-slate-600);
+  --color-zinc-700: var(--color-slate-700);
+  --color-zinc-800: var(--color-slate-800);
+  --color-zinc-900: var(--color-slate-900);
+  --color-zinc-950: var(--color-slate-950);
 }
 
 /* Every confirmation dialog shares one width; templates set none. */
@@ -344,12 +362,17 @@ html {
 }
 
 /**
- * Auth pages sit on a lighter ground (`zinc-900`) than the app shell (`zinc-950`), so Aura's dark
+ * Auth pages sit on a lighter ground (`slate-900`) than the app shell (`slate-950`), so Aura's dark
  * form-field background - `surface.950` - reads as a hole punched through the card. Lift fields one
  * step, and put the disabled state *below* the enabled one: Aura's dark scale maps disabled to
  * `surface.700`, which renders an inert control brighter than a live one.
+ * Component tokens resolve `var(--p-form-field-*)` at `:root`, so they are re-declared here too.
  */
 .dark .auth-surface {
   --p-form-field-background: var(--p-surface-900);
   --p-form-field-disabled-background: var(--p-surface-950);
+  --p-inputtext-background: var(--p-surface-900);
+  --p-inputtext-disabled-background: var(--p-surface-950);
+  --p-select-background: var(--p-surface-900);
+  --p-select-disabled-background: var(--p-surface-950);
 }
