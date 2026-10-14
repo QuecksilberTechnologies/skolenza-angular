@@ -83,6 +83,7 @@ export default class StaffOperations implements OnInit {
     staffCategories: [],
     accessRoles: [],
     staffPositions: [],
+    approvedLeaveRequests: [],
   });
   readonly queryCategories = signal<StaffQueryCategory[]>([]);
   periodForm = this.emptyPeriod();
@@ -346,6 +347,18 @@ export default class StaffOperations implements OnInit {
     this.#api.closeConversation(conversation.id).subscribe((r) => {
       this.selectedConversation.set(r.data ?? null);
       this.loadAll();
+    });
+  }
+  uploadAttachment(messageId: number, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.#api.uploadMessageAttachment(messageId, file).subscribe((response) => {
+      if (response.isSucceeded) {
+        const conversation = this.selectedConversation();
+        if (conversation) this.openConversation(conversation.id);
+        input.value = '';
+      }
     });
   }
   saveQueryCategory() {

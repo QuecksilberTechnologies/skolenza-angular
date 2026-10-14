@@ -489,6 +489,7 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
     '/Staff/operations/timetable/entries/{id}/submit',
     '/Staff/operations/timetable/entries/{id}/actions',
     '/Staff/operations/timetable/entries/{id}/revisions',
+    '/Staff/operations/communication/messages/{id}/attachments',
     '/Staff/operations/substitute-workflows',
     '/Staff/operations/absence-impacts/leave/{leaveRequestId}/synchronize',
     '/Staff/operations/substitute-assignments',
