@@ -54,9 +54,6 @@ export default class Login implements OnInit {
 
   readonly isSaving = signal<boolean>(false);
 
-  /** UI only: the login API has no persistent-session flag yet. */
-  protected readonly rememberMe = signal(false);
-
   /** Visual only until the backend supports SSO. */
   protected readonly ssoProviders = [
     { name: 'Google', icon: 'pi-google' },

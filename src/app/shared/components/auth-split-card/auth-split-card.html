@@ -1,7 +1,7 @@
 <main
   class="auth-surface relative flex min-h-dvh items-center justify-center bg-zinc-100 p-3 sm:p-6 dark:bg-slate-950">
   <div
-    class="grid w-full overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+    class="grid w-full overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
     [class]="width() === 'lg' ? 'max-w-7xl lg:grid-cols-[2fr_3fr]' : 'max-w-6xl lg:grid-cols-2'">
     <!-- Brand panel: decorative marketing, hidden below lg. -->
     <section
@@ -18,7 +18,6 @@
         <img
           ngSrc="images/skolenza-logo-on-dark.png"
           fill
-          priority
           class="object-contain object-left"
           alt="Skolenza" />
       </div>
@@ -87,6 +86,8 @@
         } @else {
           <app-auth-header-logo />
         }
+
+        <ng-content select="[card-icon]" />
 
         <h1 class="mb-2 text-center text-3xl font-bold text-zinc-900 dark:text-zinc-100">{{ heading() }}</h1>
 
