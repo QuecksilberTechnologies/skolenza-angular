@@ -44,7 +44,7 @@ untracked legacy modules stay visible; action buttons and destructive ops hard-g
 ## UI library
 
 `@openng/optimus-ui` v2 is a PrimeNG-compatible fork: `p-*` selectors, `pi pi-*` icon classes,
-`--p-*` theme tokens. Theme preset in `core/axion-preset.ts`, dark mode via the `.dark` selector.
+`--p-*` theme tokens. Theme preset in `core/skolenza-preset.ts`, dark mode via the `.dark` selector.
 
 - `styleClass` is deprecated → use the native `class` attribute on Optimus components. Overlays
   whose panel moves to `body` (`p-tieredmenu [popup]`, `p-contextMenu`, `p-confirmDialog`, `p-drawer`)

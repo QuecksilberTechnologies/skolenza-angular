@@ -20,7 +20,7 @@
 - Set `changeDetection: ChangeDetectionStrategy.OnPush` in `@Component` decorator
 - Prefer inline templates for small components
 - Prefer Signal Forms for new forms; keep existing Reactive forms as-is. Never Template-driven — see
-  the `signal-forms` skill (`.agents/skills/signal-forms/SKILL.md`) for the zod schema convention
+  `.claude/SPEC.md` section 4 for the zod schema convention
 - Do NOT use `ngClass`, use `class` bindings instead
 - Do NOT use `ngStyle`, use `style` bindings instead
 - When using external templates/styles, use paths relative to the component TS file.
