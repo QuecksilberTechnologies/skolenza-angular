@@ -29,6 +29,7 @@ import {
   StaffProfessionalMaster,
   StaffProfessionalMasterType,
 } from '@shared/interfaces';
+import { escapeHtml } from '@shared/utilities/escape-html';
 
 type StructureTab = StaffProfessionalMasterType | 'categories' | 'positions';
 export type DependencyOption<T> = T & { disabled: boolean };
@@ -258,6 +259,7 @@ export default class StaffProfessionalStructure implements OnInit {
   }
 
   confirmMasterActive(item: StaffProfessionalMaster): void {
+    // The backend DELETE endpoints soft-deactivate (isActive = false); nothing is hard-deleted.
     this.confirmStatusChange(item.name, item.isActive, () =>
       item.isActive ? this.deleteMaster(item) : this.activateMaster(item),
     );
@@ -538,14 +540,15 @@ export default class StaffProfessionalStructure implements OnInit {
   private confirmStatusChange(name: string, isActive: boolean, accept: () => void): void {
     const action = isActive ? 'Deactivate' : 'Activate';
     this.#confirmationService.confirm({
-      message: `${action} <strong>${name}</strong>?${
+      // The dialog renders `message` via [innerHTML], so the record name is escaped before use.
+      message: `${action} <strong>${escapeHtml(name)}</strong>?${
         isActive ? ' It will no longer be available for new dependent selections.' : ''
       }`,
       header: `${action} this record`,
       icon: 'pi pi-exclamation-circle text-amber-500! text-2xl!',
       acceptLabel: action,
       rejectLabel: 'Cancel',
-      acceptButtonStyleClass: 'p-button-primary',
+      acceptButtonStyleClass: isActive ? 'p-button-danger' : 'p-button-primary',
       rejectButtonStyleClass: 'p-button-secondary',
       accept,
     });

@@ -10,3 +10,5 @@ Current Skolenza Angular verification is recorded here. Files ending in
 - [Local Angular Render API environment — 2026-10-11](environment/render-api-local/2026-10-11.md)
 - [Staff professional structure inactive dependency lifecycle — 2026-10-15](staff/professional-structure-inactive-dependencies/2026-10-15.md)
 - [Staff Members list UI review fixes — 2026-10-16](staff/staff-members-list-ui/2026-10-16.md)
+- [Staff Professional Structure UI review fixes — 2026-10-16](staff/professional-structure-ui/2026-10-16.md)
+- [Staff Academic Structure UI review fixes — 2026-10-16](staff/academic-structure-ui/2026-10-16.md)
