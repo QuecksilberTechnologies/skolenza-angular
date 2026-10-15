@@ -2,8 +2,9 @@
 
 # Motion & Animation
 
+> Ported from AxionPro `motion_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
 > **Ownership:** T0 — Foundations · **Status:** Normative
-> **Source of truth:** Aura `transitionDuration`, `src/app/layout/layout.css`, `src/styles.css`
+> **Source of truth:** Aura `transitionDuration`, `src/app/layout/layout.css`, `src/styles.css`, `references/tokens/tokens.json` (`animation`)
 > **Related:** [Accessibility](../accessibility.md) · [Tokens](../tokens/README.md)
 
 ---
@@ -13,21 +14,21 @@
 | Token | Value | Where it is used today | Applies to |
 | --- | --- | --- | --- |
 | `duration-instant` | `0ms` | — | State that must not animate: value updates in a live table, validation messages |
-| `duration-fast` | `150ms` | — | Micro-feedback: button press, checkbox tick, icon swap |
-| `duration-base` | `200ms` | `--p-transition-duration` (Aura), `transition-colors duration-200` on list rows | **Default.** Hover, focus, colour and border transitions |
-| `duration-moderate` | `300ms` | Sidebar collapse (`max-width` / `transform 300ms`), progress-bar width, `--p-mask-transition-duration`, `@placeholder (minimum 300ms)` | Layout shifts, overlays entering, scrim fades |
-| `duration-slow` | `500ms` | `p-progress-spinner animationDuration=".5s"` | Looping indeterminate indicators only |
+| `duration-fast` | `150ms` | Notification icon hover scale (`duration-150`) | Micro-feedback: button press, checkbox tick, icon swap |
+| `duration-base` | `200ms` | `--p-transition-duration` (Aura `0.2s`), `transition-colors duration-200` on `dash-list-item` rows. Off-scale: aside submenu `0.25s` (`app-aside-menu-item.css`) | **Default.** Hover, focus, colour and border transitions |
+| `duration-moderate` | `300ms` | Sidebar collapse (`max-width` / `transform 300ms`), progress-bar width (`duration-300`), `--p-mask-transition-duration` (Aura `0.3s`), most `@placeholder (minimum 300ms)` | Layout shifts, overlays entering, scrim fades |
+| `duration-slow` | `500ms` | `p-progress-spinner animationDuration=".5s"` in `table-loader.html` | Looping indeterminate indicators only |
 | `duration-deliberate` | `700ms` | — | Reserved: onboarding walkthroughs, celebratory moments. Not for routine UI |
 
 > **The `@defer` placeholder floor.** `@placeholder (minimum 300ms)` matches `duration-moderate` on
 > purpose — it guarantees a skeleton is visible long enough to read *as* a skeleton rather than as a
-> flash. Keep new `@defer` blocks on the same floor.
+> flash. Keep new `@defer` blocks on the same floor (the staff dashboard still uses 200–600ms).
 
 ---
 
 ## 2. Easing tokens
 
-| Token | `cubic-bezier` | CSS keyword | Use for |
+| Token | `cubic-bezier` | Nearest keyword | Use for |
 | --- | --- | --- | --- |
 | `ease-standard` | `cubic-bezier(0.4, 0, 0.2, 1)` | `ease-in-out` | **Default.** Elements moving within the viewport: sidebar, accordion, tab indicator |
 | `ease-decelerate` | `cubic-bezier(0, 0, 0.2, 1)` | `ease-out` | Entering: drawer sliding in, popover opening, toast arriving. Fast start, soft landing |
@@ -55,8 +56,8 @@ and `left` are not. The sidebar animates `max-width` because a rail must reflow 
 justified exception, and it is why the transition is gated behind a `.transition-enabled` class so it
 never fires on first paint.
 
-**M4 — No motion on first paint.** `isTransitionEnabled()` guards the sidebar for exactly this
-reason. A page that animates itself into existence on load reads as slow.
+**M4 — No motion on first paint.** `isTransitionEnabled()` (`layout.ts`) flips on only after the first
+render. A page that animates itself into existence on load reads as slow.
 
 **M5 — One moving thing at a time.** Staggered lists, cascading cards and simultaneous multi-element
 transitions cost attention that a work application does not have to spend.
@@ -68,8 +69,8 @@ transitions cost attention that a work application does not have to spend.
 
 ## 4. Reduced motion
 
-**Status: not currently implemented.** This is a WCAG 2.3.3 gap ([DS-03](../open-items.md)) and must
-be added to `src/styles.css`:
+**Status: no global block** (only local opt-outs: aside submenu, `pricing.css`, `motion-reduce:` in
+host dashboard cards). A WCAG 2.3.3 gap ([DS-03](../open-items.md)); add to `src/styles.css`:
 
 ```css
 /* Honour the OS "reduce motion" setting. Motion becomes instant; nothing disappears. */
@@ -83,10 +84,9 @@ be added to `src/styles.css`:
     scroll-behavior: auto !important;
   }
 
-  /* Indeterminate indicators must keep moving — a frozen spinner reads as a hung app.
-     Slow them and drop the rotation-induced motion instead of stopping them. */
+  /* Indeterminate indicators keep moving (slowed): a frozen spinner reads as a hung app. */
   .p-progressspinner-circle,
-  .p-progressbar-value-animate {
+  .p-progressbar-indeterminate .p-progressbar-value {
     animation-duration: 2s !important;
     animation-iteration-count: infinite !important;
   }

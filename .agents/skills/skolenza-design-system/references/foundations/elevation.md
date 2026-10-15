@@ -2,8 +2,10 @@
 
 # Elevation & Shadows
 
+> Ported from AxionPro `elevation_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+
 > **Ownership:** T0 — Foundations · **Status:** Normative
-> **Source of truth:** Aura preset overlay tokens, `src/styles.css`
+> **Source of truth:** Aura preset overlay tokens (`@openng/optimus-ui-themes`), Tailwind v4 `--shadow-*`, `src/styles.css`
 > **Related:** [Color → Dark theme](./color.md#9-dark-theme) · [Border radius](./border-radius.md) · [Tokens](../tokens/README.md)
 
 ---
@@ -13,7 +15,8 @@
 **E1 — Elevation encodes distance from the page, and nothing else.** Not importance, not state.
 
 **E2 — Light theme uses shadows. Dark theme uses surface steps and borders.** Every shadowed element
-carries `dark:shadow-none` plus a `dark:border-zinc-800`. This is the app's existing convention and
+carries `dark:shadow-none` plus a `dark:border-zinc-800` (slate-800 `#1e293b` under `.dark`). This
+is the app's existing convention — `@utility dash-card-shell` in `src/styles.css` bakes it in — and
 is normative.
 
 **E3 — Two-layer shadows only.** A tight ambient layer plus a wider directional layer. Single-layer
@@ -29,11 +32,11 @@ a dialog inside a drawer is a design failure, not a shadow problem.
 | Token | Value | Tailwind (v4) | Elevation | Use case |
 | --- | --- | --- | --- | --- |
 | `shadow-none` | `none` | `shadow-none` | 0 | Flat surfaces; **all** raised surfaces in dark theme |
-| `shadow-xs` | `0 0 #0000, 0 0 #0000, 0 1px 2px 0 rgba(18,18,23,0.05)` | `shadow-xs` | 1 | Form fields at rest (`--p-form-field-shadow`) |
+| `shadow-xs` | `0 1px 2px 0 rgb(0 0 0 / .05)` | `shadow-xs` | 1 | Form fields at rest. Optimus uses its own near-identical value, `0 0 #0000, 0 0 #0000, 0 1px 2px 0 rgba(18,18,23,0.05)` (`--p-form-field-shadow`) |
 | `shadow-sm` | `0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1)` | `shadow-sm` | 2 | **Cards, stat cards, table container.** The default raised surface |
-| `shadow-md` | `0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1)` | `shadow-md` | 3 | Select panels, popovers, tiered / context menus, dropdown navigation (`--p-overlay-select-shadow`, `--p-overlay-popover-shadow`, `--p-overlay-navigation-shadow`) |
-| `shadow-lg` | `0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1)` | `shadow-lg` | 4 | Drawer, sticky action bar lifting off content |
-| `shadow-xl` | `0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1)` | `shadow-xl` | 5 | Modal / dynamic dialog (`--p-overlay-modal-shadow`) |
+| `shadow-md` | `0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1)` | `shadow-md` | 3 | Select panels, popovers, tiered / context menus, dropdown navigation (`--p-overlay-select-shadow`, `--p-overlay-popover-shadow`, `--p-overlay-navigation-shadow`) |
+| `shadow-lg` | `0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1)` | `shadow-lg` | 4 | Drawer, sticky action bar lifting off content |
+| `shadow-xl` | `0 20px 25px -5px rgb(0 0 0 / .1), 0 8px 10px -6px rgb(0 0 0 / .1)` | `shadow-xl` | 5 | Modal / dynamic dialog (`--p-overlay-modal-shadow`) |
 | `shadow-focus` | `0 0 0 2px var(--p-primary-color)` | `ring-2 ring-primary-400` | — | Focus indicator. **Not an elevation** — never combine with an elevation shadow |
 
 > **Tailwind v4 naming.** v4 renamed the shadow utilities (`shadow-sm` → `shadow-xs`, `shadow` →
@@ -44,6 +47,8 @@ a dialog inside a drawer is a design failure, not a shadow problem.
 ---
 
 ## 3. Use cases
+
+Dark-column classes are written `zinc` and render slate (see [Color §1](./color.md#1-architecture)).
 
 | Surface | Light | Dark |
 | --- | --- | --- |

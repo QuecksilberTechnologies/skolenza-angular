@@ -23,8 +23,8 @@ from typing import Dict, List, Tuple
 # --- Reference surfaces -------------------------------------------------------------
 
 WHITE = "#ffffff"
-ZINC_900 = "#18181b"  # dark theme card surface
-ZINC_950 = "#09090b"  # dark theme page ground
+SLATE_900 = "#0f172a"  # dark theme card surface (.dark remaps zinc-* to slate)
+SLATE_950 = "#020617"  # dark theme page ground
 
 # Stops, in the order @openng/optimus-ui-styled emits them.
 STOPS: Tuple[int, ...] = (50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950)
@@ -125,7 +125,7 @@ def cmd_ramp(args: argparse.Namespace) -> int:
 
     gate = contrast_ratio(brand, WHITE)
     print(f"\nBrand {to_hex(parse_hex(brand))} -> palette()\n")
-    print(f"{'stop':>5}  {'hex':<9} {'rgb':<20} {'on white':>9} {'on 18181b':>10} {'on 09090b':>10}")
+    print(f"{'stop':>5}  {'hex':<9} {'rgb':<20} {'on white':>9} {'on 0f172a':>10} {'on 020617':>10}")
     print("-" * 70)
     for stop in STOPS:
         value = ramp[stop]
@@ -133,8 +133,8 @@ def cmd_ramp(args: argparse.Namespace) -> int:
         print(
             f"{stop:>5}  {value:<9} {f'rgb({r}, {g}, {b})':<20}"
             f" {contrast_ratio(value, WHITE):>9.2f}"
-            f" {contrast_ratio(value, ZINC_900):>10.2f}"
-            f" {contrast_ratio(value, ZINC_950):>10.2f}"
+            f" {contrast_ratio(value, SLATE_900):>10.2f}"
+            f" {contrast_ratio(value, SLATE_950):>10.2f}"
         )
 
     print("\nRole mapping")
@@ -144,16 +144,16 @@ def cmd_ramp(args: argparse.Namespace) -> int:
     print("\nChecks")
     white_on_500 = contrast_ratio(WHITE, ramp[500])
     chip = contrast_ratio(ramp[700], ramp[50])
-    dark_primary = contrast_ratio(ramp[400], ZINC_900)
-    print(f"  {mark(gate, ui=True)}tenant gate       brand vs white      {gate:5.2f}  (must be >= 3.00)")
+    dark_primary = contrast_ratio(ramp[400], SLATE_900)
+    print(f"  {mark(gate, ui=True)}brand gate        brand vs white      {gate:5.2f}  (must be >= 3.00)")
     print(f"  {mark(white_on_500)}white on primary-500                  {white_on_500:5.2f}  (small text needs 4.50)")
     print(f"  {mark(chip)}chip  primary-700 on primary-50        {chip:5.2f}")
-    print(f"  {mark(dark_primary)}dark  primary-400 on zinc-900         {dark_primary:5.2f}")
+    print(f"  {mark(dark_primary)}dark  primary-400 on slate-900        {dark_primary:5.2f}")
 
     if gate < 3.0:
         print(
             f"\nREJECT: {brand} is {gate:.2f}:1 against white. Below the 3.0 gate, white-on-primary"
-            "\n        buttons fail even the large-text threshold. Ask the tenant for a darker hex."
+            "\n        buttons fail even the large-text threshold. Ask the institution for a darker hex."
         )
         return 1
     if white_on_500 < 4.5:
@@ -187,21 +187,20 @@ def cmd_check(args: argparse.Namespace) -> int:
 
 AUDIT_PAIRS: List[Tuple[str, str, str, bool]] = [
     # label, foreground, background, is_large_or_ui
-    ("A11Y-01  completion % label (>=80)", "#22c55e", WHITE, False),
-    ("A11Y-02  completion % label (70-79)", "#f59e0b", WHITE, False),
+    # A11Y-01/02 fixed: progress-tone.ts now uses -700 text
+    ("A11Y-01  completion % label (>=80)", "#15803d", WHITE, False),
+    ("A11Y-02  completion % label (70-79)", "#b45309", WHITE, False),
     ("A11Y-03  badge 'Joined Today'", WHITE, "#22c55e", False),
     ("A11Y-04  badge 'Joined 2d ago'", WHITE, "#f59e0b", False),
     ("A11Y-05  badge 'Joined Yesterday'", WHITE, "#3b82f6", False),
     ("A11Y-07  'No role assigned'", "#9ca3af", WHITE, False),
     ("         role chip, light", "#2e5eac", "#f6f9fe", False),
-    # primary-900 at 30% alpha composited over zinc-900 -> #192130
-    ("         role chip, dark", "#aecbfb", "#192130", False),
+    # primary-900 at 30% alpha composited over slate-900 -> #12203b
+    ("         role chip, dark", "#aecbfb", "#12203b", False),
     ("         muted text, light", "#71717a", "#fafafa", False),
-    ("         muted text, dark", "#a1a1aa", ZINC_900, False),
-    ("         table cell text, dark", "#f4f4f5", ZINC_900, False),
-    ("         proposed success text", "#15803d", WHITE, False),
-    ("         proposed warning text", "#b45309", WHITE, False),
-    ("         proposed info text", WHITE, "#2563eb", False),
+    ("         muted text, dark", "#94a3b8", SLATE_900, False),
+    ("         table cell text, dark", "#f1f5f9", SLATE_900, False),
+        ("         proposed info text", WHITE, "#2563eb", False),
 ]
 
 
@@ -230,7 +229,7 @@ def main(argv: List[str]) -> int:
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    ramp = sub.add_parser("ramp", help="expand a tenant brand hex into the runtime palette")
+    ramp = sub.add_parser("ramp", help="expand an institution brand hex into the runtime palette")
     ramp.add_argument("brand", help="brand hex, e.g. '#4287f5'")
     ramp.set_defaults(func=cmd_ramp)
 

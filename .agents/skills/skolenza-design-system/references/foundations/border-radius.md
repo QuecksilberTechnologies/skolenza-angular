@@ -2,6 +2,8 @@
 
 # Border Radius
 
+> Ported from AxionPro `border-radius_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Source of truth:** Aura `borderRadius` primitives, `--p-card-border-radius` in `src/styles.css`
 > **Related:** [Elevation](./elevation.md) · [Tokens](../tokens/README.md)
@@ -10,22 +12,23 @@
 
 ## 1. Radius tokens
 
-The Aura primitive scale, plus the two app-level overrides.
+The Aura primitive scale, plus the one app-level override (`radius-card`) and `radius-full`.
 
-| Token | Value | px @ 13px | Tailwind | Usage |
+| Token | Aura value | Tailwind | Tailwind @ 13px | Usage |
 | --- | --- | --- | --- | --- |
-| `radius-none` | `0` | 0 | `rounded-none` | Table cells, full-bleed dividers, edge-to-edge drawer |
-| `radius-xs` | `2px` | 2 | `rounded-xs` | Inline code, tiny indicators, colour swatches |
-| `radius-sm` | `4px` | 4 | `rounded-sm` | List options, menu items, navigation items (`--p-list-option-border-radius`) |
-| `radius-md` | `6px` | 6 | `rounded-md` | **Default for controls** — inputs, selects, buttons, popovers (`--p-form-field-border-radius`, `--p-content-border-radius`) |
-| `radius-lg` | `8px` | 8 | `rounded-lg` | Dashboard list items, tiles, nested panels |
-| `radius-xl` | `12px` | 12 | `rounded-xl` | Modals (`--p-overlay-modal-border-radius`), stat-card icon tiles, image thumbnails |
-| `radius-card` | `0.8rem` | **10.4** | `rounded-[0.8rem]` | **Cards** — `--p-card-border-radius`, set in `src/styles.css` |
-| `radius-full` | `9999px` | — | `rounded-full` | Chips, avatars, badges, pills, progress bar and its track, icon-only round buttons |
+| `radius-none` | `0` | `rounded-none` | 0 | Table cells, full-bleed dividers, edge-to-edge drawer |
+| `radius-xs` | `2px` | `rounded-xs` | 1.6 | Inline code, tiny indicators, colour swatches |
+| `radius-sm` | `4px` | `rounded-sm` | 3.25 | List options, menu items, navigation items (`--p-list-option-border-radius`) |
+| `radius-md` | `6px` | `rounded-md` | 4.9 | **Default for controls** — inputs, selects, buttons, popovers (`--p-form-field-border-radius`, `--p-content-border-radius`) |
+| `radius-lg` | `8px` | `rounded-lg` | 6.5 | Dashboard list items (`dash-list-item`), tiles, nested panels |
+| `radius-xl` | `12px` | `rounded-xl` | 9.75 | Modals (`--p-overlay-modal-border-radius`), stat-card icon tiles, image thumbnails |
+| `radius-card` | `0.8rem` | `rounded-[0.8rem]` | **10.4** | **Cards** — `--p-card-border-radius`, set in `src/styles.css` |
+| `radius-full` | `9999px` | `rounded-full` | — | Chips, avatars, badges, pills, progress bar and its track, icon-only round buttons |
 
-> Note that `radius-card` (10.4px) sits *between* `radius-lg` and `radius-xl` because it is declared
-> in `rem` and therefore scales with the 13px root, while the Aura primitives are declared in `px`
-> and do not.
+> The root font size is 13px (`html { font-size: 0.8125rem }`). Aura primitives are declared in `px`
+> and do not scale; Tailwind v4 `rounded-*` utilities are declared in `rem` and do. So
+> `rounded-md` (4.9px) is *not* the same as an Optimus control's 6px. `radius-card` (10.4px) sits
+> between Aura `lg` and `xl`, and just above Tailwind `rounded-xl`.
 
 ---
 
@@ -56,12 +59,13 @@ suffix button — where the join is square and the outer corners keep `radius-md
 ### Overflow
 
 Any rounded container with an image or a fill child needs `overflow-hidden`, or the child's square
-corner punches through. This is how the progress bar keeps its pill shape:
+corner punches through. This is how the profile-completion bar in `staff-members.html` keeps its
+pill shape:
 
 ```html
-<div class="relative h-2 flex-1 overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700">
-  <div class="absolute inset-y-0 left-0 rounded-full …" [style.width.%]="completionPercentage"></div>
-</div>
+<span class="relative h-2 flex-1 overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700">
+  <span class="absolute inset-y-0 left-0 rounded-full …" [class]="progressTone.bar" [style.width.%]="completion"></span>
+</span>
 ```
 
 ---

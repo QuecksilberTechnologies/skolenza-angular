@@ -2,6 +2,8 @@
 
 # Design Tokens
 
+> Ported from AxionPro `README_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Machine-readable source:** [`tokens.json`](./tokens.json)
 > **Related:** [Color](../foundations/color.md) · [Typography](../foundations/typography.md) · [Governance](../governance.md)
@@ -30,8 +32,8 @@ z-modal                        category-concept
 2. **Category first**, so tokens sort into groups in any editor's autocomplete.
 3. **Numeric scales for continuous ramps** (colour 50–950, spacing 0–16); **named scales for discrete
    ones** (`sm` / `md` / `lg`, `fast` / `base` / `slow`).
-4. **Never encode a component name in a foundation token.** `color-employee-chip-bg` is wrong;
-   `color-primary-50` *used by* the employee chip is right.
+4. **Never encode a component name in a foundation token.** `color-staff-chip-bg` is wrong;
+   `color-primary-50` *used by* the staff-member role chip is right.
 5. **Never encode a raw value in a name.** `space-13px`, `color-blue-500` (for the brand) — both
    wrong; the brand is not always blue.
 6. **Theme suffix only where the value genuinely differs** between light and dark and cannot be
@@ -46,6 +48,8 @@ z-modal                        category-concept
 ### 2.1 Color
 
 Full tables with HEX, RGB and usage live in [Foundations → Color](../foundations/color.md).
+Light neutrals are **zinc**; dark neutrals are **slate** — the preset's dark `surface` maps to
+`{slate.*}`, and `src/styles.css` remaps `--color-zinc-*` to `--color-slate-*` under `.dark`.
 
 | Token | Light value | Dark value | Emitted as |
 | --- | --- | --- | --- |
@@ -54,19 +58,19 @@ Full tables with HEX, RGB and usage live in [Foundations → Color](../foundatio
 | `color-primary-hover` | `{primary.600}` | `{primary.300}` | `--p-primary-hover-color` |
 | `color-primary-active` | `{primary.700}` | `{primary.200}` | `--p-primary-active-color` |
 | `color-primary-contrast` | `#ffffff` | `{surface.900}` | `--p-primary-contrast-color` |
-| `color-neutral-{50..950}` | zinc ramp | zinc ramp | `--p-surface-{n}` |
-| `color-surface-ground` | `#fafafa` | `#09090b` | `--color-surface-ground-light/-dark` |
-| `color-surface-default` | `#ffffff` | `#18181b` | `--color-surface-light/-dark` |
-| `color-surface-raised` | `#ffffff` | `#27272a` | Tailwind utilities |
-| `color-border-default` | `#e4e4e7` | `#27272a` | `--color-border-light/-dark` |
-| `color-border-strong` | `#d4d4d8` | `#52525b` | `--p-form-field-border-color` |
-| `color-text-primary` | `#18181b` | `#fafafa` | `--color-text-primary-light/-dark` |
-| `color-text-body` | `#3f3f46` | `#f4f4f5` | `--p-text-color` |
-| `color-text-muted` | `#71717a` | `#a1a1aa` | `--color-text-secondary-light/-dark` |
-| `color-text-placeholder` | `#71717a` | `#a1a1aa` | `--p-form-field-placeholder-color` |
+| `color-neutral-{50..950}` | zinc ramp | slate ramp | `--p-surface-{n}` |
+| `color-surface-ground` | `#fafafa` | `#020617` | `--color-surface-ground-light/-dark` |
+| `color-surface-default` | `#ffffff` | `#0f172a` | `--color-surface-light/-dark` |
+| `color-surface-raised` | `#ffffff` | `#1e293b` | Tailwind utilities |
+| `color-border-default` | `#e4e4e7` | `#1e293b` | `--color-border-light/-dark` |
+| `color-border-strong` | `#d4d4d8` | `#475569` | `--p-form-field-border-color` |
+| `color-text-primary` | `#18181b` | `#f8fafc` | `--color-text-primary-light/-dark` |
+| `color-text-body` | `#3f3f46` | `#f1f5f9` | `--p-text-color` |
+| `color-text-muted` | `#71717a` | `#94a3b8` | `--color-text-secondary-light/-dark` |
+| `color-text-placeholder` | `#71717a` | `#94a3b8` | `--p-form-field-placeholder-color` |
 | `color-success-{50,400,500,600,700}` | see Color | shift up one stop | app tokens |
 | `color-warning-{50,400,500,600,700}` | see Color | shift up one stop | app tokens |
-| `color-error-{50,300,400,500,600}` | see Color | shift up one stop | `--p-*-invalid-border-color` |
+| `color-error-{50,300,400,500,600}` | see Color | shift up one stop | `--p-red-400` inside `.form-invalid-visible` (invalid borders are neutralised app-wide otherwise) |
 | `color-info-{50,400,500,600}` | see Color | shift up one stop | app tokens |
 | `color-accent-avatar-{01..16}` | fixed | fixed | `shared/directives/avatar-color.ts` |
 | `color-accent-progress` | `#ca1922` | `#ca1922` | `--ng-progress-color` |
@@ -76,14 +80,14 @@ Full tables with HEX, RGB and usage live in [Foundations → Color](../foundatio
 
 | Token | Value | Emitted as |
 | --- | --- | --- |
-| `font-family-sans` | `'Inter', ui-sans-serif, system-ui, sans-serif` | `body { font-family }` |
+| `font-family-sans` | `'Inter', ui-sans-serif, system-ui, sans-serif` | `body { font-family }` (code: `'Inter', sans-serif`) |
 | `font-family-mono` | `ui-monospace, SFMono-Regular, Menlo, monospace` | `--font-mono` |
 | `font-size-root` | `0.8125rem` (13px) | `html { font-size }` |
 | `font-size-{xs..5xl}` | 0.75 – 3 rem | `text-*` |
 | `font-weight-regular` / `-medium` / `-semibold` / `-bold` | 400 / 500 / 600 / 700 | `font-*` |
 | `line-height-tight` / `-snug` / `-normal` / `-relaxed` | 1.2 / 1.35 / 1.5 / 1.65 | `leading-*` |
 | `letter-spacing-tight` / `-normal` / `-wide` | −0.02em / 0 / 0.06em | `tracking-*` |
-| `type-{display,h1..h6,body,caption,label,code}-*` | composites | Tailwind `@utility` |
+| `type-{display,h1..h6,body,caption,label,code}-*` | composites | Tailwind `@utility` (proposed) |
 
 Full scale: [Foundations → Typography](../foundations/typography.md#3-type-scale).
 
@@ -105,8 +109,10 @@ Full scale: [Foundations → Typography](../foundations/typography.md#3-type-sca
 | `space-12` | 3 | 39 |
 | `space-16` | 4 | 52 |
 
-**Layout constants:** `layout-header-h` `4.6rem` · `layout-sidebar-w` `20rem` ·
-`layout-sidebar-w-collapsed` `65px` · `layout-content-h` `calc(100vh - 4.6rem)`.
+**Layout constants:** `layout-header-h` `55px` (`app-header.html`, `h-[55px]`) ·
+`layout-sidebar-w` `20rem` (`max-w-xs`) · `layout-sidebar-w-collapsed` `65px` (`layout.css`) ·
+`layout-content-h` `calc(100vh - 4.6rem)` (as used by `staff-members.html`; note 4.6rem ≈ 59.8px,
+not exactly the 55px header).
 
 ### 2.4 Border
 
@@ -150,7 +156,7 @@ Full scale: [Foundations → Typography](../foundations/typography.md#3-type-sca
 | `ease-accelerate` | `cubic-bezier(0.4, 0, 1, 1)` |
 | `ease-emphasized` | `cubic-bezier(0.2, 0, 0, 1)` |
 | `ease-linear` | `linear` |
-| `disabled-opacity` | `0.6` (`--p-disabled-opacity`) |
+| `disabled-opacity` | `0.6` (`--p-disabled-opacity`, Aura base) |
 
 ### 2.7 Z-index
 
@@ -160,40 +166,44 @@ A single ordered scale. **No `z-index` literal may appear outside this table.**
 | --- | --- | --- | --- |
 | `z-base` | `0` | Page content | Default flow |
 | `z-raised` | `1` | Cards lifting off the ground | Hover states inside a scroll container |
-| `z-sticky` | `10` | Sticky in-page chrome | App header (`sticky top-0 z-10`), sticky table header |
+| `z-sticky` | `10` | Sticky in-page chrome | App header wrapper (`sticky top-0 z-10`, `layout.html`), sticky table header |
 | `z-scrim` | `14` | Mobile sidebar scrim | `.mobile-overlay` (`layout.css`) |
 | `z-drawer` | `15` | Off-canvas sidebar | `.app-aside-menu` below 1024px (`layout.css`) |
 | `z-overlay` | `1000` | Anchored overlays | Optimus select panels, popovers, tiered / context menus (`appendTo="body"`) |
 | `z-modal` | `1100` | Blocking dialogs | `p-dialog`, `p-confirmDialog`, `p-drawer` |
 | `z-tooltip` | `1100` | Tooltips | `pTooltip` — sits with modals so it works *inside* one |
-| `z-toast` | `1200` | Transient messages | `p-toast` — above everything, including modals |
-| `z-progress` | `1300` | Route progress bar | `--ng-progress-*`, must never be occluded |
+| `z-toast` | Optimus default (unverified) | Transient messages | `p-toast`; not in `tokens.json` |
+| `z-progress` | `50` | Route progress bar | `fixed! top-0! z-50!` wrapper in `src/app/app.html`. Sits below the `1000+` overlay band, so an open overlay can cover it |
 
-> The `1000+` band is the Optimus / PrimeNG `zIndex` config (`overlay: 1000`, `menu: 1000`,
-> `modal: 1100`, `tooltip: 1100`). The `0–15` band is app-owned. **Keep a gap between the two** so a
-> future app-level layer never collides with a library overlay.
+> The `1000+` band is the Optimus `zIndex` config (`overlay: 1000`, `menu: 1000`, `modal: 1100`,
+> `tooltip: 1100`). The `0–15` band is app-owned. **Keep a gap between the two** so a future
+> app-level layer never collides with a library overlay.
 
 ---
 
 ## 3. JSON source
 
 [`tokens.json`](./tokens.json) is the design-tool-facing source of truth. Values are the **default
-tenant** (`#4287f5`); `color.primary.*` is regenerated per tenant at runtime.
+institution** (`#4287f5`); `color.primary.*` is regenerated per institution at runtime.
 
 Its top-level shape:
 
 ```json
 {
-  "color":      { "primary": {}, "neutral": {}, "semantic": {}, "surface": {}, "text": {}, "border": {}, "accent": {} },
+  "color":      { "primary": {}, "neutral": {}, "semantic": {}, "surface": {}, "text": {}, "border": {}, "mask": {}, "accent": {} },
   "spacing":    { "base": {}, "0": {}, "…": {}, "layout": {} },
   "typography": { "fontFamily": {}, "rootFontSize": {}, "fontSize": {}, "fontWeight": {}, "lineHeight": {}, "letterSpacing": {}, "style": {} },
-  "border":     { "width": {}, "radius": {}, "focusRing": {} },
+  "border":     { "width": {}, "style": {}, "radius": {}, "focusRing": {}, "anchorGutter": "" },
   "shadow":     {},
   "animation":  { "duration": {}, "easing": {}, "disabledOpacity": "" },
   "zIndex":     {},
   "breakpoint": {}
 }
 ```
+
+> `tokens.json` was synced with the code on 2026-10-15: dark values are slate (`neutral-dark`),
+> `header-height` is `55px`, the avatar palette has no reds, and `zIndex.progress` is `50`. Where it
+> still disagrees with the code, the code wins — see [open-items](../open-items.md).
 
 ---
 
@@ -206,16 +216,17 @@ Extends the existing `@theme` block:
 ```css
 @theme {
   /* Existing */
-  --color-text-secondary-light: #71717a;
-  --color-text-secondary-dark: #a1a1aa;
-  --color-border-light: #e4e4e7;
-  --color-border-dark: #27272a;
-  --color-text-primary-light: #18181b;
-  --color-text-primary-dark: #fafafa;
+  --color-text-secondary-light: #71717a; /* zinc-500 */
+  --color-text-secondary-dark: #94a3b8; /* slate-400 */
+  --color-border-light: #e4e4e7; /* zinc-200 */
+  --color-border-dark: #1e293b; /* slate-800 */
+  --color-text-primary-light: #18181b; /* zinc-900 */
+  --color-text-primary-dark: #f8fafc; /* slate-50 */
   --color-surface-light: #ffffff;
-  --color-surface-dark: #18181b;
-  --color-surface-ground-light: #fafafa;
-  --color-surface-ground-dark: #09090b;
+  --color-surface-dark: #0f172a; /* slate-900 */
+  --color-surface-ground-light: #fafafa; /* zinc-50 */
+  --color-surface-ground-dark: #020617; /* slate-950 */
+  --container-dialog-sm: 28rem;
 
   /* Semantic — add */
   --color-success-500: #22c55e;
@@ -236,7 +247,7 @@ Extends the existing `@theme` block:
   --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
 
   /* Layout — add */
-  --spacing-header-h: 4.6rem;
+  --spacing-header-h: 55px;
   --spacing-sidebar-w: 20rem;
 }
 ```
@@ -263,19 +274,22 @@ Same mechanism as the existing `dash-*` utilities in `styles.css`:
 }
 ```
 
-### 4.3 Optimus preset — `src/app/core/axion-preset.ts`
+### 4.3 Optimus preset — `src/app/core/skolenza-preset.ts`
 
 The preset is where `--p-*` **component** tokens belong. `primary` is deliberately *absent* because
-`app.ts` injects it at runtime from the tenant brand colour — **do not add a static `primary` here.**
+`app.ts` injects it at runtime from the institution brand colour — **do not add a static `primary`
+here.** The preset also darkens the light-theme `success` / `danger` button fills (`green.700`,
+`red.600`) so their white labels clear 4.5:1.
 
 ```ts
-export const AxionPreset = definePreset(Aura, {
+export const SkolenzaPreset = definePreset(Aura, {
   semantic: {
     colorScheme: {
       light: { surface: { 0: '#ffffff', 50: '{zinc.50}', /* … */ 950: '{zinc.950}' } },
-      dark:  { surface: { 0: '#ffffff', 50: '{zinc.50}', /* … */ 950: '{zinc.950}' } },
+      dark:  { surface: { 0: '#ffffff', 50: '{slate.50}', /* … */ 950: '{slate.950}' } },
     },
   },
+  components: { button: { colorScheme: { light: { root: { success: { /* green.700 */ }, danger: { /* red.600 */ } } } } } },
 });
 ```
 

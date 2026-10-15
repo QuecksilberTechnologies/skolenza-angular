@@ -2,12 +2,14 @@
 
 # Accessibility
 
+> Ported from AxionPro `accessibility_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Related:** [Color](./foundations/color.md) · [Typography](./foundations/typography.md) · [Motion](./foundations/motion.md) · [Iconography](./foundations/iconography.md) · [Open items](./open-items.md)
 
 Accessibility is a **build-time property** here, not a review-time opinion. `angular-eslint`'s
-`templateAccessibility` config runs on every `.html`, AXE checks gate the UI, and failures there are
-a11y bugs rather than style nits.
+`templateAccessibility` config runs on every `.html` (`eslint.config.js`), AXE checks gate the UI,
+and failures there are a11y bugs rather than style nits.
 
 Target: **WCAG 2.2 Level AA**.
 
@@ -25,10 +27,11 @@ Target: **WCAG 2.2 Level AA**.
 
 ### The 13px root changes what counts as "large"
 
-At a 13px root, `text-2xl` renders at **19.5px**. That is still *normal text* for WCAG purposes
-unless it is bold. Only `text-3xl` (24.38px) and above qualify as large.
+At a 13px root (`html { font-size: 0.8125rem }` in `src/styles.css`), `text-2xl` renders at
+**19.5px**. That is still *normal text* for WCAG purposes unless it is bold. Only `text-3xl`
+(24.38px) and above qualify as large.
 
-**Consequence:** the stat-card numerals are `text-2xl font-medium` — they need **4.5:1**, not 3:1.
+**Consequence:** a `text-2xl font-medium` numeral (stat cards) needs **4.5:1**, not 3:1.
 See [Typography → the 13px root](./foundations/typography.md#2-the-13px-root).
 
 ---
@@ -39,13 +42,13 @@ See [Typography → the 13px root](./foundations/typography.md#2-the-13px-root).
 | --- | --- |
 | Focus is never removed | `outline: none` without a replacement indicator is a defect |
 | Form controls | `--p-inputtext-focus-ring-*` / `--p-select-focus-ring-*` / `--p-textarea-focus-ring-*`, solid, in `var(--p-primary-color)` |
-| Non-form interactive elements | `focus-visible:ring-2 ring-primary-400` — compliant |
+| Non-form interactive elements | `focus-visible:ring-2 focus-visible:ring-primary-400` — compliant |
 | Perimeter | **2px minimum.** WCAG 2.4.11 wants a perimeter thick enough to separate from the resting border; 1px does not manage that on the dark surface |
 | Focus order | Follows DOM order. Overlays render to `body` (`appendTo="body"`) and must trap focus while open and restore it on close |
 
-> ⚠️ **Open finding.** `src/styles.css` currently declares `--p-inputtext-focus-ring-width: 1px`
-> while its own inline comment argues for 2px on WCAG 2.4.11 grounds. Tracked as
-> [A11Y-08](#4-contrast-audit) / [DS-04](./open-items.md).
+> ⚠️ **Open finding.** `src/styles.css` still declares `--p-inputtext-focus-ring-width: 1px` (and
+> the same for `select` / `textarea`) while its own inline comment argues for 2px on WCAG 2.4.11
+> grounds. Tracked as [A11Y-08](#4-contrast-audit) / [DS-04](./open-items.md).
 
 ---
 
@@ -57,49 +60,53 @@ text**.
 | State | Colour | Second signal |
 | --- | --- | --- |
 | Role assigned | `primary-50` chip | `pi pi-shield` icon + the role name as text |
-| Active / inactive | `success` / `error` severity | `pi pi-check-circle` / `pi pi-ban` + tooltip |
+| Active / inactive | `success` / `danger` severity | `pi pi-check-circle` / `pi pi-ban` + tooltip |
 | In-flight action | — | `pi pi-spin pi-spinner` + `aria-busy` |
 | Required field | `error-600` asterisk | `aria-required` — the asterisk is supplementary |
-| Profile completion | Green / amber / red bar | Numeric percentage label + tooltip |
+| Profile completion | Green / amber / red bar (`shared/utilities/progress-tone.ts`) | Numeric percentage label + `aria-label` on the trigger |
 
 ---
 
 ## 4. Contrast audit
 
-Every ratio below is **measured**, not estimated. These are real defects in `axionpro-app` today and
-must be resolved before the next release.
+Every ratio below is **measured** with `scripts/skolenza_color.py check`, not estimated. Light-theme
+pairs are against white; dark mode is **slate** (`src/styles.css` remaps `zinc-*` to `slate-*`
+under `.dark`, and the preset's dark `surface` is slate).
 
-| # | Location | Pair | Ratio | Required | Fix |
+| # | Location | Pair | Ratio | Required | Status / fix |
 | --- | --- | --- | --- | --- | --- |
-| A11Y-01 | `employees.html` — completion `%` label | `#22c55e` on `#ffffff` | **2.28:1** ❌ | 4.5:1 | Use `success-700 #15803d` for the text; keep `#22c55e` for the bar fill |
-| A11Y-02 | `employees.html` — completion `%` label | `#f59e0b` on `#ffffff` | **2.15:1** ❌ | 4.5:1 | Use `warning-700 #b45309` for the text |
-| A11Y-03 | New-joiner badge "Joined Today" | `#ffffff` on `#22c55e` | **2.28:1** ❌ | 4.5:1 | Swap to `#000000` on `#22c55e` (9.22:1 ✅) or white on `success-700` (5.02:1 ✅) |
-| A11Y-04 | New-joiner badge "Joined 2d ago" | `#ffffff` on `#f59e0b` | **2.15:1** ❌ | 4.5:1 | `#000000` on `#f59e0b` = 9.78:1 ✅ |
+| A11Y-01 | `staff-members.html` — completion `%` label (≥ 80) | was `#22c55e` on `#ffffff` (2.28:1) | now `green-700 #15803d` **5.02:1** ✅ | 4.5:1 | Fixed via `progressTone()` |
+| A11Y-02 | `staff-members.html` — completion `%` label (70–79) | was `#f59e0b` on `#ffffff` (2.15:1) | now `amber-700 #b45309` **5.02:1** ✅ | 4.5:1 | Fixed via `progressTone()` |
+| A11Y-03 | New-joiner badge "Joined Today" (`get-new-joiner-badge-pipe.ts`) | `#ffffff` on `#22c55e` | **2.28:1** ❌ | 4.5:1 | `#000000` on `#22c55e` (9.22:1 ✅) or white on `success-700` (5.02:1 ✅) |
+| A11Y-04 | New-joiner badge "Joined 2d ago" / "3d ago" | `#ffffff` on `#f59e0b` | **2.15:1** ❌ | 4.5:1 | `#000000` on `#f59e0b` = 9.78:1 ✅ |
 | A11Y-05 | New-joiner badge "Joined Yesterday" | `#ffffff` on `#3b82f6` | **3.68:1** ❌ | 4.5:1 (10px text) | White on `info-600 #2563eb` = 5.17:1 ✅ |
-| A11Y-06 | Progress track vs fill | `#e4e4e7` vs `#22c55e` | 1.75:1 | 3:1 | Track to `neutral-300 #d4d4d8`, or add a 1px `neutral-400` outline to the bar |
-| A11Y-07 | "No role assigned" | `#9ca3af` on `#ffffff` | **2.54:1** ❌ | 4.5:1 | `neutral-500 #71717a` (4.83:1 ✅) |
-| A11Y-08 | Focus ring on form controls | 1px | 2px perimeter | — | Set `--p-inputtext-focus-ring-width: 2px` (and select / textarea) |
+| A11Y-06 | Progress track vs fill (light) | `surface-200 #e4e4e7` vs `#15803d` / `#b45309` / `#dc2626` | 3.95 / 3.96 / 3.81:1 ✅ | 3:1 | Fixed — fills moved to `-700` / `red-600` |
+| A11Y-07 | "No role assigned" (`staff-member-role-cell.html`) | `gray-400 #9ca3af` on `#ffffff` | **2.54:1** ❌ | 4.5:1 | `gray-500 #6b7280` (4.83:1 ✅) |
+| A11Y-08 | Focus ring on form controls | 1px | — | 2px perimeter | Set `--p-inputtext-focus-ring-width: 2px` (and select / textarea) |
 
 ### Verified-passing pairs, for reference
 
 | Pair | Ratio |
 | --- | --- |
 | `primary-700 #2e5eac` on `primary-50 #f6f9fe` (light chip) | 6.01:1 ✅ |
-| `primary-200 #aecbfb` on the dark chip fill (`primary-900/30` over `zinc-900` = `#192130`) | 9.78:1 ✅ |
-| `primary-400 #669ef7` on `zinc-900 #18181b` | 6.58:1 ✅ |
-| `neutral-500 #71717a` on `neutral-50 #fafafa` (muted text, light) | 4.63:1 ✅ |
-| `neutral-400 #a1a1aa` on `zinc-900 #18181b` (muted text, dark) | 6.91:1 ✅ |
-| `zinc-100 #f4f4f5` on `zinc-900 #18181b` (body text, dark) | 16.12:1 ✅ |
+| `primary-200 #aecbfb` on the dark chip fill (`primary-900/30` over `slate-900` ≈ `#12203b`) | 9.83:1 ✅ |
+| `primary-400 #669ef7` on `slate-900 #0f172a` | 6.63:1 ✅ |
+| `zinc-500 #71717a` on `zinc-50 #fafafa` (muted text, light) | 4.63:1 ✅ |
+| `slate-400 #94a3b8` on `slate-900 #0f172a` (muted text, dark) | 6.96:1 ✅ |
+| `slate-100 #f1f5f9` on `slate-900 #0f172a` (body text, dark) | 16.30:1 ✅ |
 
 ---
 
-## 5. The tenant-brand contrast gate
+## 5. The institution-brand contrast gate
 
-Because `primary-500` is **whatever hex the tenant chose**, its contrast is unknown at design time.
+Because `primary-500` is **whatever hex the institution chose** (`#applyBrandColor()` in
+`src/app/app.ts`, from `this.#institutionsApi.getBrandColor()`), its contrast is unknown at design
+time.
 
-**Requirement:** the brand-colour picker MUST reject, or at minimum warn on, any hex where
+**Requirement:** the brand-colour input MUST reject, or at minimum warn on, any hex where
 `contrast(brand, #ffffff) < 3.0`. Below that, white-on-primary buttons fail even the large-text
-threshold.
+threshold. Today the host institution form (`institution-form.ts`, `themeColorHint`) **warns**
+below 3:1 but still allows saving.
 
 The default `#4287f5` sits at **3.49:1** against white — acceptable for ≥ 18.66px bold button labels
 and UI boundaries, **not** for small white text on a primary fill. For small labels on a primary
@@ -115,14 +122,17 @@ fill, use `primary-600` (4.63:1) or `primary-700` (6.34:1).
 - Never for values a user must read to do their job
 - `text-[10px]` is reserved for `aria-hidden` decorative glyphs inside chips
 
-Tracked as [DS-11](./open-items.md) where this is currently violated.
+Tracked as [DS-11](./open-items.md) where this is currently violated (e.g. the new-joiner badge
+label is `text-[10px]` text).
 
 ---
 
 ## 7. Motion
 
-`prefers-reduced-motion` is **not currently implemented** — a WCAG 2.3.3 gap. The required CSS block
-and the rules around it live in [Motion → Reduced motion](./foundations/motion.md#4-reduced-motion).
+There is **no global** `prefers-reduced-motion` block — a WCAG 2.3.3 gap. A handful of components
+handle it locally (`app-aside-menu-item.css`, `color-picker-panel.css`, `form-editor.css`,
+`pricing-card.css`, `pricing.css`, `profile-info-block.ts`). The required CSS block and the rules
+around it live in [Motion → Reduced motion](./foundations/motion.md#4-reduced-motion).
 
 Key rules:
 
@@ -155,11 +165,12 @@ must still be operable. Test with the stylesheet blocked.
 ## 9. Permission and disabled state
 
 - **Permission removes, it does not disable.** A control the user can never enable is noise — remove
-  it (`@if (canPerform())`).
-- **The exception:** where a disabled control plus a tooltip *teaches* the user something, keep it.
-  The employee status toggle stays visible and disabled with "You do not have permission to change
-  employee status. Please contact your Admin."
-- Disabled state is expressed through `--p-disabled-opacity` (`0.6`), never a lighter colour.
+  it (`@if (canPerform())`). The staff-member status toggle follows this: it renders only
+  `@if (canUpdate())`.
+- **The exception:** where a disabled control plus a tooltip *teaches* the user something, keep it
+  visible and disabled, with a tooltip naming the permission and who can grant it.
+- Disabled state is expressed through `--p-disabled-opacity` (`0.6`, Aura base) or `disabled:opacity-60`,
+  never a lighter colour.
 
 ---
 
@@ -168,7 +179,7 @@ must still be operable. Test with the stylesheet blocked.
 | Check | How |
 | --- | --- |
 | Automated | AXE on every page; `angular-eslint` `templateAccessibility` in CI |
-| Contrast | Both themes, every new colour pair, against the thresholds in §1 |
+| Contrast | Both themes, every new colour pair, against the thresholds in §1 (`py scripts/skolenza_color.py check FG BG`) |
 | Keyboard | Tab through the whole page; every interactive element reachable and visibly focused; overlays trap and restore focus |
 | Reduced motion | macOS *Reduce motion*; Windows *Show animations* off; DevTools → Rendering → *Emulate `prefers-reduced-motion`* |
 | Zoom | 200% browser zoom without horizontal scroll or clipped content |
