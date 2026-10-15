@@ -30,7 +30,11 @@ describe('StaffAcademicStructure', () => {
         ConfirmationService,
         {
           provide: Common,
-          useValue: { setPageHeaderInfo: vi.fn(), showMessage: vi.fn() },
+          useValue: {
+            setPageHeaderInfo: vi.fn(),
+            setBreadcrumbItems: vi.fn(),
+            showMessage: vi.fn(),
+          },
         },
         {
           provide: ActivatedRoute,
@@ -51,6 +55,19 @@ describe('StaffAcademicStructure', () => {
   });
 
   afterEach(() => vi.useRealTimers());
+
+  it('shows a breadcrumb back to the Staff Directory', () => {
+    component.ngOnInit();
+
+    const common = TestBed.inject(Common);
+    expect(common.setPageHeaderInfo).toHaveBeenCalledWith(
+      expect.objectContaining({ isBreadcrumbShow: true }),
+    );
+    expect(common.setBreadcrumbItems).toHaveBeenCalledWith([
+      { label: 'Staff Directory', routerLink: '/app/staff' },
+      { label: 'Academic Structure' },
+    ]);
+  });
 
   it('asks for confirmation before deactivating and calls the API only on accept', () => {
     component.confirmDeactivate(session);

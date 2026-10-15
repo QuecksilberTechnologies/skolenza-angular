@@ -85,7 +85,12 @@ export default class StaffAcademicStructure implements OnInit {
         ? 'Manage subject teaching and class teacher responsibilities'
         : 'Manage sessions, programmes, groups, sections, subjects and course offerings',
       pageIcon: 'pi pi-book',
+      isBreadcrumbShow: true,
     });
+    this.#common.setBreadcrumbItems([
+      { label: 'Staff Directory', routerLink: '/app/staff' },
+      { label: staffMemberId ? 'Academic Assignments' : 'Academic Structure' },
+    ]);
     this.loadReferences();
     if (staffMemberId) {
       this.teachingForm.staffMemberId = staffMemberId;
