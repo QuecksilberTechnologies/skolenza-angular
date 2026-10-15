@@ -1,0 +1,90 @@
+<form
+  class="flex w-full flex-col gap-4"
+  (submit)="onSubmit(); $event.preventDefault()">
+  <div class="space-y-1">
+    <label for="categoryCode" class="block font-medium">
+      Code <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <input
+      id="categoryCode"
+      pInputText
+      class="w-full"
+      [pAutoFocus]="true"
+      [formField]="f.code"
+      autocomplete="off" />
+    @if (submitted() && f.code().errors().length) {
+      <p-message severity="error" size="small" variant="simple">
+        {{ f.code().errors()[0].message }}
+      </p-message>
+    }
+  </div>
+
+  <div class="space-y-1">
+    <label for="categoryName" class="block font-medium">
+      Name <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <input
+      id="categoryName"
+      pInputText
+      class="w-full"
+      [formField]="f.name"
+      autocomplete="off" />
+    @if (submitted() && f.name().errors().length) {
+      <p-message severity="error" size="small" variant="simple">
+        {{ f.name().errors()[0].message }}
+      </p-message>
+    }
+  </div>
+
+  <div class="space-y-1">
+    <label for="categoryDescription" class="block font-medium">Description</label>
+    <textarea
+      id="categoryDescription"
+      pInputText
+      class="w-full"
+      [formField]="f.description"
+      rows="3"></textarea>
+    @if (submitted() && f.description().errors().length) {
+      <p-message severity="error" size="small" variant="simple">
+        {{ f.description().errors()[0].message }}
+      </p-message>
+    }
+  </div>
+
+  <div class="space-y-1">
+    <label for="categoryDisplayOrder" class="block font-medium">Display order</label>
+    <p-inputnumber
+      inputId="categoryDisplayOrder"
+      class="w-full"
+      styleClass="w-full"
+      [showButtons]="false"
+      [formField]="$any(f.displayOrder)" />
+    @if (submitted() && f.displayOrder().errors().length) {
+      <p-message severity="error" size="small" variant="simple">
+        {{ f.displayOrder().errors()[0].message }}
+      </p-message>
+    }
+  </div>
+
+  <div class="flex items-center justify-between gap-3">
+    <label for="categoryActive" class="font-medium">Active</label>
+    <p-toggleswitch
+      inputId="categoryActive"
+      [formField]="$any(f.isActive)" />
+  </div>
+
+  <div class="flex justify-end gap-2 border-t border-gray-200 pt-4 dark:border-zinc-700">
+    <p-button
+      type="button"
+      label="Cancel"
+      severity="secondary"
+      [text]="true"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      label="Save"
+      icon="pi pi-check"
+      [loading]="saving()"
+      [disabled]="saving()" />
+  </div>
+</form>

@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { ConfirmationService } from '@openng/optimus-ui/api';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 
 import { Common, StaffCategoriesAPI } from '@core/services';
@@ -8,6 +10,7 @@ import { CurrentUserPermissionsStore, FeaturePageStore } from '@core/stores';
 import { HostStaffCategory } from '@shared/interfaces';
 
 import StaffCategoryCatalogue from './staff-category-catalogue';
+import { StaffCategoryForm } from './staff-category-form/staff-category-form';
 
 const allowedOperations = new Set<string>();
 const category: HostStaffCategory = {
@@ -22,10 +25,12 @@ const category: HostStaffCategory = {
 
 describe('StaffCategoryCatalogue', () => {
   let fixture: ComponentFixture<StaffCategoryCatalogue>;
+  let dialogClose: Subject<boolean | undefined>;
   let apiMock: {
     getHostCatalogue: ReturnType<typeof vi.fn>;
     saveHostCategory: ReturnType<typeof vi.fn>;
   };
+  let dialogMock: { open: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     allowedOperations.clear();
@@ -41,14 +46,26 @@ describe('StaffCategoryCatalogue', () => {
         .fn()
         .mockReturnValue(of({ isSucceeded: true, message: 'Saved', data: category })),
     };
+    dialogMock = {
+      open: vi.fn().mockImplementation(() => {
+        dialogClose = new Subject();
+        return { onClose: dialogClose, close: vi.fn() };
+      }),
+    };
 
     await TestBed.configureTestingModule({
       imports: [StaffCategoryCatalogue],
       providers: [
         provideRouter([]),
+        ConfirmationService,
+        { provide: DialogService, useValue: dialogMock },
         {
           provide: Common,
-          useValue: { setPageHeaderInfo: vi.fn(), showMessage: vi.fn() },
+          useValue: {
+            setPageHeaderInfo: vi.fn(),
+            setBreadcrumbItems: vi.fn(),
+            showMessage: vi.fn(),
+          },
         },
         {
           provide: StaffCategoriesAPI,
@@ -79,7 +96,7 @@ describe('StaffCategoryCatalogue', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Edit');
   });
 
-  it('hides the create form and row actions when the user has View only', () => {
+  it('hides the Add button and row actions when the user has View only', () => {
     allowedOperations.delete('Add');
     allowedOperations.delete('Update');
 
@@ -92,45 +109,76 @@ describe('StaffCategoryCatalogue', () => {
     expect(text).not.toContain('Deactivate');
   });
 
-  it('validates required fields before sending a create request', () => {
-    const component = fixture.componentInstance;
-    component.model.set({
-      id: null,
-      code: ' ',
-      name: '',
-      description: '',
-      displayOrder: 10,
-      isActive: true,
-    });
-
-    component.onSubmit();
+  it('keeps the rows in place while reloading after a save', () => {
+    fixture.componentInstance.loading.set(true);
     fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
 
-    expect(apiMock.saveHostCategory).not.toHaveBeenCalled();
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Code is required');
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Name is required');
+    expect(element.querySelector('p-skeleton')).toBeNull();
+    expect(element.querySelectorAll('article').length).toBe(1);
   });
 
-  it('normalizes the category code and reloads after a successful create', () => {
-    const component = fixture.componentInstance;
-    component.model.set({
-      id: null,
-      code: '  student_services ',
-      name: 'Student Services',
-      description: 'Counselling and learner support.',
-      displayOrder: 60,
-      isActive: true,
-    });
+  it('shows shimmer rows with a status announcement while the catalogue first loads', () => {
+    fixture.componentInstance.categories.set([]);
+    fixture.componentInstance.loading.set(true);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
 
-    component.onSubmit();
+    expect(element.querySelector('[role="status"][aria-busy="true"]')?.textContent).toContain(
+      'Loading Staff Categories...',
+    );
+    expect(element.querySelectorAll('p-skeleton').length).toBeGreaterThan(0);
+    expect(element.querySelector('article')).toBeNull();
+  });
 
-    expect(apiMock.saveHostCategory).toHaveBeenCalledWith({
-      code: 'STUDENT_SERVICES',
-      name: 'Student Services',
-      description: 'Counselling and learner support.',
-      displayOrder: 60,
-      isActive: true,
-    });
+  it('replaces the breadcrumb left behind by the previous page', () => {
+    expect(TestBed.inject(Common).setBreadcrumbItems).toHaveBeenCalledWith([
+      { label: 'Institution Master Data' },
+      { label: 'Host-Staff-Category-Catalogue' },
+    ]);
+  });
+
+  it('opens the form dialog for add and edit, and reloads only after a save', () => {
+    fixture.componentInstance.openForm();
+    expect(dialogMock.open).toHaveBeenLastCalledWith(
+      StaffCategoryForm,
+      expect.objectContaining({ header: 'Add Staff Category', data: { category: undefined } }),
+    );
+
+    dialogClose.next(undefined);
+    expect(apiMock.getHostCatalogue).toHaveBeenCalledOnce();
+
+    fixture.componentInstance.openForm(category);
+    expect(dialogMock.open).toHaveBeenLastCalledWith(
+      StaffCategoryForm,
+      expect.objectContaining({ header: 'Edit Staff Category', data: { category } }),
+    );
+
+    dialogClose.next(true);
     expect(apiMock.getHostCatalogue).toHaveBeenCalledTimes(2);
+  });
+
+  it('asks for confirmation before deactivating and saves only on accept', () => {
+    const confirmSpy = vi.spyOn(TestBed.inject(ConfirmationService), 'confirm');
+
+    fixture.componentInstance.toggle(category);
+
+    expect(apiMock.saveHostCategory).not.toHaveBeenCalled();
+    confirmSpy.mock.calls[0][0].accept?.();
+    expect(apiMock.saveHostCategory).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 11, isActive: false }),
+    );
+    expect(apiMock.getHostCatalogue).toHaveBeenCalledTimes(2);
+  });
+
+  it('activates an inactive category without confirmation', () => {
+    const confirmSpy = vi.spyOn(TestBed.inject(ConfirmationService), 'confirm');
+
+    fixture.componentInstance.toggle({ ...category, isActive: false });
+
+    expect(confirmSpy).not.toHaveBeenCalled();
+    expect(apiMock.saveHostCategory).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 11, isActive: true }),
+    );
   });
 });

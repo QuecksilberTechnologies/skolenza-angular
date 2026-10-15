@@ -8,50 +8,43 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { form, FormField, submit, validateStandardSchema } from '@angular/forms/signals';
+import { ConfirmationService } from '@openng/optimus-ui/api';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { CardModule } from '@openng/optimus-ui/card';
-import { InputNumberModule } from '@openng/optimus-ui/inputnumber';
-import { InputTextModule } from '@openng/optimus-ui/inputtext';
-import { MessageModule } from '@openng/optimus-ui/message';
-import { ToggleSwitchModule } from '@openng/optimus-ui/toggleswitch';
+import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { SkeletonModule } from '@openng/optimus-ui/skeleton';
+import { TagModule } from '@openng/optimus-ui/tag';
 import { finalize } from 'rxjs';
 
 import { HOST_MODULE } from '@core/host-modules';
 import { Common, StaffCategoriesAPI } from '@core/services';
 import { CurrentUserPermissionsStore, FeaturePageStore } from '@core/stores';
-import { HostStaffCategory, SaveHostStaffCategory } from '@shared/interfaces';
+import { HostStaffCategory } from '@shared/interfaces';
 
-import {
-  StaffCategoryCatalogueModel,
-  staffCategoryCatalogueSchema,
-} from './staff-category-catalogue.schema';
+import { StaffCategoryForm } from './staff-category-form/staff-category-form';
 
 @Component({
   selector: 'app-staff-category-catalogue',
-  imports: [
-    ButtonModule,
-    CardModule,
-    FormField,
-    InputNumberModule,
-    InputTextModule,
-    MessageModule,
-    ToggleSwitchModule,
-  ],
+  imports: [ButtonModule, CardModule, ConfirmDialogModule, SkeletonModule, TagModule],
   templateUrl: './staff-category-catalogue.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class StaffCategoryCatalogue implements OnInit {
   readonly #api = inject(StaffCategoriesAPI);
   readonly #common = inject(Common);
+  readonly #confirmationService = inject(ConfirmationService);
   readonly #destroyRef = inject(DestroyRef);
+  readonly #dialogService = inject(DialogService);
   readonly #featurePageStore = inject(FeaturePageStore);
   readonly #permissionsStore = inject(CurrentUserPermissionsStore);
+
+  /** Placeholder rows shown while the catalogue loads. */
+  readonly skeletonRows = [1, 2, 3, 4, 5];
 
   readonly categories = signal<HostStaffCategory[]>([]);
   readonly loading = signal(false);
   readonly saving = signal(false);
-  readonly submitted = signal(false);
   readonly canAdd = computed(() =>
     this.#permissionsStore.canPerform(HOST_MODULE.staffCategoryCatalogue, 'Add'),
   );
@@ -59,70 +52,87 @@ export default class StaffCategoryCatalogue implements OnInit {
     this.#permissionsStore.canPerform(HOST_MODULE.staffCategoryCatalogue, 'Update'),
   );
 
-  readonly model = signal<StaffCategoryCatalogueModel>(this.emptyForm());
-  readonly f = form(this.model, (path) => {
-    validateStandardSchema(path, staffCategoryCatalogueSchema);
-  });
-
   ngOnInit(): void {
+    const pageTitle =
+      this.#featurePageStore.displayNameOf(HOST_MODULE.staffCategoryCatalogue) ??
+      'Staff Category Catalogue';
     this.#common.setPageHeaderInfo({
-      pageTitle:
-        this.#featurePageStore.displayNameOf(HOST_MODULE.staffCategoryCatalogue) ??
-        'Staff Category Catalogue',
+      pageTitle,
       pageDescription: 'Manage the platform categories Institutions use in staff records.',
       pageIcon: 'pi pi-users',
       isBreadcrumbShow: true,
     });
+    this.#common.setBreadcrumbItems([{ label: 'Institution Master Data' }, { label: pageTitle }]);
     this.load();
   }
 
-  edit(category: HostStaffCategory): void {
-    if (!this.canUpdate()) return;
+  /** Opens the add/edit dialog; reloads the list when it closes after a save. */
+  openForm(category?: HostStaffCategory): void {
+    if (category ? !this.canUpdate() : !this.canAdd()) return;
 
-    this.submitted.set(false);
-    this.model.set({
-      id: category.id,
-      code: category.code,
-      name: category.name,
-      description: category.description ?? '',
-      displayOrder: category.displayOrder,
-      isActive: category.isActive,
+    const ref = this.#dialogService.open(StaffCategoryForm, {
+      header: category ? 'Edit Staff Category' : 'Add Staff Category',
+      style: { width: '90vw', maxWidth: '32rem' },
+      contentStyle: { overflow: 'auto' },
+      modal: true,
+      closable: true,
+      focusOnShow: false,
+      data: { category },
     });
+
+    ref?.onClose.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((saved?: boolean) => {
+      if (saved) this.load();
+    });
+
+    this.#destroyRef.onDestroy(() => ref?.close());
   }
 
   toggle(category: HostStaffCategory): void {
     if (!this.canUpdate()) return;
 
-    this.persist({
-      id: category.id,
-      code: category.code,
-      name: category.name,
-      description: category.description,
-      displayOrder: category.displayOrder,
-      isActive: !category.isActive,
+    if (!category.isActive) {
+      this.persistToggle(category);
+      return;
+    }
+
+    this.#confirmationService.confirm({
+      header: 'Deactivate Staff Category',
+      message: `Deactivate ${category.name}? Institutions can no longer assign it to staff.`,
+      icon: 'pi pi-ban text-red-400! text-xl!',
+      acceptLabel: 'Deactivate',
+      rejectLabel: 'Keep Active',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary',
+      accept: () => this.persistToggle(category),
     });
   }
 
-  onSubmit(): void {
+  private persistToggle(category: HostStaffCategory): void {
     if (this.saving()) return;
 
-    this.submitted.set(true);
-    submit(this.f, async () => {
-      const value = this.model();
-      this.persist({
-        ...(value.id === null ? {} : { id: value.id }),
-        code: value.code.trim().toUpperCase(),
-        name: value.name.trim(),
-        description: value.description.trim(),
-        displayOrder: value.displayOrder,
-        isActive: value.isActive,
+    this.saving.set(true);
+    this.#api
+      .saveHostCategory({
+        id: category.id,
+        code: category.code,
+        name: category.name,
+        description: category.description,
+        displayOrder: category.displayOrder,
+        isActive: !category.isActive,
+      })
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.#destroyRef),
+      )
+      .subscribe({
+        next: (response) => {
+          this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
+          if (response.isSucceeded) this.load();
+        },
+        error: (error: { message?: string }) => {
+          this.#common.showMessage(error.message ?? 'Unable to save the Staff Category.', 'error');
+        },
       });
-    });
-  }
-
-  reset(): void {
-    this.submitted.set(false);
-    this.model.set(this.emptyForm());
   }
 
   private load(): void {
@@ -145,40 +155,5 @@ export default class StaffCategoryCatalogue implements OnInit {
           this.#common.showMessage(error.message ?? 'Unable to load Staff Categories.', 'error');
         },
       });
-  }
-
-  private persist(value: SaveHostStaffCategory): void {
-    if (this.saving()) return;
-
-    this.saving.set(true);
-    this.#api
-      .saveHostCategory(value)
-      .pipe(
-        finalize(() => this.saving.set(false)),
-        takeUntilDestroyed(this.#destroyRef),
-      )
-      .subscribe({
-        next: (response) => {
-          this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
-          if (!response.isSucceeded) return;
-
-          this.reset();
-          this.load();
-        },
-        error: (error: { message?: string }) => {
-          this.#common.showMessage(error.message ?? 'Unable to save the Staff Category.', 'error');
-        },
-      });
-  }
-
-  private emptyForm(): StaffCategoryCatalogueModel {
-    return {
-      id: null,
-      code: '',
-      name: '',
-      description: '',
-      displayOrder: 100,
-      isActive: true,
-    };
   }
 }
