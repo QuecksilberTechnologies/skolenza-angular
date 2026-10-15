@@ -30,12 +30,10 @@ practices.
 
 ### Documentation lifecycle
 
-- Files ending in `_old.md` are read-only AxionPro reference material. Do not update them for
-  Skolenza implementation work.
-- Record every new decision, implementation status, and test result only in current Skolenza
-  Markdown files without the `_old` suffix.
-- If legacy behavior is reused, cite the `_old.md` source and write the accepted Skolenza decision
-  in a current document.
+- Record every new decision, implementation status, and test result in current Skolenza Markdown
+  files.
+- The AxionPro `*_old.md` reference files were removed. If legacy behavior is reused, recover the
+  source from git history, cite it, and write the accepted Skolenza decision in a current document.
 
 ## References
 
