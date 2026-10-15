@@ -12,3 +12,4 @@ Current Skolenza Angular verification is recorded here. Files ending in
 - [Staff Members list UI review fixes — 2026-10-16](staff/staff-members-list-ui/2026-10-16.md)
 - [Staff Professional Structure UI review fixes — 2026-10-16](staff/professional-structure-ui/2026-10-16.md)
 - [Staff Academic Structure UI review fixes — 2026-10-16](staff/academic-structure-ui/2026-10-16.md)
+- [Staff Curriculum & Lesson Delivery UI review fixes — 2026-10-16](staff/curriculum-delivery-ui/2026-10-16.md)

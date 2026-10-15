@@ -35,6 +35,8 @@ import {
   StaffTeachingAssignment,
   SyllabusProgress,
 } from '@shared/interfaces';
+import { localDateKey } from '@shared/utilities/date-key';
+import { escapeHtml } from '@shared/utilities/escape-html';
 
 type CurriculumTab =
   | 'Frameworks'
@@ -108,7 +110,12 @@ export default class StaffCurriculumDelivery implements OnInit {
       pageDescription:
         'Manage curriculum, lesson approvals, actual delivery and calculated syllabus progress',
       pageIcon: 'pi pi-book',
+      isBreadcrumbShow: true,
     });
+    this.#common.setBreadcrumbItems([
+      { label: 'Staff Directory', routerLink: '/app/staff' },
+      { label: 'Curriculum & Lesson Delivery' },
+    ]);
     this.loadAll();
   }
 
@@ -281,7 +288,7 @@ export default class StaffCurriculumDelivery implements OnInit {
     this.deliveryForm = {
       id: undefined,
       lessonPlanId: plan.id,
-      deliveredDate: new Date().toISOString().slice(0, 10),
+      deliveredDate: localDateKey(),
       coverageNotes: '',
       isActive: true,
       coverage: plan.topics.map((topic) => ({
@@ -313,8 +320,9 @@ export default class StaffCurriculumDelivery implements OnInit {
   ): void {
     this.#confirmationService.confirm({
       header: `Delete ${label}`,
-      message: `Delete "${label}"? Records already in use must be removed first.`,
-      icon: 'pi pi-trash !text-red-400 !text-xl',
+      // The dialog renders `message` via [innerHTML], so the label is escaped before use.
+      message: `Delete "${escapeHtml(label)}"? Records already in use must be removed first.`,
+      icon: 'pi pi-trash text-red-400! text-xl!',
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
       acceptButtonStyleClass: 'p-button-danger',
