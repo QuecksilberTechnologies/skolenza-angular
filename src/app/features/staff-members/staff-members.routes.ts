@@ -39,6 +39,11 @@ export const STAFF_MEMBERS_ROUTES: Routes = [
   },
   {
     path: 'professional-structure',
+    pathMatch: 'full',
+    redirectTo: 'professional-structure/job-families',
+  },
+  {
+    path: 'professional-structure/:tab',
     loadComponent: () => import('./staff-professional-structure/staff-professional-structure'),
     title: `Staff Professional Structure | ${titleSuffix}`,
     canActivate: adminManager,

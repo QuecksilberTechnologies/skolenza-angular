@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { Confirmation, ConfirmationService } from '@openng/optimus-ui/api';
 import { of, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -64,6 +65,7 @@ describe('StaffProfessionalStructure status confirmation', () => {
     TestBed.configureTestingModule({
       providers: [
         ConfirmationService,
+        provideRouter([]),
         {
           provide: Common,
           useValue: {
@@ -114,6 +116,11 @@ describe('StaffProfessionalStructure busy state', () => {
       imports: [StaffProfessionalStructure],
       providers: [
         ConfirmationService,
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: of(convertToParamMap({ tab: 'job-families' })) },
+        },
         {
           provide: Common,
           useValue: {
@@ -170,6 +177,7 @@ describe('StaffProfessionalStructure tab loading', () => {
     TestBed.configureTestingModule({
       providers: [
         ConfirmationService,
+        provideRouter([]),
         {
           provide: Common,
           useValue: {
@@ -209,5 +217,78 @@ describe('StaffProfessionalStructure tab loading', () => {
     // Reference lookups are still pending, but they do not count as the list loading.
     expect(component.loading()).toBe(false);
     lookups.complete();
+  });
+});
+
+describe('StaffProfessionalStructure tab routing', () => {
+  const empty = of({ isSucceeded: true, message: '', errors: [], data: [] });
+  let route: { paramMap: Subject<ReturnType<typeof convertToParamMap>> };
+  let getMasters: ReturnType<typeof vi.fn>;
+  let getPositions: ReturnType<typeof vi.fn>;
+  let component: StaffProfessionalStructure;
+  let navigate: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    route = { paramMap: new Subject() };
+    getMasters = vi.fn(() => empty);
+    getPositions = vi.fn(() => empty);
+    TestBed.configureTestingModule({
+      providers: [
+        ConfirmationService,
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: route },
+        {
+          provide: Common,
+          useValue: {
+            setPageHeaderInfo: vi.fn(),
+            setBreadcrumbItems: vi.fn(),
+            showMessage: vi.fn(),
+          },
+        },
+        { provide: LookupStore, useValue: { staffCategories: signal([]) } },
+        {
+          provide: StaffProfessionalStructureApi,
+          useValue: {
+            getCategories: vi.fn(() => empty),
+            getPositions,
+            getMasters,
+          },
+        },
+      ],
+    });
+    navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    component = TestBed.runInInjectionContext(() => new StaffProfessionalStructure());
+    component.ngOnInit();
+  });
+
+  it('selects and loads the tab named in the URL', () => {
+    route.paramMap.next(convertToParamMap({ tab: 'positions' }));
+
+    expect(component.selectedTab()).toBe('positions');
+    expect(getPositions).toHaveBeenCalledWith(undefined, false);
+
+    route.paramMap.next(convertToParamMap({ tab: 'duties' }));
+
+    expect(component.selectedTab()).toBe(StaffProfessionalMasterType.DutyDefinition);
+    expect(getMasters).toHaveBeenLastCalledWith(StaffProfessionalMasterType.DutyDefinition, false);
+  });
+
+  it('replaces an unknown tab segment with job-families', () => {
+    route.paramMap.next(convertToParamMap({ tab: 'nope' }));
+
+    expect(navigate).toHaveBeenCalledWith(['..', 'job-families'], {
+      relativeTo: route,
+      replaceUrl: true,
+    });
+  });
+
+  it('navigates to the clicked tab instead of switching in place', () => {
+    route.paramMap.next(convertToParamMap({ tab: 'job-families' }));
+    component.openTab('categories');
+
+    expect(navigate).toHaveBeenCalledWith(['..', 'staff-categories'], {
+      relativeTo: route,
+    });
+    expect(component.selectedTab()).toBe(StaffProfessionalMasterType.JobFamily);
   });
 });

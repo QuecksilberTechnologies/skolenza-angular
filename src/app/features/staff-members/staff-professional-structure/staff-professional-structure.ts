@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService } from '@openng/optimus-ui/api';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { CardModule } from '@openng/optimus-ui/card';
@@ -35,6 +36,16 @@ import { escapeHtml } from '@shared/utilities/escape-html';
 import { pendingCounter } from '@shared/utilities/pending-counter';
 
 type StructureTab = StaffProfessionalMasterType | 'categories' | 'positions';
+
+/** URL segment under `/app/staff/professional-structure/` for each tab. */
+export const STRUCTURE_TAB_ROUTES: readonly { route: string; tab: StructureTab }[] = [
+  { route: 'job-families', tab: StaffProfessionalMasterType.JobFamily },
+  { route: 'staff-categories', tab: 'categories' },
+  { route: 'capabilities', tab: StaffProfessionalMasterType.Capability },
+  { route: 'duties', tab: StaffProfessionalMasterType.DutyDefinition },
+  { route: 'positions', tab: 'positions' },
+];
+
 export type DependencyOption<T> = T & { disabled: boolean };
 
 export function buildDependencyOptions<T extends { id: number; isActive: boolean }>(
@@ -69,6 +80,8 @@ export default class StaffProfessionalStructure implements OnInit {
   readonly #confirmationService = inject(ConfirmationService);
   readonly #destroyRef = inject(DestroyRef);
   readonly #lookups = inject(LookupStore);
+  readonly #route = inject(ActivatedRoute);
+  readonly #router = inject(Router);
 
   readonly masterTypes = StaffProfessionalMasterType;
   readonly selectedTab = signal<StructureTab>(StaffProfessionalMasterType.JobFamily);
@@ -108,7 +121,23 @@ export default class StaffProfessionalStructure implements OnInit {
     ]);
 
     this.loadReferenceData();
-    this.loadSelected();
+    this.#route.paramMap.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((params) => {
+      const match = STRUCTURE_TAB_ROUTES.find((item) => item.route === params.get('tab'));
+      if (!match) {
+        void this.#router.navigate(['..', STRUCTURE_TAB_ROUTES[0].route], {
+          relativeTo: this.#route,
+          replaceUrl: true,
+        });
+        return;
+      }
+      this.selectTab(match.tab);
+    });
+  }
+
+  openTab(tab: StructureTab): void {
+    if (tab === this.selectedTab()) return;
+    const route = STRUCTURE_TAB_ROUTES.find((item) => item.tab === tab)?.route;
+    void this.#router.navigate(['..', route], { relativeTo: this.#route });
   }
 
   selectTab(tab: StructureTab): void {

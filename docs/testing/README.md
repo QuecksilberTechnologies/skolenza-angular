@@ -11,6 +11,7 @@ Current Skolenza Angular verification is recorded here. Files ending in
 - [Staff professional structure inactive dependency lifecycle — 2026-10-15](staff/professional-structure-inactive-dependencies/2026-10-15.md)
 - [Staff Members list UI review fixes — 2026-10-16](staff/staff-members-list-ui/2026-10-16.md)
 - [Staff Professional Structure UI review fixes — 2026-10-16](staff/professional-structure-ui/2026-10-16.md)
+- [Staff Professional Structure tab routing — 2026-10-16](staff/professional-structure-tab-routing/2026-10-16.md)
 - [Staff Academic Structure UI review fixes — 2026-10-16](staff/academic-structure-ui/2026-10-16.md)
 - [Staff Curriculum & Lesson Delivery UI review fixes — 2026-10-16](staff/curriculum-delivery-ui/2026-10-16.md)
 - [Staff structure screens busy indicators — 2026-10-16](staff/structure-busy-state/2026-10-16.md)

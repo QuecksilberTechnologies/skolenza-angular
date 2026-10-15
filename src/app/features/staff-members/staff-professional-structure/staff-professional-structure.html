@@ -6,11 +6,11 @@
     class="flex flex-wrap gap-2 border-b border-gray-200 pb-3 dark:border-zinc-700"
     aria-label="Professional structure sections"
   >
-    <p-button label="Job Families" [outlined]="selectedTab() !== masterTypes.JobFamily" (onClick)="selectTab(masterTypes.JobFamily)" />
-    <p-button label="Staff Categories" [outlined]="selectedTab() !== 'categories'" (onClick)="selectTab('categories')" />
-    <p-button label="Capabilities" [outlined]="selectedTab() !== masterTypes.Capability" (onClick)="selectTab(masterTypes.Capability)" />
-    <p-button label="Duties" [outlined]="selectedTab() !== masterTypes.DutyDefinition" (onClick)="selectTab(masterTypes.DutyDefinition)" />
-    <p-button label="Positions" [outlined]="selectedTab() !== 'positions'" (onClick)="selectTab('positions')" />
+    <p-button label="Job Families" [outlined]="selectedTab() !== masterTypes.JobFamily" (onClick)="openTab(masterTypes.JobFamily)" />
+    <p-button label="Staff Categories" [outlined]="selectedTab() !== 'categories'" (onClick)="openTab('categories')" />
+    <p-button label="Capabilities" [outlined]="selectedTab() !== masterTypes.Capability" (onClick)="openTab(masterTypes.Capability)" />
+    <p-button label="Duties" [outlined]="selectedTab() !== masterTypes.DutyDefinition" (onClick)="openTab(masterTypes.DutyDefinition)" />
+    <p-button label="Positions" [outlined]="selectedTab() !== 'positions'" (onClick)="openTab('positions')" />
     <p-select class="ml-auto min-w-36" name="statusFilter" [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value" />
   </nav>
 
