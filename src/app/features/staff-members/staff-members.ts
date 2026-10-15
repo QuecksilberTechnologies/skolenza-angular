@@ -22,7 +22,6 @@ import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
 import { ContextMenuModule } from '@openng/optimus-ui/contextmenu';
 import { Drawer } from '@openng/optimus-ui/drawer';
 import { DialogService, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
-import { OverlayBadgeModule } from '@openng/optimus-ui/overlaybadge';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { SplitButtonModule } from '@openng/optimus-ui/splitbutton';
 import { Table, TableLazyLoadEvent, TableModule } from '@openng/optimus-ui/table';
@@ -111,7 +110,6 @@ const PASSWORD_MODULE_CODE = ['STAFF_DIRECTORY', 'EMP_PASSWORD_MANAGEMENT'] as c
     RepositionOnResize,
     AvatarPopup,
     StaffMemberRoleCell,
-    OverlayBadgeModule,
     Drawer,
     StaffMemberFilter,
     TableInlineFilters,
@@ -187,9 +185,28 @@ export default class StaffMembers implements OnInit {
   /** Import is an `Add` against the same page, so it rides the same grant the button does. */
   protected readonly staffMemberSplitButtonItems: MenuItem[] = [
     {
-      label: 'Import StaffMembers',
+      label: 'Import Staff Members',
       icon: 'pi pi-upload',
       command: () => this.openBulkImport(),
+    },
+  ];
+
+  /** The structure pages share one toolbar button so the row fits beside the filters. */
+  protected readonly structureMenuItems: MenuItem[] = [
+    {
+      label: 'Professional Structure',
+      icon: 'pi pi-sitemap',
+      command: () => this.openProfessionalStructure(),
+    },
+    {
+      label: 'Academic Structure',
+      icon: 'pi pi-book',
+      command: () => this.openAcademicStructure(),
+    },
+    {
+      label: 'Curriculum & Lessons',
+      icon: 'pi pi-clipboard',
+      command: () => this.openCurriculumDelivery(),
     },
   ];
 
@@ -314,8 +331,8 @@ export default class StaffMembers implements OnInit {
 
   setPageHeaderInfo() {
     this.#commonService.setPageHeaderInfo({
-      pageTitle: this.#featurePageStore.displayNameOf(MODULE_CODE) ?? 'StaffMembers',
-      pageDescription: 'Manage staffMembers and their information',
+      pageTitle: this.#featurePageStore.displayNameOf(MODULE_CODE) ?? 'Staff Members',
+      pageDescription: 'Manage staff members and their information',
       pageIcon: 'pi pi-users',
     });
   }
@@ -454,7 +471,7 @@ export default class StaffMembers implements OnInit {
     };
 
     const ref = this.#dialogService.open(BulkImportDialog, {
-      header: 'Import StaffMembers',
+      header: 'Import Staff Members',
       style: { width: '90vw', maxWidth: '64rem' },
       contentStyle: { overflow: 'hidden' },
       modal: true,

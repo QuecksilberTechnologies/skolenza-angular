@@ -9,3 +9,4 @@ Current Skolenza Angular verification is recorded here. Files ending in
 - [Skolenza Angular logo assets — 2026-10-11](reconstruction/skolenza-logo-assets/2026-10-11.md)
 - [Local Angular Render API environment — 2026-10-11](environment/render-api-local/2026-10-11.md)
 - [Staff professional structure inactive dependency lifecycle — 2026-10-15](staff/professional-structure-inactive-dependencies/2026-10-15.md)
+- [Staff Members list UI review fixes — 2026-10-16](staff/staff-members-list-ui/2026-10-16.md)

@@ -29,7 +29,9 @@
   </button>
   } @else {
   <span
-    class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:border-primary-700 dark:bg-primary-900/30 dark:text-primary-200">
+    class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:border-primary-700 dark:bg-primary-900/30 dark:text-primary-200"
+    [pTooltip]="roleView.tooltip"
+    tooltipPosition="bottom">
     <i class="pi pi-shield text-[10px]"></i>
     <span class="truncate">{{ roleView.displayName }}</span>
   </span>
