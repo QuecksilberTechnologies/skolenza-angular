@@ -3,37 +3,53 @@
   (submit)="onSubmit(); $event.preventDefault()">
   <div class="space-y-1">
     <label for="categoryCode" class="block font-medium">
-      Code <span class="text-red-600 dark:text-red-400">*</span>
+      Code <span class="text-red-600 dark:text-red-400" aria-hidden="true">*</span>
     </label>
     <input
       id="categoryCode"
       pInputText
-      class="w-full"
+      class="w-full uppercase"
+      placeholder="e.g. TEACHING"
+      aria-required="true"
+      aria-describedby="categoryCode-help"
+      [attr.aria-invalid]="showError(f.code)"
+      [class.p-invalid]="showError(f.code)"
       [pAutoFocus]="true"
       [formField]="f.code"
       autocomplete="off" />
-    @if (submitted() && f.code().errors().length) {
-      <p-message severity="error" size="small" variant="simple">
-        {{ f.code().errors()[0].message }}
-      </p-message>
-    }
+    <div id="categoryCode-help">
+      @if (showError(f.code)) {
+        <p-message severity="error" size="small" variant="simple">
+          {{ fieldErrorMessage(f.code) }}
+        </p-message>
+      } @else {
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Saved in uppercase.</p>
+      }
+    </div>
   </div>
 
   <div class="space-y-1">
     <label for="categoryName" class="block font-medium">
-      Name <span class="text-red-600 dark:text-red-400">*</span>
+      Name <span class="text-red-600 dark:text-red-400" aria-hidden="true">*</span>
     </label>
     <input
       id="categoryName"
       pInputText
       class="w-full"
+      placeholder="e.g. Teaching staff"
+      aria-required="true"
+      aria-describedby="categoryName-help"
+      [attr.aria-invalid]="showError(f.name)"
+      [class.p-invalid]="showError(f.name)"
       [formField]="f.name"
       autocomplete="off" />
-    @if (submitted() && f.name().errors().length) {
-      <p-message severity="error" size="small" variant="simple">
-        {{ f.name().errors()[0].message }}
-      </p-message>
-    }
+    <div id="categoryName-help">
+      @if (showError(f.name)) {
+        <p-message severity="error" size="small" variant="simple">
+          {{ fieldErrorMessage(f.name) }}
+        </p-message>
+      }
+    </div>
   </div>
 
   <div class="space-y-1">
@@ -42,13 +58,24 @@
       id="categoryDescription"
       pInputText
       class="w-full"
+      placeholder="What this category covers"
+      aria-describedby="categoryDescription-help"
+      [attr.aria-invalid]="showError(f.description)"
+      [class.p-invalid]="showError(f.description)"
       [formField]="f.description"
       rows="3"></textarea>
-    @if (submitted() && f.description().errors().length) {
-      <p-message severity="error" size="small" variant="simple">
-        {{ f.description().errors()[0].message }}
-      </p-message>
-    }
+    <div
+      id="categoryDescription-help"
+      class="flex items-center justify-between gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+      <span>
+        @if (showError(f.description)) {
+          <p-message severity="error" size="small" variant="simple">
+            {{ fieldErrorMessage(f.description) }}
+          </p-message>
+        }
+      </span>
+      <span>{{ f.description().value().trim().length }}/500 characters</span>
+    </div>
   </div>
 
   <div class="space-y-1">
@@ -56,24 +83,33 @@
     <p-inputnumber
       inputId="categoryDisplayOrder"
       class="w-full"
-      styleClass="w-full"
+      ariaDescribedBy="categoryDisplayOrder-help"
+      [fluid]="true"
+      [invalid]="showError(f.displayOrder)"
       [showButtons]="false"
       [formField]="$any(f.displayOrder)" />
-    @if (submitted() && f.displayOrder().errors().length) {
-      <p-message severity="error" size="small" variant="simple">
-        {{ f.displayOrder().errors()[0].message }}
-      </p-message>
-    }
+    <div id="categoryDisplayOrder-help">
+      @if (showError(f.displayOrder)) {
+        <p-message severity="error" size="small" variant="simple">
+          {{ fieldErrorMessage(f.displayOrder) }}
+        </p-message>
+      } @else {
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">Lower numbers appear first.</p>
+      }
+    </div>
   </div>
 
-  <div class="flex items-center justify-between gap-3">
-    <label for="categoryActive" class="font-medium">Active</label>
+  <app-toggle-field
+    inputId="categoryActive"
+    label="Active"
+    hint="Inactive categories can't be assigned to staff.">
     <p-toggleswitch
       inputId="categoryActive"
-      [formField]="$any(f.isActive)" />
-  </div>
+      [formField]="f.isActive" />
+  </app-toggle-field>
 
-  <div class="flex justify-end gap-2 border-t border-gray-200 pt-4 dark:border-zinc-700">
+  <div
+    class="sticky bottom-0 flex items-center justify-end gap-2 border-t border-zinc-200 bg-surface-0 py-4 dark:border-zinc-800 dark:bg-surface-900">
     <p-button
       type="button"
       label="Cancel"

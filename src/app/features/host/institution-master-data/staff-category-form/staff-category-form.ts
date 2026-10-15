@@ -11,7 +11,9 @@ import { ToggleSwitchModule } from '@openng/optimus-ui/toggleswitch';
 import { finalize } from 'rxjs';
 
 import { Common, StaffCategoriesAPI } from '@core/services';
+import { ToggleField } from '@shared/components/toggle-field/toggle-field';
 import { HostStaffCategory } from '@shared/interfaces';
+import { fieldErrorMessage, showFieldError } from '@shared/utilities/field-error';
 
 import {
   StaffCategoryCatalogueModel,
@@ -28,6 +30,7 @@ import {
     InputNumberModule,
     InputTextModule,
     MessageModule,
+    ToggleField,
     ToggleSwitchModule,
   ],
   templateUrl: './staff-category-form.html',
@@ -55,6 +58,12 @@ export class StaffCategoryForm {
   readonly f = form(this.model, (path) => {
     validateStandardSchema(path, staffCategoryCatalogueSchema);
   });
+
+  protected readonly fieldErrorMessage = fieldErrorMessage;
+
+  protected showError(field: Parameters<typeof showFieldError>[0]): boolean {
+    return showFieldError(field, this.submitted());
+  }
 
   onSubmit(): void {
     if (this.saving()) return;
