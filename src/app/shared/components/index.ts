@@ -97,6 +97,7 @@ export type { StatusMessageSeverity } from './status-message/status-message';
 // Table
 export { TableEmptyMessage } from './table-empty-message/table-empty-message';
 export { TableInlineFilters } from './table-inline-filters/table-inline-filters';
+export { ListSkeleton } from './list-skeleton/list-skeleton';
 export { TableLoader } from './table-loader/table-loader';
 export { TableSearchFilter } from './table-search-filter/table-search-filter';
 export { TableActionButton } from './table/table-action-button/table-action-button';

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Confirmation, ConfirmationService } from '@openng/optimus-ui/api';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Common, StaffAcademicStructureApi, StaffCurriculumDeliveryApi } from '@core/services';
@@ -85,5 +85,56 @@ describe('StaffCurriculumDelivery', () => {
     component.usePlanForDelivery({ id: 5, topics: [] } as unknown as LessonPlan);
 
     expect(component.deliveryForm.deliveredDate).toBe('2026-10-17');
+  });
+});
+
+describe('StaffCurriculumDelivery list loading', () => {
+  it('clears units on framework switch and ignores the previous framework response', () => {
+    const unitsA = new Subject<{ isSucceeded: boolean; message: string; data: CurriculumUnit[] }>();
+    const unitsB = new Subject<{ isSucceeded: boolean; message: string; data: CurriculumUnit[] }>();
+    const pendingLookup = new Subject<never>();
+    const api = new Proxy(
+      { getUnits: vi.fn().mockReturnValueOnce(unitsA).mockReturnValueOnce(unitsB) },
+      {
+        get: (target, key) =>
+          key in target ? target[key as 'getUnits'] : vi.fn(() => pendingLookup),
+      },
+    );
+    TestBed.configureTestingModule({
+      providers: [
+        ConfirmationService,
+        {
+          provide: Common,
+          useValue: {
+            setPageHeaderInfo: vi.fn(),
+            setBreadcrumbItems: vi.fn(),
+            showMessage: vi.fn(),
+          },
+        },
+        { provide: StaffCurriculumDeliveryApi, useValue: api },
+        { provide: StaffAcademicStructureApi, useValue: api },
+      ],
+    });
+    const component = TestBed.runInInjectionContext(() => new StaffCurriculumDelivery());
+    const unit = (name: string) => ({
+      isSucceeded: true,
+      message: '',
+      data: [{ id: 1, name, topics: [] } as unknown as CurriculumUnit],
+    });
+
+    component.selectFramework(1);
+    unitsA.next(unit('Fractions'));
+    unitsA.complete();
+    component.selectFramework(2);
+
+    expect(component.units()).toEqual([]);
+    expect(component.loading.units()).toBe(true);
+    // Lookups that never answer do not hold the other lists' skeletons.
+    expect(component.loading.plans()).toBe(false);
+
+    unitsB.next(unit('Grammar'));
+    unitsB.complete();
+    expect(component.units().map((item) => item.name)).toEqual(['Grammar']);
+    expect(component.loading.units()).toBe(false);
   });
 });

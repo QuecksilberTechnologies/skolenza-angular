@@ -17,9 +17,11 @@ import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TextareaModule } from '@openng/optimus-ui/textarea';
+import { Subscription } from 'rxjs';
 
 import { Common, StaffProfessionalStructureApi } from '@core/services';
 import { LookupStore } from '@core/stores';
+import { ListSkeleton } from '@shared/components';
 import {
   SaveStaffPositionMaster,
   SaveInstitutionStaffCategory,
@@ -30,6 +32,7 @@ import {
   StaffProfessionalMasterType,
 } from '@shared/interfaces';
 import { escapeHtml } from '@shared/utilities/escape-html';
+import { pendingCounter } from '@shared/utilities/pending-counter';
 
 type StructureTab = StaffProfessionalMasterType | 'categories' | 'positions';
 export type DependencyOption<T> = T & { disabled: boolean };
@@ -52,6 +55,7 @@ export function buildDependencyOptions<T extends { id: number; isActive: boolean
     ConfirmDialogModule,
     FormsModule,
     InputTextModule,
+    ListSkeleton,
     SelectModule,
     MultiSelectModule,
     TextareaModule,
@@ -75,7 +79,11 @@ export default class StaffProfessionalStructure implements OnInit {
   readonly duties = signal<StaffProfessionalMaster[]>([]);
   readonly categories = signal<InstitutionStaffCategory[]>([]);
   readonly canonicalCategories = this.#lookups.staffCategories;
-  readonly loading = signal(false);
+  readonly #listLoad = pendingCounter();
+  readonly #save = pendingCounter();
+  #selectedLoad?: Subscription;
+  readonly loading = this.#listLoad.active;
+  readonly saving = this.#save.active;
   readonly statusOptions = [
     { label: 'All', value: 'all' },
     { label: 'Active', value: 'active' },
@@ -105,42 +113,43 @@ export default class StaffProfessionalStructure implements OnInit {
 
   selectTab(tab: StructureTab): void {
     this.selectedTab.set(tab);
+    // Job Families, Capabilities and Duties share `masters`; clear it so the next tab shows a
+    // loading state instead of the previous tab's rows.
+    this.masters.set([]);
     this.resetForm();
     this.loadSelected();
   }
 
   loadSelected(): void {
     const tab = this.selectedTab();
-    this.loading.set(true);
+    // Cancel the previous tab's request so a late response cannot fill this tab.
+    this.#selectedLoad?.unsubscribe();
     if (tab === 'categories') {
-      this.#api
+      this.#selectedLoad = this.#api
         .getCategories(false)
-        .pipe(takeUntilDestroyed(this.#destroyRef))
+        .pipe(this.#listLoad.track, takeUntilDestroyed(this.#destroyRef))
         .subscribe({
           next: (response) => this.categories.set(response.isSucceeded ? response.data : []),
           error: (error) => this.#common.showMessage(error.message, 'error'),
-          complete: () => this.loading.set(false),
         });
       return;
     }
     if (tab === 'positions') {
-      this.#api
+      this.#selectedLoad = this.#api
         .getPositions(undefined, false)
-        .pipe(takeUntilDestroyed(this.#destroyRef))
+        .pipe(this.#listLoad.track, takeUntilDestroyed(this.#destroyRef))
         .subscribe({
           next: (response) => this.positions.set(response.isSucceeded ? response.data : []),
           error: (error) => this.#common.showMessage(error.message, 'error'),
-          complete: () => this.loading.set(false),
         });
       return;
     }
-    this.#api
+    this.#selectedLoad = this.#api
       .getMasters(tab, false)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#listLoad.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => this.masters.set(response.isSucceeded ? response.data : []),
         error: (error) => this.#common.showMessage(error.message, 'error'),
-        complete: () => this.loading.set(false),
       });
   }
 
@@ -161,7 +170,7 @@ export default class StaffProfessionalStructure implements OnInit {
       return;
     this.#api
       .saveCategory(this.categoryForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           if (!response.isSucceeded) {
@@ -170,7 +179,7 @@ export default class StaffProfessionalStructure implements OnInit {
           }
           this.#api
             .setCategoryJobFamilies(response.data.id, this.categoryForm.staffJobFamilyMasterIds)
-            .pipe(takeUntilDestroyed(this.#destroyRef))
+            .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
             .subscribe({
               next: (mappingResponse) => {
                 this.#common.showMessage(
@@ -212,7 +221,7 @@ export default class StaffProfessionalStructure implements OnInit {
       return;
     this.#api
       .saveMaster(tab, this.masterForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
@@ -292,7 +301,7 @@ export default class StaffProfessionalStructure implements OnInit {
       return;
     this.#api
       .savePosition(this.positionForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');

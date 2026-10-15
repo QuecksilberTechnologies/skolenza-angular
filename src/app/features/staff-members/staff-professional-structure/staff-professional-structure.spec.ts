@@ -1,12 +1,16 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Confirmation, ConfirmationService } from '@openng/optimus-ui/api';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Common, StaffProfessionalStructureApi } from '@core/services';
 import { LookupStore } from '@core/stores';
-import { StaffProfessionalMaster } from '@shared/interfaces';
+import {
+  ApiDataResponse,
+  StaffProfessionalMaster,
+  StaffProfessionalMasterType,
+} from '@shared/interfaces';
 
 import StaffProfessionalStructure, { buildDependencyOptions } from './staff-professional-structure';
 
@@ -99,5 +103,111 @@ describe('StaffProfessionalStructure status confirmation', () => {
     expect((confirmSpy.mock.calls[0][0] as Confirmation).acceptButtonStyleClass).toBe(
       'p-button-primary',
     );
+  });
+});
+
+describe('StaffProfessionalStructure busy state', () => {
+  it('shows list shimmer while the first load is pending, then the rows', async () => {
+    const pending = new Subject<ApiDataResponse<StaffProfessionalMaster[]>>();
+    const empty = of({ isSucceeded: true, message: '', data: [] });
+    TestBed.configureTestingModule({
+      imports: [StaffProfessionalStructure],
+      providers: [
+        ConfirmationService,
+        {
+          provide: Common,
+          useValue: {
+            setPageHeaderInfo: vi.fn(),
+            setBreadcrumbItems: vi.fn(),
+            showMessage: vi.fn(),
+          },
+        },
+        { provide: LookupStore, useValue: { staffCategories: signal([]) } },
+        {
+          provide: StaffProfessionalStructureApi,
+          useValue: {
+            getCategories: vi.fn(() => empty),
+            getPositions: vi.fn(() => empty),
+            getMasters: vi.fn((_type: unknown, _activeOnly: boolean) => pending),
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(StaffProfessionalStructure);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('app-list-skeleton [role="status"]')).not.toBeNull();
+
+    pending.next({
+      isSucceeded: true,
+      message: '',
+      errors: [],
+      data: [
+        { id: 1, code: 'LIBRARY', name: 'Library', isActive: true } as StaffProfessionalMaster,
+      ],
+    });
+    pending.complete();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(root.querySelector('app-list-skeleton')).toBeNull();
+    expect(root.textContent).toContain('Library');
+  });
+});
+
+describe('StaffProfessionalStructure tab loading', () => {
+  it('ignores a late response from the previous tab and keeps lookups off the list skeleton', () => {
+    const lookups = new Subject<ApiDataResponse<StaffProfessionalMaster[]>>();
+    const jobFamilies = new Subject<ApiDataResponse<StaffProfessionalMaster[]>>();
+    const capabilities = new Subject<ApiDataResponse<StaffProfessionalMaster[]>>();
+    const empty = of({ isSucceeded: true, message: '', errors: [], data: [] });
+    const getMasters = vi
+      .fn()
+      .mockReturnValueOnce(jobFamilies) // loadSelected: Job Families
+      .mockReturnValue(lookups); // reference lookups
+    TestBed.configureTestingModule({
+      providers: [
+        ConfirmationService,
+        {
+          provide: Common,
+          useValue: {
+            setPageHeaderInfo: vi.fn(),
+            setBreadcrumbItems: vi.fn(),
+            showMessage: vi.fn(),
+          },
+        },
+        { provide: LookupStore, useValue: { staffCategories: signal([]) } },
+        {
+          provide: StaffProfessionalStructureApi,
+          useValue: {
+            getCategories: vi.fn(() => empty),
+            getPositions: vi.fn(() => empty),
+            getMasters,
+          },
+        },
+      ],
+    });
+    const component = TestBed.runInInjectionContext(() => new StaffProfessionalStructure());
+    const row = (name: string) =>
+      ({
+        isSucceeded: true,
+        message: '',
+        errors: [],
+        data: [{ id: 1, name, isActive: true } as StaffProfessionalMaster],
+      }) as ApiDataResponse<StaffProfessionalMaster[]>;
+
+    component.loadSelected();
+    getMasters.mockReturnValueOnce(capabilities);
+    component.selectTab(StaffProfessionalMasterType.Capability);
+    capabilities.next(row('Lesson planning'));
+    capabilities.complete();
+    jobFamilies.next(row('Library'));
+
+    expect(component.masters().map((item) => item.name)).toEqual(['Lesson planning']);
+    // Reference lookups are still pending, but they do not count as the list loading.
+    expect(component.loading()).toBe(false);
+    lookups.complete();
   });
 });

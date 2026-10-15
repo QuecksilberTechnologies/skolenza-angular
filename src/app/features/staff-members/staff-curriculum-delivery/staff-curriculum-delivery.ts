@@ -17,8 +17,10 @@ import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TextareaModule } from '@openng/optimus-ui/textarea';
+import { Subscription } from 'rxjs';
 
 import { Common, StaffAcademicStructureApi, StaffCurriculumDeliveryApi } from '@core/services';
+import { ListSkeleton } from '@shared/components';
 import {
   AcademicMaster,
   AcademicMasterType,
@@ -37,6 +39,7 @@ import {
 } from '@shared/interfaces';
 import { localDateKey } from '@shared/utilities/date-key';
 import { escapeHtml } from '@shared/utilities/escape-html';
+import { pendingCounter } from '@shared/utilities/pending-counter';
 
 type CurriculumTab =
   | 'Frameworks'
@@ -67,6 +70,7 @@ export function topicsForTeachingAssignment(
     ConfirmDialogModule,
     FormsModule,
     InputTextModule,
+    ListSkeleton,
     MultiSelectModule,
     SelectModule,
     TextareaModule,
@@ -80,6 +84,24 @@ export default class StaffCurriculumDelivery implements OnInit {
   readonly #common = inject(Common);
   readonly #destroyRef = inject(DestroyRef);
   readonly #confirmationService = inject(ConfirmationService);
+  // One counter per list, so an unrelated lookup never holds a list's skeleton.
+  readonly #listLoads = {
+    frameworks: pendingCounter(),
+    units: pendingCounter(),
+    plans: pendingCounter(),
+    deliveries: pendingCounter(),
+    progress: pendingCounter(),
+  };
+  #unitsLoad?: Subscription;
+  readonly #save = pendingCounter();
+  readonly loading = {
+    frameworks: this.#listLoads.frameworks.active,
+    units: this.#listLoads.units.active,
+    plans: this.#listLoads.plans.active,
+    deliveries: this.#listLoads.deliveries.active,
+    progress: this.#listLoads.progress.active,
+  };
+  readonly saving = this.#save.active;
   readonly tabs: CurriculumTab[] = [
     'Frameworks',
     'Units & Topics',
@@ -126,12 +148,13 @@ export default class StaffCurriculumDelivery implements OnInit {
   selectFramework(id: number): void {
     this.selectedFrameworkId.set(id);
     this.unitForm.curriculumFrameworkId = id;
+    this.units.set([]);
     this.loadUnits();
   }
   saveFramework(): void {
     this.#api
       .saveFramework(this.frameworkForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.notify(response);
@@ -173,7 +196,7 @@ export default class StaffCurriculumDelivery implements OnInit {
   saveUnit(): void {
     this.#api
       .saveUnit(this.unitForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.notify(response);
@@ -203,7 +226,7 @@ export default class StaffCurriculumDelivery implements OnInit {
   saveTopic(): void {
     this.#api
       .saveTopic(this.topicForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.notify(response);
@@ -221,7 +244,7 @@ export default class StaffCurriculumDelivery implements OnInit {
   savePlan(): void {
     this.#api
       .saveLessonPlan(this.planForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.notify(response);
@@ -272,7 +295,7 @@ export default class StaffCurriculumDelivery implements OnInit {
   saveDelivery(): void {
     this.#api
       .saveDelivery(this.deliveryForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.notify(response);
@@ -381,7 +404,7 @@ export default class StaffCurriculumDelivery implements OnInit {
   private loadFrameworks(): void {
     this.#api
       .getFrameworks()
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#listLoads.frameworks.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => {
         this.frameworks.set(response.data ?? []);
         if (!this.selectedFrameworkId() && response.data?.length)
@@ -389,32 +412,34 @@ export default class StaffCurriculumDelivery implements OnInit {
       });
   }
   private loadUnits(): void {
+    // Cancel the previous framework's request so a late response cannot fill this one.
+    this.#unitsLoad?.unsubscribe();
     const id = this.selectedFrameworkId();
     if (!id) {
       this.units.set([]);
       return;
     }
-    this.#api
+    this.#unitsLoad = this.#api
       .getUnits(id)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#listLoads.units.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => this.units.set(response.data ?? []));
   }
   private loadPlans(): void {
     this.#api
       .getLessonPlans()
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#listLoads.plans.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => this.plans.set(response.data ?? []));
   }
   private loadDeliveries(): void {
     this.#api
       .getDeliveries()
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#listLoads.deliveries.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => this.deliveries.set(response.data ?? []));
   }
   private loadProgress(): void {
     this.#api
       .getProgress()
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#listLoads.progress.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => this.progress.set(response.data ?? []));
   }
   private deleteRecord(

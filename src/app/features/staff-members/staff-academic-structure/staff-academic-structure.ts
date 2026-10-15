@@ -17,8 +17,10 @@ import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TextareaModule } from '@openng/optimus-ui/textarea';
+import { Subscription } from 'rxjs';
 
 import { Common, StaffAcademicStructureApi } from '@core/services';
+import { ListSkeleton } from '@shared/components';
 import {
   AcademicMaster,
   AcademicMasterType,
@@ -32,6 +34,7 @@ import {
 } from '@shared/interfaces';
 import { localDateKey } from '@shared/utilities/date-key';
 import { escapeHtml } from '@shared/utilities/escape-html';
+import { pendingCounter } from '@shared/utilities/pending-counter';
 
 @Component({
   selector: 'app-staff-academic-structure',
@@ -42,6 +45,7 @@ import { escapeHtml } from '@shared/utilities/escape-html';
     ConfirmDialogModule,
     FormsModule,
     InputTextModule,
+    ListSkeleton,
     SelectModule,
     TextareaModule,
   ],
@@ -71,6 +75,11 @@ export default class StaffAcademicStructure implements OnInit {
   });
   readonly assignmentTypes = signal<TeachingAssignmentTypeOption[]>([]);
   readonly staffMemberId = signal<string | null>(null);
+  readonly #listLoad = pendingCounter();
+  readonly #save = pendingCounter();
+  #selectedLoad?: Subscription;
+  readonly loading = this.#listLoad.active;
+  readonly saving = this.#save.active;
 
   masterForm: SaveAcademicMaster = this.emptyMaster();
   teachingForm: SaveTeachingAssignment = this.emptyTeaching();
@@ -103,6 +112,8 @@ export default class StaffAcademicStructure implements OnInit {
 
   selectTab(type: AcademicMasterType): void {
     this.selectedTab.set(type);
+    // Every tab shares `records`; clear it so the next tab shows a loading state, not stale rows.
+    this.records.set([]);
     this.masterForm = this.emptyMaster();
     this.loadSelected();
   }
@@ -115,7 +126,7 @@ export default class StaffAcademicStructure implements OnInit {
     if (!this.masterForm.code.trim() || !this.masterForm.name.trim()) return;
     this.#api
       .saveMaster(this.selectedTab(), this.masterForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
@@ -167,7 +178,7 @@ export default class StaffAcademicStructure implements OnInit {
   saveTeaching(): void {
     this.#api
       .saveTeachingAssignment(this.teachingForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
@@ -211,7 +222,7 @@ export default class StaffAcademicStructure implements OnInit {
   saveClassTeacher(): void {
     this.#api
       .saveClassTeacherAssignment(this.classTeacherForm)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
@@ -257,9 +268,11 @@ export default class StaffAcademicStructure implements OnInit {
   }
 
   private loadSelected(): void {
-    this.#api
+    // Cancel the previous tab's request so a late response cannot fill this tab.
+    this.#selectedLoad?.unsubscribe();
+    this.#selectedLoad = this.#api
       .getMasters(this.selectedTab(), false)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#listLoad.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => this.records.set(response.isSucceeded ? response.data : []));
   }
 
@@ -289,7 +302,7 @@ export default class StaffAcademicStructure implements OnInit {
     if (!id) return;
     this.#api
       .getStaffProfile(id)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#listLoad.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) =>
         this.academicProfile.set(
           response.isSucceeded
