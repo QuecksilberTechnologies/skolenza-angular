@@ -58,16 +58,8 @@ Thumbs.db
 # bun patch scratch dir
 .bun-tmp/
 
-.vercel
 .env*
-
-# Local migration/rename recovery copies
-/src_broken_*/
-/src_rename_attempt_*/
 
 # Local Angular environment override
 /src/environments/environment.ts
-/src/environments/environment,development.ts
-
-.vercel
-.env*
+/src/environments/environment.development.ts
