@@ -37,10 +37,10 @@
 
 <!-- Menu Items -->
 <div class="flex flex-col bg-white dark:bg-zinc-900">
-  @if (authStore.isUserMenuLoading()) {
-  <app-user-menu-loader />
-  } @else {
   <ul class="py-2">
+    @if (authStore.isUserMenuLoading()) {
+    <li><app-user-menu-loader /></li>
+    } @else {
     @if (authStore.hasNoUserMenuLinks()) {
     <li class="flex flex-col items-center p-4 text-center text-balance">
       <div class="flex w-full flex-col items-center">
@@ -61,16 +61,22 @@
     }
 
     @for ( menuChildModule of authStore.userMenuItems(); track menuChildModule.moduleId ) { @if (!isLogout(menuChildModule)) {
-    <a
-      class="flex w-full items-center gap-2 px-4 py-2 text-gray-600 transition-colors hover:cursor-pointer hover:bg-primary-50 hover:text-primary-500 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:hover:text-primary-400"
-      tabindex="0"
-      role="button"
-      (click)="onClickNav($event, menuChildModule)"
-      (keydown.enter)="onClickNav($event, menuChildModule)">
-      <i class="pi pi-circle-off text-xs! text-gray-500 dark:text-zinc-100"></i>
-      {{ menuChildModule?.displayName }}
-    </a>
-    } @else {
+    <li>
+      <a
+        class="flex w-full items-center gap-2 px-4 py-2 text-gray-600 transition-colors hover:cursor-pointer hover:bg-primary-50 hover:text-primary-500 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:hover:text-primary-400"
+        tabindex="0"
+        role="button"
+        (click)="onClickNav($event, menuChildModule)"
+        (keydown.enter)="onClickNav($event, menuChildModule)">
+        <i class="pi pi-circle-off text-xs! text-gray-500 dark:text-zinc-100"></i>
+        {{ menuChildModule?.displayName }}
+      </a>
+    </li>
+    } }
+    }
+
+    <!-- The store always carries a sign-out row, so it stays reachable while CommonMenu loads or fails. -->
+    @for ( menuChildModule of authStore.userMenuItems(); track menuChildModule.moduleId ) { @if (isLogout(menuChildModule)) {
     <li class="border-t border-gray-200 dark:border-zinc-700">
       <a
         class="block px-4 py-2 text-gray-600 transition-colors hover:cursor-pointer hover:bg-primary-50 hover:text-primary-500 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:hover:text-primary-400"
@@ -84,5 +90,4 @@
     </li>
     } }
   </ul>
-  }
 </div>
