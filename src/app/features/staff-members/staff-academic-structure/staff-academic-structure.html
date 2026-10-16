@@ -48,8 +48,8 @@
             <label class="block">Capacity<input pInputText type="number" class="mt-1 w-full" name="capacity" [(ngModel)]="masterForm.capacity" /></label>
           }
           @if (selectedTab() === masterTypes.CourseOffering) {
-            <label class="block">Session<p-select class="mt-1 w-full" name="offeringSession" [(ngModel)]="masterForm.academicSessionId" [options]="sessions()" optionLabel="name" optionValue="id" appendTo="body" /></label>
-            <label class="block">Academic group<p-select class="mt-1 w-full" name="offeringGroup" [(ngModel)]="masterForm.academicGroupId" [options]="groups()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Session<p-select class="mt-1 w-full" name="offeringSession" [(ngModel)]="masterForm.academicSessionId" (ngModelChange)="onOfferingSessionChange()" [options]="sessions()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+            <label class="block">Academic group<p-select class="mt-1 w-full" name="offeringGroup" [(ngModel)]="masterForm.academicGroupId" [options]="offeringGroups()" [disabled]="!masterForm.academicSessionId" optionLabel="name" optionValue="id" appendTo="body" /></label>
             <label class="block">Subject<p-select class="mt-1 w-full" name="subject" [(ngModel)]="masterForm.subjectId" [options]="subjects()" optionLabel="name" optionValue="id" appendTo="body" /></label>
             <label class="block">Curriculum version<input pInputText class="mt-1 w-full" name="curriculumVersion" [(ngModel)]="masterForm.curriculumVersion" /></label>
           }

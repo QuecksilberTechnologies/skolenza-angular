@@ -6,7 +6,10 @@ import { appConfig } from './app/app.config';
 import { environment } from './environments/environment';
 
 if (isDevMode()) {
-  console.info(`[env] ${environment.name}`, environment.apiUrl);
+  console.info(
+    `[env] ${environment.production ? 'production' : 'development'}`,
+    environment.apiUrl,
+  );
 }
 
 if (environment.sentryDsn) {

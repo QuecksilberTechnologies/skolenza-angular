@@ -74,7 +74,10 @@ describe('StaffProfessionalStructure status confirmation', () => {
             showMessage: vi.fn(),
           },
         },
-        { provide: LookupStore, useValue: { staffCategories: signal([]) } },
+        {
+          provide: LookupStore,
+          useValue: { staffCategories: signal([]), reloadStaffCategories: vi.fn() },
+        },
         {
           provide: StaffProfessionalStructureApi,
           useValue: {
@@ -129,7 +132,10 @@ describe('StaffProfessionalStructure busy state', () => {
             showMessage: vi.fn(),
           },
         },
-        { provide: LookupStore, useValue: { staffCategories: signal([]) } },
+        {
+          provide: LookupStore,
+          useValue: { staffCategories: signal([]), reloadStaffCategories: vi.fn() },
+        },
         {
           provide: StaffProfessionalStructureApi,
           useValue: {
@@ -186,7 +192,10 @@ describe('StaffProfessionalStructure tab loading', () => {
             showMessage: vi.fn(),
           },
         },
-        { provide: LookupStore, useValue: { staffCategories: signal([]) } },
+        {
+          provide: LookupStore,
+          useValue: { staffCategories: signal([]), reloadStaffCategories: vi.fn() },
+        },
         {
           provide: StaffProfessionalStructureApi,
           useValue: {
@@ -245,7 +254,10 @@ describe('StaffProfessionalStructure tab routing', () => {
             showMessage: vi.fn(),
           },
         },
-        { provide: LookupStore, useValue: { staffCategories: signal([]) } },
+        {
+          provide: LookupStore,
+          useValue: { staffCategories: signal([]), reloadStaffCategories: vi.fn() },
+        },
         {
           provide: StaffProfessionalStructureApi,
           useValue: {
@@ -271,6 +283,10 @@ describe('StaffProfessionalStructure tab routing', () => {
 
     expect(component.selectedTab()).toBe(StaffProfessionalMasterType.DutyDefinition);
     expect(getMasters).toHaveBeenLastCalledWith(StaffProfessionalMasterType.DutyDefinition, false);
+  });
+
+  it('refreshes the central categories when entering the workspace after Host changes', () => {
+    expect(TestBed.inject(LookupStore).reloadStaffCategories).toHaveBeenCalledOnce();
   });
 
   it('replaces an unknown tab segment with job-families', () => {

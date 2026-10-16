@@ -267,6 +267,17 @@ export default class StaffAcademicStructure implements OnInit {
     return groupId ? this.sections().filter((item) => item.academicGroupId === groupId) : [];
   }
 
+  offeringGroups(): AcademicMaster[] {
+    const sessionId = this.masterForm.academicSessionId;
+    return sessionId ? this.groups().filter((item) => item.academicSessionId === sessionId) : [];
+  }
+
+  onOfferingSessionChange(): void {
+    if (!this.offeringGroups().some((item) => item.id === this.masterForm.academicGroupId)) {
+      this.masterForm.academicGroupId = undefined;
+    }
+  }
+
   private loadSelected(): void {
     // Cancel the previous tab's request so a late response cannot fill this tab.
     this.#selectedLoad?.unsubscribe();
@@ -327,7 +338,7 @@ export default class StaffAcademicStructure implements OnInit {
   }
 
   private emptyMaster(): SaveAcademicMaster {
-    return { id: 0, code: '', name: '', description: '', isActive: true, type: 1 };
+    return { id: undefined, code: '', name: '', description: '', isActive: true, type: 1 };
   }
 
   emptyTeaching(staffMemberId = ''): SaveTeachingAssignment {

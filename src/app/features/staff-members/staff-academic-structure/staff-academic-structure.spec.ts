@@ -101,12 +101,33 @@ describe('StaffAcademicStructure', () => {
     component.resetMaster();
 
     expect(component.masterForm).toEqual({
-      id: 0,
+      id: undefined,
       code: '',
       name: '',
       description: '',
       isActive: true,
       type: 1,
     });
+  });
+
+  it('offers only groups belonging to the selected course-offering session', () => {
+    component.groups.set([
+      { ...session, id: 10, academicSessionId: 3 },
+      { ...session, id: 11, academicSessionId: 4 },
+    ]);
+    expect(component.offeringGroups()).toEqual([]);
+    component.masterForm.academicSessionId = 4;
+    expect(component.offeringGroups().map((group) => group.id)).toEqual([11]);
+  });
+
+  it('clears a group from the previous session and preserves a matching selection', () => {
+    component.groups.set([{ ...session, id: 11, academicSessionId: 4 }]);
+    component.masterForm.academicSessionId = 4;
+    component.masterForm.academicGroupId = 10;
+    component.onOfferingSessionChange();
+    expect(component.masterForm.academicGroupId).toBeUndefined();
+    component.masterForm.academicGroupId = 11;
+    component.onOfferingSessionChange();
+    expect(component.masterForm.academicGroupId).toBe(11);
   });
 });

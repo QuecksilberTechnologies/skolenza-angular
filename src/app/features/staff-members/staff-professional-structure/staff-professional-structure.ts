@@ -109,6 +109,7 @@ export default class StaffProfessionalStructure implements OnInit {
   positionForm: SaveStaffPositionMaster = this.emptyPosition();
 
   ngOnInit(): void {
+    this.#lookups.reloadStaffCategories();
     this.#common.setPageHeaderInfo({
       pageTitle: 'Staff Professional Structure',
       pageDescription: 'Manage institution-owned job families, positions, capabilities and duties',

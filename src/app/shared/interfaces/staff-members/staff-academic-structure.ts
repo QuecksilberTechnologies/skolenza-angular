@@ -41,8 +41,8 @@ export interface TeachingAssignmentTypeOption {
 
 export type SaveAcademicMaster = Omit<
   AcademicMaster,
-  'academicSessionName' | 'academicProgrammeName' | 'academicGroupName' | 'subjectName'
->;
+  'id' | 'academicSessionName' | 'academicProgrammeName' | 'academicGroupName' | 'subjectName'
+> & { id?: number };
 
 export interface StaffTeachingAssignment {
   id: number;
