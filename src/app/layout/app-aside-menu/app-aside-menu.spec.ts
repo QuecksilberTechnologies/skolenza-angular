@@ -14,7 +14,6 @@ import { AsideMenuStore, FeaturePageStore } from '@core/stores';
 import { FeaturePageNode } from '@shared/interfaces';
 
 import AppAsideMenuComponent from './app-aside-menu';
-import { ASIDE_MENU_MODULE_UI } from './aside-menu-module-map';
 import { ASIDE_MENU_UNMAPPED_MODULES } from './aside-menu-unmapped-modules';
 
 /** Trimmed from the live `/Navigation/my-menu` payload. */
@@ -254,7 +253,10 @@ describe('AppAsideMenu', () => {
 
     const items = component.sections()[0].items;
     expect(items).toHaveLength(1);
-    expect(items[0]).toMatchObject({ id: 'INSTITUTION_DASHBOARD_OVERVIEW', route: 'admin-dashboard' });
+    expect(items[0]).toMatchObject({
+      id: 'INSTITUTION_DASHBOARD_OVERVIEW',
+      route: 'admin-dashboard',
+    });
     expect(items[0].children).toBeUndefined();
   });
 
@@ -285,8 +287,14 @@ describe('AppAsideMenu', () => {
     expect(group).toMatchObject({ id: 'INSTITUTION_EMAIL_CONFIG_GROUP', label: 'Email Settings' });
     expect(group.route).toBeUndefined();
     expect(group.children).toEqual([
-      expect.objectContaining({ id: 'INSTITUTION_EMAIL_CONFIG', route: 'institution-email-config' }),
-      expect.objectContaining({ id: 'INSTITUTION_EMAIL_TEMPLATE', route: 'institution-email-templates' }),
+      expect.objectContaining({
+        id: 'INSTITUTION_EMAIL_CONFIG',
+        route: 'institution-email-config',
+      }),
+      expect.objectContaining({
+        id: 'INSTITUTION_EMAIL_TEMPLATE',
+        route: 'institution-email-templates',
+      }),
     ]);
   });
 
@@ -490,5 +498,3 @@ describe('AppAsideMenu auto-expand', () => {
     expect(store.expandedIds()).toEqual([]);
   });
 });
-
-
