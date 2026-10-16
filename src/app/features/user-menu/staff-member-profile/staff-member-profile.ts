@@ -35,7 +35,6 @@ export default class StaffMemberProfile implements OnInit {
     { label: 'Contact', route: 'contact-info', icon: 'pi pi-address-book' },
     { label: 'Experience', route: 'experience-info', icon: 'pi pi-briefcase' },
     { label: 'Insurance', route: 'insurance-info', icon: 'pi pi-shield' },
-    { label: 'Policies', route: 'policy-info', icon: 'pi pi-book' },
     { label: 'Identity', route: 'identity-info', icon: 'pi pi-id-card' },
     { label: 'Education', route: 'education-info', icon: 'pi pi-graduation-cap' },
     { label: 'Dependent', route: 'dependent-info', icon: 'pi pi-users' },
