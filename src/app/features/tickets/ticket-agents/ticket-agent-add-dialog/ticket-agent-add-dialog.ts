@@ -23,7 +23,7 @@ interface IStaffMemberShort {
   staffMemberId: string;
   staffMemberFullName: string;
   officialEmail?: string;
-  designationName: string;
+  positionName: string;
   departmentName: string;
   profileImageLink?: string;
 }
@@ -81,7 +81,7 @@ export default class TicketAgentAddDialog implements OnInit {
     this.agentForm = this.#fb.group({
       staffMemberId: [null, Validators.required],
       department: [{ value: '', disabled: true }],
-      designation: [{ value: '', disabled: true }],
+      positionName: [{ value: '', disabled: true }],
     });
 
     await this.loadStaffMembers();
@@ -94,7 +94,7 @@ export default class TicketAgentAddDialog implements OnInit {
         staffMemberFullName: editAgent.agentName,
         officialEmail: editAgent.email,
         departmentName: editAgent.department,
-        designationName: editAgent.designation,
+        positionName: editAgent.positionName,
       };
       this.selectStaffMember(emp);
     }
@@ -111,7 +111,7 @@ export default class TicketAgentAddDialog implements OnInit {
         officialEmail:
           emp.officialEmail ||
           `${emp.staffMemberFullName.toLowerCase().replace(/\s+/g, '.')}@example.com`,
-        designationName: emp.designationName,
+        positionName: emp.positionName,
         departmentName: emp.departmentName,
         profileImageLink: emp.profileImageLink,
       }));
@@ -131,7 +131,7 @@ export default class TicketAgentAddDialog implements OnInit {
     this.agentForm.patchValue({
       staffMemberId: emp.staffMemberId,
       department: emp.departmentName,
-      designation: emp.designationName,
+      positionName: emp.positionName,
     });
   }
 
@@ -155,7 +155,7 @@ export default class TicketAgentAddDialog implements OnInit {
       agentName: emp.staffMemberFullName,
       email: emp.officialEmail || '',
       department: emp.departmentName,
-      designation: emp.designationName,
+      positionName: emp.positionName,
     };
 
     setTimeout(() => {

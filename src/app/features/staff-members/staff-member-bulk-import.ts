@@ -34,18 +34,18 @@ export function staffMemberImportDisplay(
     sheetName: 'StaffMembers',
     columnHints: [
       'Required: FirstName, LastName, OfficialEmail, DateOfBirth, DateOfOnBoarding',
-      'Required ids: GenderId, CountryId, DepartmentId, DesignationId, StaffEmploymentTypeId',
+      'Required ids: GenderId, CountryId, DepartmentId, InstitutionStaffCategoryMasterId, StaffPositionMasterId, StaffEmploymentTypeId',
       'Required flags: HasPermanent and IsActive, true or false',
       'RoleId: optional, the Staff role is used when it is blank',
-      'Designation must belong to the chosen Department, and both must be active',
+      'Position must match the active institution category and any department restriction',
       'Dates use yyyy-MM-dd. Keep codes and phone numbers as text to preserve leading zeros',
       'ContactNumber is required once any contact or address column is filled',
       'Existing accounts are skipped, never overwritten or reactivated',
     ],
     pastePlaceholder:
       'FirstName,LastName,OfficialEmail,DateOfBirth,DateOfOnBoarding,GenderId,CountryId,' +
-      'DepartmentId,DesignationId,StaffEmploymentTypeId,HasPermanent,IsActive\n' +
-      'Asha,Rao,asha.rao@example.com,1995-04-12,2026-01-05,2,1,3,7,1,true,true',
+      'DepartmentId,InstitutionStaffCategoryMasterId,StaffPositionMasterId,StaffEmploymentTypeId,HasPermanent,IsActive\n' +
+      'Asha,Rao,asha.rao@example.invalid,1995-04-12,2028-04-01,2,1,3,7,12,1,true,true',
     templateFileName: 'StaffMember-template.csv',
     reportFileNamePrefix: 'StaffMember-import',
     // The one column that is both always required and unique, so a failed row is identifiable.

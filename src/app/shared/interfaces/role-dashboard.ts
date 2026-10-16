@@ -66,7 +66,7 @@ export interface NoticePeriodStaffMember {
   code: string | null;
   staffMemberName: string | null;
   departmentName: string | null;
-  designationName: string | null;
+  positionName: string | null;
   /** `yyyy-MM-dd` */
   expectedLastWorkingDate: string;
   noticeDaysRemaining: number;
@@ -77,7 +77,7 @@ export interface RecentExitedStaffMember {
   staffMemberId: string | null;
   staffMemberName: string | null;
   departmentName: string | null;
-  designationName: string | null;
+  positionName: string | null;
   /** ISO date-time. */
   dateOfExit: string;
 }

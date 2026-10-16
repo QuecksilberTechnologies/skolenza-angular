@@ -352,6 +352,9 @@ export const LookupStore = signalStore(
       reloadStaffEmploymentTypes(): void {
         store.staffEmploymentTypesResource.reload();
       },
+      reloadStaffCategories(): void {
+        store.staffCategoriesResource.reload();
+      },
       loadStates(countryId: number | undefined): void {
         store.statesCountryId.set(countryId);
       },

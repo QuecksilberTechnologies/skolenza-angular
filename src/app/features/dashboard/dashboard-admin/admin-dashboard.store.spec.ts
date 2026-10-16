@@ -84,7 +84,7 @@ describe('AdminDashboardStore', () => {
           staffMemberId: 'enc-1',
           staffMemberName: 'Ravi Das',
           departmentName: 'Finance',
-          designationName: 'Analyst',
+          positionName: 'Analyst',
           dateOfExit: '2026-10-01T00:00:00Z',
         },
       ],

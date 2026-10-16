@@ -61,7 +61,7 @@ export const applicabilityRowSchema = z.object({
   campusId: optionalId,
   staffEmploymentTypeId: optionalId,
   departmentId: optionalId,
-  designationId: optionalId,
+  staffPositionMasterId: optionalId,
   /** Encoded id of the staffMember picked in the select. */
   staffMemberPublicId: z.string().nullable(),
   /** Numeric id the row was saved with. Detail responses carry no encoded id to preselect, so it is

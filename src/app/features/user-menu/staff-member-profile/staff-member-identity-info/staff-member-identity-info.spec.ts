@@ -40,8 +40,8 @@ const fakeLoginInfo = {
     staffEmploymentTypeName: '',
     departmentId: 1,
     departmentName: '',
-    designationId: 1,
-    designationName: '',
+    staffPositionMasterId: 1,
+    positionName: '',
     isPasswordChangeRequired: false,
     isOnboard: false,
     countryId: 1,
@@ -152,7 +152,9 @@ describe('StaffMemberIdentityInfo', () => {
     const identityApi = TestBed.inject(StaffMemberIdentityApi);
     const getIdentities = vi
       .spyOn(identityApi, 'getStaffMemberIdentities')
-      .mockReturnValue(of({ isSucceeded: true, data: [] } as unknown as GetStaffMemberSensitiveRes));
+      .mockReturnValue(
+        of({ isSucceeded: true, data: [] } as unknown as GetStaffMemberSensitiveRes),
+      );
 
     await component.getStaffMemberIdentities();
 
@@ -164,7 +166,9 @@ describe('StaffMemberIdentityInfo', () => {
     const identityApi = TestBed.inject(StaffMemberIdentityApi);
     const getIdentities = vi
       .spyOn(identityApi, 'getStaffMemberIdentities')
-      .mockReturnValue(of({ isSucceeded: true, data: [] } as unknown as GetStaffMemberSensitiveRes));
+      .mockReturnValue(
+        of({ isSucceeded: true, data: [] } as unknown as GetStaffMemberSensitiveRes),
+      );
 
     await component.getStaffMemberIdentities();
 
@@ -187,11 +191,16 @@ describe('StaffMemberIdentityInfo', () => {
     const identityApi = TestBed.inject(StaffMemberIdentityApi);
     const getIdentities = vi
       .spyOn(identityApi, 'getStaffMemberIdentities')
-      .mockReturnValue(of({ isSucceeded: true, data: [] } as unknown as GetStaffMemberSensitiveRes));
+      .mockReturnValue(
+        of({ isSucceeded: true, data: [] } as unknown as GetStaffMemberSensitiveRes),
+      );
 
     await component.getStaffMemberIdentities();
 
-    expect(getBasics).toHaveBeenCalledWith({ StaffMemberId: 'test-id', UserStaffMemberId: 'test-id' });
+    expect(getBasics).toHaveBeenCalledWith({
+      StaffMemberId: 'test-id',
+      UserStaffMemberId: 'test-id',
+    });
     expect(getIdentities).toHaveBeenCalledWith({ CountryNationalityId: 7 });
   });
 

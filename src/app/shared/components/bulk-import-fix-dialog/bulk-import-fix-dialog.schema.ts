@@ -17,7 +17,7 @@ export type BulkImportFixModel = Record<string, string | boolean | Date | null>;
  * The client half of the rules, built from the field metadata the importing feature supplied.
  *
  * Shape only: blank required fields, a malformed address, a date that is not a date. Everything
- * cross-entity — the designation belonging to the department, the id being active in this institution,
+ * cross-entity — the Position belonging to the department, the id being active in this institution,
  * the address already existing — stays the server's, and comes back as row errors on the re-check.
  * A master that describes no fields therefore validates nothing here and relies wholly on that
  * re-check, which is the same single code path.

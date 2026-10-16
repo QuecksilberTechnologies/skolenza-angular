@@ -32,7 +32,7 @@ export interface SuperAdminDashboardStaffMember {
   staffMemberId: string;
   staffMemberName: string;
   departmentName: string | null;
-  designationName: string | null;
+  positionName: string | null;
   roleName: string | null;
   /** ISO date-time. Birthdays: the next birthday (not the DOB). Onboarding: the onboarding date. */
   date: string | null;

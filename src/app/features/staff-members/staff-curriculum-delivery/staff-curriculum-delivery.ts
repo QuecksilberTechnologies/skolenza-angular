@@ -147,7 +147,9 @@ export default class StaffCurriculumDelivery implements OnInit {
   }
   selectFramework(id: number): void {
     this.selectedFrameworkId.set(id);
-    this.unitForm.curriculumFrameworkId = id;
+    this.unitForm = this.emptyUnit(id);
+    this.topicForm = this.emptyTopic();
+    this.planForm.curriculumTopicIds = [];
     this.units.set([]);
     this.loadUnits();
   }
@@ -320,6 +322,41 @@ export default class StaffCurriculumDelivery implements OnInit {
       })),
     };
     this.selectTab('Delivery Logs');
+  }
+
+  onDeliveryPlanChange(): void {
+    const plan = this.approvedPlans().find((item) => item.id === this.deliveryForm.lessonPlanId);
+    this.deliveryForm.coverage = (plan?.topics ?? []).map((topic) => ({
+      curriculumTopicId: topic.id,
+      completionPercent: 100,
+    }));
+  }
+
+  editDelivery(item: LessonDelivery): void {
+    this.deliveryForm = {
+      id: item.id,
+      lessonPlanId: item.lessonPlanId,
+      deliveredDate: item.deliveredDate,
+      coverageNotes: item.coverageNotes,
+      homework: item.homework,
+      evidenceReference: item.evidenceReference,
+      exceptionReason: item.exceptionReason,
+      replanAction: item.replanAction,
+      isActive: item.isActive,
+      coverage: item.coverage.map((coverage) => ({ ...coverage })),
+    };
+  }
+
+  resetDelivery(): void {
+    this.deliveryForm = this.emptyDelivery();
+  }
+
+  deliveryTopicName(topicId: number): string {
+    return (
+      this.plans()
+        .find((plan) => plan.id === this.deliveryForm.lessonPlanId)
+        ?.topics.find((topic) => topic.id === topicId)?.name ?? 'Curriculum topic'
+    );
   }
   reviewDelivery(item: LessonDelivery, code: 'SUBMITTED' | 'APPROVED' | 'REJECTED'): void {
     const status = this.statuses().find((option) => option.code === code);

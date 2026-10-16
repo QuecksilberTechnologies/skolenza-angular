@@ -114,7 +114,7 @@ export const StaffMemberPolicyMapDialogStore = signalStore(
           ...pageStaffMembers(),
         ].map((staffMember) => ({
           ...staffMember,
-          meta: [staffMember.staffMemberCode, staffMember.departmentName, staffMember.designationName]
+          meta: [staffMember.staffMemberCode, staffMember.departmentName, staffMember.positionName]
             .filter(Boolean)
             .join(' · '),
         }));
@@ -152,7 +152,9 @@ export const StaffMemberPolicyMapDialogStore = signalStore(
         patchState(store, {
           selected: store
             .options()
-            .filter((staffMember) => !staffMember.isAssigned && picked.has(staffMember.staffMemberId)),
+            .filter(
+              (staffMember) => !staffMember.isAssigned && picked.has(staffMember.staffMemberId),
+            ),
         });
       },
       clearSelection(): void {

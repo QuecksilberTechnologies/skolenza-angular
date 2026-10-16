@@ -31,7 +31,7 @@ const FEATURE_PAGES_KEY = 'feature-pages';
  * bumped when the backend renames a `moduleCode`: the interceptor stamps ids off the hydrated tree
  * before revalidation, so a pre-rename cache would send the old module's id (4: the
  * `INSTITUTION_POLICY_HOLIDAY` rename, 2026-09-23; 5: institution Department,
- * Designation and Role leaves moved to their canonical module codes, 2026-10-12).
+ * Position and Role leaves moved to their canonical module codes, 2026-10-12).
  */
 const CACHE_VERSION = 5;
 
@@ -284,4 +284,3 @@ export const FeaturePageStore = signalStore(
     },
   }),
 );
-

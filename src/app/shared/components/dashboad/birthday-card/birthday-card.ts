@@ -12,7 +12,7 @@ import { SuperAdminDashboardStaffMember } from '@shared/interfaces';
 interface BirthdayEntry {
   staffMemberId: string;
   name: string;
-  /** Department, or designation where the staffMember has none. */
+  /** Department, or Position where the staffMember has none. */
   subtitle: string;
   birthdayDate: string | null;
   daysUntil: number | null;
@@ -62,7 +62,7 @@ export class BirthdayCard {
     (this.staffMembers() ?? []).map((staffMember) => ({
       staffMemberId: staffMember.staffMemberId,
       name: staffMember.staffMemberName,
-      subtitle: staffMember.departmentName || staffMember.designationName || '',
+      subtitle: staffMember.departmentName || staffMember.positionName || '',
       birthdayDate: staffMember.date,
       daysUntil: daysFromToday(staffMember.date),
     })),

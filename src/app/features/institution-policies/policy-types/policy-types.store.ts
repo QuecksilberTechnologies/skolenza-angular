@@ -82,7 +82,10 @@ export const PolicyTypesStore = signalStore(
               'View',
             );
 
-            return institutionPolicyApi.getLookups({ moduleId: ModuleId, operationId: OperationId });
+            return institutionPolicyApi.getLookups({
+              moduleId: ModuleId,
+              operationId: OperationId,
+            });
           }),
           tap((res) => {
             patchState(store, { categories: res.isSucceeded ? res.data.categories : [] });
@@ -126,7 +129,7 @@ export const PolicyTypesStore = signalStore(
       },
 
       /**
-       * A dedicated status endpoint, unlike Departments/Designations/Report Types: the operation
+       * A dedicated status endpoint, unlike Departments/Report Types: the operation
        * granted for it flips with direction, `Active` to activate and `Inactive` to deactivate, the
        * same split the my-menu payload already carries for this module.
        */
@@ -166,4 +169,3 @@ export const PolicyTypesStore = signalStore(
     };
   }),
 );
-

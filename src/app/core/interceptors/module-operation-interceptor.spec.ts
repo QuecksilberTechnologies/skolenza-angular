@@ -304,15 +304,17 @@ describe('moduleOperationInterceptor', () => {
   });
 
   it('tags a request outside the staffMember family from its controller', () => {
-    http.get(`${environment.apiUrl}/Designation/get-all`).subscribe();
+    http.get(`${environment.apiUrl}/Department/get-all`).subscribe();
 
-    const { request } = httpMock.expectOne((r) => r.url.endsWith('/Designation/get-all'));
+    const { request } = httpMock.expectOne((r) => r.url.endsWith('/Department/get-all'));
     expect(request.params.get('ModuleId')).toBe('3');
-    expect(moduleOperationIds).toHaveBeenCalledWith('INSTITUTION_STAFF_DESIGNATIONS', 'View');
+    expect(moduleOperationIds).toHaveBeenCalledWith('INSTITUTION_DEPARTMENTS', 'View');
   });
 
   it('uses Institution Device workflow permissions instead of inferred CRUD names', () => {
-    http.post(`${environment.apiUrl}/InstitutionDevice/create`, { deviceName: 'Door A' }).subscribe();
+    http
+      .post(`${environment.apiUrl}/InstitutionDevice/create`, { deviceName: 'Door A' })
+      .subscribe();
 
     const create = httpMock.expectOne((r) => r.url.endsWith('/InstitutionDevice/create'));
     expect(create.request.body).toEqual({ deviceName: 'Door A', moduleId: 3, operationId: 4 });
@@ -429,7 +431,9 @@ describe('moduleOperationInterceptor', () => {
   it('puts the ids on the query string for the host institution update, not in its body', () => {
     const body = { companyName: 'Quecksilber Technologies', institutionCode: 'DG' };
 
-    http.put(`${environment.apiUrl}/Institution/new-institution-update-by-host/LZXVKN94`, body).subscribe();
+    http
+      .put(`${environment.apiUrl}/Institution/new-institution-update-by-host/LZXVKN94`, body)
+      .subscribe();
 
     const { request } = httpMock.expectOne((r) =>
       r.url.endsWith('/Institution/new-institution-update-by-host/LZXVKN94'),
@@ -458,19 +462,25 @@ describe('moduleOperationInterceptor', () => {
   });
 
   it('names the institution status operations rather than the fallback Update', () => {
-    http.post(`${environment.apiUrl}/Institution/activate-institution`, { institutionId: 'LZXVKN94' }).subscribe();
+    http
+      .post(`${environment.apiUrl}/Institution/activate-institution`, { institutionId: 'LZXVKN94' })
+      .subscribe();
     httpMock.expectOne((r) => r.url.endsWith('/Institution/activate-institution'));
     expect(moduleOperationIds).toHaveBeenCalledWith('HOST_INSTITUTION_LIST', 'Active');
 
     http
-      .post(`${environment.apiUrl}/Institution/deactivate-institution`, { institutionId: 'LZXVKN94' })
+      .post(`${environment.apiUrl}/Institution/deactivate-institution`, {
+        institutionId: 'LZXVKN94',
+      })
       .subscribe();
     httpMock.expectOne((r) => r.url.endsWith('/Institution/deactivate-institution'));
     expect(moduleOperationIds).toHaveBeenCalledWith('HOST_INSTITUTION_LIST', 'Inactive');
   });
 
   it('names the institution delete operation rather than the fallback Update', () => {
-    http.post(`${environment.apiUrl}/Institution/delete-institution`, { institutionId: 'LZXVKN94' }).subscribe();
+    http
+      .post(`${environment.apiUrl}/Institution/delete-institution`, { institutionId: 'LZXVKN94' })
+      .subscribe();
 
     httpMock.expectOne((r) => r.url.endsWith('/Institution/delete-institution'));
     // `inferOperation` says `Update` for a POST named `delete-institution`; `HOST_INSTITUTION_LIST`
@@ -480,5 +490,3 @@ describe('moduleOperationInterceptor', () => {
 
   afterEach(() => httpMock.verify());
 });
-
-

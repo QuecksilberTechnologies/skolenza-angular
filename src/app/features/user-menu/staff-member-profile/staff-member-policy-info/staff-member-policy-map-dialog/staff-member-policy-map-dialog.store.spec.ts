@@ -10,7 +10,10 @@ import { InstitutionPolicyAssignmentCandidate } from '@shared/interfaces';
 import { PublishedPolicy } from '../staff-member-policy-info.model';
 import { StaffMemberPolicyMapDialogStore } from './staff-member-policy-map-dialog.store';
 
-const candidate = (staffMemberId: string, staffMemberName: string): InstitutionPolicyAssignmentCandidate => ({
+const candidate = (
+  staffMemberId: string,
+  staffMemberName: string,
+): InstitutionPolicyAssignmentCandidate => ({
   staffMemberId,
   staffMemberCode: staffMemberId.toUpperCase(),
   staffMemberName,
@@ -18,8 +21,8 @@ const candidate = (staffMemberId: string, staffMemberName: string): InstitutionP
   staffEmploymentTypeName: null,
   departmentId: null,
   departmentName: null,
-  designationId: null,
-  designationName: null,
+  staffPositionMasterId: null,
+  positionName: null,
   isAssigned: false,
 });
 

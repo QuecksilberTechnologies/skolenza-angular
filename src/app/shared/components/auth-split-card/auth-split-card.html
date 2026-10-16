@@ -1,7 +1,7 @@
 <main
-  class="auth-surface relative flex min-h-dvh items-center justify-center bg-zinc-100 p-3 sm:p-6 dark:bg-slate-950">
+  class="auth-surface relative flex min-h-dvh items-stretch justify-center bg-zinc-100 sm:items-center sm:p-6 dark:bg-slate-950">
   <div
-    class="grid w-full overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
+    class="grid w-full overflow-hidden bg-white sm:rounded-3xl sm:border sm:border-zinc-200 sm:shadow-xl dark:bg-slate-800 sm:dark:border-slate-700"
     [class]="width() === 'lg' ? 'max-w-7xl lg:grid-cols-[2fr_3fr]' : 'max-w-6xl lg:grid-cols-2'">
     <!-- Brand panel: decorative marketing, hidden below lg. -->
     <section
@@ -72,7 +72,7 @@
     </section>
 
     <!-- Form panel. -->
-    <section class="flex flex-col justify-center p-6 sm:p-10">
+    <section class="flex flex-col justify-center px-5 py-8 sm:p-10">
       <div
         class="mx-auto w-full"
         [class]="width() === 'lg' ? 'max-w-3xl' : 'max-w-md'">
@@ -89,7 +89,7 @@
 
         <ng-content select="[card-icon]" />
 
-        <h1 class="mb-2 text-center text-3xl font-bold text-zinc-900 dark:text-zinc-100">{{ heading() }}</h1>
+        <h1 class="mb-2 text-center text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-zinc-100">{{ heading() }}</h1>
 
         @if (subheading(); as subtitle) {
           <p class="mb-6 text-center text-base text-zinc-500 dark:text-zinc-400">{{ subtitle }}</p>

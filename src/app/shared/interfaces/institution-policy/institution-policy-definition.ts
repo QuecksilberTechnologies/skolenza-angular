@@ -100,7 +100,7 @@ export interface InstitutionPolicyApplicabilityInput {
   districtId: number | null;
   localityId: number | null;
   departmentId: number | null;
-  designationId: number | null;
+  staffPositionMasterId: number | null;
   staffMemberId: number | null;
   /** Encoded staffMember id returned by StaffMember/get-all. */
   staffMemberPublicId: string | null;
@@ -126,7 +126,7 @@ export interface InstitutionPolicyApplicabilityDetail {
   campusId: number | null;
   staffEmploymentTypeId: number | null;
   departmentId: number | null;
-  designationId: number | null;
+  staffPositionMasterId: number | null;
   staffMemberId: number | null;
   genderId: number | null;
   workArrangementType: number | null;
@@ -195,7 +195,12 @@ export interface InstitutionPolicyMutationResponse {
   data: InstitutionPolicyDetail;
 }
 
-export type InstitutionPolicyLifecycleAction = 'SUBMIT' | 'APPROVE' | 'REJECT' | 'PUBLISH' | 'ARCHIVE';
+export type InstitutionPolicyLifecycleAction =
+  | 'SUBMIT'
+  | 'APPROVE'
+  | 'REJECT'
+  | 'PUBLISH'
+  | 'ARCHIVE';
 
 /** The version statuses the API reports. The list and detail DTOs still type `status` as a plain
  *  string; this types the literals the UI writes against it. */
@@ -239,4 +244,3 @@ export interface IInstitutionPolicyFilter {
   policyTypeId?: number | null;
   statusId?: number | null;
 }
-

@@ -108,7 +108,7 @@ export const StaffMemberMonitoringStore = signalStore(
               staffMembers.map((e) => ({
                 staffMemberId: e.staffMemberId,
                 staffMemberFullName: [e.firstName, e.lastName].filter(Boolean).join(' '),
-                designationName: e.designationName,
+                positionName: e.positionName ?? '',
                 departmentName: e.departmentName,
               })),
             ),
@@ -146,8 +146,11 @@ export const StaffMemberMonitoringStore = signalStore(
       if (picked) return picked;
       const staffMembers = store.staffMembersResource.value();
       if (!staffMembers.length || store.agentStatusResource.status() === 'loading') return null;
-      const withAgent = new Set(store.agentStatusResource.value().agents.map((a) => a.staffMemberId));
-      return (staffMembers.find((e) => withAgent.has(e.staffMemberId)) ?? staffMembers[0]).staffMemberId;
+      const withAgent = new Set(
+        store.agentStatusResource.value().agents.map((a) => a.staffMemberId),
+      );
+      return (staffMembers.find((e) => withAgent.has(e.staffMemberId)) ?? staffMembers[0])
+        .staffMemberId;
     }),
   })),
   withProps((store) => {
@@ -186,7 +189,8 @@ export const StaffMemberMonitoringStore = signalStore(
     const resolvingStaffMember = computed(
       () =>
         !store.staffMemberId() &&
-        (store.staffMembersResource.isLoading() || store.agentStatusResource.status() === 'loading'),
+        (store.staffMembersResource.isLoading() ||
+          store.agentStatusResource.status() === 'loading'),
     );
 
     return {
@@ -208,9 +212,13 @@ export const StaffMemberMonitoringStore = signalStore(
       fieldVisitsFailed: computed(() => store.fieldVisitsResource.status() === 'error'),
       selectedStaffMember: computed(
         () =>
-          store.staffMembersResource.value().find((e) => e.staffMemberId === store.staffMemberId()) ?? null,
+          store.staffMembersResource
+            .value()
+            .find((e) => e.staffMemberId === store.staffMemberId()) ?? null,
       ),
-      isLoadingCaptures: computed(() => store.capturesResource.isLoading() || resolvingStaffMember()),
+      isLoadingCaptures: computed(
+        () => store.capturesResource.isLoading() || resolvingStaffMember(),
+      ),
       isLoadingFieldVisits: computed(
         () => store.fieldVisitsResource.isLoading() || resolvingStaffMember(),
       ),

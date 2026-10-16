@@ -39,34 +39,34 @@
           }
         </div>
 
-        <!-- Designation -->
+        <!-- Previous Position -->
         <div class="space-y-1">
           <label
-            for="designation"
+            for="previousPositionTitle"
             class="block font-medium">
-            Designation
+            Previous Position
             <span class="text-red-600 dark:text-red-400">*</span>
           </label>
           <p-iconfield>
             <p-inputicon class="pi pi-id-card text-zinc-400 dark:text-zinc-500" />
             <input
-              formControlName="designation"
+              formControlName="previousPositionTitle"
               appTrimInput
               pInputText
               type="text"
-              id="designation"
+              id="previousPositionTitle"
               class="w-full"
               placeholder="e.g. Software Engineer"
-              [invalid]="isDetailInvalid('designation')" />
+              [invalid]="isDetailInvalid('previousPositionTitle')" />
           </p-iconfield>
-          @if (isDetailInvalid('designation')) {
+          @if (isDetailInvalid('previousPositionTitle')) {
           <p-message
             severity="error"
             size="small"
             variant="simple">
-            @if (experienceForm.get('designation')?.errors?.['required']) {
-            <span>Designation is required.</span>
-            } @if (experienceForm.get('designation')?.errors?.['minlength']) {
+            @if (experienceForm.get('previousPositionTitle')?.errors?.['required']) {
+            <span>Previous Position is required.</span>
+            } @if (experienceForm.get('previousPositionTitle')?.errors?.['minlength']) {
             <span>Must be at least 2 characters.</span>
             }
           </p-message>
@@ -349,16 +349,16 @@
 
           <div class="space-y-1">
             <label
-              for="colDesignation"
+              for="colleaguePositionTitle"
               class="block font-medium">
-              Designation
+              Previous Position
             </label>
             <input
-              formControlName="colleagueDesignation"
+              formControlName="colleaguePositionTitle"
               appTrimInput
               pInputText
               type="text"
-              id="colDesignation"
+              id="colleaguePositionTitle"
               class="w-full"
               placeholder="e.g. Lead Dev" />
           </div>

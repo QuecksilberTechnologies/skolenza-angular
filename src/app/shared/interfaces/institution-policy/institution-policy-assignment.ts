@@ -52,7 +52,7 @@ export interface GetInstitutionPolicyAssignmentCandidatesRequest extends Institu
   effectiveDate?: string;
   staffEmploymentTypeId?: number | null;
   departmentId?: number | null;
-  designationId?: number | null;
+  staffPositionMasterId?: number | null;
   /** Not yet accepted by the API; sent so the filter works once it is. */
   locationId?: number | null;
   search?: string;
@@ -71,8 +71,8 @@ export interface InstitutionPolicyAssignmentCandidate {
   staffEmploymentTypeName: string | null;
   departmentId: number | null;
   departmentName: string | null;
-  designationId: number | null;
-  designationName: string | null;
+  staffPositionMasterId: number | null;
+  positionName: string | null;
   /** The staffMember's primary location. Optional until the API returns it. */
   locationId?: number | null;
   locationName?: string | null;
@@ -96,7 +96,7 @@ export interface InstitutionPolicyAssignmentCandidatePage {
   staffMembers: InstitutionPolicyAssignmentCandidate[];
   staffEmploymentTypes: InstitutionPolicyAssignmentFilterOption[];
   departments: InstitutionPolicyAssignmentFilterOption[];
-  designations: InstitutionPolicyAssignmentFilterOption[];
+  positions: InstitutionPolicyAssignmentFilterOption[];
   /** Optional until the API returns it. */
   locations?: InstitutionPolicyAssignmentFilterOption[];
 }

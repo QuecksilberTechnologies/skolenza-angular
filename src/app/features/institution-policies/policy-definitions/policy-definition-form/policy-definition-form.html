@@ -472,20 +472,21 @@
           [options]="departments()"
           [loading]="isLoadingDepartments()"
           [submitted]="submitted()"
-          [field]="row.departmentId" />
+          [field]="row.departmentId"
+          (selectionChange)="onApplicabilityDepartmentChange(i)" />
         <app-form-select
-          [inputId]="'appDesignation-' + i"
-          label="Designation"
-          placeholder="Any designation"
-          optionLabel="designationName"
+          [inputId]="'appPosition-' + i"
+          label="Position"
+          placeholder="Any position"
+          optionLabel="name"
           optionValue="id"
           showClear
           filter
-          filterBy="designationName"
-          [options]="store.designations()"
-          [loading]="store.isLoadingDesignations()"
+          filterBy="name"
+          [options]="positionsForRow(row().value())"
+          [loading]="store.isLoadingPositions()"
           [submitted]="submitted()"
-          [field]="row.designationId" />
+          [field]="row.staffPositionMasterId" />
 
         <app-form-select
           [inputId]="'appGender-' + i"

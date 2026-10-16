@@ -24,7 +24,7 @@
   experience.isExperienceVerifiedByCall;
   @let isCurrent = experience.id === currentExperienceId();
   <app-profile-info-card>
-    <span ngProjectAs="sectionTitle">{{ experience.designation }}</span>
+    <span ngProjectAs="sectionTitle">{{ experience.previousPositionTitle }}</span>
 
     <div
       cardSubtitle
@@ -101,7 +101,7 @@
       References
     </h3>
     <app-profile-info-block label="Colleague">
-      @let colleague = joinParts(experience.colleagueName, experience.colleagueDesignation);
+      @let colleague = joinParts(experience.colleagueName, experience.colleaguePositionTitle);
       @if (colleague || experience.colleagueContactNumber) {
       <span class="flex flex-col">
         @if (colleague) {

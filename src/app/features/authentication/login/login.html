@@ -61,7 +61,7 @@
       }
     </div>
 
-    <div class="mb-2 flex w-full items-center justify-between gap-3">
+    <div class="mb-2 flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2">
       <!-- Disabled until the login API supports a persistent session. -->
       <label class="flex cursor-not-allowed items-center gap-2 text-sm text-zinc-600 dark:text-zinc-300">
         <input
@@ -72,7 +72,7 @@
       </label>
       <a
         [routerLink]="['/auth/forgot-password']"
-        class="rounded-sm text-sm text-primary-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:text-primary-300">
+        class="ml-auto rounded-sm text-sm text-primary-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:text-primary-300">
         Forgot Password?
       </a>
     </div>
@@ -101,7 +101,7 @@
       role="group"
       aria-label="Single sign-on"
       aria-describedby="ssoComingSoon"
-      class="grid grid-cols-3 gap-3">
+      class="grid grid-cols-1 gap-3 min-[27.5rem]:grid-cols-3">
       @for (provider of ssoProviders; track provider.name) {
         <button
           type="button"

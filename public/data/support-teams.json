@@ -4,20 +4,20 @@
     "agentName": "Sam Smith",
     "email": "sam.smith@example.com",
     "department": "IT Support",
-    "designation": "Support Lead"
+    "positionName": "Support Lead"
   },
   {
     "id": 2,
     "agentName": "Jane Doe",
     "email": "jane.doe@example.com",
     "department": "Administration",
-    "designation": "System Administrator"
+    "positionName": "System Administrator"
   },
   {
     "id": 3,
     "agentName": "Alex Johnson",
     "email": "alex.johnson@example.com",
     "department": "Human Resources",
-    "designation": "HR Specialist"
+    "positionName": "HR Specialist"
   }
 ]

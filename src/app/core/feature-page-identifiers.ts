@@ -26,7 +26,6 @@ export type ModuleCodeCandidates = string | readonly string[];
 /** Canonical institution access-master codes published by `GET /Navigation/my-menu`. */
 export const INSTITUTION_ACCESS_MODULE_CODES = {
   department: 'INSTITUTION_DEPARTMENTS',
-  designation: 'INSTITUTION_STAFF_DESIGNATIONS',
   role: 'INSTITUTION_ACCESS',
 } as const;
 
@@ -181,4 +180,3 @@ export function displayNameFrom(
 ): string | undefined {
   return index.get(normalise(resolveModuleCodeIn(index, moduleCode)))?.displayName;
 }
-

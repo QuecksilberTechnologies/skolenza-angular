@@ -28,8 +28,8 @@ const fakeLoginInfo = {
     staffEmploymentTypeName: '',
     departmentId: 1,
     departmentName: '',
-    designationId: 1,
-    designationName: '',
+    staffPositionMasterId: 1,
+    positionName: '',
     isPasswordChangeRequired: false,
     isOnboard: false,
     countryId: 1,
@@ -72,5 +72,11 @@ describe('StaffMemberManageDialog', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should display staff category options by their name field', () => {
+    const categorySelect = fixture.nativeElement.querySelector('#institutionStaffCategoryMasterId');
+
+    expect(categorySelect.getAttribute('optionlabel')).toBe('name');
   });
 });

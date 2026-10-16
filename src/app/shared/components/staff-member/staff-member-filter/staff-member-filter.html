@@ -97,21 +97,21 @@
           (selectionChange)="onDepartmentChange($event.value)" />
       </div>
 
-      <!-- Designation -->
+      <!-- Position -->
       <div class="space-y-1">
         <label
-          for="designation"
+          for="position"
           class="block font-semibold">
-          Designation
+          Position
         </label>
         <app-select-field
-          selectId="designation"
-          controlName="designation"
-          optionLabel="designationName"
+          selectId="position"
+          controlName="position"
+          optionLabel="name"
           optionValue="id"
-          placeholder="Select Designation"
-          [options]="designationOptions()"
-          [loading]="isLoadingDesignation()" />
+          placeholder="Select Position"
+          [options]="positionOptions()"
+          [loading]="isLoadingPositions()" />
       </div>
 
       <!-- Document Status -->

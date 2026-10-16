@@ -76,8 +76,8 @@ export interface SessionUser {
   staffEmploymentTypeName: string;
   departmentId: number;
   departmentName: string;
-  designationId: number;
-  designationName: string;
+  staffPositionMasterId: number;
+  positionName: string;
   isPasswordChangeRequired: boolean;
   isOnboard: boolean;
 }

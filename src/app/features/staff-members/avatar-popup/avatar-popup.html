@@ -60,10 +60,17 @@
           label="Department"
           [value]="s.department"
           [icon]="Building" />
+        @if (staffMember().positionName) {
         <app-avatar-popup-item
-          label="Designation"
-          [value]="s.designation"
+          label="Position"
+          [value]="staffMember().positionName"
           [icon]="Briefcase" />
+        } @else if (s.positionName) {
+        <app-avatar-popup-item
+          label="Position"
+          [value]="s.positionName"
+          [icon]="Briefcase" />
+        }
         <app-avatar-popup-item
           label="StaffMember Type"
           [value]="s.staffEmploymentTypeName"

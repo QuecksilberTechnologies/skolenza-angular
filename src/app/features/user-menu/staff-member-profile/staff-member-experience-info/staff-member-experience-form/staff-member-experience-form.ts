@@ -102,7 +102,10 @@ export class StaffMemberExperienceForm implements OnInit {
     this.experienceForm = this.#fb.group({
       ctc: this.#fb.control<number>(0, Validators.min(0)),
       companyName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      designation: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      previousPositionTitle: [
+        '',
+        [Validators.required, Validators.minLength(2), Validators.maxLength(100)],
+      ],
       staffMemberIdOfCompany: [''],
       startDate: this.#fb.control<Date | null>(null, Validators.required),
       endDate: this.#fb.control<Date | null>(null),
@@ -111,7 +114,7 @@ export class StaffMemberExperienceForm implements OnInit {
       reasonForLeaving: ['', Validators.maxLength(500)],
       remark: ['', Validators.maxLength(500)],
       colleagueName: ['', Validators.maxLength(100)],
-      colleagueDesignation: ['', Validators.maxLength(100)],
+      colleaguePositionTitle: ['', Validators.maxLength(100)],
       colleagueContactNumber: ['', Validators.pattern(/^\d{10}$/)],
       reportingManagerName: ['', Validators.maxLength(100)],
       reportingManagerNumber: ['', Validators.pattern(/^\d{10}$/)],
@@ -268,7 +271,7 @@ export class StaffMemberExperienceForm implements OnInit {
     this.experienceForm.patchValue({
       ctc: experience.ctc,
       companyName: experience.companyName ?? '',
-      designation: experience.designation ?? '',
+      previousPositionTitle: experience.previousPositionTitle ?? '',
       staffMemberIdOfCompany: experience.staffMemberIdOfCompany ?? '',
       startDate: experience.startDate ? new Date(experience.startDate) : null,
       endDate: experience.endDate ? new Date(experience.endDate) : null,
@@ -277,7 +280,7 @@ export class StaffMemberExperienceForm implements OnInit {
       reasonForLeaving: experience.reasonForLeaving ?? '',
       remark: experience.remark ?? '',
       colleagueName: experience.colleagueName ?? '',
-      colleagueDesignation: experience.colleagueDesignation ?? '',
+      colleaguePositionTitle: experience.colleaguePositionTitle ?? '',
       colleagueContactNumber: experience.colleagueContactNumber ?? '',
       reportingManagerName: experience.reportingManagerName ?? '',
       reportingManagerNumber: experience.reportingManagerNumber ?? '',
@@ -333,7 +336,7 @@ export class StaffMemberExperienceForm implements OnInit {
     fd.append('StaffMemberId', queryStaffMemberId ?? sessionUser?.staffMemberId ?? '');
     fd.append('Ctc', String(form.ctc));
     fd.append('CompanyName', form.companyName.trim());
-    fd.append('Designation', form.designation.trim());
+    fd.append('PreviousPositionTitle', form.previousPositionTitle.trim());
     fd.append('StaffMemberIdOfCompany', form.staffMemberIdOfCompany.trim());
     fd.append('StartDate', form.startDate ? form.startDate.toISOString() : '');
     fd.append('EndDate', form.endDate ? form.endDate.toISOString() : '');
@@ -342,7 +345,7 @@ export class StaffMemberExperienceForm implements OnInit {
     fd.append('ReasonForLeaving', form.reasonForLeaving.trim());
     fd.append('Remark', form.remark.trim());
     fd.append('ColleagueName', form.colleagueName.trim());
-    fd.append('ColleagueDesignation', form.colleagueDesignation.trim());
+    fd.append('ColleaguePositionTitle', form.colleaguePositionTitle.trim());
     fd.append('ColleagueContactNumber', form.colleagueContactNumber.trim());
     fd.append('ReportingManagerName', form.reportingManagerName.trim());
     fd.append('ReportingManagerNumber', form.reportingManagerNumber.trim());

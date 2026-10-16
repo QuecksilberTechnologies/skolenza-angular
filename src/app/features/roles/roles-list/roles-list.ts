@@ -26,8 +26,8 @@ import { TagModule } from '@openng/optimus-ui/tag';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { finalize } from 'rxjs';
 
-import { Common, RolesApi } from '@core/services';
 import { INSTITUTION_ACCESS_MODULE_CODES } from '@core/feature-page-identifiers';
+import { Common, RolesApi } from '@core/services';
 import { FeaturePageStore } from '@core/stores';
 import { BulkImportDialog } from '@shared/components/bulk-import-dialog/bulk-import-dialog';
 import { TableEmptyMessage } from '@shared/components/table-empty-message/table-empty-message';
@@ -214,6 +214,13 @@ export default class RolesList implements OnInit {
       closable: true,
       focusOnShow: false,
       data: { roleId },
+    });
+
+    // Read back canonical IDs, totals and current filter membership after a save.
+    ref?.onClose.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((saved: unknown) => {
+      if (saved) {
+        this.#reloadFirstPage();
+      }
     });
 
     this.#destroyRef.onDestroy(() => ref?.close());
@@ -458,4 +465,3 @@ export default class RolesList implements OnInit {
     return `"${value.replaceAll('"', '""')}"`;
   }
 }
-

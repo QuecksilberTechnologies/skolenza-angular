@@ -8,7 +8,7 @@
       "staffMemberId": "EMP001",
       "staffMemberFullName": "Sujeet Kumar Jaiswal",
       "departmentName": "Engineering",
-      "designationName": "Senior Software Engineer",
+      "positionName": "Senior Software Engineer",
       "effectiveFrom": "2026-01-01",
       "components": {
         "earnings": [
@@ -46,7 +46,7 @@
       "staffMemberId": "EMP002",
       "staffMemberFullName": "Priya Sharma",
       "departmentName": "Design",
-      "designationName": "UI/UX Designer",
+      "positionName": "UI/UX Designer",
       "effectiveFrom": "2026-01-01",
       "components": {
         "earnings": [
@@ -84,7 +84,7 @@
       "staffMemberId": "EMP003",
       "staffMemberFullName": "Rahul Verma",
       "departmentName": "Engineering",
-      "designationName": "Software Engineer",
+      "positionName": "Software Engineer",
       "effectiveFrom": "2026-01-01",
       "components": {
         "earnings": [
@@ -122,7 +122,7 @@
       "staffMemberId": "EMP004",
       "staffMemberFullName": "Anita Desai",
       "departmentName": "Quality Assurance",
-      "designationName": "QA Engineer",
+      "positionName": "QA Engineer",
       "effectiveFrom": "2026-01-01",
       "components": {
         "earnings": [
@@ -160,7 +160,7 @@
       "staffMemberId": "EMP005",
       "staffMemberFullName": "Vikram Singh",
       "departmentName": "Product",
-      "designationName": "Product Manager",
+      "positionName": "Product Manager",
       "effectiveFrom": "2026-01-01",
       "components": {
         "earnings": [
@@ -198,7 +198,7 @@
       "staffMemberId": "EMP006",
       "staffMemberFullName": "Neha Gupta",
       "departmentName": "Human Resources",
-      "designationName": "HR Manager",
+      "positionName": "HR Manager",
       "effectiveFrom": "2026-01-01",
       "components": {
         "earnings": [
@@ -236,7 +236,7 @@
       "staffMemberId": "EMP007",
       "staffMemberFullName": "Amit Patel",
       "departmentName": "Engineering",
-      "designationName": "DevOps Engineer",
+      "positionName": "DevOps Engineer",
       "effectiveFrom": "2026-01-01",
       "components": {
         "earnings": [
@@ -274,7 +274,7 @@
       "staffMemberId": "EMP008",
       "staffMemberFullName": "Kavita Nair",
       "departmentName": "Product",
-      "designationName": "Business Analyst",
+      "positionName": "Business Analyst",
       "effectiveFrom": "2026-01-01",
       "components": {
         "earnings": [
@@ -312,7 +312,7 @@
       "staffMemberId": "EMP009",
       "staffMemberFullName": "Rajesh Iyer",
       "departmentName": "Engineering",
-      "designationName": "Team Lead",
+      "positionName": "Team Lead",
       "effectiveFrom": "2026-01-01",
       "components": {
         "earnings": [
@@ -350,7 +350,7 @@
       "staffMemberId": "EMP010",
       "staffMemberFullName": "Deepika Reddy",
       "departmentName": "Engineering",
-      "designationName": "Frontend Developer",
+      "positionName": "Frontend Developer",
       "effectiveFrom": "2026-01-01",
       "components": {
         "earnings": [

@@ -36,7 +36,7 @@ export interface GetStaffMembersShortResponse {
 export interface StaffMemberShort {
   staffMemberId: string;
   staffMemberFullName: string;
-  designationName: string;
+  positionName: string;
   departmentName: string;
   profileImageLink: string;
 }

@@ -53,7 +53,7 @@ export interface IStaffMemberExperienceInfo {
   staffMemberId: number;
   ctc: number;
   companyName: string;
-  designation: string;
+  previousPositionTitle: string;
   staffMemberIdOfCompany?: string;
   startDate: string;
   endDate?: string;
@@ -66,7 +66,7 @@ export interface IStaffMemberExperienceInfo {
   reasonForLeaving?: string;
   remark?: string;
   colleagueName?: string;
-  colleagueDesignation?: string;
+  colleaguePositionTitle?: string;
   colleagueContactNumber?: string;
   reportingManagerName?: string;
   reportingManagerNumber?: string;
@@ -107,7 +107,7 @@ export interface ExperienceDocumentForm {
 export interface ExperienceForm {
   ctc: FormControl<number>;
   companyName: FormControl<string>;
-  designation: FormControl<string>;
+  previousPositionTitle: FormControl<string>;
   staffMemberIdOfCompany: FormControl<string>;
   startDate: FormControl<Date | null>;
   endDate: FormControl<Date | null>;
@@ -116,7 +116,7 @@ export interface ExperienceForm {
   reasonForLeaving: FormControl<string>;
   remark: FormControl<string>;
   colleagueName: FormControl<string>;
-  colleagueDesignation: FormControl<string>;
+  colleaguePositionTitle: FormControl<string>;
   colleagueContactNumber: FormControl<string>;
   reportingManagerName: FormControl<string>;
   reportingManagerNumber: FormControl<string>;

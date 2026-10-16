@@ -33,12 +33,12 @@ import {
   InstitutionPolicyDetail,
   InstitutionPolicyRuleInput,
 } from '@shared/interfaces';
-import { injectStaffMemberOptions } from '@shared/utilities/staff-member-filter-options';
 import { fieldErrorMessage, showFieldError } from '@shared/utilities/field-error';
 import {
   applicabilityDetailToInput,
   ruleDetailToInput,
 } from '@shared/utilities/institution-policy-detail-mapping';
+import { injectStaffMemberOptions } from '@shared/utilities/staff-member-filter-options';
 
 import { ymd } from '../../date-only';
 import {
@@ -47,7 +47,10 @@ import {
   POLICY_LIST_ROUTE,
   PolicyFormMode,
 } from '../../institution-policy-constants';
-import { applicabilityStaffMemberTarget, targetsSavedStaffMember } from './applicability-staff-member';
+import {
+  applicabilityStaffMemberTarget,
+  targetsSavedStaffMember,
+} from './applicability-staff-member';
 import {
   ApplicabilityRowModel,
   PolicyDefinitionModel,
@@ -96,7 +99,7 @@ function newApplicabilityRow(effectiveFrom: Date | null): ApplicabilityRowModel 
     districtId: null,
     localityId: null,
     departmentId: null,
-    designationId: null,
+    staffPositionMasterId: null,
     staffMemberPublicId: null,
     savedStaffMemberId: null,
     genderId: null,
@@ -198,7 +201,8 @@ export default class PolicyDefinitionForm implements CanComponentDeactivate {
   protected readonly countries = this.#lookupStore.countries;
   protected readonly isLoadingCountries = this.#lookupStore.isLoadingCountries;
   protected readonly staffEmploymentTypes = this.#lookupStore.staffEmploymentTypes;
-  protected readonly isLoadingStaffEmploymentTypes = this.#lookupStore.isLoadingStaffEmploymentTypes;
+  protected readonly isLoadingStaffEmploymentTypes =
+    this.#lookupStore.isLoadingStaffEmploymentTypes;
   protected readonly genders = this.#lookupStore.genders;
   protected readonly isLoadingGenders = this.#lookupStore.isLoadingGenders;
   protected readonly currencyOptions = this.#currencyStore.options;
@@ -612,6 +616,31 @@ export default class PolicyDefinitionForm implements CanComponentDeactivate {
     this.#patchApplicabilityRow(index, { savedStaffMemberId: null });
   }
 
+  positionsForRow(row: ApplicabilityRowModel) {
+    return this.store
+      .positions()
+      .filter(
+        (position) =>
+          !row.departmentId || !position.departmentId || position.departmentId === row.departmentId,
+      );
+  }
+
+  onApplicabilityDepartmentChange(index: number) {
+    const row = this.model().applicability[index];
+    if (!row?.staffPositionMasterId) return;
+
+    const selectedPosition = this.store
+      .positions()
+      .find((position) => position.id === row.staffPositionMasterId);
+    if (
+      row.departmentId &&
+      selectedPosition?.departmentId &&
+      selectedPosition.departmentId !== row.departmentId
+    ) {
+      this.#patchApplicabilityRow(index, { staffPositionMasterId: null });
+    }
+  }
+
   #patchApplicabilityRow(index: number, patch: Partial<ApplicabilityRowModel>) {
     this.model.update((m) => ({
       ...m,
@@ -657,7 +686,7 @@ export default class PolicyDefinitionForm implements CanComponentDeactivate {
       districtId: row.districtId,
       localityId: row.localityId,
       departmentId: row.departmentId,
-      designationId: row.designationId,
+      staffPositionMasterId: row.staffPositionMasterId,
       ...applicabilityStaffMemberTarget(row),
       genderId: row.genderId,
       workArrangementType: row.workArrangementType,

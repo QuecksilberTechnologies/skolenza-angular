@@ -19,7 +19,7 @@ function createStaffMember(
     staffMemberId: 'enc-1',
     staffMemberName: 'Priya Nair',
     departmentName: 'Engineering',
-    designationName: 'Developer',
+    positionName: 'Developer',
     roleName: 'StaffMember',
     date: isoDaysFromToday(3),
     ...overrides,
@@ -42,9 +42,21 @@ describe('BirthdayCard', () => {
 
   it('counts days to the next birthday', async () => {
     const text = await render([
-      createStaffMember({ staffMemberId: 'a', staffMemberName: 'Today Person', date: isoDaysFromToday(0) }),
-      createStaffMember({ staffMemberId: 'b', staffMemberName: 'Soon Person', date: isoDaysFromToday(3) }),
-      createStaffMember({ staffMemberId: 'c', staffMemberName: 'Later Person', date: isoDaysFromToday(20) }),
+      createStaffMember({
+        staffMemberId: 'a',
+        staffMemberName: 'Today Person',
+        date: isoDaysFromToday(0),
+      }),
+      createStaffMember({
+        staffMemberId: 'b',
+        staffMemberName: 'Soon Person',
+        date: isoDaysFromToday(3),
+      }),
+      createStaffMember({
+        staffMemberId: 'c',
+        staffMemberName: 'Later Person',
+        date: isoDaysFromToday(20),
+      }),
     ]);
 
     expect(text).toContain('Today!');

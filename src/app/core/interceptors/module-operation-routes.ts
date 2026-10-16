@@ -1472,36 +1472,6 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
     carrier: 'body',
   },
 
-  // Designation bulk import. Same correction as the Role pair above, for the same reason.
-  {
-    method: 'POST',
-    path: '/Designation/bulk/preview',
-    module: INSTITUTION_ACCESS_MODULE_CODES.designation,
-    operation: 'Add',
-    carrier: 'body',
-  },
-  {
-    method: 'POST',
-    path: '/Designation/bulk/confirm',
-    module: INSTITUTION_ACCESS_MODULE_CODES.designation,
-    operation: 'Add',
-    carrier: 'body',
-  },
-  {
-    method: 'POST',
-    path: '/Designation/bulk/retry',
-    module: INSTITUTION_ACCESS_MODULE_CODES.designation,
-    operation: 'Add',
-    carrier: 'body',
-  },
-  {
-    method: 'POST',
-    path: '/Designation/bulk/cancel',
-    module: INSTITUTION_ACCESS_MODULE_CODES.designation,
-    operation: 'Add',
-    carrier: 'body',
-  },
-
   // StaffMember type bulk import. Same correction as the Role pair above, for the same reason.
   {
     method: 'POST',
@@ -2002,7 +1972,7 @@ const DENY_PATHS: ReadonlySet<string> = new Set([
  * `controller → moduleCode`, the blanket rule behind the explicit table above.
  *
  * The module a request authorises against is a property of the *resource*, not of the screen the
- * user is standing on: `features/staffMembers/` reads `/Designation/get-all`, `layout/` calls
+ * user is standing on: staff screens read several professional-structure resources, `layout/` calls
  * `/Institution/*` from every route, and the dashboard touches six modules from one URL. Keying on the
  * controller is the only reading that survives those.
  *
@@ -2016,7 +1986,6 @@ const DENY_PATHS: ReadonlySet<string> = new Set([
  */
 const CONTROLLER_MODULE_FALLBACK: Readonly<Record<string, ModuleCodeCandidates>> = {
   department: INSTITUTION_ACCESS_MODULE_CODES.department,
-  designation: INSTITUTION_ACCESS_MODULE_CODES.designation,
   reportingtype: 'INSTITUTION_REPORTING_TYPES',
   role: INSTITUTION_ACCESS_MODULE_CODES.role,
   usermodulerolepermission: INSTITUTION_ACCESS_MODULE_CODES.role,

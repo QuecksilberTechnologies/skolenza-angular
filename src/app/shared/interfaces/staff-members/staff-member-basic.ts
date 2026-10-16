@@ -25,7 +25,7 @@ export interface IStaffMemberBasicInfo {
   middleName: string;
   firstName: string;
   genderId: number;
-  designationName: string;
+  positionName: string;
   departmentName: string;
   emergencyContactPerson: string;
   emergencyContactNumber: string;
@@ -44,7 +44,7 @@ export interface IStaffMemberBasicInfo {
   dateOfOnBoarding: string;
   dateOfExit: string;
   departmentId: number;
-  designationId: number;
+  staffPositionMasterId: number;
   staffEmploymentTypeId: number;
   institutionStaffCategoryMasterId: number;
   staffCategoryName?: string;
@@ -119,7 +119,6 @@ export interface BasicForm {
   genderId: FormControl<number | undefined>;
   countryId: FormControl<number | undefined>;
   departmentId: FormControl<number | undefined>;
-  designationId: FormControl<number | undefined>;
   staffEmploymentTypeId: FormControl<number | undefined>;
   institutionStaffCategoryMasterId: FormControl<number | undefined>;
   staffJobFamilyMasterId: FormControl<number | undefined>;
@@ -147,7 +146,6 @@ export interface UpdateStaffMemberOfficialReq {
   middleName: string;
   lastName: string;
   description: string;
-  designationId: number;
   isMarried: boolean;
   emergencyContactPerson: string;
   emergencyContactNumber: string;
@@ -197,8 +195,8 @@ export interface GetProfileSummaryRes {
 export interface IProfileSummary {
   staffMemberId: string;
   fullName: string;
-  designation: number;
-  designationType: string;
+  staffPositionMasterId: number;
+  positionName: string;
   department: number;
   departmentType: string;
   staffMemberCode: string;

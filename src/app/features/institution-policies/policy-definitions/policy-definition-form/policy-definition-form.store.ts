@@ -10,11 +10,16 @@ import {
 } from '@ngrx/signals';
 import { catchError, finalize, from, map, of, switchMap, tap } from 'rxjs';
 
-import { Common, DesignationsApi, CampusApi, InstitutionPolicyApi } from '@core/services';
+import {
+  Common,
+  CampusApi,
+  InstitutionPolicyApi,
+  StaffProfessionalStructureApi,
+} from '@core/services';
 import { FeaturePageStore } from '@core/stores';
 import {
   CreateInstitutionPolicyRequest,
-  IDesignation,
+  StaffPositionMaster,
   CampusRow,
   InstitutionPolicyDetail,
   InstitutionPolicyLeaveType,
@@ -23,12 +28,12 @@ import {
   InstitutionPolicyType,
 } from '@shared/interfaces';
 
-import { loadPolicyLookups } from '../../policy-lookups';
 import {
   DEFINITIONS_MODULE_CODE,
   EDITABLE_STATUSES,
   hasStatus,
 } from '../../institution-policy-constants';
+import { loadPolicyLookups } from '../../policy-lookups';
 
 /** A separate leaf, for the campus filter — see the same split in
  *  `policy-definitions.store.ts` for the policy-type lookup. */
@@ -72,12 +77,10 @@ export const PolicyDefinitionFormStore = signalStore(
   withState(initialState),
   withProps(() => {
     const campusApi = inject(CampusApi);
-    const designationsApi = inject(DesignationsApi);
+    const staffProfessionalStructureApi = inject(StaffProfessionalStructureApi);
     const featurePageStore = inject(FeaturePageStore);
     const commonService = inject(Common);
 
-    /** Cached so the designations lookup and the location cascade share one login read. A failed
-     *  read is dropped from the cache so the next caller retries. */
     let userStaffMemberId: Promise<string> | undefined;
     const getUserStaffMemberId = (): Promise<string> =>
       (userStaffMemberId ??= commonService
@@ -113,28 +116,22 @@ export const PolicyDefinitionFormStore = signalStore(
         ),
     });
 
-    /** Institution-wide, fetched once — unlike states and districts it does not hang off a row's own
-     *  selection. Left unfiltered by department: an applicability row may target a designation
-     *  without also naming its department. */
-    const designationsResource = rxResource({
+    /** Position is the current staff identity used by new applicability scopes. */
+    const positionsResource = rxResource({
       stream: () =>
-        from(getUserStaffMemberId()).pipe(
-          switchMap((UserStaffMemberId) =>
-            designationsApi.getDesignationOptions({ UserStaffMemberId, IsActive: true }),
-          ),
+        from(featurePageStore.whenLoaded()).pipe(
+          switchMap(() => staffProfessionalStructureApi.getPositions(undefined, true)),
           map((res) => (res.isSucceeded ? res.data : [])),
-          // One optional filter among many — an empty select beats failing the whole form, same
-          // call as `campusesResource`.
-          catchError(() => of([] as IDesignation[])),
+          catchError(() => of([] as StaffPositionMaster[])),
         ),
     });
 
-    return { getUserStaffMemberId, campusesResource, designationsResource };
+    return { getUserStaffMemberId, campusesResource, positionsResource };
   }),
-  withComputed(({ campusesResource, designationsResource }) => ({
+  withComputed(({ campusesResource, positionsResource }) => ({
     campuses: computed(() => campusesResource.value() ?? []),
-    designations: computed(() => designationsResource.value() ?? []),
-    isLoadingDesignations: computed(() => designationsResource.isLoading()),
+    positions: computed(() => positionsResource.value() ?? []),
+    isLoadingPositions: computed(() => positionsResource.isLoading()),
     isLoadingCampuses: computed(() => campusesResource.isLoading()),
   })),
   withMethods((store) => {
@@ -258,4 +255,3 @@ export const PolicyDefinitionFormStore = signalStore(
     };
   }),
 );
-

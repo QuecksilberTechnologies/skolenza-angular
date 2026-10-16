@@ -4,7 +4,12 @@ import { of, Subject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Common, StaffAcademicStructureApi, StaffCurriculumDeliveryApi } from '@core/services';
-import { CurriculumUnit, LessonPlan, StaffTeachingAssignment } from '@shared/interfaces';
+import {
+  CurriculumUnit,
+  LessonDelivery,
+  LessonPlan,
+  StaffTeachingAssignment,
+} from '@shared/interfaces';
 
 import StaffCurriculumDelivery, { topicsForTeachingAssignment } from './staff-curriculum-delivery';
 
@@ -85,6 +90,63 @@ describe('StaffCurriculumDelivery', () => {
     component.usePlanForDelivery({ id: 5, topics: [] } as unknown as LessonPlan);
 
     expect(component.deliveryForm.deliveredDate).toBe('2026-10-17');
+  });
+
+  it('loads coverage from a directly selected approved plan and clears stale plan topics', () => {
+    component.statuses.set([{ id: 3, code: 'APPROVED', name: 'Approved' }]);
+    component.plans.set([
+      { id: 5, workflowStatusId: 3, topics: [{ id: 11, name: 'Equivalent Fractions' }] },
+      { id: 6, workflowStatusId: 3, topics: [{ id: 12, name: 'Comparing Fractions' }] },
+    ] as LessonPlan[]);
+    component.deliveryForm.lessonPlanId = 5;
+    component.onDeliveryPlanChange();
+    expect(component.deliveryForm.coverage).toEqual([
+      { curriculumTopicId: 11, completionPercent: 100 },
+    ]);
+    component.deliveryForm.lessonPlanId = 6;
+    component.onDeliveryPlanChange();
+    expect(component.deliveryForm.coverage).toEqual([
+      { curriculumTopicId: 12, completionPercent: 100 },
+    ]);
+    expect(component.deliveryTopicName(12)).toBe('Comparing Fractions');
+    component.deliveryForm.lessonPlanId = 0;
+    component.onDeliveryPlanChange();
+    expect(component.deliveryForm.coverage).toEqual([]);
+  });
+
+  it('opens a rejected delivery for correction without changing the saved row before Save', () => {
+    const saved = {
+      id: 9,
+      lessonPlanId: 5,
+      deliveredDate: '2028-04-10',
+      coverageNotes: 'Review needed',
+      exceptionReason: 'Comparison practice incomplete',
+      replanAction: 'Review next lesson',
+      isActive: true,
+      coverage: [{ curriculumTopicId: 11, completionPercent: 50 }],
+    } as LessonDelivery;
+    component.editDelivery(saved);
+    expect(component.deliveryForm).toEqual(
+      expect.objectContaining({ id: 9, lessonPlanId: 5, exceptionReason: saved.exceptionReason }),
+    );
+    component.deliveryForm.coverage[0].completionPercent = 75;
+    expect(saved.coverage[0].completionPercent).toBe(50);
+    component.resetDelivery();
+    expect(component.deliveryForm.id).toBeUndefined();
+    expect(component.deliveryForm.coverage).toEqual([]);
+  });
+
+  it('clears edit IDs and selected topics when switching curriculum frameworks', () => {
+    component.unitForm.id = 7;
+    component.topicForm.id = 8;
+    component.topicForm.curriculumUnitId = 7;
+    component.planForm.curriculumTopicIds = [8];
+    component.selectFramework(2);
+    expect(component.unitForm.id).toBeUndefined();
+    expect(component.unitForm.curriculumFrameworkId).toBe(2);
+    expect(component.topicForm.id).toBeUndefined();
+    expect(component.topicForm.curriculumUnitId).toBe(0);
+    expect(component.planForm.curriculumTopicIds).toEqual([]);
   });
 });
 

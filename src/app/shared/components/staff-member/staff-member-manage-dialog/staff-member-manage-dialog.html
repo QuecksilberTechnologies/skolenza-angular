@@ -514,31 +514,6 @@
               }
             </div>
 
-            <!-- Designation -->
-            <div class="space-y-1">
-              <label for="designationId" class="block font-medium">
-                Designation
-                <span class="text-red-600 dark:text-red-400">*</span>
-              </label>
-              <p-select
-                formControlName="designationId"
-                id="designationId"
-                [options]="designationOptions()"
-                optionLabel="designationName"
-                optionValue="id"
-                [loading]="isLoadingDesignation()"
-                placeholder="Select Designation"
-                [appendTo]="'body'"
-                [invalid]="isInvalid('designationId')"
-                class="w-full"
-                panelStyleClass="select-option-truncate"
-              />
-              @if (isInvalid('designationId')) {
-              <p-message severity="error" size="small" variant="simple">
-                Designation is required.
-              </p-message>
-              }
-            </div>
           </div>
 
           <div
@@ -581,7 +556,7 @@
                 formControlName="institutionStaffCategoryMasterId"
                 id="institutionStaffCategoryMasterId"
                 [options]="staffCategoryOptions()"
-                optionLabel="label"
+                optionLabel="name"
                 optionValue="id"
                 [loading]="isLoadingStaffCategories()"
                 placeholder="Select Staff Category"

@@ -11,15 +11,15 @@ import {
 import { TableLazyLoadEvent } from '@openng/optimus-ui/table';
 import { finalize, map, tap } from 'rxjs';
 
-import { Common, DesignationsApi, StaffMembersApi, RolesApi } from '@core/services';
+import { Common, StaffMembersApi, RolesApi } from '@core/services';
+import { StaffProfessionalStructureApi } from '@core/services/staff-professional-structure-api';
 import {
   AssignUserRolesReq,
   DeleeteStaffMemberReq,
   StaffMemberStatistic,
   GetAllStaffMembersReq,
-  GetDesignationOptionReq,
   GetStaffMemberStatisticsReq,
-  IDesignation,
+  StaffPositionMaster,
   IStaffMember,
   IStaffMemberFilter,
   SummaryStaffMemberInfo,
@@ -38,8 +38,8 @@ interface StaffMembersState {
   userStaffMemberId: string | undefined;
   statistics: StaffMemberStatistic | null;
   isLoadingStatistics: boolean;
-  designationOptions: IDesignation[];
-  isLoadingDesignations: boolean;
+  positionOptions: StaffPositionMaster[];
+  isLoadingPositions: boolean;
   /**
    * Summaries the avatar popup has fetched, kept out of `staffMembers` so caching one cannot
    * invalidate a row: the table tracks rows by identity, and a rebuilt row takes the open
@@ -59,8 +59,8 @@ const initialState: StaffMembersState = {
   userStaffMemberId: undefined,
   statistics: null,
   isLoadingStatistics: false,
-  designationOptions: [],
-  isLoadingDesignations: false,
+  positionOptions: [],
+  isLoadingPositions: false,
   summaries: {},
 };
 
@@ -97,7 +97,7 @@ export const StaffMembersStore = signalStore(
           EmployementCode: filters?.staffMemberId || undefined,
           StaffEmploymentTypeId: filters?.staffEmploymentType || undefined,
           DepartmentId: filters?.department || undefined,
-          DesignationId: filters?.designation || undefined,
+          StaffPositionMasterId: filters?.position || undefined,
         };
 
         return staffMembersApi.getAllStaffMembers(body).pipe(
@@ -129,7 +129,7 @@ export const StaffMembersStore = signalStore(
   })),
   withMethods((store) => {
     const staffMembersApi = inject(StaffMembersApi);
-    const designationsApi = inject(DesignationsApi);
+    const professionalApi = inject(StaffProfessionalStructureApi);
     const rolesApi = inject(RolesApi);
     const commonService = inject(Common);
     const destroyRef = inject(DestroyRef);
@@ -140,7 +140,9 @@ export const StaffMembersStore = signalStore(
         staffMembers: store
           .staffMembers()
           .map((staffMember) =>
-            staffMember.staffMemberId === staffMemberId ? { ...staffMember, ...changes } : staffMember,
+            staffMember.staffMemberId === staffMemberId
+              ? { ...staffMember, ...changes }
+              : staffMember,
           ),
       });
 
@@ -189,26 +191,24 @@ export const StaffMembersStore = signalStore(
 
       loadStatistics,
 
-      async loadDesignations(departmentId?: number): Promise<void> {
-        if (!departmentId) return;
-
-        const loginInfo = await commonService.getLoginInfo();
-        const body: GetDesignationOptionReq = {
-          UserStaffMemberId: loginInfo?.user?.staffMemberId ?? '',
-          DepartmentId: departmentId,
-          IsActive: true,
-        };
-
-        patchState(store, { isLoadingDesignations: true, designationOptions: [] });
-        designationsApi
-          .getDesignationOptions(body)
+      async loadPositions(departmentId?: number): Promise<void> {
+        patchState(store, { isLoadingPositions: true, positionOptions: [] });
+        professionalApi
+          .getPositions()
           .pipe(
-            finalize(() => patchState(store, { isLoadingDesignations: false })),
+            finalize(() => patchState(store, { isLoadingPositions: false })),
             takeUntilDestroyed(destroyRef),
           )
           .subscribe({
             next: (res) => {
-              patchState(store, { designationOptions: res.isSucceeded ? res.data : [] });
+              patchState(store, {
+                positionOptions: res.isSucceeded
+                  ? res.data.filter(
+                      (position) =>
+                        !position.departmentId || position.departmentId === departmentId,
+                    )
+                  : [],
+              });
               if (!res.isSucceeded) {
                 commonService.showMessage(res.message, 'error');
               }
@@ -270,7 +270,9 @@ export const StaffMembersStore = signalStore(
         staffMembersApi
           .updateStaffMemberUpdateStatus(body)
           .pipe(
-            finalize(() => patchStaffMember(staffMember.staffMemberId, { isUpdatingStatus: false })),
+            finalize(() =>
+              patchStaffMember(staffMember.staffMemberId, { isUpdatingStatus: false }),
+            ),
             takeUntilDestroyed(destroyRef),
           )
           .subscribe({
@@ -304,7 +306,10 @@ export const StaffMembersStore = signalStore(
                 commonService.showMessage('Roles assigned successfully', 'success');
                 // The list payload's `assignedRoles` is now stale, and an empty `userRoles` would
                 // fall back to it.
-                patchStaffMember(staffMember.staffMemberId, { userRoles, assignedRoles: undefined });
+                patchStaffMember(staffMember.staffMemberId, {
+                  userRoles,
+                  assignedRoles: undefined,
+                });
               } else {
                 commonService.showMessage(res.message, 'error');
               }

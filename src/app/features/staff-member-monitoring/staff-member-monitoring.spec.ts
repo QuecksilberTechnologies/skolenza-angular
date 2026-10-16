@@ -15,7 +15,13 @@ import { StaffMemberMonitoringStore, toDateKey } from './staff-member-monitoring
 const ok = <T>(data: T) => of({ isSucceeded: true, message: '', data });
 
 const staffMember = (staffMemberId: string, firstName: string, lastName: string) =>
-  ({ staffMemberId, firstName, lastName, designationName: 'Dev', departmentName: 'Eng' }) as IStaffMember;
+  ({
+    staffMemberId,
+    firstName,
+    lastName,
+    positionName: 'Dev',
+    departmentName: 'Eng',
+  }) as IStaffMember;
 
 const staffMembers = [staffMember('E1', 'Asha', 'Rao'), staffMember('E2', 'Kabir', 'Das')];
 

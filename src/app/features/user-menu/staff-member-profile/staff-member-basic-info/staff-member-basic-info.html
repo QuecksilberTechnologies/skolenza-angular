@@ -150,11 +150,6 @@
       label="Department"
       [value]="basic.departmentName" />
 
-    <!-- Designation -->
-    <app-profile-info-block
-      label="Designation"
-      [value]="basic.designationName" />
-
     <app-profile-info-block
       label="Staff Category"
       [value]="basic.staffCategoryName" />
@@ -163,9 +158,15 @@
       label="Job Family"
       [value]="basic.professionalProfile?.jobFamilyName" />
 
+    @if (basic.professionalProfile?.positionName) {
     <app-profile-info-block
       label="Primary Position"
-      [value]="basic.professionalProfile?.positionName" />
+      [value]="basic.professionalProfile.positionName" />
+    } @else if (basic.positionName) {
+    <app-profile-info-block
+      label="Primary Position"
+      [value]="basic.positionName" />
+    }
 
     <!-- StaffMember Type -->
     <app-profile-info-block label="StaffMember Type">

@@ -9,8 +9,8 @@ import { Mock, vi } from 'vitest';
 
 import {
   Common,
-  DesignationsApi,
   StaffMembersApi,
+  StaffProfessionalStructureApi,
   CampusApi,
   InstitutionPolicyApi,
 } from '@core/services';
@@ -34,7 +34,7 @@ const savedRow: InstitutionPolicyApplicabilityDetail = {
   campusId: null,
   staffEmploymentTypeId: null,
   departmentId: null,
-  designationId: null,
+  staffPositionMasterId: null,
   staffMemberId: 123,
   genderId: null,
   workArrangementType: null,
@@ -196,10 +196,10 @@ describe('PolicyDefinitionForm', () => {
           } satisfies Partial<CampusApi>,
         },
         {
-          provide: DesignationsApi,
+          provide: StaffProfessionalStructureApi,
           useValue: {
-            getDesignationOptions: vi.fn().mockReturnValue(of({ isSucceeded: true, data: [] })),
-          } satisfies Partial<DesignationsApi>,
+            getPositions: vi.fn().mockReturnValue(of({ isSucceeded: true, data: [] })),
+          } satisfies Partial<StaffProfessionalStructureApi>,
         },
         {
           provide: StaffMembersApi,
@@ -314,7 +314,10 @@ describe('PolicyDefinitionForm', () => {
     await settle();
   }
 
-  function expectStaffMemberTarget(staffMemberId: number | null, staffMemberPublicId: string | null) {
+  function expectStaffMemberTarget(
+    staffMemberId: number | null,
+    staffMemberPublicId: string | null,
+  ) {
     expect(updatePolicy).toHaveBeenCalledWith(
       7,
       11,

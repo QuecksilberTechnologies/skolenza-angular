@@ -10,13 +10,13 @@ describe('OnboardingCard', () => {
     fixture = TestBed.createComponent(OnboardingCard);
   });
 
-  it('lists each new joiner with designation, department and join date', async () => {
+  it('lists each new joiner with position, department and join date', async () => {
     fixture.componentRef.setInput('staffMembers', [
       {
         staffMemberId: 'enc-1',
         staffMemberName: 'Ananya Rao',
         departmentName: 'HR',
-        designationName: 'Recruiter',
+        positionName: 'Recruiter',
         roleName: null,
         date: '2026-09-28T00:00:00',
       },
