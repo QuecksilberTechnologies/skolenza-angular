@@ -11,7 +11,7 @@
     <p-button label="Capabilities" [outlined]="selectedTab() !== masterTypes.Capability" (onClick)="openTab(masterTypes.Capability)" />
     <p-button label="Duties" [outlined]="selectedTab() !== masterTypes.DutyDefinition" (onClick)="openTab(masterTypes.DutyDefinition)" />
     <p-button label="Positions" [outlined]="selectedTab() !== 'positions'" (onClick)="openTab('positions')" />
-    <p-select class="ml-auto min-w-36" name="statusFilter" [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value" />
+    <p-select class="ml-auto min-w-36" name="statusFilter" ariaLabel="Filter by status" [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value" />
   </nav>
 
   @if (selectedTab() === 'categories') {
@@ -33,12 +33,12 @@
     </div>
     <form class="space-y-3 rounded-xl border border-gray-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900" (ngSubmit)="saveCategory()">
       <h2 class="font-semibold">{{ categoryForm.id ? 'Edit' : 'Add' }} Staff Category</h2>
-      <label class="block">Category type<p-select class="mt-1 w-full" name="categoryType" [(ngModel)]="categoryForm.staffCategoryTypeId" [options]="canonicalCategories()" optionLabel="label" optionValue="id" placeholder="Select category type" appendTo="body" required /></label>
+      <label for="professional-categoryType" class="block"><span id="professional-categoryType-label">Category type</span><p-select inputId="professional-categoryType" ariaLabelledBy="professional-categoryType-label" class="mt-1 w-full" name="categoryType" [(ngModel)]="categoryForm.staffCategoryTypeId" [options]="canonicalCategories()" optionLabel="label" optionValue="id" placeholder="Select category type" appendTo="body" required /></label>
       <label class="block">Code<input pInputText class="mt-1 w-full" name="categoryCode" [(ngModel)]="categoryForm.code" required /></label>
       <label class="block">Name<input pInputText class="mt-1 w-full" name="categoryName" [(ngModel)]="categoryForm.name" required /></label>
       <label class="block">Description<textarea pTextarea class="mt-1 w-full" name="categoryDescription" [(ngModel)]="categoryForm.description"></textarea></label>
-      <label class="block">Allowed job families<p-multiselect class="mt-1 w-full" name="categoryJobFamilies" [(ngModel)]="categoryForm.staffJobFamilyMasterIds" [options]="categoryJobFamilyOptions()" optionLabel="name" optionValue="id" optionDisabled="disabled" appendTo="body" /></label>
-      <label class="flex items-center gap-2"><p-checkbox name="categoryActive" [(ngModel)]="categoryForm.isActive" [binary]="true" />Active</label>
+      <label for="professional-categoryJobFamilies" class="block"><span id="professional-categoryJobFamilies-label">Allowed job families</span><p-multiselect inputId="professional-categoryJobFamilies" ariaLabelledBy="professional-categoryJobFamilies-label" class="mt-1 w-full" name="categoryJobFamilies" [(ngModel)]="categoryForm.staffJobFamilyMasterIds" [options]="categoryJobFamilyOptions()" optionLabel="name" optionValue="id" optionDisabled="disabled" appendTo="body" /></label>
+      <label for="professional-categoryActive" class="flex items-center gap-2"><p-checkbox inputId="professional-categoryActive" name="categoryActive" [(ngModel)]="categoryForm.isActive" [binary]="true" />Active</label>
       <div class="flex justify-end gap-2"><p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="resetForm()" /><p-button type="submit" label="Save" icon="pi pi-check" [loading]="saving()" /></div>
     </form>
   </section>
@@ -106,8 +106,8 @@
           [(ngModel)]="masterForm.defaultFrequency"
       /></label>
       }
-      <label class="flex items-center gap-2">
-        <p-checkbox name="active" [(ngModel)]="masterForm.isActive" [binary]="true" />
+      <label for="professional-active" class="flex items-center gap-2">
+        <p-checkbox inputId="professional-active" name="active" [(ngModel)]="masterForm.isActive" [binary]="true" />
         Active
       </label>
       <div class="flex justify-end gap-2">
@@ -147,8 +147,8 @@
       <h2 class="font-semibold">
         {{ positionForm.id ? 'Edit' : 'Add' }} position
       </h2>
-      <label class="block"
-        >Category<p-select
+      <label for="professional-category" class="block"
+        ><span id="professional-category-label">Category</span><p-select inputId="professional-category" ariaLabelledBy="professional-category-label"
           class="mt-1 w-full"
           name="category"
           [(ngModel)]="positionForm.institutionStaffCategoryMasterId"
@@ -162,8 +162,8 @@
           required
         /></label
       >
-      <label class="block"
-        >Job family<p-select
+      <label for="professional-family" class="block"
+        ><span id="professional-family-label">Job family</span><p-select inputId="professional-family" ariaLabelledBy="professional-family-label"
           class="mt-1 w-full"
           name="family"
           [(ngModel)]="positionForm.staffJobFamilyMasterId"
@@ -194,9 +194,9 @@
       /></label>
       <fieldset>
         <legend class="font-medium">Required capabilities</legend>
-        @for (item of capabilityOptions(); track item.id) {<label
+        @for (item of capabilityOptions(); track item.id) {<label [for]="'professional-capability-' + item.id"
           class="mr-3 inline-flex gap-2"
-          ><p-checkbox
+          ><p-checkbox [inputId]="'professional-capability-' + item.id"
             [ngModel]="requirementSelected(positionForm.capabilities, item.id)"
             [ngModelOptions]="{ standalone: true }"
             [binary]="true"
@@ -209,12 +209,12 @@
           </label
         >}
       </fieldset>
-      <label class="flex items-center gap-2"><p-checkbox name="positionActive" [(ngModel)]="positionForm.isActive" [binary]="true" />Active</label>
+      <label for="professional-positionActive" class="flex items-center gap-2"><p-checkbox inputId="professional-positionActive" name="positionActive" [(ngModel)]="positionForm.isActive" [binary]="true" />Active</label>
       <fieldset>
         <legend class="font-medium">Default duties</legend>
-        @for (item of dutyOptions(); track item.id) {<label
+        @for (item of dutyOptions(); track item.id) {<label [for]="'professional-duty-' + item.id"
           class="mr-3 inline-flex gap-2"
-          ><p-checkbox
+          ><p-checkbox [inputId]="'professional-duty-' + item.id"
             [ngModel]="requirementSelected(positionForm.duties, item.id)"
             [ngModelOptions]="{ standalone: true }"
             [binary]="true"
