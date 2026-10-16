@@ -1,0 +1,21 @@
+<!-- Router progress bar: shows navigation loading state -->
+@if (loading()) {
+<div class="fixed! top-0! left-0! z-50! w-full!">
+  <p-progressbar
+    mode="indeterminate"
+    class="h-1!" />
+</div>
+}
+
+<!-- Main container: wraps routed views with background -->
+<div class="h-full bg-emphasis">
+  <router-outlet />
+</div>
+
+<!-- Toast notifications: global messages shown at top-right -->
+<!-- NG0318 fix for p-toast lives in patches/@openng%2Foptimus-ui@1.0.1.patch — recheck on version bump -->
+<p-toast
+  key="globalToaster"
+  position="top-center"
+  [preventDuplicates]="false"
+  [preventOpenDuplicates]="true" />

@@ -1,0 +1,345 @@
+<section class="max-h-[calc(100vh-18rem)] overflow-y-auto">
+  <form
+    [formGroup]="assetForm"
+    class="grid grid-cols-1 gap-4">
+    <!-- Asset Name -->
+    <div class="space-y-1">
+      <label
+        for="assetName"
+        class="block font-medium">
+        Asset Name
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        formControlName="assetName"
+        [invalid]="isInvalid('assetName')"
+        pInputText
+        id="assetName"
+        type="text"
+        placeholder="e.g. MacBook Pro 16-inch"
+        class="w-full" />
+      @if (assetForm.get('assetName')?.invalid && assetForm.get('assetName')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (assetForm.get('assetName')?.errors?.['required']) {
+        <span>Asset name is required</span>
+        } @else if (assetForm.get('assetName')?.errors?.['minlength']) {
+        <span>Asset name must be at least 3 characters</span>
+        }
+      </p-message>
+      }
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Category -->
+      <div class="space-y-1">
+        <label
+          for="category"
+          class="block font-medium">
+          Category
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <app-select-field
+          inputId="category"
+          controlName="category"
+          optionValue="id"
+          optionLabel="categoryName"
+          placeholder="Select asset category"
+          emptyTitle="No Asset Categories Found"
+          emptyDetail="You currently have no asset categories configured."
+          emptyActionText="Contact your institution admin"
+          emptyActionSuffix="to add asset categories and enable asset assignment."
+          emptyFilterMessage="No asset categories match your search. Please contact your institution admin to add asset categories if needed."
+          [invalid]="isInvalid('category')"
+          [loading]="store.isLoadingCategories()"
+          [options]="store.assetCategories()"
+          (selectionChange)="onCategory($event)" />
+        @if (assetForm.get('category')?.invalid && assetForm.get('category')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (assetForm.get('category')?.errors?.['required']) {
+          <span>Asset category is required</span>
+          }
+        </p-message>
+        }
+      </div>
+
+      <!-- Asset Type -->
+      <div class="space-y-1">
+        <label
+          for="assetType"
+          class="block font-medium">
+          Asset Type
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <app-select-field
+          inputId="assetType"
+          controlName="assetType"
+          optionValue="id"
+          optionLabel="typeName"
+          placeholder="Select asset type"
+          emptyTitle="No Asset Types Found"
+          emptyDetail="You currently have no asset types configured."
+          emptyActionText="Contact your institution admin"
+          emptyActionSuffix="to add asset types and enable asset assignment."
+          emptyFilterMessage="No asset types match your search. Please contact your institution admin to add asset types if needed."
+          [invalid]="isInvalid('assetType')"
+          [loading]="store.isLoadingTypes()"
+          [options]="store.assetTypes()" />
+        @if (assetForm.get('assetType')?.invalid && assetForm.get('assetType')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (assetForm.get('assetType')?.errors?.['required']) {
+          <span>Asset type is required</span>
+          }
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="space-y-1">
+      <label
+        for="status"
+        class="block font-medium">
+        Status
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <app-asset-status-select
+        selectId="status"
+        controlName="status"
+        [invalid]="isInvalid('status')"
+        [loading]="store.isLoadingStatus()"
+        [options]="store.assetStatuses()" />
+      @if (assetForm.get('status')?.invalid && assetForm.get('status')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (assetForm.get('status')?.errors?.['required']) {
+        <span>Asset status is required</span>
+        }
+      </p-message>
+      }
+    </div>
+
+    <!-- Asset Image -->
+    <div class="space-y-1">
+      <span class="block font-medium">Asset Image</span>
+      @let assetImagePath = asset && asset.assetImagePath ? asset.assetImagePath : null;
+      <app-form-file-upload
+        [accept]="'image/*'"
+        [existingFileName]="assetImagePath"
+        [existingFilePath]="assetImagePath"
+        (selectedFile)="onSelectFile($event)" />
+    </div>
+
+    <!-- Company -->
+    <div class="space-y-1">
+      <label
+        for="company"
+        class="block font-medium">
+        Company/Manufacturer
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        formControlName="company"
+        pInputText
+        id="company"
+        type="text"
+        placeholder="e.g. Apple, Dell, Herman Miller"
+        class="w-full"
+        [invalid]="isInvalid('company')" />
+      @if (assetForm.get('company')?.invalid && assetForm.get('company')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (assetForm.get('company')?.errors?.['required']) {
+        <span>Company name is required</span>
+        }
+      </p-message>
+      }
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <!-- Color -->
+      <div class="space-y-1">
+        <label
+          for="color"
+          class="block font-medium">
+          Color
+        </label>
+        <input
+          formControlName="color"
+          pInputText
+          id="color"
+          type="text"
+          placeholder="e.g. Black"
+          class="w-full" />
+      </div>
+
+      <!-- Price -->
+      <div class="space-y-1">
+        <label
+          for="price"
+          class="block font-medium">
+          Price
+        </label>
+        <p-iconfield>
+          <p-inputicon class="pi pi-indian-rupee" />
+          <input
+            formControlName="price"
+            pInputText
+            id="price"
+            type="text"
+            placeholder="e.g. 1299.99"
+            class="w-full" />
+        </p-iconfield>
+      </div>
+
+      <!-- Model No -->
+      <div class="space-y-1">
+        <label
+          for="modelNo"
+          class="block font-medium">
+          Model No
+        </label>
+        <input
+          formControlName="modelNo"
+          pInputText
+          id="modelNo"
+          type="text"
+          placeholder="e.g. MacBookPro 16"
+          class="w-full" />
+      </div>
+
+      <!-- Size -->
+      <div class="space-y-1">
+        <label
+          for="size"
+          class="block font-medium">
+          Size
+        </label>
+        <input
+          formControlName="size"
+          pInputText
+          id="size"
+          type="text"
+          placeholder="e.g. 15 inch"
+          class="w-full" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Weight -->
+      <div class="space-y-1">
+        <label
+          for="weight"
+          class="block font-medium">
+          Weight
+        </label>
+        <input
+          formControlName="weight"
+          pInputText
+          id="weight"
+          type="text"
+          placeholder="e.g. 4.3 lbs"
+          class="w-full" />
+      </div>
+
+      <!-- Serial Number -->
+      <div class="space-y-1">
+        <label
+          for="serialNumber"
+          class="block font-medium">
+          Serial Number
+        </label>
+        <input
+          formControlName="serialNumber"
+          pInputText
+          id="serialNumber"
+          type="text"
+          placeholder="e.g. C02ZJ7A3JG5J"
+          class="w-full" />
+      </div>
+    </div>
+
+    <!-- Purchase Date & Warranty Expiry-->
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Purchase Date -->
+      <div class="space-y-1">
+        <label
+          for="purchaseDate"
+          class="block font-medium">
+          Purchase Date
+        </label>
+        <p-datepicker
+          id="purchaseDate"
+          formControlName="purchaseDate"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          [maxDate]="today"
+          placeholder="Pick a date"
+          inputStyleClass="w-full"
+          class="w-full"
+          appendTo="body" />
+      </div>
+
+      <!-- Warranty Expiry -->
+      <div class="space-y-1">
+        <label
+          for="warrantyExpiry"
+          class="block font-medium">
+          Warranty Expiry
+        </label>
+        <p-datepicker
+          id="warrantyExpiry"
+          formControlName="warrantyExpiry"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          placeholder="Pick a date"
+          inputStyleClass="w-full"
+          class="w-full"
+          appendTo="body" />
+      </div>
+    </div>
+
+    <!-- Repairable -->
+    <div class="grid grid-cols-1 gap-4">
+      <div class="flex items-center justify-between space-y-1 rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800">
+        <div>
+          <label
+            for="isRepairable"
+            class="block font-medium">
+            Repairable
+          </label>
+          <p class="text-sm text-muted-color">Can this asset be repaired?</p>
+        </div>
+        <p-toggleswitch
+          formControlName="isRepairable"
+          inputId="isRepairable" />
+      </div>
+    </div>
+
+    <!--<pre class="text-red-500">{{assetForm.value|json}}</pre>-->
+  </form>
+</section>
+
+<div class="mt-6 flex justify-end gap-2">
+  <p-button
+    label="Cancel"
+    severity="secondary"
+    (onClick)="onCancel()" />
+  <p-button
+    label="Save"
+    [loading]="store.isSaving()"
+    [disabled]="assetForm.invalid || store.isSaving()"
+    (onClick)="onSubmit()" />
+</div>

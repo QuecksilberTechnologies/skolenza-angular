@@ -1,0 +1,399 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <!-- Stats Header -->
+  <div class="m-3 flex flex-col sm:m-4">
+    @defer {
+    <app-ticket-stats
+      [newTickets]="store.newTickets()"
+      [openTickets]="store.openTickets()"
+      [solvedTickets]="store.solvedTickets()"
+      [pendingTickets]="store.pendingTickets()" />
+    } @placeholder (minimum 300ms) {
+    <app-asset-stats-loader />
+    }
+  </div>
+
+  <!-- Ticket Lists -->
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      #dt
+      [value]="store.tickets()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [showLoader]="false"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '64rem' }"
+      [lazy]="true"
+      [paginator]="true"
+      [showCurrentPageReport]="true"
+      [rows]="pageSize()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="store.ticketTotalRecords()"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      (onLazyLoad)="onLazyLoad($event)"
+      paginatorDropdownAppendTo="body"
+      [globalFilterFields]="['']"
+      [selectionMode]="'multiple'"
+      [selection]="selectedTickets()"
+      (selectionChange)="selectedTickets.set($event)"
+      [sortMode]="'single'"
+      [sortField]="'updated'"
+      [sortOrder]="-1"
+      [(contextMenuSelection)]="selectedRow"
+      [contextMenu]="
+        ((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2 ? actionContextMenu : null
+      ">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter -->
+          <!--<p-select
+            class="w-full min-w-0 lg:min-w-52"
+            optionLabel="categoryName"
+            optionValue="id"
+            placeholder="Select Category"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [options]="store.categories()"
+          >
+            <ng-template let-cat #item>
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span
+                    class="w-3 h-3 rounded-full shrink-0"
+                    [style.background-color]="cat.colorCode"
+                  ></span>
+                  <span class="font-medium text-zinc-700 dark:text-zinc-300 truncate">
+                    {{ cat.categoryName }}
+                  </span>
+                </div>
+                <span
+                  class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 tabular-nums shrink-0"
+                >
+                  {{ cat.ticketCount }}
+                </span>
+              </div>
+            </ng-template>
+          </p-select>-->
+
+          <!--<p-select
+            class="w-full min-w-0 lg:min-w-52"
+            optionLabel="name"
+            optionValue="name"
+            placeholder="Select Agent"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [options]="store.agentsSummary()"
+          >
+            <ng-template let-agent #item>
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2 min-w-0">
+                  <app-user-avatar class="shrink-0" [name]="agent.initial" avatarClass="h-7! w-7!" />
+                  <span class="font-medium text-zinc-700 dark:text-zinc-300 truncate">
+                    {{ agent.name }}
+                  </span>
+                </div>
+                <span
+                  class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 tabular-nums shrink-0"
+                >
+                  {{ agent.ticketCount }}
+                </span>
+              </div>
+            </ng-template>
+          </p-select>-->
+
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            placeholder="Select Department"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [options]="departmentOptions()" />
+
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            placeholder="Select Status"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [options]="statusOptions" />
+
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            placeholder="Select Priority"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [options]="priorityOptions" />
+
+          <!-- Advance filter -->
+          <!--<app-table-search-filter
+            [filterCount]="appliedStaffMemberFilterCount()"
+            (filter)="filterStaff Members()"
+          />-->
+
+          <!--@if (((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2) {-->
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input />
+            @if (((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2) {
+            <p-splitbutton
+              label="Create Ticket"
+              icon="pi pi-plus"
+              dropdownIcon="pi pi-cog"
+              [model]="primaryActionItems"
+              (onClick)="upserTicket()" />
+            } @else {
+            <p-button
+              label="Create Ticket"
+              icon="pi pi-plus"
+              styleClass="w-full lg:w-auto"
+              (onClick)="upserTicket()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #colgroup>
+        <colgroup>
+          <col style="width: 7rem" />
+          <col style="width: 24rem" />
+          <col style="width: 12rem" />
+          <col style="width: 8rem" />
+          <col style="width: 8rem" />
+          <col style="width: 12rem" />
+          <col style="width: 9rem" />
+          <col style="width: 9rem" />
+          @if (((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2) {
+          <col style="width: 4rem" />
+          }
+        </colgroup>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <!-- TODO: Impliment later -->
+          <!--<th class="w-10">
+            <p-tableHeaderCheckbox />
+          </th>-->
+          <th
+            pSortableColumn="id"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              Ticket ID
+              <p-sortIcon field="id" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="title"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              Subject
+              <p-sortIcon field="title" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="department"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              Dept · Category
+              <p-sortIcon field="department" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="status"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              Status
+              <p-sortIcon field="status" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="priority"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              Priority
+              <p-sortIcon field="priority" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="assignedTo"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              Assignee
+              <p-sortIcon field="assignedTo" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="slaStatus"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              SLA
+              <p-sortIcon field="slaStatus" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="updated"
+            class="!px-3 !py-2.5 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              Updated
+              <p-sortIcon field="updated" />
+            </div>
+          </th>
+          @if (((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2) {
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">Actions</th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-ticket>
+        <tr [pContextMenuRow]="ticket">
+          <!-- TODO: Impliment later -->
+          <!--<td>
+            <p-tableCheckbox [value]="ticket" />
+          </td>-->
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <div class="group flex items-center gap-0">
+              <span
+                class="me-2 truncate font-mono font-semibold tracking-tight text-zinc-600 tabular-nums dark:text-zinc-300">
+                #{{ ticket.id }}
+              </span>
+              <div class="opacity-0 group-hover:opacity-100">
+                <p-button
+                  icon="pi pi-clipboard"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="secondary"
+                  (onClick)="copyTicketId(ticket)" />
+              </div>
+            </div>
+          </td>
+          <td class="max-w-80 !px-3 !py-2.5 align-middle">
+            <div class="flex flex-col gap-0.5">
+              <span
+                class="leading-snug font-semibold text-zinc-800 transition-colors hover:cursor-pointer hover:text-primary dark:text-zinc-100"
+                role="button"
+                tabindex="0"
+                (click)="onTicketClick(ticket)"
+                (keydown.enter)="onTicketClick(ticket)"
+                (keydown.space)="onTicketClick(ticket)">
+                {{ ticket.title }}
+              </span>
+              <div class="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+                <app-user-avatar class="shrink-0" [name]="ticket.requesterInitial" avatarClass="h-5! w-5! text-xs!" />
+                <span class="max-w-28 truncate">{{ ticket.requester }}</span>
+                @if (ticket.comments > 0) {
+                <span class="inline-flex items-center gap-1">
+                  <i class="pi pi-comment text-[10px]"></i>
+                  <p-badge
+                    [value]="ticket.comments"
+                    severity="secondary"
+                    badgeSize="small" />
+                </span>
+                } @if (ticket.attachments > 0) {
+                <span class="inline-flex items-center gap-1">
+                  <i class="pi pi-paperclip text-[10px]"></i>
+                  <p-badge
+                    [value]="ticket.attachments"
+                    severity="secondary"
+                    badgeSize="small" />
+                </span>
+                }
+              </div>
+            </div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle">
+            <div class="flex flex-col items-start gap-0.5 leading-snug">
+              <span class="font-medium text-zinc-700 dark:text-zinc-200">{{ ticket.department }}</span>
+              <span class="text-sm text-zinc-500 dark:text-zinc-400">{{ ticket.category }}</span>
+            </div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <p-chip
+              [label]="ticket.status"
+              [styleClass]="statusPillClass(ticket.status)" />
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <p-chip
+              [label]="ticket.priority"
+              [styleClass]="priorityPillClass(ticket.priority)" />
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <app-assignee-cell
+              [ticket]="ticket"
+              [agents]="store.agentsSummary()"
+              (agentSelected)="onAgentSelected(ticket, $event)"
+              (unassigned)="onUnassigned(ticket)" />
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            @if (ticket.slaStatus === 'met') {
+            <span
+              class="font-medium"
+              [class]="slaTextClass('met')">
+              Met
+            </span>
+            } @else {
+            <div class="flex flex-col gap-1">
+              <div class="h-1.5 w-20 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-700">
+                <div
+                  class="h-full rounded-full"
+                  [class]="slaProgressClass(ticket.slaStatus)"
+                  [style.width.%]="ticket.slaProgress"></div>
+              </div>
+              <span
+                class="font-medium tabular-nums"
+                [class]="slaTextClass(ticket.slaStatus)">
+                {{ ticket.slaLabel }}
+              </span>
+            </div>
+            }
+          </td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <span class="inline-flex items-center gap-1.5 text-zinc-500 tabular-nums dark:text-zinc-400">
+              <i class="pi pi-clock text-[11px] text-zinc-400"></i>
+              {{ ticket.updated }}
+            </span>
+          </td>
+          @if (((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2) {
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <p-button
+              class="text-xl!"
+              type="button"
+              icon="pi pi-ellipsis-h"
+              [rounded]="false"
+              severity="secondary"
+              (click)="selectedRow = ticket; actionMenu.toggle($event)" />
+          </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (store.tickets().length === 0) {
+        <tr>
+          <td colspan="10">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="10">
+            <app-table-empty-message
+              icon="pi pi-ticket"
+              message="No tickets found"
+              subMessage="Create a new ticket to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems"
+  appendTo="body" />
+<p-confirmDialog />

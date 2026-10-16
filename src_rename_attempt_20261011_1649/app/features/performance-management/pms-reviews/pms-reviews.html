@@ -1,0 +1,132 @@
+<p-card
+  class="block overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+  <!-- Toolbar -->
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
+    <div class="relative">
+      <i
+        class="pi pi-filter pointer-events-none absolute top-1/2 left-3 z-10 -translate-y-1/2 text-xs text-gray-400 dark:text-zinc-500"
+        aria-hidden="true"></i>
+      <p-select
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="All statuses"
+        [showClear]="true"
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="onStatusChange($event)"
+        styleClass="w-52 pms-status-select"
+        ariaLabel="Filter by status" />
+    </div>
+
+    <div
+      class="flex flex-wrap items-center gap-2"
+      aria-label="Review summary">
+      <span
+        class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+        <span
+          class="h-1.5 w-1.5 rounded-full bg-emerald-500"
+          aria-hidden="true"></span>
+        {{ statusCounts().completed }} Completed
+      </span>
+      <span
+        class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
+        <span
+          class="h-1.5 w-1.5 rounded-full bg-blue-500"
+          aria-hidden="true"></span>
+        {{ statusCounts().inReview }} In Review
+      </span>
+      <span
+        class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+        <span
+          class="h-1.5 w-1.5 rounded-full bg-amber-500"
+          aria-hidden="true"></span>
+        {{ statusCounts().pending }} Pending
+      </span>
+    </div>
+  </div>
+
+  @if (store.isLoading()) {
+  <app-table-loader />
+  } @else if (!store.filteredReviews().length) {
+  <app-table-empty-message
+    icon="pi pi-file-edit"
+    message="No reviews found"
+    subMessage="Reviews for the selected filter will appear here." />
+  } @else {
+  <p-table
+    [value]="store.filteredReviews()"
+    [paginator]="store.filteredReviews().length > 10"
+    [rows]="10"
+    [rowHover]="true"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-sm pms-reviews-table">
+    <ng-template pTemplate="header">
+      <tr class="text-xs tracking-wide text-gray-500 uppercase dark:text-zinc-400">
+        <th>Review Cycle</th>
+        <th>StaffMember</th>
+        <th>Reviewer</th>
+        <th>Rating</th>
+        <th>Status</th>
+        <th>Due Date</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template
+      pTemplate="body"
+      let-review>
+      <tr>
+        <td>
+          <span
+            class="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-zinc-800 dark:text-zinc-300">
+            {{ review.cycle }}
+          </span>
+        </td>
+        <td>
+          <div class="flex items-center gap-2.5">
+            <span
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-50 text-xs font-semibold text-primary-600 dark:bg-primary-500/15 dark:text-primary-300"
+              aria-hidden="true">
+              {{ initials(review.staffMemberName) }}
+            </span>
+            <span class="font-medium text-gray-900 dark:text-zinc-100">{{ review.staffMemberName }}</span>
+          </div>
+        </td>
+        <td class="text-gray-600 dark:text-zinc-400">{{ review.reviewerName }}</td>
+        <td>
+          <app-pms-rating-stars
+            [value]="review.overallRating"
+            [showValue]="true" />
+        </td>
+        <td><app-pms-status-badge [status]="review.status" /></td>
+        <td class="whitespace-nowrap">
+          <div class="flex flex-col leading-tight">
+            <span class="font-medium text-gray-900 dark:text-zinc-100">{{ review.dueDate | date: 'mediumDate' }}</span>
+            @if (dueMeta(review); as due) { @if (due.label) {
+            <span
+              class="text-xs font-medium"
+              [class.text-red-600]="due.tone === 'overdue'"
+              [class.dark:text-red-400]="due.tone === 'overdue'"
+              [class.text-amber-600]="due.tone === 'soon'"
+              [class.dark:text-amber-400]="due.tone === 'soon'">
+              {{ due.label }}
+            </span>
+            } }
+          </div>
+        </td>
+        <td>
+          <div class="flex">
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              [rounded]="true"
+              size="small"
+              ariaLabel="Open review"
+              pTooltip="Open review"
+              (onClick)="openForm(review)" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  }
+</p-card>

@@ -1,0 +1,78 @@
+@if (assetCategoryForm) {
+<form
+  [formGroup]="assetCategoryForm"
+  (ngSubmit)="onSubmit()"
+  class="grid grid-cols-1 gap-4">
+  <div class="space-y-1">
+    <label
+      for="categoryName"
+      class="block font-medium">
+      Category Name
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <input
+      formControlName="categoryName"
+      pInputText
+      [pAutoFocus]="true"
+      type="text"
+      id="categoryName"
+      class="w-full"
+      [invalid]="isInvalid('categoryName')" />
+    @if ( assetCategoryForm.get('categoryName')?.invalid && assetCategoryForm.get('categoryName')?.touched ) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      @if (assetCategoryForm.get('categoryName')?.errors?.['required']) {
+      <span>Please enter a category name</span>
+      } @else if (assetCategoryForm.get('categoryName')?.errors?.['minlength']) {
+      <span>Category name must be at least 3 characters</span>
+      }
+    </p-message>
+    }
+  </div>
+
+  <div class="space-y-1">
+    <label
+      for="remark"
+      class="block font-medium">
+      Remark
+      <span class="text-sm font-normal text-gray-400">(Optional)</span>
+    </label>
+    <textarea
+      formControlName="remark"
+      pTextarea
+      rows="3"
+      cols="20"
+      id="remark"
+      class="w-full"></textarea>
+  </div>
+
+  <!-- hasMultipleUser  -->
+  <div class="flex items-center">
+    <p-checkbox
+      inputId="hasMultipleUser"
+      formControlName="hasMultipleUser"
+      binary="true"
+      class="mr-2" />
+    <label
+      for="hasMultipleUser"
+      class="block cursor-pointer font-medium">
+      Multiple User
+    </label>
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <p-button
+      label="Cancel"
+      variant="text"
+      severity="secondary"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isSubmitting() ? 'Saving...' : 'Save'"
+      [loading]="isSubmitting()"
+      [disabled]="assetCategoryForm.invalid || isSubmitting()" />
+  </div>
+</form>
+}

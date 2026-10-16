@@ -1,0 +1,390 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.institutionLocations()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [lazy]="true"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [paginator]="true"
+      [rows]="store.pageSize()"
+      [totalRecords]="store.totalRecords()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} locations"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '68rem' }"
+      [style]="{ background: 'transparent' }"
+      (onLazyLoad)="loadInstitutionLocations($event)"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          @if (isHostSession()) {
+            <!-- Institution filter, host session only. Clearing it lists every institution's locations. -->
+            <p-select
+              [options]="institutions()"
+              optionLabel="companyName"
+              optionValue="id"
+              placeholder="Any institution"
+              ariaLabel="Filter by institution"
+              appendTo="body"
+              [filter]="true"
+              [showClear]="true"
+              [loading]="isInstitutionsLoading()"
+              class="w-full min-w-0 lg:min-w-44"
+              [ngModel]="store.institutionId()"
+              (onChange)="onInstitutionChange($event.value)" />
+          }
+
+          <!-- Location type filter -->
+          <p-select
+            [options]="locationTypeOptions"
+            optionLabel="label"
+            optionValue="id"
+            placeholder="Location Type"
+            ariaLabel="Filter by location type"
+            appendTo="body"
+            class="w-full min-w-0 lg:min-w-44"
+            [ngModel]="store.locationType()"
+            (onChange)="onLocationTypeChange($event.value)" />
+
+          <!-- Country filter -->
+          <p-select
+            [options]="countries()"
+            optionLabel="countryName"
+            optionValue="id"
+            placeholder="Country"
+            ariaLabel="Filter by country"
+            appendTo="body"
+            [showClear]="true"
+            [loading]="isLoadingCountries()"
+            class="w-full min-w-0 lg:min-w-44"
+            [ngModel]="store.countryId()"
+            (onChange)="onCountryChange($event.value)">
+            <ng-template
+              #selectedItem
+              let-selectedOption>
+              @if (selectedOption) {
+                <div class="flex min-w-0 items-center gap-2">
+                  <img
+                    [src]="flagUrl(selectedOption.countryCode)"
+                    width="16"
+                    height="12"
+                    class="shrink-0"
+                    alt="" />
+                  <span class="truncate">{{ selectedOption.countryName }}</span>
+                </div>
+              }
+            </ng-template>
+            <ng-template
+              #item
+              let-country>
+              <div class="flex items-center gap-2">
+                <img
+                  [src]="flagUrl(country.countryCode)"
+                  width="16"
+                  height="12"
+                  loading="lazy"
+                  decoding="async"
+                  class="shrink-0"
+                  alt="" />
+                <span>{{ country.countryName }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+
+          <!-- State filter, enabled once a country narrows it -->
+          <p-select
+            [options]="states()"
+            optionLabel="stateName"
+            optionValue="id"
+            placeholder="State"
+            ariaLabel="Filter by state"
+            appendTo="body"
+            [showClear]="true"
+            [loading]="isLoadingStates()"
+            [disabled]="store.countryId() === null"
+            pTooltip="Select a country first"
+            tooltipPosition="bottom"
+            [tooltipDisabled]="store.countryId() !== null"
+            class="w-full min-w-0 lg:min-w-44"
+            [ngModel]="store.stateId()"
+            (onChange)="onStateChange($event.value)" />
+
+          <!-- District filter, enabled once a state narrows it -->
+          <p-select
+            [options]="districts()"
+            optionLabel="districtName"
+            optionValue="id"
+            placeholder="District"
+            ariaLabel="Filter by district"
+            appendTo="body"
+            [showClear]="true"
+            [loading]="isLoadingDistricts()"
+            [disabled]="store.stateId() === null"
+            pTooltip="Select a state first"
+            tooltipPosition="bottom"
+            [tooltipDisabled]="store.stateId() !== null"
+            class="w-full min-w-0 lg:min-w-44"
+            [ngModel]="store.districtId()"
+            (onChange)="onDistrictChange($event.value)" />
+
+          <!-- Status filter -->
+          <p-select
+            [options]="statusOptions"
+            optionLabel="status"
+            optionValue="value"
+            placeholder="Status"
+            ariaLabel="Filter by status"
+            appendTo="body"
+            class="w-full min-w-0 lg:min-w-36"
+            [ngModel]="store.isActive()"
+            (onChange)="onStatusChange($event.value)" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchInstitutionLocations($event)" />
+            @if (canAdd()) {
+              <p-button
+                label="Add Location"
+                icon="pi pi-plus"
+                class="w-full justify-center lg:w-auto"
+                pTooltip="Add a work location"
+                tooltipPosition="bottom"
+                (onClick)="createInstitutionLocation()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #colgroup>
+        <!-- Widths add up to the table's 68rem min-width so nothing forces extra scroll. -->
+        <colgroup>
+          <col style="width: 14rem" />
+          <col style="width: 8rem" />
+          <col style="width: 13rem" />
+          <col style="width: 9rem" />
+          <col style="width: 12rem" />
+          <col style="width: 6rem" />
+          @if (canUseRowActions()) {
+            <col style="width: 6rem" />
+          }
+        </colgroup>
+      </ng-template>
+
+      <ng-template #header>
+        <tr>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Location
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Type
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Address
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Time Zone
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Capabilities
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Status
+          </th>
+          @if (canUseRowActions()) {
+            <th
+              scope="col"
+              class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+              <div class="flex justify-center">Actions</div>
+            </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-location>
+        <tr
+          [pContextMenuRow]="location"
+          [pContextMenuRowDisabled]="!canUseRowActions()">
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <div class="flex flex-col items-start">
+              <button
+                type="button"
+                class="max-w-full truncate text-left font-medium text-primary-600 hover:underline dark:text-primary-400"
+                [attr.aria-label]="'View details for ' + (location.locationName || 'this location')"
+                (click)="showDetail(location)">
+                {{ location.locationName || '-' }}
+              </button>
+              <span class="max-w-full truncate text-xs text-gray-500 dark:text-zinc-400">
+                {{ location.locationCode || '-' }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="location.locationType | getInstitutionLocationType"
+              severity="secondary" />
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            @let geography = formatGeography(location);
+            @let country = getCountry(location.countryId);
+            <div class="flex min-w-0 items-center gap-2">
+              @if (country?.countryCode) {
+                <img
+                  [src]="flagUrl(country!.countryCode)"
+                  width="16"
+                  height="12"
+                  loading="lazy"
+                  decoding="async"
+                  class="shrink-0"
+                  alt="" />
+              }
+              <div class="flex min-w-0 flex-col">
+                <span class="truncate">{{ location.address || geography || '-' }}</span>
+                @if (location.address && geography) {
+                  <span class="truncate text-xs text-gray-500 dark:text-zinc-400">{{ geography }}</span>
+                }
+              </div>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <span class="truncate">{{ location.timeZoneId || '-' }}</span>
+          </td>
+          <td class="px-3! py-2.5! min-w-0 align-middle">
+            @let showHeadOffice = location.isHeadOffice && location.locationType !== headOfficeType;
+            <div class="flex flex-wrap gap-1">
+              @if (showHeadOffice) {
+                <p-tag
+                  value="Head Office"
+                  severity="secondary" />
+              }
+              @if (location.isAttendanceAllowed) {
+                <p-tag
+                  value="Attendance"
+                  severity="secondary" />
+              }
+              @if (location.isBiometricEnabled) {
+                <p-tag
+                  value="Biometric"
+                  severity="secondary" />
+              }
+              @if (location.isGeoFenceEnabled) {
+                <p-tag
+                  value="Geo-fence"
+                  severity="secondary" />
+              }
+              @if (
+                !showHeadOffice &&
+                !location.isAttendanceAllowed &&
+                !location.isBiometricEnabled &&
+                !location.isGeoFenceEnabled
+              ) {
+                <span class="text-gray-500 dark:text-zinc-400">-</span>
+              }
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="location.isActive ? 'Active' : 'Inactive'"
+              [severity]="location.isActive ? 'success' : 'danger'" />
+          </td>
+          @if (canUseRowActions()) {
+            <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+              <div class="flex items-center justify-center gap-2">
+                @if (canUpdate()) {
+                  <p-button
+                    class="text-xl!"
+                    [icon]="location.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                    [severity]="location.isActive ? 'success' : 'danger'"
+                    [pTooltip]="location.isActive ? 'Deactivate' : 'Activate'"
+                    tooltipPosition="left"
+                    [showDelay]="300"
+                    [loading]="location.isUpdatingStatus"
+                    [ariaLabel]="
+                      (location.isActive ? 'Deactivate ' : 'Activate ') + (location.locationName || 'location')
+                    "
+                    (onClick)="confirmToggleActive(location)" />
+                }
+                <app-table-action-button
+                  [ariaLabel]="'Actions for ' + (location.locationName || 'location')"
+                  (action)="selectedRow.set(location); actionMenu.toggle($event)" />
+              </div>
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.institutionLocations().length === 0) {
+          <tr>
+            <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            @if (hasActiveFilters()) {
+              <app-table-empty-message
+                icon="pi pi-search"
+                message="No locations match your filters"
+                subMessage="Try a different search term or clear the filters" />
+            } @else {
+              <app-table-empty-message
+                icon="pi pi-map-marker"
+                message="No locations found"
+                subMessage="Add a work location to get started" />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<app-headless-drawer [(visible)]="isShowDetail">
+  @if (isShowDetail()) {
+    <app-institution-location-detail
+      [location]="detailRow() ?? undefined"
+      [institutionId]="store.institutionId()"
+      [canUpdate]="canUpdate()"
+      (closePopup)="isShowDetail.set(false)"
+      (edit)="onDetailEdit()" />
+  }
+</app-headless-drawer>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+<p-confirmDialog />

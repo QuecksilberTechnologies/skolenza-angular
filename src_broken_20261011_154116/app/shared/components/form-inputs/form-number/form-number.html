@@ -1,0 +1,28 @@
+<app-form-field-shell
+  #shell
+  [field]="field()"
+  [inputId]="inputId()"
+  [label]="label()"
+  [required]="required()"
+  [hint]="hint()"
+  [hintIcon]="hintIcon()"
+  [submitted]="submitted()">
+  <p-inputnumber
+    class="w-full"
+    inputStyleClass="w-full"
+    [formField]="$any(field())"
+    [inputId]="inputId()"
+    [mode]="mode()"
+    [currency]="currency()"
+    [min]="min()"
+    [max]="max()"
+    [minFractionDigits]="minFractionDigits()"
+    [maxFractionDigits]="maxFractionDigits()"
+    [readonly]="readonlyInput()"
+    [showButtons]="showButtons()"
+    [useGrouping]="useGrouping()"
+    [placeholder]="placeholder() ?? ''"
+    [invalid]="shell.showError()"
+    [ariaRequired]="required()"
+    [ariaDescribedBy]="inputId() + '-help'" />
+</app-form-field-shell>

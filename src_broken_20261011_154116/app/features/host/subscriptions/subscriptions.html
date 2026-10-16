@@ -1,0 +1,416 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.planRows()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [lazy]="true"
+      [paginator]="true"
+      [rows]="store.pageSize()"
+      [totalRecords]="store.totalRecords()"
+      [showCurrentPageReport]="true"
+      [tableStyle]="{ width: '100%', 'table-layout': 'fixed' }"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} subscription plans"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [style]="{ background: 'transparent' }"
+      (onLazyLoad)="loadPlans($event)"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter -->
+          <p-select
+            [options]="statusOptions"
+            optionLabel="status"
+            optionValue="value"
+            placeholder="Select Status"
+            ariaLabel="Filter by status"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-52"
+            [ngModel]="store.isActive()"
+            (onChange)="onStatusChange($event.value)" />
+
+          <!-- Advance filter -->
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchSubscriptions($event)" />
+            @if (permissionsStore.canPerform(moduleKey, 'Add')) {
+              <p-button
+                label="Create Plan"
+                icon="pi pi-plus"
+                class="w-full justify-center lg:w-auto"
+                pTooltip="Create Plan"
+                tooltipPosition="bottom"
+                (onClick)="createEditPlan()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #header>
+        <!--
+          Each merged column names in visible text the value it leads with — an `sr-only` clarifier
+          would leave sighted users guessing and is re-announced with every cell in table-navigation
+          mode. Pricing is the exception: each cell prints its own unit. Columns drop by priority as
+          the viewport narrows so the table never scrolls sideways — Plan and Actions are the only
+          two that survive every width, Status returns at `sm`, Pricing at `md`, Module Map and
+          Subscribers at `lg`, Limits at `xl`. Each responsive class must stay in step with its `td`
+          below. Everything hidden here is still in the plan detail drawer, and the two values a
+          phone cannot do without — status and price — fold into the Plan cell instead.
+
+          `table-layout: fixed` ignores `min-width`, so Plan carries no width below `lg`: it has to
+          be the auto column that takes the slack the dropped columns leave, or the name truncates
+          to an initial no matter how much room the row has.
+        -->
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          <th
+            scope="col"
+            class="min-w-[140px] px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 sm:min-w-[180px] lg:w-[26%] lg:min-w-[220px] dark:text-zinc-100">
+            Plan
+          </th>
+          <th
+            scope="col"
+            class="hidden w-[24%] min-w-[170px] px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 md:table-cell dark:text-zinc-100">
+            Pricing
+          </th>
+          <th
+            scope="col"
+            class="hidden w-[16%] min-w-[140px] px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 xl:table-cell dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              Limits
+              <span class="text-xs font-normal text-gray-500 dark:text-zinc-400">(users)</span>
+            </div>
+          </th>
+          <th
+            scope="col"
+            class="hidden w-[12%] min-w-[120px] px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 lg:table-cell dark:text-zinc-100">
+            Subscribers
+          </th>
+          @if (canMapModules()) {
+          <th
+            scope="col"
+            class="hidden w-[140px] px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 lg:table-cell dark:text-zinc-100">
+            <div class="flex justify-center">Module Map</div>
+          </th>
+          }
+          <th
+            scope="col"
+            class="hidden w-[92px] px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 sm:table-cell sm:w-[110px] dark:text-zinc-100">
+            <div class="flex justify-center">Status</div>
+          </th>
+          @if (canUseRowActions()) {
+          <th
+            scope="col"
+            class="w-[96px] px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 sm:w-[120px] dark:text-zinc-100">
+            <div class="flex justify-center">Actions</div>
+          </th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-subscription>
+        @let moduleCount = subscription.modules?.length ?? 0;
+        <!-- The accessible name has to start with the visible label (WCAG 2.5.3), so both read off
+             the same text. -->
+        @let mapLabel = moduleCount ? moduleCount + ' mapped' : 'Map';
+        <tr
+          [pContextMenuRow]="subscription"
+          [pContextMenuRowDisabled]="!canUseRowActions()">
+          <td class="px-3! py-2.5! align-middle text-gray-700 dark:text-zinc-100">
+            <!-- Badges sit beside the name rather than under it: it keeps every row one line tall
+                 and puts the column's spare width to use. The name yields first on a narrow cell. -->
+            <div class="flex min-w-0 items-center gap-2">
+              <!-- Below `sm` the Status column is gone, and the toggle that also carries the state
+                   needs Update — a view-only role would otherwise see no status at all. -->
+              <span
+                class="size-2 shrink-0 rounded-full sm:hidden"
+                [class.bg-green-500]="subscription.isActive"
+                [class.bg-red-500]="!subscription.isActive"
+                aria-hidden="true"></span>
+              <span class="sr-only sm:hidden">
+                {{ subscription.isActive ? 'Active' : 'Inactive' }}
+              </span>
+              @if (permissionsStore.canPerform(moduleKey, 'View')) {
+              <button
+                type="button"
+                class="min-w-0 cursor-pointer truncate text-left font-semibold text-primary-600 hover:underline focus-visible:underline focus-visible:outline-none dark:text-primary-400"
+                [pTooltip]="subscription.planName"
+                tooltipPosition="bottom"
+                [attr.aria-label]="'View details for ' + subscription.planName"
+                (click)="viewDetails(subscription)">
+                {{ subscription.planName }}
+              </button>
+              } @else {
+              <div
+                class="min-w-0 truncate text-left font-semibold"
+                [pTooltip]="subscription.planName"
+                tooltipPosition="bottom">
+                {{ subscription.planName }}
+              </div>
+              }
+              @if (subscription.isMostPopular || subscription.isCustom || subscription.isFree) {
+              <!-- Under `sm` each chip drops to its icon so it stops crowding out the name, and the
+                   word it loses is handed to the `sr-only` twin beside it. -->
+              <div class="flex shrink-0 items-center gap-1">
+                @if (subscription.isMostPopular) {
+                <span
+                  class="inline-flex items-center gap-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+                  pTooltip="Most popular"
+                  tooltipPosition="bottom">
+                  <i
+                    class="pi pi-star-fill text-[9px]!"
+                    aria-hidden="true"></i>
+                  <span class="hidden sm:inline">POPULAR</span>
+                  <span class="sr-only sm:hidden">Most popular</span>
+                </span>
+                } @if (subscription.isCustom) {
+                <span
+                  class="inline-flex items-center gap-1 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
+                  pTooltip="Custom plan"
+                  tooltipPosition="bottom">
+                  <i
+                    class="pi pi-sliders-h text-[9px]!"
+                    aria-hidden="true"></i>
+                  <span class="hidden sm:inline">CUSTOM</span>
+                  <span class="sr-only sm:hidden">Custom</span>
+                </span>
+                } @if (subscription.isFree) {
+                <span
+                  class="inline-flex items-center gap-1 rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                  pTooltip="Free plan"
+                  tooltipPosition="bottom">
+                  <i
+                    class="pi pi-gift text-[9px]!"
+                    aria-hidden="true"></i>
+                  <span class="hidden sm:inline">FREE</span>
+                  <span class="sr-only sm:hidden">Free</span>
+                </span>
+                }
+              </div>
+              }
+            </div>
+            <!-- The Pricing column is `display: none` under `md`, so it is not announced there
+                 either — this line is the only copy at that width, and it goes silent above it. -->
+            @if (subscription.pricing.primary; as primary) {
+            <div
+              class="mt-0.5 flex min-w-0 items-baseline gap-1 truncate text-xs text-gray-500 tabular-nums md:hidden dark:text-zinc-400">
+              <span class="font-semibold text-gray-700 dark:text-zinc-200">
+                {{ primary.amount | currency: (subscription.currencyKey | currencySymbol) : 'symbol' : '1.0-0' }}
+              </span>
+              <span aria-hidden="true">{{ primary.unit }}</span>
+              <span class="sr-only">{{ primary.srUnit }}</span>
+            </div>
+            }
+          </td>
+          <td
+            class="hidden px-3! py-2.5! align-middle text-gray-700 tabular-nums md:table-cell dark:text-zinc-100">
+            @if (subscription.pricing.primary; as primary) {
+            <div class="flex min-w-0 flex-col">
+              <span class="flex items-baseline gap-1 truncate">
+                <span class="font-semibold">
+                  {{ primary.amount | currency: (subscription.currencyKey | currencySymbol) : 'symbol' : '1.0-0' }}
+                </span>
+                <span
+                  class="text-xs text-gray-500 dark:text-zinc-400"
+                  aria-hidden="true">
+                  {{ primary.unit }}
+                </span>
+                <span class="sr-only">{{ primary.srUnit }}</span>
+                @if (subscription.currencyCode) {
+                <span
+                  class="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-gray-500 dark:bg-zinc-800 dark:text-zinc-400">
+                  {{ subscription.currencyCode }}
+                </span>
+                }
+              </span>
+              @if (subscription.pricing.secondary.length) {
+              <span class="truncate text-xs text-gray-500 tabular-nums dark:text-zinc-400">
+                @for (line of subscription.pricing.secondary; track line.unit; let last = $last) {
+                {{ line.amount | currency: (subscription.currencyKey | currencySymbol) : 'symbol' : '1.0-0' }}
+                <span aria-hidden="true">{{ line.unit }}</span>
+                <span class="sr-only">{{ line.srUnit }}</span>
+                @if (!last) {
+                <span
+                  class="px-0.5"
+                  aria-hidden="true">
+                  ·
+                </span>
+                }
+                }
+              </span>
+              }
+            </div>
+            } @else if (subscription.isFree) {
+            <span class="font-semibold text-green-700 dark:text-green-300">Free</span>
+            } @else {
+            <!-- `aria-label` is prohibited on a generic-role element, so the dash is hidden and
+                 the meaning is carried by its `sr-only` twin instead. -->
+            <span
+              class="text-gray-400 dark:text-zinc-500"
+              aria-hidden="true">
+              —
+            </span>
+            <span class="sr-only">No price</span>
+            }
+          </td>
+          <td
+            class="hidden px-3! py-2.5! align-middle text-gray-700 tabular-nums xl:table-cell dark:text-zinc-100">
+            <span class="flex min-w-0 items-center gap-2 truncate">
+              <i
+                class="pi pi-user text-zinc-400"
+                aria-hidden="true"></i>
+              {{ subscription.maxUsers | number: '1.0-0' }}
+              {{ subscription.maxUsers === 1 ? 'user' : 'users' }}
+            </span>
+          </td>
+          <td
+            class="hidden px-3! py-2.5! align-middle text-gray-700 tabular-nums lg:table-cell dark:text-zinc-100">
+            <div class="flex min-w-0 flex-col">
+              <span class="truncate font-semibold">{{ subscription.subscribers | number: '1.0-0' }}</span>
+              <!-- No subscribers means no revenue, so the zero above already says it. -->
+              @if (subscription.mrr) {
+              <span class="truncate text-xs text-gray-500 dark:text-zinc-400">
+                {{ subscription.mrr | currency: (subscription.currencyKey | currencySymbol) : 'symbol' : '1.0-0' }}
+                <span aria-hidden="true">MRR</span>
+                <span class="sr-only">estimated monthly recurring revenue</span>
+              </span>
+              }
+            </div>
+          </td>
+          @if (canMapModules()) {
+          <td class="hidden px-3! py-2.5! align-middle whitespace-nowrap lg:table-cell">
+            <div class="flex justify-center">
+              <p-button
+                [label]="mapLabel"
+                icon="pi pi-sitemap"
+                severity="help"
+                size="small"
+                [outlined]="true"
+                class="[&>button]:w-28 [&>button]:justify-start"
+                pTooltip="Map modules"
+                tooltipPosition="left"
+                [showDelay]="300"
+                [ariaLabel]="mapLabel + ' modules for ' + subscription.planName"
+                (onClick)="mapModules(subscription)" />
+            </div>
+          </td>
+          }
+          <td class="hidden px-3! py-2.5! align-middle whitespace-nowrap sm:table-cell">
+            <div class="flex justify-center">
+              <p-tag
+                [value]="subscription.isActive ? 'Active' : 'Inactive'"
+                [severity]="subscription.isActive ? 'success' : 'danger'" />
+            </div>
+          </td>
+          @if (canUseRowActions()) {
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <div class="flex justify-center gap-2">
+              @if (permissionsStore.canPerform(moduleKey, 'Update')) {
+              <p-button
+                class="text-xl!"
+                [icon]="subscription.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                [severity]="subscription.isActive ? 'success' : 'danger'"
+                [pTooltip]="subscription.isActive ? 'Deactivate' : 'Activate'"
+                tooltipPosition="left"
+                [showDelay]="300"
+                [loading]="subscription.isUpdatingStatus"
+                [ariaLabel]="
+                  (subscription.isActive ? 'Deactivate ' : 'Activate ') + subscription.planName
+                "
+                (onClick)="confirmToggleActive(subscription)" />
+              }
+              <app-table-action-button
+                [ariaLabel]="'Actions for ' + subscription.planName"
+                (action)="openActionMenu(subscription, $event, actionMenu)" />
+            </div>
+          </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (store.subscriptionPlans().length === 0) {
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            <app-table-empty-message
+              icon="pi pi-credit-card"
+              message="No subscription plans found"
+              subMessage="Create a new subscription plan to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+
+<!-- Deactivate keeps the stock buttons. -->
+<p-confirmDialog />
+
+<!-- A `#footer` suppresses the built-in buttons, which is what lets Delete stay busy on screen
+     while the call runs instead of the dialog closing the moment it is clicked. -->
+<p-confirmDialog
+  [key]="deletePlanKey">
+  <ng-template #footer>
+    <p-button
+      label="Keep Plan"
+      severity="secondary"
+      [disabled]="isDeletingPlan()"
+      (onClick)="cancelDelete()" />
+    <p-button
+      label="Delete Plan"
+      severity="danger"
+      [loading]="isDeletingPlan()"
+      (onClick)="deletePendingPlan()" />
+  </ng-template>
+</p-confirmDialog>
+
+<!-- Subscription Plan Details -->
+<!-- `class` lands on the host element, which `p-drawer` never widens from, so this width has to go
+     through `styleClass` to reach `.p-drawer` itself. -->
+<p-drawer
+  [(visible)]="isDetailOpen"
+  position="right"
+  styleClass="w-full! sm:w-[40rem]!"
+  (onHide)="closeDetails()">
+  <ng-template #headless>
+    @if (detailPlan(); as plan) { @defer {
+    <app-subscription-plan-detail
+      [plan]="plan"
+      [canEdit]="permissionsStore.canPerform(moduleKey, 'Update')"
+      (closePanel)="closeDetails()"
+      (editPlan)="editFromDetails($event)" />
+    } @placeholder {
+    <div class="flex h-screen flex-col items-center justify-center p-8">
+      <span class="text-lg text-gray-500 dark:text-zinc-400">Plan details...</span>
+    </div>
+    } }
+  </ng-template>
+</p-drawer>

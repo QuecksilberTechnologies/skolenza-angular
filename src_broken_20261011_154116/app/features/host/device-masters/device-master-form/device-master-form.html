@@ -1,0 +1,695 @@
+<div class="relative h-full overflow-y-auto">
+  <form
+    (submit)="onSubmit(); $event.preventDefault()"
+    class="form-invalid-visible flex min-h-full w-full flex-col">
+    @if (isLoading()) {
+    <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 pt-3 pb-6 sm:px-4 sm:pt-4"
+      role="status">
+      <span class="sr-only">Loading device…</span>
+      <app-section-card
+        icon="pi pi-tablet"
+        heading="Identity"
+        subheading="Identifies the device model in the catalog.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-skeleton-field slot />
+          <app-skeleton-field slot />
+          <app-skeleton-field
+            control="select"
+            slot />
+          <app-skeleton-field slot />
+          <app-skeleton-field slot />
+          <app-skeleton-toggle />
+          <app-skeleton-toggle />
+        </div>
+      </app-section-card>
+      <app-section-card
+        icon="pi pi-headphones"
+        heading="Manufacturer Support"
+        subheading="Where institutions go when the device needs help.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-skeleton-field slot />
+          <app-skeleton-field slot />
+          <app-skeleton-field slot />
+        </div>
+      </app-section-card>
+    </div>
+    } @else {
+    <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 pt-3 pb-6 sm:px-4 sm:pt-4">
+      <!-- Identity -->
+      <app-section-card
+        icon="pi pi-tablet"
+        heading="Identity"
+        subheading="Identifies the device model in the catalog.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <!-- Device code -->
+          <div class="space-y-1">
+            <label
+              for="deviceCode"
+              class="block font-medium">
+              Device code
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <input
+              [formField]="f.deviceCode"
+              pInputText
+              [pAutoFocus]="true"
+              type="text"
+              id="deviceCode"
+              class="w-full"
+              aria-required="true"
+              [class.p-invalid]="showError(f.deviceCode)"
+              [attr.aria-invalid]="showError(f.deviceCode)"
+              aria-describedby="deviceCode-help"
+              placeholder="e.g. ZK-UF100" />
+            <div
+              id="deviceCode-help"
+              class="min-h-5">
+              @if (showError(f.deviceCode)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ f.deviceCode().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+
+          <!-- Device name -->
+          <div class="space-y-1">
+            <label
+              for="deviceName"
+              class="block font-medium">
+              Device name
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <input
+              [formField]="f.deviceName"
+              pInputText
+              type="text"
+              id="deviceName"
+              class="w-full"
+              aria-required="true"
+              [class.p-invalid]="showError(f.deviceName)"
+              [attr.aria-invalid]="showError(f.deviceName)"
+              aria-describedby="deviceName-help"
+              placeholder="e.g. UFace 100 Terminal" />
+            <div
+              id="deviceName-help"
+              class="min-h-5">
+              @if (showError(f.deviceName)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ f.deviceName().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+
+          <!-- Device type -->
+          <div class="space-y-1">
+            <label
+              for="deviceType"
+              class="block font-medium">
+              Device type
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <p-select
+              inputId="deviceType"
+              class="w-full"
+              styleClass="w-full"
+              [options]="deviceTypeOptions"
+              optionLabel="label"
+              optionValue="id"
+              placeholder="Select device type"
+              [invalid]="showError(f.deviceType)"
+              [formField]="$any(f.deviceType)" />
+            <div
+              id="deviceType-help"
+              class="min-h-5">
+              @if (showError(f.deviceType)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ f.deviceType().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+
+          @for (item of identityFields; track item.id) {
+            <div class="space-y-1">
+              <label
+                [for]="item.id"
+                class="block font-medium">
+                {{ item.label }}
+              </label>
+              <input
+                [formField]="item.field"
+                pInputText
+                type="text"
+                [id]="item.id"
+                class="w-full"
+                [class.p-invalid]="showError(item.field)"
+                [attr.aria-invalid]="showError(item.field)"
+                [attr.aria-describedby]="item.id + '-help'"
+                [placeholder]="item.placeholder ?? ''" />
+              <div
+                [id]="item.id + '-help'"
+                class="min-h-5">
+                @if (showError(item.field)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ item.field().errors()[0].message }}</span>
+                  </p-message>
+                } @else if (item.hint) {
+                  <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    {{ item.hint }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Recommended -->
+          <app-toggle-field
+            inputId="isRecommended"
+            label="Recommended"
+            hint="Highlighted to institutions choosing a device">
+            <p-toggleswitch
+              inputId="isRecommended"
+              [formField]="$any(f.isRecommended)" />
+          </app-toggle-field>
+
+          <!-- Active -->
+          <app-toggle-field
+            inputId="isActive"
+            label="Active"
+            hint="Inactive devices cannot be assigned to institutions">
+            <p-toggleswitch
+              inputId="isActive"
+              [formField]="$any(f.isActive)" />
+          </app-toggle-field>
+        </div>
+      </app-section-card>
+
+      <!-- Manufacturer support -->
+      <app-section-card
+        icon="pi pi-headphones"
+        heading="Manufacturer Support"
+        subheading="Where institutions go when the device needs help.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          @for (item of supportFields; track item.id) {
+            <div class="space-y-1">
+              <label
+                [for]="item.id"
+                class="block font-medium">
+                {{ item.label }}
+              </label>
+              <input
+                [formField]="item.field"
+                pInputText
+                type="text"
+                [id]="item.id"
+                class="w-full"
+                [class.p-invalid]="showError(item.field)"
+                [attr.aria-invalid]="showError(item.field)"
+                [attr.aria-describedby]="item.id + '-help'"
+                [placeholder]="item.placeholder ?? ''" />
+              <div
+                [id]="item.id + '-help'"
+                class="min-h-5">
+                @if (showError(item.field)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ item.field().errors()[0].message }}</span>
+                  </p-message>
+                } @else if (item.hint) {
+                  <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    {{ item.hint }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </app-section-card>
+
+      <!-- Capabilities -->
+      <app-section-card
+        icon="pi pi-verified"
+        heading="Capabilities"
+        subheading="What the device can authenticate and record.">
+        <fieldset class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <legend class="sr-only">Supported capabilities</legend>
+          @for (toggle of capabilityToggles; track toggle.id) {
+            <app-toggle-field
+              [inputId]="toggle.id"
+              [label]="toggle.label">
+              <p-toggleswitch
+                [inputId]="toggle.id"
+                [formField]="$any(toggle.field)" />
+            </app-toggle-field>
+          }
+        </fieldset>
+      </app-section-card>
+
+      <!-- Connectivity -->
+      <app-section-card
+        icon="pi pi-wifi"
+        heading="Connectivity"
+        subheading="How the device reaches the platform.">
+        <fieldset class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <legend class="sr-only">Supported protocols and interfaces</legend>
+          @for (toggle of connectivityToggles; track toggle.id) {
+            <app-toggle-field
+              [inputId]="toggle.id"
+              [label]="toggle.label">
+              <p-toggleswitch
+                [inputId]="toggle.id"
+                [formField]="$any(toggle.field)" />
+            </app-toggle-field>
+          }
+        </fieldset>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+          @for (item of connectivityFields; track item.id) {
+            <div class="space-y-1">
+              <label
+                [for]="item.id"
+                class="block font-medium">
+                {{ item.label }}
+              </label>
+              <input
+                [formField]="item.field"
+                pInputText
+                type="text"
+                [id]="item.id"
+                class="w-full"
+                [class.p-invalid]="showError(item.field)"
+                [attr.aria-invalid]="showError(item.field)"
+                [attr.aria-describedby]="item.id + '-help'"
+                [placeholder]="item.placeholder ?? ''" />
+              <div
+                [id]="item.id + '-help'"
+                class="min-h-5">
+                @if (showError(item.field)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ item.field().errors()[0].message }}</span>
+                  </p-message>
+                } @else if (item.hint) {
+                  <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    {{ item.hint }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </app-section-card>
+
+      <!-- Capacity -->
+      <app-section-card
+        icon="pi pi-database"
+        heading="Capacity"
+        subheading="Upper limits the hardware can hold.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          @for (item of capacityFields; track item.id) {
+            <div class="space-y-1">
+              <label
+                [for]="item.id"
+                class="block font-medium">
+                {{ item.label }}
+              </label>
+              <p-inputnumber
+                [inputId]="item.id"
+                class="w-full"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                [showButtons]="false"
+                [min]="0"
+                placeholder="e.g. 1000"
+                [formField]="$any(item.field)" />
+              <div
+                [id]="item.id + '-help'"
+                class="min-h-5">
+                @if (showError(item.field)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ item.field().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </app-section-card>
+
+      <!-- Hardware -->
+      <app-section-card
+        icon="pi pi-microchip"
+        heading="Hardware"
+        subheading="Firmware and physical specifications.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          @for (item of hardwareFields; track item.id) {
+            <div class="space-y-1">
+              <label
+                [for]="item.id"
+                class="block font-medium">
+                {{ item.label }}
+              </label>
+              <input
+                [formField]="item.field"
+                pInputText
+                type="text"
+                [id]="item.id"
+                class="w-full"
+                [class.p-invalid]="showError(item.field)"
+                [attr.aria-invalid]="showError(item.field)"
+                [attr.aria-describedby]="item.id + '-help'"
+                [placeholder]="item.placeholder ?? ''" />
+              <div
+                [id]="item.id + '-help'"
+                class="min-h-5">
+                @if (showError(item.field)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ item.field().errors()[0].message }}</span>
+                  </p-message>
+                } @else if (item.hint) {
+                  <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    {{ item.hint }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </app-section-card>
+
+      <!-- Commercial -->
+      <app-section-card
+        icon="pi pi-wallet"
+        heading="Commercial"
+        subheading="Price and warranty terms.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <!-- Price -->
+          <div class="space-y-1">
+            <label
+              for="price"
+              class="block font-medium">
+              Price
+            </label>
+            <p-inputnumber
+              inputId="price"
+              class="w-full"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [showButtons]="false"
+              [min]="0"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="2"
+              placeholder="e.g. 25000"
+              [formField]="$any(f.price)" />
+            <div
+              id="price-help"
+              class="min-h-5">
+              @if (showError(f.price)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ f.price().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+
+          <!-- Currency -->
+          <div class="space-y-1">
+            <label
+              for="currencyKey"
+              class="block font-medium">
+              Currency
+            </label>
+            <input
+              [formField]="f.currencyKey"
+              pInputText
+              type="text"
+              id="currencyKey"
+              class="w-full"
+              [class.p-invalid]="showError(f.currencyKey)"
+              [attr.aria-invalid]="showError(f.currencyKey)"
+              aria-describedby="currencyKey-help"
+              placeholder="e.g. INR" />
+            <div
+              id="currencyKey-help"
+              class="min-h-5">
+              @if (showError(f.currencyKey)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ f.currencyKey().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+
+          <!-- Warranty period -->
+          <div class="space-y-1">
+            <label
+              for="warrantyPeriodMonths"
+              class="block font-medium">
+              Warranty period (months)
+            </label>
+            <p-inputnumber
+              inputId="warrantyPeriodMonths"
+              class="w-full"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+              [showButtons]="false"
+              [min]="0"
+              placeholder="e.g. 12"
+              [formField]="$any(f.warrantyPeriodMonths)" />
+            <div
+              id="warrantyPeriodMonths-help"
+              class="min-h-5">
+              @if (showError(f.warrantyPeriodMonths)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ f.warrantyPeriodMonths().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+
+          <!-- Warranty description -->
+          <div class="space-y-1 md:col-span-2">
+            <label
+              for="warrantyDescription"
+              class="block font-medium">
+              Warranty description
+            </label>
+            <!-- `pTextarea` subscribes to `ngControl.valueChanges`, which Signal Forms does not
+                 provide, so the value is bound by hand instead of through `[formField]`. -->
+            <textarea
+              pTextarea
+              id="warrantyDescription"
+              rows="2"
+              class="w-full"
+              maxlength="500"
+              placeholder="e.g. 12 months onsite replacement"
+              [value]="model().warrantyDescription"
+              (input)="onTextareaInput('warrantyDescription', $event)"></textarea>
+            <div
+              id="warrantyDescription-help"
+              class="min-h-5">
+              @if (showError(f.warrantyDescription)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ f.warrantyDescription().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+        </div>
+      </app-section-card>
+
+      <!-- Integration -->
+      <app-section-card
+        icon="pi pi-link"
+        heading="Integration"
+        subheading="How the platform talks to the device programmatically.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-toggle-field
+            class="md:col-span-2"
+            inputId="isIntegrationSupported"
+            label="Integration supported">
+            <p-toggleswitch
+              inputId="isIntegrationSupported"
+              [formField]="$any(f.isIntegrationSupported)" />
+          </app-toggle-field>
+
+          @for (item of integrationFields; track item.id) {
+            <div class="space-y-1">
+              <label
+                [for]="item.id"
+                class="block font-medium">
+                {{ item.label }}
+              </label>
+              <input
+                [formField]="item.field"
+                pInputText
+                type="text"
+                [id]="item.id"
+                class="w-full"
+                [class.p-invalid]="showError(item.field)"
+                [attr.aria-invalid]="showError(item.field)"
+                [attr.aria-describedby]="item.id + '-help'"
+                [placeholder]="item.placeholder ?? ''" />
+              <div
+                [id]="item.id + '-help'"
+                class="min-h-5">
+                @if (showError(item.field)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ item.field().errors()[0].message }}</span>
+                  </p-message>
+                } @else if (item.hint) {
+                  <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    {{ item.hint }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </app-section-card>
+
+      <!-- Media and documents -->
+      <app-section-card
+        icon="pi pi-images"
+        heading="Media &amp; Documents"
+        subheading="Images and documents shown alongside the device.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          @for (item of mediaFields; track item.id) {
+            <div class="space-y-1">
+              <label
+                [for]="item.id"
+                class="block font-medium">
+                {{ item.label }}
+              </label>
+              <input
+                [formField]="item.field"
+                pInputText
+                type="text"
+                [id]="item.id"
+                class="w-full"
+                [class.p-invalid]="showError(item.field)"
+                [attr.aria-invalid]="showError(item.field)"
+                [attr.aria-describedby]="item.id + '-help'"
+                placeholder="https://example.com/file" />
+              <div
+                [id]="item.id + '-help'"
+                class="min-h-5">
+                @if (showError(item.field)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ item.field().errors()[0].message }}</span>
+                  </p-message>
+                } @else if (item.hint) {
+                  <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    {{ item.hint }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </app-section-card>
+
+      <!-- Notes -->
+      <app-section-card
+        icon="pi pi-align-left"
+        heading="Notes"
+        subheading="Free-text detail for the catalog listing.">
+        <div class="mt-2 grid grid-cols-1 gap-4">
+          @for (item of noteFields; track item.id) {
+            <div class="space-y-1">
+              <label
+                [for]="item.id"
+                class="block font-medium">
+                {{ item.label }}
+              </label>
+              <textarea
+                pTextarea
+                [id]="item.id"
+                [rows]="item.rows"
+                class="w-full"
+                [attr.maxlength]="item.maxlength"
+                [value]="$any(model())[item.id]"
+                (input)="onTextareaInput(item.id, $event)"></textarea>
+              <div
+                [id]="item.id + '-help'"
+                class="min-h-5">
+                @if (showError($any(f)[item.id])) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ $any(f)[item.id]().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </app-section-card>
+
+    </div>
+
+    }
+
+    <app-form-action-bar
+      [submitLabel]="isEditMode ? 'Save changes' : 'Add device'"
+      [submitIcon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+      [saving]="isSaving()"
+      [disabled]="isSaving() || isLoading()"
+      [errorMessage]="
+        submitted() && f().invalid() ? 'Fix the highlighted fields before saving.' : ''
+      "
+      (cancelled)="onCancel()" />
+  </form>
+</div>

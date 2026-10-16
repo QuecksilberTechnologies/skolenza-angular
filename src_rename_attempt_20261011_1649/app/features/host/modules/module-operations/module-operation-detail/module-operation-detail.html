@@ -1,0 +1,270 @@
+@let record = moduleOperation();
+
+<div
+  class="flex h-full flex-col"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="titleId()">
+  <!-- Header -->
+  <section
+    class="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+    <div class="flex items-center gap-3">
+      <span
+        class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900">
+        <i class="pi pi-link text-2xl text-primary-600 dark:text-primary-300"></i>
+      </span>
+      <div class="min-w-0">
+        <div
+          [id]="titleId()"
+          class="truncate text-lg font-semibold text-gray-800 dark:text-zinc-100">
+          {{ moduleLabel() }} → {{ operationLabel() }}
+        </div>
+        <div class="text-sm text-gray-500 dark:text-zinc-400">Module Operation Details</div>
+      </div>
+    </div>
+    <p-button
+      type="button"
+      icon="pi pi-times"
+      ariaLabel="Close module operation details"
+      rounded="true"
+      [variant]="'text'"
+      [size]="'small'"
+      [severity]="'secondary'"
+      (onClick)="onClose()" />
+  </section>
+
+  <!-- Content — `min-h-0` lets this shrink and scroll instead of pushing the footer off-screen. -->
+  <section class="min-h-0 flex-1 space-y-4 overflow-y-auto bg-gray-50 p-4 dark:bg-zinc-900">
+    <!-- Status strip -->
+    <div
+      class="flex flex-wrap items-center gap-6 rounded-lg border border-gray-100 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col gap-1">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Status
+        </span>
+        <p-tag
+          [value]="record.isActive ? 'Active' : 'Inactive'"
+          [severity]="record.isActive ? 'success' : 'danger'" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Common Item
+        </span>
+        <p-tag
+          [value]="record.isCommonItem ? 'Yes' : 'No'"
+          [severity]="record.isCommonItem ? 'success' : 'secondary'" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Operational
+        </span>
+        <p-tag
+          [value]="record.isOperational ? 'Yes' : 'No'"
+          [severity]="record.isOperational ? 'success' : 'secondary'" />
+      </div>
+    </div>
+
+    <!-- Mapping -->
+    <div
+      class="grid grid-cols-1 gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:grid-cols-2 dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Child option / operational module
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">{{ moduleLabel() }}</span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Module ID
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">{{ record.moduleId }}</span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Operation
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">{{ operationLabel() }}</span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Operation ID
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ record.operationId }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Mapping ID
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ record.moduleOperationMappingId ?? '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Record ID
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">{{ record.id }}</span>
+      </div>
+    </div>
+
+    <!-- Routing -->
+    <div
+      class="grid grid-cols-1 gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:grid-cols-2 dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col sm:col-span-2">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Page URL
+        </span>
+        @if (record.pageURL) { @if (isExternalPageUrl()) {
+        <a
+          class="mt-1 break-all font-mono text-primary-600 hover:underline dark:text-primary-400"
+          [href]="record.pageURL"
+          target="_blank"
+          rel="noopener noreferrer">
+          {{ record.pageURL }}
+          <span class="sr-only">(opens in a new tab)</span>
+        </a>
+        } @else {
+        <span class="mt-1 break-all font-mono text-gray-800 dark:text-zinc-100">
+          {{ record.pageURL }}
+        </span>
+        } } @else {
+        <span class="mt-1 text-gray-800 dark:text-zinc-100">—</span>
+        }
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Icon URL
+        </span>
+        <span class="mt-1 flex items-center gap-2 break-all text-gray-800 dark:text-zinc-100">
+          @if (iconPreviewClass(); as iconClass) {
+          <i
+            [class]="iconClass"
+            aria-hidden="true"></i>
+          }
+          {{ record.iconURL || '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Priority
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ record.priority ?? '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Page type ID
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ record.pageTypeId ?? '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Data view structure ID
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ record.dataViewStructureId ?? '—' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div
+      class="grid grid-cols-1 gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:grid-cols-2 dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col sm:col-span-2">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Remark
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ record.remark || '—' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Audit -->
+    @if (hasAudit()) {
+    <div
+      class="grid grid-cols-1 gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:grid-cols-2 dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Added By
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ record.addedById ?? '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Added On
+        </span>
+        @if (record.addedDateTime; as addedDateTime) {
+        <time
+          class="mt-1 break-words text-gray-800 dark:text-zinc-100"
+          [attr.datetime]="addedDateTime">
+          {{ addedDateTime | date: 'medium' }}
+        </time>
+        } @else {
+        <span class="mt-1 text-gray-800 dark:text-zinc-100">—</span>
+        }
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Updated By
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ record.updatedById ?? '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Updated On
+        </span>
+        @if (record.updatedDateTime; as updatedDateTime) {
+        <time
+          class="mt-1 break-words text-gray-800 dark:text-zinc-100"
+          [attr.datetime]="updatedDateTime">
+          {{ updatedDateTime | date: 'medium' }}
+        </time>
+        } @else {
+        <span class="mt-1 text-gray-800 dark:text-zinc-100">—</span>
+        }
+      </div>
+    </div>
+    }
+  </section>
+
+  <!-- Footer -->
+  @if (canEdit()) {
+  <section
+    class="flex shrink-0 justify-end gap-2 border-t border-zinc-200 px-4 py-3 dark:border-zinc-700">
+    <p-button
+      label="Edit Mapping"
+      icon="pi pi-pencil"
+      [size]="'small'"
+      (onClick)="onEdit()" />
+  </section>
+  }
+</div>

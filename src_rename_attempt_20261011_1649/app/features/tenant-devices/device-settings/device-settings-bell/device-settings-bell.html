@@ -1,0 +1,51 @@
+<form (submit)="onSubmit(); $event.preventDefault()" class="form-invalid-visible flex flex-col gap-4">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div class="space-y-1">
+      <label for="bellCount" class="block font-medium">Bell count <span class="text-red-600 dark:text-red-400" aria-hidden="true">*</span></label>
+      <p-inputnumber
+        inputId="bellCount"
+        class="w-full"
+        inputStyleClass="w-full"
+        [showButtons]="false"
+        [min]="0"
+        [useGrouping]="false"
+        placeholder="e.g. 3"
+        [invalid]="showError(f.bellCount)"
+        [formField]="$any(f.bellCount)" />
+      <div id="bellCount-help" class="min-h-5">
+        @if (showError(f.bellCount)) {
+          <p-message severity="error" size="small" variant="simple">
+            <span>{{ f.bellCount().errors()[0].message }}</span>
+          </p-message>
+        }
+      </div>
+    </div>
+
+    @for (item of selectFields; track item.id) {
+      <div class="space-y-1">
+        <label [for]="item.id" class="block font-medium">{{ item.label }} <span class="text-red-600 dark:text-red-400" aria-hidden="true">*</span></label>
+        <p-select
+          [inputId]="item.id"
+          class="w-full"
+          [options]="store.optionsFor(item.key)"
+          [loading]="store.isLoadingOptions()"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select"
+          [invalid]="showError(item.field)"
+          [formField]="$any(item.field)" />
+        <div [id]="item.id + '-help'" class="min-h-5">
+          @if (showError(item.field)) {
+            <p-message severity="error" size="small" variant="simple">
+              <span>{{ item.field().errors()[0].message }}</span>
+            </p-message>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="flex justify-end">
+    <p-button type="submit" label="Push bell settings" icon="pi pi-cloud-upload" [loading]="isSaving()" />
+  </div>
+</form>

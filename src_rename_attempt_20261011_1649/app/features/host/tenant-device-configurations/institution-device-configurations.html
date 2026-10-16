@@ -1,0 +1,338 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.configurations()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [lazy]="true"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [paginator]="true"
+      [rows]="store.pageSize()"
+      [totalRecords]="store.totalRecords()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      [style]="{ background: 'transparent' }"
+      (onLazyLoad)="loadConfigurations($event)"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Institution filter. Clearing it *is* "Any institution"; the grid then spans every institution. -->
+          <p-select
+            [options]="store.institutions()"
+            optionLabel="companyName"
+            optionValue="id"
+            placeholder="Any institution"
+            ariaLabel="Filter by institution"
+            [showClear]="true"
+            [filter]="true"
+            filterBy="companyName"
+            [loading]="store.isInstitutionsLoading()"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-44"
+            [ngModel]="store.institutionId()"
+            (onChange)="onInstitutionChange($event.value)" />
+
+          <!-- Device filter. Devices are institution-scoped, so this waits for the institution. -->
+          <p-select
+            [options]="store.institutionDevices()"
+            optionLabel="deviceName"
+            optionValue="id"
+            [placeholder]="store.hasInstitution() ? 'Any device' : 'Select an institution first'"
+            ariaLabel="Filter by device"
+            [disabled]="!store.hasInstitution()"
+            [showClear]="true"
+            [filter]="true"
+            filterBy="deviceName"
+            [loading]="store.isInstitutionDevicesLoading()"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-44"
+            [ngModel]="store.institutionDeviceId()"
+            (onChange)="onDeviceChange($event.value)" />
+
+          <!-- Communication type filter -->
+          <p-select
+            [options]="communicationTypeOptions"
+            optionLabel="label"
+            optionValue="id"
+            placeholder="Any network"
+            ariaLabel="Filter by communication type"
+            [showClear]="true"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-44"
+            [ngModel]="store.communicationType()"
+            (onChange)="onCommunicationTypeChange($event.value)" />
+
+          <!-- Enrollment filter. Clearing it *is* "All", so there is no separate All option. -->
+          <p-select
+            [options]="enrollmentOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Any enrollment"
+            ariaLabel="Filter by enrollment"
+            [showClear]="true"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-44"
+            [ngModel]="store.isEnrollmentEnabled()"
+            (onChange)="onEnrollmentChange($event.value)" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchConfigurations($event)" />
+          </div>
+
+          <!-- Filtering swaps the grid silently; this is the only confirmation a reader gets. -->
+          <div class="sr-only" aria-live="polite">{{ resultSummary() }}</div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #colgroup>
+        <!-- 13 + 11 + 10 + 12 + 8 + 6 = the table's 60rem min-width, so a full row never forces
+             scroll of its own. Without the Actions column the browser shares out the spare 6rem. -->
+        <colgroup>
+          <col style="width: 13rem" />
+          <col style="width: 11rem" />
+          <col style="width: 10rem" />
+          <col style="width: 12rem" />
+          <col style="width: 8rem" />
+          @if (canUseRowActions()) {
+            <col style="width: 6rem" />
+          }
+        </colgroup>
+      </ng-template>
+
+      <ng-template #header>
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Device / Code
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Model / Serial No
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Network
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Connection
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Sync
+          </th>
+          @if (canUseRowActions()) {
+            <th
+              scope="col"
+              class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+              <div class="flex justify-center">Actions</div>
+            </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-configuration>
+        @let connection = connectionState(configuration);
+        @let server = configuration.serverUrl || configuration.serverHost || '-';
+        <tr
+          class="cursor-pointer"
+          tabindex="0"
+          [attr.aria-label]="
+            'View details for ' + (configuration.deviceName ?? 'this configuration')
+          "
+          [pContextMenuRow]="configuration"
+          [pContextMenuRowDisabled]="!canUseRowActions()"
+          (click)="showDetail(configuration)"
+          (keyup.enter)="showDetail(configuration)">
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex flex-col">
+              <span
+                class="max-w-48 truncate font-medium"
+                [pTooltip]="configuration.deviceName ?? '-'"
+                tooltipPosition="bottom">
+                {{ configuration.deviceName ?? '-' }}
+              </span>
+              <span class="max-w-48 truncate text-xs text-gray-500 dark:text-zinc-400">
+                {{ configuration.deviceCode ?? '-' }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex flex-col">
+              <span
+                class="block max-w-40 truncate"
+                [pTooltip]="configuration.deviceMasterName ?? '-'"
+                tooltipPosition="bottom">
+                {{ configuration.deviceMasterName ?? '-' }}
+              </span>
+              <span class="max-w-40 truncate text-xs text-gray-500 dark:text-zinc-400">
+                {{ configuration.deviceMasterSNo ?? '-' }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex flex-col">
+              <span>
+                {{ configuration.ipAddress || '-' }}@if (configuration.devicePort) {
+                  <span>:{{ configuration.devicePort }}</span>
+                }
+              </span>
+              <span class="text-xs text-gray-500 dark:text-zinc-400">
+                {{ configuration.communicationType | getDeviceCommunicationType }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex flex-col">
+              <span
+                class="flex items-center gap-2"
+                [pTooltip]="connection.tooltip"
+                tooltipPosition="bottom">
+                <span
+                  class="size-2 shrink-0 rounded-full"
+                  [class]="connection.dotClass"
+                  aria-hidden="true"></span>
+                <span class="truncate">{{ connection.label }}</span>
+              </span>
+              <span
+                class="block max-w-44 truncate text-xs text-gray-500 dark:text-zinc-400"
+                [pTooltip]="server"
+                tooltipPosition="bottom">
+                {{ server }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <!-- Capability flags, not state: one neutral treatment for all three, told apart by
+                 icon and label rather than by colour. -->
+            <div class="flex flex-wrap items-center gap-1">
+              @if (configuration.isEnrollmentEnabled) {
+                <p-tag
+                  value="Enroll"
+                  icon="pi pi-user-plus"
+                  severity="secondary"
+                  class="border border-zinc-500"
+                  pTooltip="Enrollment enabled"
+                  tooltipPosition="bottom" />
+              }
+              @if (configuration.isAttendancePushEnabled) {
+                <p-tag
+                  value="Push"
+                  icon="pi pi-upload"
+                  severity="secondary"
+                  class="border border-zinc-500"
+                  pTooltip="Attendance push enabled"
+                  tooltipPosition="bottom" />
+              }
+              @if (configuration.isAutoSyncEnabled) {
+                <p-tag
+                  value="Auto"
+                  icon="pi pi-sync"
+                  severity="secondary"
+                  class="border border-zinc-500"
+                  pTooltip="Auto sync enabled"
+                  tooltipPosition="bottom" />
+              }
+              @if (
+                !configuration.isEnrollmentEnabled &&
+                !configuration.isAttendancePushEnabled &&
+                !configuration.isAutoSyncEnabled
+              ) {
+                <span
+                  class="text-gray-500 dark:text-zinc-400"
+                  pTooltip="Enrollment, attendance push and auto sync are all off"
+                  tooltipPosition="bottom">
+                  -
+                </span>
+              }
+            </div>
+          </td>
+          @if (canUseRowActions()) {
+            <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+              <div class="flex items-center justify-center gap-2">
+                <!-- The row opens the drawer, so the menu has to keep its click to itself. -->
+                <app-table-action-button
+                  [ariaLabel]="
+                    'Actions for ' + (configuration.deviceName ?? 'this configuration')
+                  "
+                  (action)="
+                    $event.stopPropagation();
+                    selectedRow.set(configuration);
+                    actionMenu.toggle($event)
+                  " />
+              </div>
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.configurations().length === 0) {
+          <tr>
+            <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            @if (hasActiveFilters()) {
+              <app-table-empty-message
+                icon="pi pi-search"
+                message="No device configurations match your filters"
+                subMessage="Try a different search term or clear the filters" />
+            } @else {
+              <app-table-empty-message
+                icon="pi pi-cog"
+                message="No device configurations found"
+                subMessage="Configure a institution device to get started" />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<app-headless-drawer [(visible)]="isShowDetail">
+  @if (isShowDetail()) {
+    <app-institution-device-configuration-detail
+      [configuration]="detailRow() ?? undefined"
+      [institutionName]="institutionName()"
+      [canRotate]="canRotate()"
+      (closePopup)="isShowDetail.set(false)"
+      (rotate)="onDetailRotate()" />
+  }
+</app-headless-drawer>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />

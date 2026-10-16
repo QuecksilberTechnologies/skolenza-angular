@@ -1,0 +1,84 @@
+<section class="max-h-[calc(100vh-18rem)] overflow-y-auto">
+  <form
+    [formGroup]="headerForm"
+    class="grid grid-cols-1 gap-4">
+    <div class="space-y-1">
+      <label
+        for="classificationId"
+        class="block font-medium">
+        Classification
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <p-select
+        inputId="classificationId"
+        formControlName="classificationId"
+        [options]="classificationOptions()"
+        optionLabel="classificationName"
+        optionValue="id"
+        placeholder="Select classification"
+        [showClear]="true"
+        appendTo="body"
+        [pAutoFocus]="true"
+        class="w-full" />
+      @if (isInvalid('classificationId')) {
+      <p-message
+        severity="error"
+        variant="simple">
+        Classification is required
+      </p-message>
+      }
+    </div>
+
+    <div class="space-y-1">
+      <label
+        for="headerName"
+        class="block font-medium">
+        Header Name
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        pInputText
+        id="headerName"
+        formControlName="headerName"
+        placeholder="Enter header name"
+        appTrimInput
+        class="w-full" />
+      @if (isInvalid('headerName')) {
+      <p-message
+        severity="error"
+        variant="simple">
+        Header name is required (min 2 chars)
+      </p-message>
+      }
+    </div>
+
+    <div class="space-y-1">
+      <label
+        for="description"
+        class="block font-medium">
+        Description
+      </label>
+      <textarea
+        pTextarea
+        id="description"
+        formControlName="description"
+        placeholder="Enter description"
+        rows="3"
+        appTrimInput
+        class="w-full"></textarea>
+    </div>
+  </form>
+</section>
+
+<div class="mt-6 flex justify-end gap-2">
+  <p-button
+    label="Cancel"
+    variant="text"
+    severity="secondary"
+    (onClick)="onCancel()" />
+  <p-button
+    [label]="isSaving() ? 'Saving...' : 'Save'"
+    [loading]="isSaving()"
+    [disabled]="headerForm.invalid || isSaving()"
+    (onClick)="onSubmit()" />
+</div>

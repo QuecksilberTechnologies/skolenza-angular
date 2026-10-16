@@ -1,0 +1,26 @@
+<form (submit)="onSubmit(); $event.preventDefault()" class="form-invalid-visible flex flex-col gap-4">
+  <div class="max-w-sm space-y-1">
+    <label for="screenMenuPin" class="block font-medium">System / Local-Manager menu PIN <span class="text-red-600 dark:text-red-400" aria-hidden="true">*</span></label>
+    <input
+      [formField]="f.screenMenuPin"
+      pInputText
+      type="password"
+      inputmode="numeric"
+      id="screenMenuPin"
+      class="w-full"
+      [class.p-invalid]="showError()"
+      [attr.aria-invalid]="showError()"
+      placeholder="4-12 digits" />
+    <div id="screenMenuPin-help" class="min-h-5">
+      @if (showError()) {
+        <p-message severity="error" size="small" variant="simple">
+          <span>{{ f.screenMenuPin().errors()[0].message }}</span>
+        </p-message>
+      }
+    </div>
+  </div>
+
+  <div class="flex justify-end">
+    <p-button type="submit" label="Push PIN" icon="pi pi-cloud-upload" [loading]="isSaving()" />
+  </div>
+</form>

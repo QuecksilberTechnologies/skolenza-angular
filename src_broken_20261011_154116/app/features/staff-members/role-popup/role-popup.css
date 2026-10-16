@@ -1,0 +1,21 @@
+:host {
+  display: block;
+  outline: none;
+}
+
+.role-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.role-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.role-list::-webkit-scrollbar-thumb {
+  background: rgb(0 0 0 / 0.1);
+  border-radius: 4px;
+}
+
+:host-context(.dark) .role-list::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.1);
+}

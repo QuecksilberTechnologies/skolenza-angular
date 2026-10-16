@@ -1,0 +1,368 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 pt-3 pb-6 sm:px-4 sm:pt-4">
+    <p-card>
+      <form
+        (submit)="onPreview(); $event.preventDefault()"
+        class="flex w-full flex-col gap-4">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-zinc-100">Code pattern</h2>
+          <p class="text-sm text-gray-500 dark:text-zinc-400">
+            Changing the pattern recodes every existing staffMember, including the Admin. Preview the
+            change first: nothing is applied until you approve what the preview shows.
+          </p>
+        </div>
+
+        @if (store.isLoading()) {
+        <div
+          role="status"
+          aria-busy="true"
+          class="flex flex-col gap-4">
+          <span class="sr-only">Loading code pattern...</span>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="space-y-2">
+                <p-skeleton
+                  width="40%"
+                  height="1rem"
+                  borderRadius="4px" />
+                <p-skeleton
+                  height="2.5rem"
+                  borderRadius="6px" />
+              </div>
+            }
+          </div>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            @for (i of [1, 2, 3]; track i) {
+              <p-skeleton
+                height="3rem"
+                borderRadius="6px" />
+            }
+          </div>
+          <p-skeleton
+            width="12rem"
+            height="1rem"
+            borderRadius="4px" />
+        </div>
+        } @else {
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div class="space-y-1">
+            <label
+              for="prefix"
+              class="block font-medium">
+              Prefix
+              <span class="text-red-600 dark:text-red-400">*</span>
+            </label>
+            <input
+              pInputText
+              id="prefix"
+              type="text"
+              class="w-full"
+              placeholder="EMP"
+              aria-describedby="prefix-help"
+              [class.p-invalid]="showError(f.prefix)"
+              [attr.aria-invalid]="showError(f.prefix)"
+              [formField]="$any(f.prefix)" />
+            <div
+              id="prefix-help"
+              class="min-h-5"
+              aria-live="polite">
+              @if (showError(f.prefix)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ f.prefix().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label
+              for="separator"
+              class="block font-medium">
+              Separator
+              <span class="text-red-600 dark:text-red-400">*</span>
+            </label>
+            <p-select
+              inputId="separator"
+              class="w-full"
+              [options]="separators"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+              [invalid]="showError(f.separator)"
+              [formField]="$any(f.separator)" />
+            <div
+              id="separator-help"
+              class="min-h-5"
+              aria-live="polite">
+              @if (showError(f.separator)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ f.separator().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label
+              for="runningNumberLength"
+              class="block font-medium">
+              Running number
+              <span class="text-red-600 dark:text-red-400">*</span>
+            </label>
+            <p-select
+              inputId="runningNumberLength"
+              class="w-full"
+              [options]="runningNumberLengths"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+              [invalid]="showError(f.runningNumberLength)"
+              [formField]="$any(f.runningNumberLength)" />
+            <div
+              id="runningNumberLength-help"
+              class="min-h-5"
+              aria-live="polite">
+              @if (showError(f.runningNumberLength)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ f.runningNumberLength().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <app-toggle-field
+            inputId="includeYear"
+            label="Include year"
+            hint="Taken from the joining date">
+            <p-toggleswitch
+              inputId="includeYear"
+              [formField]="$any(f.includeYear)" />
+          </app-toggle-field>
+          <app-toggle-field
+            inputId="includeMonth"
+            label="Include month"
+            hint="JAN through DEC">
+            <p-toggleswitch
+              inputId="includeMonth"
+              [formField]="$any(f.includeMonth)" />
+          </app-toggle-field>
+          <app-toggle-field
+            inputId="includeDepartment"
+            label="Include department"
+            hint="Numeric department id">
+            <p-toggleswitch
+              inputId="includeDepartment"
+              [formField]="$any(f.includeDepartment)" />
+          </app-toggle-field>
+        </div>
+
+        <p class="text-sm text-gray-500 dark:text-zinc-400">
+          Example (sample values): <span class="font-mono text-gray-800 dark:text-zinc-100">{{ sampleCode() }}</span>
+        </p>
+        }
+
+        <div
+          class="flex items-center justify-end gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+          @if (canSave()) {
+            <p-button
+              type="submit"
+              label="Preview changes"
+              icon="pi pi-eye"
+              [loading]="store.isPreviewing()"
+              [disabled]="store.isLoading() || store.isPreviewing() || store.isApplying()" />
+          }
+        </div>
+      </form>
+    </p-card>
+
+    @if (store.hasPreview()) {
+      <p-card>
+        <div
+          class="sticky top-0 z-10 flex flex-wrap items-start justify-between gap-3 bg-white pb-3 dark:bg-zinc-900">
+          <div>
+            <h2
+              #previewHeading
+              id="preview-heading"
+              tabindex="-1"
+              class="text-lg font-semibold text-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:text-zinc-100">
+              Preview
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-zinc-400">
+              What each staffMember's code becomes if you apply this pattern. Editing the pattern above
+              discards this preview.
+            </p>
+          </div>
+          @if (canSave()) {
+            <p-button
+              label="Apply pattern"
+              icon="pi pi-check"
+              [loading]="store.isApplying()"
+              [disabled]="!store.canCommit() || store.isNoOp() || store.isApplying()"
+              (onClick)="onApply()" />
+          }
+        </div>
+
+        @if (!store.canCommit()) {
+          <p-message
+            severity="warn"
+            styleClass="mt-3 w-full">
+            <span>
+              This pattern cannot be applied yet. Rows below that report an error have to be fixed
+              first, usually a missing or unreadable joining date.
+            </span>
+          </p-message>
+        }
+
+        @if (store.isNoOp()) {
+          <p-message
+            severity="info"
+            styleClass="mt-3 w-full">
+            <span>
+              This matches the current pattern, so no staffMember code would change and there is
+              nothing to apply. Edit the pattern above to preview a change.
+            </span>
+          </p-message>
+        }
+
+        <p
+          class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-700 dark:text-zinc-100"
+          aria-live="polite">
+          <span>
+            <strong>{{ store.changedCount() }}</strong>
+            of {{ store.rows().length }} staff members will change
+          </span>
+          <span>
+            <strong>{{ store.issueCount() }}</strong>
+            with issues
+          </span>
+          @if (store.lastUsedNumber() !== null) {
+            <span>
+              Last used running number:
+              <strong>{{ store.lastUsedNumber() }}</strong>
+            </span>
+          }
+          @if (canFilterChanged()) {
+            <label
+              for="changedOnly"
+              class="flex cursor-pointer items-center gap-2">
+              <input
+                id="changedOnly"
+                type="checkbox"
+                class="accent-primary-600"
+                [checked]="changedOnly()"
+                (change)="setChangedOnly($event)" />
+              Show changed only
+            </label>
+          }
+        </p>
+
+        @if (store.isRowShapeUnknown()) {
+          <p-message
+            severity="error"
+            styleClass="mt-3 w-full">
+            <span>
+              The preview came back in a shape this screen does not recognise, so the codes below
+              cannot be shown. Do not apply the pattern. Report this with the institution name.
+            </span>
+          </p-message>
+        }
+
+        <div
+          role="region"
+          aria-labelledby="preview-heading">
+        <p-table
+          [value]="visibleRows()"
+          [paginator]="visibleRows().length > previewPageSize"
+          [rows]="previewPageSize"
+          [rowsPerPageOptions]="[25, 50, 100]"
+          paginatorDropdownAppendTo="body"
+          [scrollable]="true"
+          scrollDirection="horizontal"
+          [tableStyle]="{ 'min-width': '44rem' }"
+          class="mt-3">
+          <ng-template #header>
+            <tr>
+              <th class="px-3! py-2.5! align-middle whitespace-nowrap">StaffMember</th>
+              <th class="px-3! py-2.5! align-middle whitespace-nowrap">Current code</th>
+              <th class="px-3! py-2.5! align-middle whitespace-nowrap">New code</th>
+              <th class="px-3! py-2.5! align-middle whitespace-nowrap">Joining date</th>
+              <th class="px-3! py-2.5! align-middle">Issues</th>
+            </tr>
+          </ng-template>
+          <ng-template
+            #body
+            let-row>
+            <tr [class]="isDimmed(row) ? '[&>td]:text-zinc-500 dark:[&>td]:text-zinc-400' : ''">
+              <td class="px-3! py-2.5! align-middle">
+                {{ row.name || '—' }}
+              </td>
+              <td class="px-3! py-2.5! align-middle font-mono whitespace-nowrap">
+                {{ row.currentCode || '—' }}
+              </td>
+              <td class="px-3! py-2.5! align-middle font-mono whitespace-nowrap">
+                @if (isUnchanged(row)) {
+                  {{ row.proposedCode || '—' }}
+                  @if (isDimmed(row)) {
+                    <span class="ml-2 font-sans text-sm">
+                      <i
+                        class="pi pi-minus-circle mr-1"
+                        aria-hidden="true"></i>
+                      Unchanged
+                    </span>
+                  }
+                } @else {
+                  <i
+                    class="pi pi-arrow-right mr-2 text-xs"
+                    aria-hidden="true"></i>
+                  <span class="sr-only">becomes</span>
+                  <span class="font-semibold text-gray-900 dark:text-zinc-50">
+                    {{ row.proposedCode || '—' }}
+                  </span>
+                }
+              </td>
+              <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+                {{ (row.joiningDate | date: 'dd MMM yyyy') || '—' }}
+              </td>
+              <td class="px-3! py-2.5! align-middle">
+                @if (row.errors?.length) {
+                  <span class="text-red-600 dark:text-red-400">{{ row.errors.join('; ') }}</span>
+                } @else {
+                  <span class="sr-only">No issues</span>
+                  <span
+                    aria-hidden="true"
+                    class="text-gray-400 dark:text-zinc-500">
+                    —
+                  </span>
+                }
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td
+                colspan="5"
+                class="px-3! py-6! text-center text-gray-500 dark:text-zinc-400">
+                The preview returned no staff members to recode.
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        </div>
+      </p-card>
+    }
+  </div>
+</div>
+
+<p-confirmDialog
+  appendTo="body" />

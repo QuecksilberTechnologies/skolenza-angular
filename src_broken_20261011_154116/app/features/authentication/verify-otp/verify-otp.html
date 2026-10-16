@@ -1,0 +1,69 @@
+<app-auth-card
+  logoLink="/auth/forgot-password"
+  heading="Check your email"
+  [subheading]="loginId ? 'Input the code that was sent to ' + loginId : null">
+  <div
+    card-icon
+    class="mb-4 flex w-full justify-center">
+    <div class="flex size-16 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/40">
+      <lucide-angular
+        [img]="Mail"
+        size="28"
+        [strokeWidth]="1.5"
+        aria-hidden="true"
+        class="text-primary-800 dark:text-primary-200" />
+    </div>
+  </div>
+
+  <form
+    [formGroup]="verifyOtpForm"
+    (ngSubmit)="onSubmit()"
+    class="grid grid-cols-1 gap-4">
+    <div class="space-y-1 text-center">
+      <div class="flex justify-center">
+        <p-inputotp
+          formControlName="otp"
+          [length]="6"
+          size="large"
+          [invalid]="isInvalid('otp')"
+          class="w-full" />
+      </div>
+      @if (isInvalid('otp')) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple"
+          class="mt-2 flex justify-center">
+          Please enter the OTP.
+        </p-message>
+      }
+    </div>
+
+    <div class="flex items-center justify-center gap-1">
+      <span class="text-zinc-700 dark:text-zinc-200">Didn't get any code?</span>
+      <p-button
+        [label]="isResending() ? 'Resending...' : 'Click to resend'"
+        link
+        [disabled]="isResending()"
+        class="p-0!"
+        (onClick)="onResend()" />
+    </div>
+
+    <div class="flex w-full flex-col gap-2.5">
+      <p-button
+        type="submit"
+        label="Next"
+        [loading]="isSaving()"
+        [disabled]="verifyOtpForm.invalid || isSaving()"
+        fluid />
+
+      <p-button
+        label="Back to login"
+        icon="pi pi-arrow-left"
+        variant="text"
+        severity="secondary"
+        routerLink="/auth/login"
+        fluid />
+    </div>
+  </form>
+</app-auth-card>

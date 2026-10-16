@@ -1,0 +1,1020 @@
+<div class="relative h-full overflow-y-auto">
+  <form
+    (submit)="onSubmit(); $event.preventDefault()"
+    class="form-invalid-visible flex min-h-full w-full flex-col">
+    @if (isLoading()) {
+    <!-- Mirrors the loaded branch card for card and field for field. The skeleton geometry is
+         matched to `app-form-field-shell`, so any drift here shows up as a jump on load. -->
+    <div
+      class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 pt-3 pb-6 sm:px-4 sm:pt-4"
+      role="status">
+      <span class="sr-only">Loading institution…</span>
+
+      <app-section-card
+        icon="pi pi-building"
+        heading="Institution"
+        subheading="Identifies the institution across the education platform.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-skeleton-field />
+          <app-skeleton-field />
+          <app-skeleton-field />
+          <div class="space-y-1">
+            <div class="h-[1.5rem]"></div>
+            <app-skeleton-toggle />
+          </div>
+        </div>
+      </app-section-card>
+
+      <app-section-card
+        icon="pi pi-user"
+        heading="Primary contact"
+        subheading="Receives the verification email and the first set of credentials.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-skeleton-field />
+          <app-skeleton-field />
+          <app-skeleton-field control="select" />
+          <app-skeleton-field
+            hint
+            slot />
+          <app-skeleton-field control="select" />
+          <app-skeleton-field
+            control="select"
+            hint
+            slot />
+        </div>
+      </app-section-card>
+
+      <app-section-card
+        icon="pi pi-credit-card"
+        heading="Subscription"
+        subheading="The plan decides which institution types and modules the institution can use.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-skeleton-field
+            hint
+            slot />
+          <app-skeleton-field control="select" />
+        </div>
+      </app-section-card>
+
+      <app-section-card
+        icon="pi pi-briefcase"
+        heading="Institution profile"
+        subheading="Branding and institution details shown across the institution workspace.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-skeleton-field />
+          <app-skeleton-field />
+          <app-skeleton-field
+            hint
+            slot />
+          <app-skeleton-field
+            hint
+            slot />
+
+          <div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-3">
+            <app-skeleton-field />
+            <app-skeleton-field />
+            <app-skeleton-field />
+          </div>
+        </div>
+      </app-section-card>
+
+      <app-section-card
+        icon="pi pi-map-marker"
+        heading="Main campus"
+        subheading="The institution's first campus. More campuses can be added later.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-skeleton-field />
+          <app-skeleton-field />
+          <app-skeleton-field control="select" />
+          <app-skeleton-field
+            control="select"
+            hint
+            slot />
+          <app-skeleton-field control="select" />
+          <app-skeleton-field control="select" />
+          <app-skeleton-field />
+          <app-skeleton-field />
+          <app-skeleton-field
+            class="md:col-span-2"
+            control="textarea"
+            [textareaRows]="3" />
+
+          <div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-3">
+            <app-skeleton-field />
+            <app-skeleton-field />
+            <app-skeleton-field
+              hint
+              slot />
+          </div>
+        </div>
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <app-skeleton-toggle />
+          <app-skeleton-toggle />
+          <app-skeleton-toggle />
+        </div>
+      </app-section-card>
+
+      <app-section-card
+        icon="pi pi-id-card"
+        heading="Staff code pattern"
+        subheading="How staff codes are generated for this institution. Set once, at creation.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <app-skeleton-field />
+          <app-skeleton-field
+            hint
+            slot />
+          <app-skeleton-field
+            hint
+            slot />
+        </div>
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <app-skeleton-toggle [hint]="false" />
+          <app-skeleton-toggle [hint]="false" />
+          <app-skeleton-toggle [hint]="false" />
+        </div>
+        <div
+          class="mt-4 flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/50">
+          <p-skeleton
+            width="4rem"
+            height="0.7rem"
+            class="rounded-md!" />
+          <p-skeleton
+            width="10rem"
+            height="0.9rem"
+            class="rounded-md!" />
+        </div>
+      </app-section-card>
+    </div>
+    } @else {
+    <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 pt-3 pb-6 sm:px-4 sm:pt-4">
+      <!-- Institution -->
+      <app-section-card
+        icon="pi pi-building"
+        heading="Institution"
+        subheading="Identifies the institution across the education platform.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <!-- Institution name -->
+          <div class="space-y-1">
+            <label
+              for="companyName"
+              class="block font-medium">
+              Institution name
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true"
+                >*</span
+              >
+              <span class="sr-only">(required)</span>
+            </label>
+            <input
+              [formField]="f.companyName"
+              pInputText
+              [pAutoFocus]="true"
+              type="text"
+              id="companyName"
+              class="w-full"
+              [class.p-invalid]="showError(f.companyName)"
+              aria-required="true"
+              [attr.aria-invalid]="showError(f.companyName)"
+              aria-describedby="companyName-help"
+              placeholder="e.g. Greenfield International School"
+              (blur)="onCompanyNameBlur()" />
+            <div
+              id="companyName-help"
+              aria-live="polite">
+              @if (showError(f.companyName)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.companyName().errors()[0].message }}</span>
+              </p-message>
+              }
+            </div>
+          </div>
+
+          <!-- Institution code -->
+          <div class="space-y-1">
+            <label
+              for="institutionCode"
+              class="block font-medium">
+              Institution code
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true"
+                >*</span
+              >
+              <span class="sr-only">(required)</span>
+            </label>
+            <input
+              [formField]="f.institutionCode"
+              pInputText
+              type="text"
+              id="institutionCode"
+              class="w-full"
+              [class.p-invalid]="showError(f.institutionCode)"
+              aria-required="true"
+              [attr.aria-invalid]="showError(f.institutionCode)"
+              aria-describedby="institutionCode-help"
+              placeholder="e.g. GFIS" />
+            <div
+              id="institutionCode-help"
+              class="min-h-5"
+              aria-live="polite">
+              @if (showError(f.institutionCode)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.institutionCode().errors()[0].message }}</span>
+              </p-message>
+              } @else if (!isEditMode) {
+              <p class="text-xs text-gray-500 dark:text-zinc-400">Suggested from the institution initials</p>
+              }
+            </div>
+          </div>
+
+          <!-- Institution email domain -->
+          <div class="space-y-1">
+            <label
+              for="companyEmailDomain"
+              class="block font-medium">
+              Institution domain
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true"
+                >*</span
+              >
+              <span class="sr-only">(required)</span>
+            </label>
+            <p-iconfield class="block">
+              <p-inputicon class="pi pi-globe text-zinc-400 dark:text-zinc-500" />
+              <input
+                [formField]="f.companyEmailDomain"
+                pInputText
+                type="text"
+                id="companyEmailDomain"
+                class="w-full"
+                [class.p-invalid]="showError(f.companyEmailDomain)"
+                aria-required="true"
+                [attr.aria-invalid]="showError(f.companyEmailDomain)"
+                aria-describedby="companyEmailDomain-help"
+                placeholder="e.g. greenfield.edu" />
+            </p-iconfield>
+            <div
+              id="companyEmailDomain-help"
+              aria-live="polite">
+              @if (showError(f.companyEmailDomain)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.companyEmailDomain().errors()[0].message }}</span>
+              </p-message>
+              }
+            </div>
+          </div>
+
+          @if (isEditMode) {
+          <div class="space-y-1">
+            <!-- Invisible label-height spacer, so the toggle's bordered box lines up
+                 with the input border beside it instead of the label above it. -->
+            <span
+              aria-hidden="true"
+              class="invisible block font-medium"
+              >Institution domain</span
+            >
+            <app-toggle-field
+              inputId="isActive"
+              label="Active"
+              hint="Inactive institutions cannot sign in">
+              <p-toggleswitch
+                inputId="isActive"
+                [formField]="$any(f.isActive)" />
+            </app-toggle-field>
+          </div>
+          }
+        </div>
+      </app-section-card>
+
+      <!-- Primary contact -->
+      <app-section-card
+        icon="pi pi-user"
+        heading="Primary contact"
+        subheading="Receives the verification email and the first set of credentials.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <!-- Contact person -->
+          <div class="space-y-1">
+            <label
+              for="contactPersonName"
+              class="block font-medium">
+              Contact person
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true"
+                >*</span
+              >
+              <span class="sr-only">(required)</span>
+            </label>
+            <input
+              [formField]="f.contactPersonName"
+              pInputText
+              type="text"
+              id="contactPersonName"
+              class="w-full"
+              [class.p-invalid]="showError(f.contactPersonName)"
+              aria-required="true"
+              [attr.aria-invalid]="showError(f.contactPersonName)"
+              aria-describedby="contactPersonName-help"
+              placeholder="e.g. Priya Sharma" />
+            <div
+              id="contactPersonName-help"
+              aria-live="polite">
+              @if (showError(f.contactPersonName)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.contactPersonName().errors()[0].message }}</span>
+              </p-message>
+              }
+            </div>
+          </div>
+
+          <!-- Institution email -->
+          <div class="space-y-1">
+            <label
+              for="institutionEmail"
+              class="block font-medium">
+              Institution email
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true"
+                >*</span
+              >
+              <span class="sr-only">(required)</span>
+            </label>
+            <p-iconfield class="block">
+              <p-inputicon class="pi pi-envelope text-zinc-400 dark:text-zinc-500" />
+              <input
+                [formField]="f.institutionEmail"
+                pInputText
+                type="email"
+                id="institutionEmail"
+                class="w-full"
+                [class.p-invalid]="showError(f.institutionEmail)"
+                aria-required="true"
+                [attr.aria-invalid]="showError(f.institutionEmail)"
+                aria-describedby="institutionEmail-help"
+                placeholder="e.g. principal@greenfield.edu" />
+            </p-iconfield>
+            <div
+              id="institutionEmail-help"
+              aria-live="polite">
+              @if (showError(f.institutionEmail)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.institutionEmail().errors()[0].message }}</span>
+              </p-message>
+              }
+            </div>
+          </div>
+
+          <!-- Country -->
+          <div class="space-y-1">
+            <label
+              for="countryId"
+              class="block font-medium">
+              Country
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true"
+                >*</span
+              >
+              <span class="sr-only">(required)</span>
+            </label>
+            <p-select
+              inputId="countryId"
+              class="w-full"
+              [options]="countries()"
+              optionLabel="countryName"
+              optionValue="id"
+              placeholder="Select country"
+              [filter]="true"
+              filterBy="countryName"
+              [loading]="isLoadingCountries()"
+              [disabled]="f.countryId().disabled()"
+              [class.p-invalid]="showError(f.countryId)"
+              [appendTo]="'body'"
+              aria-required="true"
+              [attr.aria-describedby]="'countryId-help'"
+              [formField]="$any(f.countryId)"
+              (onChange)="onCountryChange()" />
+            <div
+              id="countryId-help"
+              aria-live="polite">
+              @if (showError(f.countryId)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.countryId().errors()[0].message }}</span>
+              </p-message>
+              }
+            </div>
+          </div>
+
+          <!-- Contact number -->
+          <div class="space-y-1">
+            <label
+              for="contactNumber"
+              class="block font-medium">
+              Contact number
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true"
+                >*</span
+              >
+              <span class="sr-only">(required)</span>
+            </label>
+            <p-inputgroup>
+              @if (dialCode()) {
+              <p-inputgroup-addon>{{ dialCode() }}</p-inputgroup-addon>
+              }
+              <input
+                [formField]="f.contactNumber"
+                pInputText
+                type="tel"
+                id="contactNumber"
+                class="w-full"
+                [class.p-invalid]="showError(f.contactNumber)"
+                aria-required="true"
+                [attr.aria-invalid]="showError(f.contactNumber)"
+                aria-describedby="contactNumber-help"
+                placeholder="e.g. 9876543210" />
+            </p-inputgroup>
+            <div
+              id="contactNumber-help"
+              class="min-h-5"
+              aria-live="polite">
+              @if (showError(f.contactNumber)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.contactNumber().errors()[0].message }}</span>
+              </p-message>
+              } @else {
+              <p class="text-xs text-gray-500 dark:text-zinc-400">The dial code comes from the country</p>
+              }
+            </div>
+          </div>
+
+          <!-- Gender is on the update DTO too, so it shows in both modes. -->
+          <div class="space-y-1">
+            <label
+              for="genderId"
+              class="block font-medium">
+              Gender
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true"
+                >*</span
+              >
+              <span class="sr-only">(required)</span>
+            </label>
+            <p-select
+              inputId="genderId"
+              class="w-full"
+              [options]="genders()"
+              optionLabel="genderName"
+              optionValue="id"
+              placeholder="Select gender"
+              [loading]="isLoadingGenders()"
+              [disabled]="f.genderId().disabled()"
+              [class.p-invalid]="showError(f.genderId)"
+              [appendTo]="'body'"
+              aria-required="true"
+              [attr.aria-describedby]="'genderId-help'"
+              [formField]="$any(f.genderId)" />
+            <div
+              id="genderId-help"
+              aria-live="polite">
+              @if (showError(f.genderId)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.genderId().errors()[0].message }}</span>
+              </p-message>
+              }
+            </div>
+          </div>
+
+          @if (isEditMode) {
+          <!-- Edit only: `new-tentant-creation-by-host` carries no currency, so a value picked here
+               on a create would be dropped without a word. -->
+          <div class="space-y-1">
+            <label
+              for="defaultCurrency"
+              class="block font-medium">
+              Default currency
+            </label>
+            <p-select
+              inputId="defaultCurrency"
+              class="w-full"
+              [options]="currencyOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select currency"
+              [showClear]="true"
+              [loading]="isLoadingCurrencies()"
+              [disabled]="f.defaultCurrency().disabled()"
+              [appendTo]="'body'"
+              [attr.aria-describedby]="'defaultCurrency-help'"
+              [formField]="$any(f.defaultCurrency)" />
+            <div
+              id="defaultCurrency-help"
+              class="min-h-5">
+              <p class="text-xs text-gray-500 dark:text-zinc-400">
+                Leave empty if the institution has none.
+              </p>
+            </div>
+          </div>
+          }
+        </div>
+      </app-section-card>
+
+      <!-- Subscription -->
+      <app-section-card
+        icon="pi pi-credit-card"
+        heading="Subscription"
+        subheading="The plan decides which institution types and modules the institution can use.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          @if (isEditMode) {
+          <!-- The update DTO carries no plan, so an edit reports the institution's plan instead of
+               offering to change it. -->
+          <div
+            class="space-y-1"
+            role="group"
+            aria-labelledby="subscriptionPlanReadOnly-label"
+            aria-describedby="subscriptionPlanReadOnly-help">
+            <p
+              id="subscriptionPlanReadOnly-label"
+              class="block font-medium">
+              Subscription plan
+            </p>
+            <!-- Shaped like a disabled control so the row keeps the grid's height and
+                 does not read as an empty column beside the Industry select. -->
+            <p
+              class="flex min-h-[2.65rem] items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-200">
+              <i
+                class="pi pi-lock text-gray-400 dark:text-zinc-500"
+                aria-hidden="true"></i>
+              <span>{{ hydratedPlan()?.subscriptionPlanName || '—' }}</span>
+              @if (hydratedPlan()?.isTrial) {
+              <span
+                class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+                Trial
+              </span>
+              }
+            </p>
+            <div
+              id="subscriptionPlanReadOnly-help"
+              class="min-h-5">
+              <p class="text-xs text-gray-500 dark:text-zinc-400">
+                Set once at creation and cannot be changed here
+              </p>
+            </div>
+          </div>
+          } @else {
+          <!-- Subscription plan -->
+          <div class="space-y-1">
+            <label
+              for="subscriptionPlanId"
+              class="block font-medium">
+              Subscription plan
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true"
+                >*</span
+              >
+              <span class="sr-only">(required)</span>
+            </label>
+            <p-select
+              inputId="subscriptionPlanId"
+              class="w-full"
+              [options]="plans()"
+              optionLabel="planName"
+              optionValue="id"
+              placeholder="Select plan"
+              [loading]="isLoadingPlans()"
+              [disabled]="f.subscriptionPlanId().disabled()"
+              [class.p-invalid]="showError(f.subscriptionPlanId)"
+              [appendTo]="'body'"
+              aria-required="true"
+              [attr.aria-describedby]="'subscriptionPlanId-help'"
+              [formField]="$any(f.subscriptionPlanId)" />
+            <div
+              id="subscriptionPlanId-help"
+              aria-live="polite">
+              @if (showError(f.subscriptionPlanId)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.subscriptionPlanId().errors()[0].message }}</span>
+              </p-message>
+              }
+            </div>
+          </div>
+          }
+
+          <!-- Industry -->
+          <div class="space-y-1">
+            <label
+              for="institutionTypeId"
+              class="block font-medium">
+              Institution type
+              <span
+                class="text-red-600 dark:text-red-400"
+                aria-hidden="true"
+                >*</span
+              >
+              <span class="sr-only">(required)</span>
+            </label>
+            <p-select
+              inputId="institutionTypeId"
+              class="w-full"
+              [options]="industries()"
+              optionLabel="institutionTypeName"
+              optionValue="id"
+              placeholder="Select institution type"
+              [loading]="isLoadingIndustries()"
+              [disabled]="f.institutionTypeId().disabled()"
+              [class.p-invalid]="showError(f.institutionTypeId)"
+              [appendTo]="'body'"
+              aria-required="true"
+              [attr.aria-describedby]="'institutionTypeId-help'"
+              [formField]="$any(f.institutionTypeId)" />
+            <div
+              id="institutionTypeId-help"
+              class="min-h-5"
+              aria-live="polite">
+              @if (showError(f.institutionTypeId)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.institutionTypeId().errors()[0].message }}</span>
+              </p-message>
+              } @else if (!isEditMode && !model().subscriptionPlanId) {
+              <p class="text-xs text-gray-500 dark:text-zinc-400">Pick a plan first - institution types are plan-specific</p>
+              }
+            </div>
+          </div>
+        </div>
+      </app-section-card>
+
+      <!-- Institution profile -->
+      <app-section-card
+        icon="pi pi-briefcase"
+        heading="Institution profile"
+        subheading="Branding and institution details shown across the institution workspace.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-form-select
+            label="Institution ownership"
+            inputId="profile-businessType"
+            optionLabel="name"
+            optionValue="name"
+            placeholder="Select ownership category"
+            hint="How the institution is owned or managed"
+            required
+            [loading]="isLoadingInstitutionCategories()"
+            [options]="institutionCategories()"
+            [field]="f.profile.businessType"
+            [submitted]="submitted()" />
+
+          <app-form-text
+            type="url"
+            label="Website"
+            inputId="profile-websiteUrl"
+            icon="pi pi-globe"
+            placeholder="e.g. https://greenfield.edu"
+            required
+            [field]="f.profile.websiteUrl"
+            [submitted]="submitted()" />
+
+          <app-form-text
+            type="url"
+            label="Logo URL"
+            inputId="profile-logoUrl"
+            icon="pi pi-image"
+            placeholder="e.g. https://greenfield.edu/logo.png"
+            hint="A hosted image the institution workspace loads directly"
+            required
+            [field]="f.profile.logoUrl"
+            [submitted]="submitted()" />
+
+          <app-form-color
+            label="Theme colour"
+            inputId="profile-themeColor"
+            [hint]="themeColorHint()"
+            required
+            [field]="f.profile.themeColor"
+            [submitted]="submitted()" />
+
+          <!-- The three counts read as a set, and a 3-up row closes what was an orphan
+               half-row under Founded year. -->
+          <div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-3">
+            <app-form-number
+              label="Total staff"
+              inputId="profile-totalStaffMembers"
+              placeholder="e.g. 250"
+              required
+              [min]="1"
+              [max]="1000000"
+              [field]="f.profile.totalStaffMembers"
+              [submitted]="submitted()" />
+
+            <app-form-number
+              label="Total campuses"
+              inputId="profile-totalBranches"
+              placeholder="e.g. 4"
+              required
+              [min]="1"
+              [max]="10000"
+              [field]="f.profile.totalBranches"
+              [submitted]="submitted()" />
+
+            <!-- A year is an identifier, not a quantity: no thousands separator. -->
+            <app-form-number
+              label="Founded year"
+              inputId="profile-foundedYear"
+              placeholder="e.g. 2014"
+              required
+              [useGrouping]="false"
+              [min]="1800"
+              [max]="currentYear"
+              [field]="f.profile.foundedYear"
+              [submitted]="submitted()" />
+          </div>
+        </div>
+      </app-section-card>
+
+      <!-- Head office location -->
+      <app-section-card
+        icon="pi pi-map-marker"
+        heading="Main campus"
+        subheading="The institution's first campus. More campuses can be added later.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-form-text
+            label="Campus code"
+            inputId="location-locationCode"
+            placeholder="e.g. HO-BLR"
+            required
+            [field]="f.initialLocation.locationCode"
+            [submitted]="submitted()" />
+
+          <app-form-text
+            label="Campus name"
+            inputId="location-locationName"
+            placeholder="e.g. Bengaluru Main Campus"
+            required
+            [field]="f.initialLocation.locationName"
+            [submitted]="submitted()" />
+
+          <app-form-select
+            label="Campus type"
+            inputId="location-locationType"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select campus type"
+            required
+            [loading]="isLoadingCampusTypes()"
+            [options]="campusTypeOptions()"
+            [field]="f.initialLocation.locationType"
+            [submitted]="submitted()" />
+
+          <app-form-select
+            label="Time zone"
+            inputId="location-timeZoneId"
+            placeholder="Select time zone"
+            hint="Attendance windows are evaluated in this zone"
+            filter
+            required
+            [options]="timeZoneOptions"
+            [field]="f.initialLocation.timeZoneId"
+            [submitted]="submitted()" />
+
+          <app-form-select
+            label="State"
+            inputId="location-stateId"
+            optionLabel="stateName"
+            optionValue="id"
+            placeholder="Select state"
+            [hint]="model().countryId ? undefined : 'Pick a country first'"
+            filter
+            filterBy="stateName"
+            required
+            [options]="states()"
+            [loading]="isLoadingStates()"
+            [field]="f.initialLocation.stateId"
+            [submitted]="submitted()"
+            (selectionChange)="onStateChange()" />
+
+          <app-form-select
+            label="District"
+            inputId="location-districtId"
+            optionLabel="districtName"
+            optionValue="id"
+            placeholder="Select district"
+            [hint]="model().initialLocation.stateId ? undefined : 'Pick a state first'"
+            filter
+            filterBy="districtName"
+            required
+            [options]="districts()"
+            [loading]="isLoadingDistricts()"
+            [field]="f.initialLocation.districtId"
+            [submitted]="submitted()"
+            (selectionChange)="onDistrictChange()" />
+
+          <app-form-select
+            label="Locality"
+            inputId="location-localityId"
+            optionLabel="localityName"
+            optionValue="id"
+            placeholder="Select locality"
+            [hint]="model().initialLocation.districtId ? undefined : 'Pick a district first'"
+            filter
+            filterBy="localityName"
+            [options]="localities()"
+            [loading]="isLoadingLocalities()"
+            [field]="f.initialLocation.localityId"
+            [submitted]="submitted()" />
+
+          <app-form-text
+            label="Postal code"
+            inputId="location-postalCode"
+            placeholder="e.g. 560001"
+            autocomplete="postal-code"
+            [field]="f.initialLocation.postalCode"
+            [submitted]="submitted()" />
+
+          <app-form-text
+            label="Landmark"
+            inputId="location-landmark"
+            placeholder="e.g. Opposite Trinity Metro"
+            [field]="f.initialLocation.landmark"
+            [submitted]="submitted()" />
+
+          <app-form-textarea
+            class="md:col-span-2"
+            label="Street address"
+            inputId="location-address"
+            placeholder="e.g. 12 MG Road, Level 4"
+            required
+            [rows]="3"
+            [field]="f.initialLocation.address"
+            [submitted]="submitted()" />
+
+          <!-- All three become required once the fence is on - the schema's superRefine says so,
+               but zod issues carry no field metadata, so the visible `*` is the only signal. -->
+          <div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-3">
+            <app-form-number
+              label="Latitude"
+              inputId="location-latitude"
+              placeholder="e.g. 12.9716"
+              [required]="model().initialLocation.isGeoFenceEnabled"
+              [min]="-90"
+              [max]="90"
+              [minFractionDigits]="1"
+              [maxFractionDigits]="6"
+              [field]="f.initialLocation.latitude"
+              [submitted]="submitted()" />
+
+            <app-form-number
+              label="Longitude"
+              inputId="location-longitude"
+              placeholder="e.g. 77.5946"
+              [required]="model().initialLocation.isGeoFenceEnabled"
+              [min]="-180"
+              [max]="180"
+              [minFractionDigits]="1"
+              [maxFractionDigits]="6"
+              [field]="f.initialLocation.longitude"
+              [submitted]="submitted()" />
+
+            <app-form-number
+              label="Geo-fence radius (metres)"
+              inputId="location-geoFenceRadiusMeters"
+              placeholder="e.g. 200"
+              [hint]="
+                model().initialLocation.isGeoFenceEnabled
+                  ? 'Punches outside this radius are rejected'
+                  : 'Enable the geo-fence to set a radius'
+              "
+              [required]="model().initialLocation.isGeoFenceEnabled"
+              [min]="1"
+              [max]="10000"
+              [field]="f.initialLocation.geoFenceRadiusMeters"
+              [submitted]="submitted()" />
+          </div>
+        </div>
+
+        <fieldset class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <legend class="sr-only">Attendance rules for this location</legend>
+          <app-form-switch
+            label="Geo-fence enabled"
+            inputId="location-isGeoFenceEnabled"
+            hint="Punches must fall inside the radius"
+            [field]="f.initialLocation.isGeoFenceEnabled" />
+
+          <app-form-switch
+            label="Attendance allowed"
+            inputId="location-isAttendanceAllowed"
+            hint="Staff may mark attendance from this campus"
+            [field]="f.initialLocation.isAttendanceAllowed" />
+
+          <app-form-switch
+            label="Biometric enabled"
+            inputId="location-isBiometricEnabled"
+            hint="Devices here accept biometric punches"
+            [field]="f.initialLocation.isBiometricEnabled" />
+        </fieldset>
+      </app-section-card>
+
+      <!-- Staff code pattern -->
+      <app-section-card
+        icon="pi pi-id-card"
+        heading="Staff code pattern"
+        subheading="How staff codes are generated for this institution. Set once, at creation.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <app-form-text
+            label="Prefix"
+            inputId="pattern-prefix"
+            placeholder="e.g. STF"
+            required
+            [field]="f.staffMemberCodePattern.prefix"
+            [submitted]="submitted()" />
+
+          <app-form-text
+            label="Separator"
+            inputId="pattern-separator"
+            placeholder="e.g. -"
+            hint="Leave empty to run the parts together"
+            [field]="f.staffMemberCodePattern.separator"
+            [submitted]="submitted()" />
+
+          <app-form-text
+            label="Running number length"
+            inputId="pattern-runningNumberLength"
+            placeholder="e.g. 4"
+            hint="Digits the counter is padded to"
+            [field]="f.staffMemberCodePattern.runningNumberLength"
+            [submitted]="submitted()" />
+        </div>
+
+        <fieldset class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <legend class="sr-only">Parts included in the code</legend>
+          <app-form-switch
+            label="Include year"
+            inputId="pattern-includeYear"
+            [field]="f.staffMemberCodePattern.includeYear" />
+
+          <app-form-switch
+            label="Include month"
+            inputId="pattern-includeMonth"
+            [field]="f.staffMemberCodePattern.includeMonth" />
+
+          <app-form-switch
+            label="Include department"
+            inputId="pattern-includeDepartment"
+            [field]="f.staffMemberCodePattern.includeDepartment" />
+        </fieldset>
+
+        <!-- The result of every control above, so it reads after them and as an answer
+             rather than as another field hint. -->
+        <p
+          class="mt-4 flex flex-wrap items-baseline gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/50"
+          aria-live="polite">
+          <span class="text-xs text-gray-500 dark:text-zinc-400">Preview</span>
+          <code class="font-mono text-sm text-gray-900 dark:text-zinc-100">{{ staffMemberCodePreview() }}</code>
+        </p>
+      </app-section-card>
+    </div>
+
+    }
+
+    <app-form-action-bar
+      [submitLabel]="isEditMode ? 'Save changes' : 'Create institution'"
+      [saving]="isSaving()"
+      [disabled]="isSaving() || isLoading()"
+      [errorMessage]="
+        submitted() && f().invalid() ? 'Fix the highlighted fields before saving.' : ''
+      "
+      (cancelled)="onCancel()" />
+  </form>
+</div>

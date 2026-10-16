@@ -1,0 +1,241 @@
+<p-card class="block rounded-xl border-0 bg-white shadow dark:bg-zinc-900">
+  <!-- Toolbar -->
+  <div class="mb-5 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-3">
+      <p-select
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="All statuses"
+        [showClear]="true"
+        [ngModel]="selectedStatus()"
+        (ngModelChange)="onStatusChange($event)"
+        styleClass="w-48"
+        ariaLabel="Filter by status" />
+      <span class="text-sm text-gray-500 dark:text-zinc-400">
+        {{ store.filteredGoals().length }} {{ store.filteredGoals().length === 1 ? 'goal' : 'goals' }}
+      </span>
+
+      <!-- Weight total mini-bar -->
+      <div
+        class="flex items-center gap-2"
+        [attr.aria-label]="'Weight total ' + store.weightTotal() + ' of 100 percent'">
+        <span class="text-sm text-gray-500 dark:text-zinc-400">Weight total</span>
+        <div class="h-1.5 w-24 overflow-hidden rounded-full bg-gray-200 dark:bg-zinc-700">
+          <div
+            class="h-full rounded-full transition-all"
+            [class.bg-primary-500]="store.weightTotal() <= 100"
+            [class.bg-red-500]="store.weightTotal() > 100"
+            [style.width.%]="store.weightTotal() > 100 ? 100 : store.weightTotal()"></div>
+        </div>
+        <span
+          class="text-sm font-semibold tabular-nums"
+          [class.text-red-500]="store.weightTotal() > 100"
+          [class.text-emerald-600]="store.weightTotal() <= 100">
+          {{ store.weightTotal() }}%
+        </span>
+        <span class="text-sm text-gray-400 dark:text-zinc-500">/ 100%</span>
+      </div>
+    </div>
+    <p-button
+      label="Add Goal"
+      icon="pi pi-plus"
+      (onClick)="openForm()" />
+  </div>
+
+  @if (store.isLoading()) {
+  <app-table-loader />
+  } @else if (!store.filteredGoals().length) {
+  <app-table-empty-message
+    icon="pi pi-flag"
+    message="No goals yet"
+    subMessage="Create your first goal to start tracking performance." />
+  } @else {
+  <p-table
+    [value]="store.filteredGoals()"
+    [paginator]="store.filteredGoals().length > 10"
+    [rows]="10"
+    [rowHover]="true"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-sm">
+    <ng-template pTemplate="header">
+      <tr
+        class="[&>th]:text-xs [&>th]:font-semibold [&>th]:tracking-wide [&>th]:text-gray-500 [&>th]:uppercase dark:[&>th]:text-zinc-400">
+        <th>Title</th>
+        <th>Category</th>
+        <th class="text-center">Weight</th>
+        <th class="w-48">Progress</th>
+        <th>Due Date</th>
+        <th>Status</th>
+        <th>Owner</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template
+      pTemplate="body"
+      let-goal>
+      <tr>
+        <td>
+          <span class="font-medium text-gray-900 dark:text-zinc-100">{{ goal.title }}</span>
+        </td>
+        <td>
+          <span
+            class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+            [class]="categoryClass(goal.category)">
+            {{ goal.category }}
+          </span>
+        </td>
+        <td class="text-center tabular-nums">{{ goal.weight }}%</td>
+        <td>
+          <app-pms-progress-bar
+            [value]="goal.progress"
+            [label]="goal.title + ' progress'" />
+        </td>
+        <td class="whitespace-nowrap">
+          @if (isOverdue(goal)) {
+          <span class="inline-flex items-center gap-1 font-medium text-red-600 dark:text-red-400">
+            {{ goal.dueDate | date: 'mediumDate' }}
+            <i
+              class="pi pi-exclamation-circle text-xs"
+              pTooltip="Overdue"
+              aria-hidden="true"></i>
+            <span class="sr-only">overdue</span>
+          </span>
+          } @else { {{ goal.dueDate | date: 'mediumDate' }} }
+        </td>
+        <td><app-pms-status-badge [status]="goal.status" /></td>
+        <td class="whitespace-nowrap">
+          <span class="inline-flex items-center gap-2">
+            <span
+              class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700 dark:bg-primary-900/40 dark:text-primary-200"
+              aria-hidden="true">
+              {{ initials(goal.ownerName) }}
+            </span>
+            {{ goal.ownerName }}
+          </span>
+        </td>
+        <td>
+          <div class="flex items-center gap-1">
+            <p-button
+              icon="pi pi-eye"
+              [text]="true"
+              size="small"
+              severity="secondary"
+              ariaLabel="View goal"
+              pTooltip="View"
+              (onClick)="openView(goal)" />
+            <p-button
+              icon="pi pi-chart-line"
+              [text]="true"
+              size="small"
+              severity="success"
+              ariaLabel="Update progress"
+              pTooltip="Update progress"
+              (onClick)="openProgress(goal)" />
+            <p-button
+              icon="pi pi-pencil"
+              [text]="true"
+              size="small"
+              ariaLabel="Edit goal"
+              pTooltip="Edit"
+              (onClick)="openForm(goal)" />
+            @if (canDelete()) {
+            <p-button
+              icon="pi pi-trash"
+              [text]="true"
+              size="small"
+              severity="danger"
+              ariaLabel="Delete goal"
+              pTooltip="Delete"
+              (onClick)="confirmDelete(goal)" />
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  }
+</p-card>
+
+<!-- Update progress dialog -->
+<p-dialog
+  [visible]="progressDialogVisible()"
+  (visibleChange)="progressDialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '24rem' }"
+  header="Update Progress">
+  @if (progressGoal(); as goal) {
+  <p class="mb-3 text-sm text-gray-600 dark:text-zinc-300">{{ goal.title }}</p>
+  }
+  <label
+    for="progress-input"
+    class="mb-1 block text-sm font-medium">
+    Progress (0–100)
+  </label>
+  <p-inputnumber
+    inputId="progress-input"
+    class="w-full"
+    styleClass="w-full"
+    inputStyleClass="w-full"
+    [min]="0"
+    [max]="100"
+    [ngModel]="progressValue()"
+    (ngModelChange)="progressValue.set($event)" />
+  <div class="mt-5 flex justify-end gap-2">
+    <p-button
+      type="button"
+      label="Cancel"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="progressDialogVisible.set(false)" />
+    <p-button
+      type="button"
+      label="Save"
+      icon="pi pi-check"
+      (onClick)="saveProgress()" />
+  </div>
+</p-dialog>
+
+<!-- View goal (read-only) dialog -->
+<p-dialog
+  [visible]="viewDialogVisible()"
+  (visibleChange)="viewDialogVisible.set($event)"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+  header="Goal Details">
+  @if (viewGoal(); as goal) {
+  <div class="flex flex-col gap-3">
+    <div class="flex items-center justify-between gap-2">
+      <h3 class="text-base font-semibold text-gray-900 dark:text-zinc-100">{{ goal.title }}</h3>
+      <app-pms-status-badge [status]="goal.status" />
+    </div>
+    <p class="text-sm text-gray-600 dark:text-zinc-300">{{ goal.description }}</p>
+    <div class="grid grid-cols-2 gap-3 text-sm">
+      <div>
+        <span class="text-gray-400">Category</span>
+        <div class="font-medium">{{ goal.category }}</div>
+      </div>
+      <div>
+        <span class="text-gray-400">Weight</span>
+        <div class="font-medium">{{ goal.weight }}%</div>
+      </div>
+      <div>
+        <span class="text-gray-400">Owner</span>
+        <div class="font-medium">{{ goal.ownerName }}</div>
+      </div>
+      <div>
+        <span class="text-gray-400">Due</span>
+        <div class="font-medium">{{ goal.dueDate | date: 'mediumDate' }}</div>
+      </div>
+    </div>
+    <div>
+      <span class="mb-1 block text-sm text-gray-400">Progress</span>
+      <app-pms-progress-bar
+        [value]="goal.progress"
+        [label]="goal.title + ' progress'" />
+    </div>
+  </div>
+  }
+</p-dialog>
+
+<p-confirmDialog />

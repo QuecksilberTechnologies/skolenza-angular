@@ -1,0 +1,122 @@
+<form
+  [formGroup]="departmentForm"
+  (ngSubmit)="onSubmit()"
+  class="grid grid-cols-1 gap-4">
+  <!-- Name -->
+  <div class="space-y-1">
+    <label
+      for="departmentName"
+      class="block font-medium">
+      Name
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <input
+      formControlName="departmentName"
+      appTrimInput
+      pInputText
+      [pAutoFocus]="true"
+      type="text"
+      id="departmentName"
+      class="w-full"
+      [invalid]="isInvalid('departmentName')" />
+    @if ( departmentForm.get('departmentName')?.invalid && departmentForm.get('departmentName')?.touched ) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      @if (departmentForm.get('departmentName')?.errors?.['required']) {
+      <span>Department name is required</span>
+      } @else if (departmentForm.get('departmentName')?.errors?.['minlength']) {
+      <span>Department name must be at least 3 characters</span>
+      } @else if (departmentForm.get('departmentName')?.errors?.['pattern']) {
+      <span>
+        Department name must start with a letter and use only letters, numbers, spaces, hyphens, or underscores.
+      </span>
+      }
+    </p-message>
+    }
+  </div>
+
+  <!-- Description -->
+  <div class="space-y-1">
+    <label
+      for="description"
+      class="block font-medium">
+      Description
+      <span class="text-sm font-normal text-gray-400">(Optional)</span>
+    </label>
+    <textarea
+      formControlName="description"
+      appTrimInput
+      pTextarea
+      rows="3"
+      cols="20"
+      id="description"
+      class="w-full resize-none"></textarea>
+    <div class="flex w-full items-center justify-start text-sm text-gray-500">
+      <span>{{ departmentForm.get('description')?.value?.length || 0 }}/250 characters</span>
+    </div>
+    @if (departmentForm.get('description')?.invalid && departmentForm.get('description')?.touched) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      @if (departmentForm.get('description')?.errors?.['maxlength']) {
+      <span>Description cannot exceed 250 characters.</span>
+      }
+    </p-message>
+    }
+  </div>
+
+  <!-- Status -->
+  <div class="space-y-1">
+    <label
+      for="isActive"
+      class="block font-medium">
+      Status
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <p-select
+      formControlName="isActive"
+      inputId="isActive"
+      [options]="statusOptions"
+      optionLabel="status"
+      optionValue="value"
+      appendTo="body"
+      class="w-full" />
+  </div>
+
+  <!-- Remark -->
+  @if (departmentForm.controls.remark.enabled) {
+  <div class="space-y-1">
+    <label
+      for="remark"
+      class="block font-medium">
+      Remark
+      <span class="text-sm font-normal text-gray-400">(Optional)</span>
+    </label>
+    <textarea
+      formControlName="remark"
+      appTrimInput
+      pTextarea
+      rows="3"
+      cols="20"
+      id="remark"
+      class="w-full resize-none"
+      placeholder="Any additional notes"></textarea>
+  </div>
+  }
+
+  <div class="flex justify-end gap-2">
+    <p-button
+      label="Cancel"
+      variant="text"
+      severity="secondary"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isSaving() ? 'Saving...' : 'Save'"
+      [loading]="isSaving()"
+      [disabled]="departmentForm.invalid || isSaving()" />
+  </div>
+</form>

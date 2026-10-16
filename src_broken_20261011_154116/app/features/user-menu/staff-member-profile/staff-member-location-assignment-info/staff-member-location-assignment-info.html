@@ -1,0 +1,246 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      dataKey="id"
+      [value]="store.assignments()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [lazy]="true"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [paginator]="true"
+      [rows]="store.pageSize()"
+      [totalRecords]="store.totalRecords()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} assignments"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      (onLazyLoad)="loadAssignments($event)"
+      [contextMenu]="canUseRowActions() ? actionContextMenu : null"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            [options]="staffMemberFilter.options()"
+            optionLabel="fullName"
+            optionValue="staffMemberId"
+            placeholder="Select StaffMember"
+            ariaLabel="Filter by staffMember"
+            [filter]="true"
+            filterBy="fullName"
+            [loading]="staffMemberFilter.isLoading()"
+            [appendTo]="'body'"
+            [showClear]="true"
+            panelStyleClass="select-option-truncate"
+            [ngModel]="store.staffMemberId() || null"
+            (onChange)="onStaffMemberChange($event.value)" />
+
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            [options]="locationOptions()"
+            optionLabel="locationName"
+            optionValue="id"
+            placeholder="Select Location"
+            ariaLabel="Filter by location"
+            [filter]="true"
+            filterBy="locationName"
+            [loading]="isLoadingLocations()"
+            [appendTo]="'body'"
+            [showClear]="true"
+            panelStyleClass="select-option-truncate"
+            [ngModel]="store.institutionLocationId()"
+            (onChange)="onLocationChange($event.value)" />
+
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            [options]="statusOptions"
+            optionLabel="status"
+            optionValue="value"
+            placeholder="Select Status"
+            ariaLabel="Filter by status"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [ngModel]="store.isActive()"
+            (onChange)="onStatusChange($event.value)" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            @if (canAdd()) {
+              <p-button
+                label="Add Location Assignment"
+                icon="pi pi-plus"
+                class="w-full justify-center lg:w-auto"
+                (onClick)="openAssignmentForm()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #header>
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          <th class="max-w-52 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            StaffMember
+          </th>
+          <th class="max-w-52 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Location
+          </th>
+          <th class="max-w-28 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Primary
+          </th>
+          <th class="max-w-32 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Attendance
+          </th>
+          <th class="max-w-32 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Effective From
+          </th>
+          <th class="max-w-32 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Effective To
+          </th>
+          <th class="max-w-28 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Status
+          </th>
+          @if (canUseRowActions()) {
+            <th class="max-w-32 px-3! py-3! align-middle text-gray-700 dark:text-zinc-100">
+              <div class="flex justify-center">Actions</div>
+            </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-assignment>
+        <tr [pContextMenuRow]="assignment">
+          <td class="px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex max-w-52 min-w-0 flex-col">
+              <span
+                class="truncate font-medium"
+                [pTooltip]="assignment.staffMemberName ?? ''"
+                tooltipPosition="bottom">
+                {{ assignment.staffMemberName ?? '-' }}
+              </span>
+              @if (assignment.staffMemberCode) {
+                <span class="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                  {{ assignment.staffMemberCode }}
+                </span>
+              }
+            </div>
+          </td>
+          <td class="px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <span
+              class="block max-w-52 truncate"
+              [pTooltip]="assignment.institutionLocationName ?? ''"
+              tooltipPosition="bottom">
+              {{ assignment.institutionLocationName ?? '-' }}
+            </span>
+          </td>
+          <td class="max-w-28 px-3! py-3! align-middle whitespace-nowrap">
+            @if (assignment.isPrimary) {
+              <p-tag
+                value="Primary"
+                icon="pi pi-star"
+                severity="info" />
+            } @else {
+              <span class="text-gray-700 dark:text-zinc-100">-</span>
+            }
+          </td>
+          <td class="max-w-32 px-3! py-3! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="assignment.isAttendanceAllowed ? 'Allowed' : 'Not allowed'"
+              [icon]="assignment.isAttendanceAllowed ? 'pi pi-check' : 'pi pi-times'"
+              [severity]="assignment.isAttendanceAllowed ? 'secondary' : 'warn'" />
+          </td>
+          <td class="max-w-32 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            {{ (assignment.effectiveFrom | date) ?? '-' }}
+          </td>
+          <td class="max-w-32 px-3! py-3! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            {{ assignment.effectiveTo ? (assignment.effectiveTo | date) : 'No end date' }}
+          </td>
+          <td class="max-w-28 px-3! py-3! align-middle whitespace-nowrap">
+            @if (isExpired(assignment)) {
+              <p-tag
+                value="Expired"
+                icon="pi pi-clock"
+                severity="warn" />
+            } @else {
+              <p-tag
+                [value]="assignment.isActive ? 'Active' : 'Inactive'"
+                [severity]="assignment.isActive ? 'success' : 'danger'" />
+            }
+          </td>
+          @if (canUseRowActions()) {
+            <td class="max-w-32 px-3! py-3! align-middle whitespace-nowrap">
+              <div class="flex items-center justify-center gap-2">
+                @if (canUpdate()) {
+                  <p-button
+                    class="text-xl!"
+                    [icon]="assignment.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                    [severity]="assignment.isActive ? 'success' : 'danger'"
+                    [pTooltip]="assignment.isActive ? 'Deactivate' : 'Activate'"
+                    tooltipPosition="left"
+                    [showDelay]="300"
+                    [loading]="assignment.isUpdatingStatus"
+                    [ariaLabel]="
+                      (assignment.isActive ? 'Deactivate ' : 'Activate ') +
+                      (assignment.institutionLocationName ?? 'location') +
+                      ' assignment'
+                    "
+                    (onClick)="confirmToggleActive(assignment)" />
+                }
+                <app-table-action-button
+                  [ariaLabel]="'Actions for ' + (assignment.institutionLocationName ?? 'location') + ' assignment'"
+                  (action)="selectedRow.set(assignment); actionMenu.toggle($event)" />
+              </div>
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.assignments().length === 0) {
+          <tr>
+            <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            @if (hasActiveFilters()) {
+              <app-table-empty-message
+                icon="pi pi-search"
+                message="No location assignments match your filters"
+                subMessage="Try a different staffMember, location or status, or clear the filters" />
+            } @else {
+              <app-table-empty-message
+                icon="pi pi-map-marker"
+                message="No location assignments found"
+                subMessage="Select an staffMember and assign the locations they may mark attendance from" />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-tieredmenu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [autoDisplay]="true"
+  [popup]="true"
+  [pt]="{ root: { class: 'staffMember-action-menu' } }"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  [pt]="{ root: { class: 'staffMember-action-menu' } }"
+  appendTo="body" />
+<p-confirmDialog />

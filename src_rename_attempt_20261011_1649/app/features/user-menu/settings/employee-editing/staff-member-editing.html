@@ -1,0 +1,54 @@
+<section
+  class="bg-surface-light p-3 sm:p-4 dark:bg-surface-dark [--p-toggleswitch-border-color:var(--p-surface-500)] [--p-toggleswitch-hover-border-color:var(--p-surface-500)]"
+  aria-labelledby="settings-panel-heading">
+  <div class="max-w-3xl">
+    <p class="text-sm text-gray-500 dark:text-zinc-400">
+      Applies to all staffMembers. Each switch saves when changed. Single staffMembers are unlocked from
+      their profile.
+    </p>
+
+    <p class="mt-2 text-sm text-gray-500 dark:text-zinc-400">
+      The saved setting cannot be shown here, so every switch starts off. Changing a switch replaces
+      whatever is stored.
+    </p>
+
+    <ul class="mt-4 divide-y divide-zinc-200 dark:divide-zinc-700">
+      @for (section of sections; track section.moduleCode) {
+        <li
+          class="flex items-center justify-between gap-4 py-3"
+          [attr.aria-busy]="savingCode() === section.moduleCode">
+          <div class="min-w-0">
+            <label
+              [for]="'section-' + section.moduleCode"
+              class="block font-medium">
+              {{ section.label }}
+            </label>
+            <p class="text-sm text-gray-500 dark:text-zinc-400">{{ section.hint }}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            @if (savingCode() === section.moduleCode) {
+              <i
+                class="pi pi-spin pi-spinner text-zinc-500 dark:text-zinc-400"
+                aria-hidden="true"></i>
+              <span class="sr-only">Saving</span>
+            }
+            @if (unavailableReason(section.moduleCode); as reason) {
+              <span class="flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400">
+                <i
+                  class="pi pi-lock"
+                  aria-hidden="true"></i>
+                {{ reason }}
+              </span>
+            }
+            <p-toggleswitch
+              [inputId]="'section-' + section.moduleCode"
+              [ngModel]="isOn(section.moduleCode)"
+              [disabled]="!canEdit(section.moduleCode) || savingCode() !== null"
+              [ariaLabel]="'Allow staffMembers to edit ' + section.label"
+              (ngModelChange)="onToggle(section, $event)" />
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,15 @@
+<div>
+  <p-card class="m-4">
+    @if (store.isLoading()) {
+    <app-permission-matrix-loader />
+    } @else {
+    <app-permission-matrix
+      [institutionModules]="store.modules()"
+      [rolePermissions]="store.enabled()"
+      [isSaving]="store.isSaving()"
+      (savePermissions)="onSaveModules($event)">
+      Check the operations this institution is licensed to use. Unchecking every operation switches the module off.
+    </app-permission-matrix>
+    }
+  </p-card>
+</div>

@@ -1,0 +1,254 @@
+@let policyVal = policy();
+
+<div
+  class="flex h-full flex-col"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="titleId()">
+  <!-- Header -->
+  <section
+    class="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+    <div class="flex items-center gap-3">
+      <span
+        class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900">
+        <i class="pi pi-shield text-2xl text-primary-600 dark:text-primary-300"></i>
+      </span>
+      <div class="min-w-0">
+        <div
+          [id]="titleId()"
+          class="truncate text-lg font-semibold text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.insurancePolicyName || 'No policy selected' }}
+        </div>
+        <div class="text-sm text-gray-500 dark:text-zinc-400">Insurance Policy Details</div>
+      </div>
+    </div>
+    <p-button
+      type="button"
+      icon="pi pi-times"
+      ariaLabel="Close insurance policy details"
+      rounded="true"
+      [variant]="'text'"
+      [size]="'small'"
+      [severity]="'secondary'"
+      (onClick)="onCancel()" />
+  </section>
+
+  <!-- Content -->
+  <section class="min-h-0 flex-1 space-y-4 overflow-y-auto bg-gray-50 p-4 dark:bg-zinc-900">
+    <!-- Status strip -->
+    <div
+      class="flex flex-wrap items-center gap-3 rounded-lg border border-gray-100 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col gap-1">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Status
+        </span>
+        <p-tag
+          [value]="policyVal?.isActive ? 'Active' : 'Inactive'"
+          [severity]="policyVal?.isActive ? 'success' : 'danger'" />
+      </div>
+    </div>
+
+    <!-- Policy -->
+    <div
+      class="grid grid-cols-1 gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:grid-cols-2 dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Policy Name
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.insurancePolicyName || '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Policy Number
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.insurancePolicyNumber || '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Provider Name
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.providerName || '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Policy Type
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.policyTypeName || '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Country
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.countryName || '—' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Coverage period -->
+    <div
+      class="grid grid-cols-1 gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:grid-cols-2 dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Start Date
+        </span>
+        @if (policyVal?.startDate) {
+        <time
+          [attr.datetime]="policyVal!.startDate"
+          class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal!.startDate | date: 'mediumDate' }}
+        </time>
+        } @else {
+        <span class="mt-1 text-gray-800 dark:text-zinc-100">—</span>
+        }
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          End Date
+        </span>
+        @if (policyVal?.endDate) {
+        <time
+          [attr.datetime]="policyVal!.endDate"
+          class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal!.endDate | date: 'mediumDate' }}
+        </time>
+        } @else {
+        <span class="mt-1 text-gray-800 dark:text-zinc-100">—</span>
+        }
+      </div>
+    </div>
+
+    <!-- Agent -->
+    <div
+      class="grid grid-cols-1 gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:grid-cols-2 dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col sm:col-span-2">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Agent Name
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.agentName || '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Agent Contact Number
+        </span>
+        @if (policyVal?.agentContactNumber) {
+        <a
+          [href]="'tel:' + policyVal!.agentContactNumber"
+          class="mt-1 break-all text-primary-600 hover:underline dark:text-primary-400">
+          {{ policyVal!.agentContactNumber }}
+        </a>
+        } @else {
+        <span class="mt-1 text-gray-800 dark:text-zinc-100">—</span>
+        }
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Agent Office Number
+        </span>
+        @if (policyVal?.agentOfficeNumber) {
+        <a
+          [href]="'tel:' + policyVal!.agentOfficeNumber"
+          class="mt-1 break-all text-primary-600 hover:underline dark:text-primary-400">
+          {{ policyVal!.agentOfficeNumber }}
+        </a>
+        } @else {
+        <span class="mt-1 text-gray-800 dark:text-zinc-100">—</span>
+        }
+      </div>
+    </div>
+
+    <!-- Dependant coverage -->
+    <div
+      class="grid grid-cols-1 gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:grid-cols-2 dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col gap-1">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          StaffMember Allowed
+        </span>
+        <p-tag
+          [value]="policyVal?.staffMemberAllowed ? 'Yes' : 'No'"
+          [severity]="policyVal?.staffMemberAllowed ? 'success' : 'danger'" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Parents Allowed
+        </span>
+        <p-tag
+          [value]="policyVal?.parentsAllowed ? 'Yes' : 'No'"
+          [severity]="policyVal?.parentsAllowed ? 'success' : 'danger'" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          In-Laws Allowed
+        </span>
+        <p-tag
+          [value]="policyVal?.inLawsAllowed ? 'Yes' : 'No'"
+          [severity]="policyVal?.inLawsAllowed ? 'success' : 'danger'" />
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Max Spouse Allowed
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.maxSpouseAllowed ?? '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Max Child Allowed
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.maxChildAllowed ?? '—' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div
+      class="grid grid-cols-1 gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:grid-cols-2 dark:border-zinc-700 dark:bg-zinc-800">
+      <div class="flex flex-col sm:col-span-2">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Description
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.description || '—' }}
+        </span>
+      </div>
+      <div class="flex flex-col sm:col-span-2">
+        <span
+          class="text-[11px] font-semibold tracking-wider text-gray-500 uppercase dark:text-zinc-400">
+          Remark
+        </span>
+        <span class="mt-1 break-words text-gray-800 dark:text-zinc-100">
+          {{ policyVal?.remark || '—' }}
+        </span>
+      </div>
+    </div>
+  </section>
+</div>

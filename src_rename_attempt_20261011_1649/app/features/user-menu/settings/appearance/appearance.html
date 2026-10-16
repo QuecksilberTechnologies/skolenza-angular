@@ -1,0 +1,152 @@
+<section
+  class="bg-surface-light p-3 sm:p-4 dark:bg-surface-dark"
+  aria-labelledby="settings-panel-heading">
+  <div class="max-w-3xl space-y-6 sm:space-y-8">
+    <!-- Accent Color -->
+    @if (isSuperAdmin()) {
+    <fieldset>
+      <div class="mb-3 flex items-center justify-between">
+        <legend class="flex items-center gap-2 text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
+          Accent Color
+          <app-pro-badge />
+        </legend>
+      </div>
+      <div
+        appRovingRadioGroup
+        class="flex flex-wrap items-center gap-2 sm:gap-2.5"
+        role="radiogroup"
+        aria-label="Accent color">
+        @for (color of quickColors; track color.value) {
+        <button
+          type="button"
+          role="radio"
+          [attr.aria-checked]="appearance().accentColor === color.value"
+          [attr.aria-label]="color.name"
+          class="flex h-7 w-7 items-center justify-center rounded-full shadow-sm transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:h-8 sm:w-8 dark:ring-offset-surface-dark"
+          [class.ring-2]="appearance().accentColor === color.value"
+          [class.ring-offset-2]="appearance().accentColor === color.value"
+          [class.ring-offset-surface-light]="appearance().accentColor === color.value"
+          [style.background-color]="color.value"
+          [style.--tw-ring-color]="
+              appearance().accentColor === color.value ? color.value : 'transparent'
+            "
+          (click)="selectAccentColor(color.value)">
+          @if (appearance().accentColor === color.value) {
+          <span
+            class="pi pi-check !text-[11px] drop-shadow-md sm:!text-[12px]"
+            [style.color]="contrastTextColor(color.value)"
+            aria-hidden="true"></span>
+          }
+        </button>
+        } @if (appliedColor(); as hex) {
+        <button
+          type="button"
+          role="radio"
+          aria-checked="true"
+          [attr.aria-label]="selectedColorName()"
+          class="flex h-7 w-7 items-center justify-center rounded-full shadow-sm ring-2 ring-offset-2 ring-offset-surface-light transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:h-8 sm:w-8 dark:ring-offset-surface-dark"
+          [style.background-color]="hex"
+          [style.--tw-ring-color]="hex"
+          (click)="selectAccentColor(hex)">
+          <span
+            class="pi pi-check !text-[11px] drop-shadow-md sm:!text-[12px]"
+            [style.color]="contrastTextColor(hex)"
+            aria-hidden="true"></span>
+        </button>
+        }
+        <div
+          class="mx-0.5 h-8 w-px bg-border-light sm:mx-1 dark:bg-border-dark"
+          aria-hidden="true"></div>
+        <app-color-picker
+          [value]="appearance().accentColor"
+          (valueChange)="selectAccentColor($event)" />
+      </div>
+    </fieldset>
+    }
+
+    <!-- Interface Mode -->
+    <fieldset>
+      <legend class="mb-3 text-sm font-medium text-text-primary-light dark:text-text-primary-dark">
+        Interface Mode
+      </legend>
+      <div
+        class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4"
+        role="radiogroup"
+        aria-label="Interface mode">
+        <button
+          type="button"
+          role="radio"
+          [attr.aria-checked]="!isDarkMode()"
+          class="group relative cursor-pointer rounded-xl text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          (click)="selectThemeMode('light')">
+          <div
+            class="flex h-full flex-col items-center rounded-xl border-2 p-3 transition-all sm:p-5"
+            [class]="
+              !isDarkMode()
+                ? 'border-primary ring-1 ring-primary bg-primary/5 dark:bg-primary/10'
+                : 'border-border-light dark:border-border-dark bg-white dark:bg-zinc-800/40 hover:border-primary/40'
+            ">
+            <div class="mb-2 p-1.5 text-primary sm:mb-3 sm:p-2">
+              <span
+                class="pi pi-sun !text-[22px] sm:!text-[28px]"
+                aria-hidden="true"></span>
+            </div>
+            <div class="text-center">
+              <div class="text-sm font-semibold text-text-primary-light sm:text-base dark:text-text-primary-dark">
+                Light Mode
+              </div>
+              <div
+                class="mt-0.5 text-[10px] text-text-secondary-light sm:mt-1 sm:text-xs dark:text-text-secondary-dark">
+                High contrast, ideal for bright environments.
+              </div>
+            </div>
+            @if (!isDarkMode()) {
+            <div class="absolute top-2 right-2 text-primary sm:top-3 sm:right-3">
+              <span
+                class="pi pi-check-circle !text-[16px] sm:!text-[20px]"
+                aria-hidden="true"></span>
+            </div>
+            }
+          </div>
+        </button>
+
+        <button
+          type="button"
+          role="radio"
+          [attr.aria-checked]="isDarkMode()"
+          class="group relative cursor-pointer rounded-xl text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          (click)="selectThemeMode('dark')">
+          <div
+            class="flex h-full flex-col items-center rounded-xl border-2 p-3 transition-all sm:p-5"
+            [class]="
+              isDarkMode()
+                ? 'border-primary ring-1 ring-primary bg-primary/5 dark:bg-primary/10'
+                : 'border-border-light dark:border-border-dark bg-white dark:bg-zinc-800/40 hover:border-primary/40'
+            ">
+            <div class="mb-2 p-1.5 text-primary sm:mb-3 sm:p-2">
+              <span
+                class="pi pi-moon !text-[22px] sm:!text-[28px]"
+                aria-hidden="true"></span>
+            </div>
+            <div class="text-center">
+              <div class="text-sm font-semibold text-text-primary-light sm:text-base dark:text-text-primary-dark">
+                Dark Mode
+              </div>
+              <div
+                class="mt-0.5 text-[10px] text-text-secondary-light sm:mt-1 sm:text-xs dark:text-text-secondary-dark">
+                Reduced eye strain for low-light conditions.
+              </div>
+            </div>
+            @if (isDarkMode()) {
+            <div class="absolute top-2 right-2 text-primary sm:top-3 sm:right-3">
+              <span
+                class="pi pi-check-circle !text-[16px] sm:!text-[20px]"
+                aria-hidden="true"></span>
+            </div>
+            }
+          </div>
+        </button>
+      </div>
+    </fieldset>
+  </div>
+</section>

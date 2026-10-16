@@ -1,0 +1,14 @@
+:host ::ng-deep .p-fileupload-header {
+  display: none !important;
+}
+
+:host ::ng-deep .p-fileupload-content {
+  padding: 0.8rem !important;
+  background-color: #f8fafc !important;
+  background-color: var(--color-zinc-50, #f8fafc) !important;
+}
+
+:host-context(.dark) ::ng-deep .p-fileupload-content {
+  background-color: #27272a !important;
+  background-color: var(--color-zinc-800, #27272a) !important;
+}

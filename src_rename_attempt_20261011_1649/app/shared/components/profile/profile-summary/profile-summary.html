@@ -1,0 +1,110 @@
+<header class="flex flex-col items-center gap-3 bg-primary/5 p-3 sm:flex-row sm:gap-6 sm:p-4">
+  <!-- StaffMember Picture -->
+  <app-profile-pic
+    [staffMemberName]="profileSummary()?.fullName || 'N'"
+    (updateProfile)="updateProfile($event)" />
+
+  <!-- Profile Summary + Time/Actions -->
+  <div class="flex w-full flex-col gap-3 sm:gap-4">
+    <div class="flex w-full flex-col justify-between gap-3 sm:gap-4 md:flex-row">
+      @if (isProfileSummaryLoading()) {
+      <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:gap-x-8 sm:gap-y-2.5 lg:grid-cols-3 xl:gap-x-16">
+        @for (item of [1, 2, 3, 4, 5]; track $index) {
+        <app-profile-summary-block-shimmer />
+        }
+      </div>
+      } @else {
+      <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:gap-x-8 sm:gap-y-2 lg:grid-cols-3 xl:gap-x-16">
+        <app-profile-summary-block
+          label="Full Name"
+          icon="pi pi-user">
+          <span class="max-w-52 truncate">{{ profileSummary()?.fullName || '-' }}</span>
+        </app-profile-summary-block>
+
+        <app-profile-summary-block
+          label="Department"
+          icon="pi pi-building">
+          <span class="max-w-52 truncate">{{ profileSummary()?.departmentType || '-' }}</span>
+        </app-profile-summary-block>
+
+        <app-profile-summary-block
+          label="Designation"
+          icon="pi pi-briefcase">
+          <span class="max-w-52 truncate">{{ profileSummary()?.designationType || '-' }}</span>
+        </app-profile-summary-block>
+
+        <app-profile-summary-block
+          label="Mobile"
+          icon="pi pi-phone">
+          @if (profileSummary()?.mobileNumber) {
+          <a
+            [href]="'tel:' + profileSummary()?.mobileNumber"
+            class="max-w-52 truncate text-primary hover:underline focus:underline focus:outline-none">
+            {{ profileSummary()?.mobileNumber }}
+          </a>
+          } @else {
+          <span class="max-w-52 truncate">-</span>
+          }
+        </app-profile-summary-block>
+
+        <app-profile-summary-block
+          label="Email"
+          icon="pi pi-envelope">
+          @if (profileSummary()?.offilcialEmail) {
+          <a
+            [href]="'mailto:' + profileSummary()?.offilcialEmail"
+            class="max-w-52 truncate text-primary hover:underline focus:underline focus:outline-none">
+            {{ profileSummary()?.offilcialEmail }}
+          </a>
+          } @else {
+          <span class="max-w-52 truncate">-</span>
+          }
+        </app-profile-summary-block>
+      </div>
+      }
+
+      <!-- Time + Actions (inline on md+, below on mobile) -->
+      <div class="flex w-full shrink-0 flex-row items-center justify-between gap-2 md:w-auto md:flex-col md:items-end">
+        <div
+          class="font-mono text-base font-semibold tracking-widest text-gray-700 tabular-nums sm:text-xl dark:text-zinc-200"
+          aria-live="polite"
+          aria-label="Current time">
+          {{ currentTimeDisplay() }}
+        </div>
+        <div class="flex flex-wrap justify-end gap-2">
+          <button
+            #idCardTrigger
+            pButton
+            type="button"
+            label="View ID Card"
+            icon="pi pi-id-card"
+            outlined
+            size="small"
+            cdkOverlayOrigin
+            #idCardOrigin="cdkOverlayOrigin"
+            aria-label="View ID Card"
+            aria-haspopup="dialog"
+            [attr.aria-expanded]="showIdCard()"
+            (click)="toggleIdCard()"></button>
+          <!-- Attendance is staff-only, a host has none -->
+          @if (!isHost()) {
+            <p-button
+              [label]="checkInStore.buttonLabel()"
+              icon="pi pi-clock"
+              size="small"
+              [severity]="checkInStore.buttonSeverity()"
+              [loading]="checkInStore.isSubmitting()"
+              [disabled]="checkInStore.isBusy()"
+              (onClick)="checkInStore.toggle()" />
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<app-id-card-popover
+  #idCardPopover
+  [origin]="idCardOrigin"
+  [(open)]="showIdCard"
+  (closed)="focusIdCardTrigger()" />

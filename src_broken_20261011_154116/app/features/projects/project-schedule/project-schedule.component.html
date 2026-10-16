@@ -1,0 +1,103 @@
+<div class="flex flex-col gap-4 xl:flex-row">
+  <div class="grow overflow-hidden rounded-lg bg-primary-contrast shadow-sm">
+    <!-- Custom Header -->
+    <div
+      class="flex flex-col flex-wrap items-center justify-between gap-3 border-b border-surface px-3 py-2 sm:flex-row sm:px-6 sm:py-3">
+      <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:justify-start">
+        <div class="flex items-center space-x-1">
+          <p-button
+            icon="pi pi-chevron-left"
+            severity="secondary"
+            ariaLabel="Previous"
+            (click)="handlePrevClick()" />
+          <p-button
+            label="Today"
+            severity="secondary"
+            (click)="handleTodayClick()" />
+          <p-button
+            icon="pi pi-chevron-right"
+            severity="secondary"
+            ariaLabel="Next"
+            (click)="handleNextClick()" />
+        </div>
+
+        <div class="w-full text-center sm:ms-4 sm:w-auto">
+          <h2 class="text-emphasis text-lg font-semibold sm:text-2xl">{{ currentTitle() }}</h2>
+        </div>
+      </div>
+
+      <div class="flex w-full flex-wrap items-center justify-center gap-1.5 sm:w-auto sm:justify-end">
+        <span class="inline-flex gap-1.5 rounded-md">
+          <p-button
+            label="Month"
+            [severity]="currentView() === 'dayGridMonth' ? 'contrast' : 'secondary'"
+            (click)="handleViewChange('dayGridMonth')" />
+          <p-button
+            label="Week"
+            [severity]="currentView() === 'timeGridWeek' ? 'contrast' : 'secondary'"
+            (click)="handleViewChange('timeGridWeek')" />
+          <p-button
+            label="Day"
+            [severity]="currentView() === 'timeGridDay' ? 'contrast' : 'secondary'"
+            (click)="handleViewChange('timeGridDay')" />
+        </span>
+        <p-button
+          icon="pi pi-plus"
+          label="Add Schedule Item"
+          ariaLabel="Add Schedule Item"
+          styleClass="!whitespace-nowrap"
+          (click)="showAddDialog()" />
+      </div>
+    </div>
+
+    <!-- FullCalendar -->
+    <div class="p-2 sm:p-4 lg:p-6">
+      @if (stylesReady()) {
+        <full-calendar
+          #calendar
+          [options]="calendarOptions()"
+          class="calendar-container" />
+      }
+    </div>
+  </div>
+
+  <!-- Upcoming panel -->
+  <aside class="w-full shrink-0 rounded-lg border border-surface bg-primary-contrast p-4 shadow-sm xl:w-80">
+    <h3 class="text-emphasis mb-3 flex items-center gap-2 text-base font-semibold">
+      <i class="pi pi-clock text-primary"></i>
+      Upcoming
+    </h3>
+    @if (store.upcomingSchedule().length) {
+      <ul class="flex flex-col gap-2">
+        @for (item of store.upcomingSchedule(); track item.id) {
+          <li>
+            <button
+              type="button"
+              (click)="edit(item)"
+              class="flex w-full items-start gap-3 rounded-lg border border-surface p-2.5 text-left transition hover:bg-emphasis">
+              <span
+                class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white"
+                [style.background-color]="typeMeta[item.type].color">
+                <i [class]="typeMeta[item.type].icon"></i>
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-medium text-color">{{ item.title }}</span>
+                <span class="text-color-secondary block text-xs">
+                  {{ item.start | date: 'MMM d' }}{{ item.allDay ? '' : ' · ' + (item.start | date: 'shortTime') }}
+                </span>
+                @if (item.reminder) {
+                  <span class="mt-1 inline-flex items-center gap-1 text-xs text-amber-500">
+                    <i class="pi pi-bell text-[10px]"></i>
+                    Reminder set
+                  </span>
+                }
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="text-color-secondary text-sm">No upcoming items.</p>
+    }
+  </aside>
+</div>

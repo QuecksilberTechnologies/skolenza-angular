@@ -1,0 +1,61 @@
+<div class="mb-1 flex items-center gap-1.5">
+  @if (groupLabel()) {
+    <span
+      [id]="inputId() + '-label'"
+      class="font-medium">
+      {{ label() }}
+      @if (required()) {
+        <span
+          class="text-red-600 dark:text-red-400"
+          aria-hidden="true">*</span>
+        <span class="sr-only">(required)</span>
+      }
+    </span>
+  } @else {
+    <label
+      [for]="inputId()"
+      class="font-medium">
+      {{ label() }}
+      @if (required()) {
+        <span
+          class="text-red-600 dark:text-red-400"
+          aria-hidden="true">*</span>
+        <span class="sr-only">(required)</span>
+      }
+    </label>
+  }
+
+  <!-- Opt-in only: icons on every row get noisy. Screen readers hear the hint through the sr-only
+       copy in the message slot, which the control's aria-describedby names. -->
+  @if (hintIcon() && hint(); as hintText) {
+    <app-form-hint-icon
+      [hint]="hintText"
+      [label]="label()" />
+  }
+</div>
+
+<ng-content />
+
+<!-- An inline hint reserves the slot to swap the error against. A field with neither would
+     otherwise carry an empty 20px band on every row. The slot itself always stays in the DOM, so
+     the live region exists before an error is written into it; only its top margin comes and goes. -->
+<div
+  [id]="inputId() + '-help'"
+  [class.mt-1]="hasMessage()"
+  [class.min-h-5]="hint() && !hintIcon()"
+  aria-live="polite">
+  @if (showError() && errorMessage(); as message) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      <span>{{ message }}</span>
+    </p-message>
+  } @else if (hint()) {
+    <p
+      class="text-sm text-gray-500 dark:text-zinc-400"
+      [class.sr-only]="hintIcon()">
+      {{ hint() }}
+    </p>
+  }
+</div>

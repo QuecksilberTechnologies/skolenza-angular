@@ -1,0 +1,146 @@
+<form
+  [formGroup]="policyTypeForm"
+  (ngSubmit)="onSubmit()"
+  class="grid grid-cols-1 gap-4">
+  <!-- Name -->
+  <div class="space-y-1">
+    <label
+      for="name"
+      class="block font-medium">
+      Name
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <input
+      formControlName="policyName"
+      pInputText
+      type="text"
+      id="name"
+      class="w-full"
+      [invalid]="isInvalid('policyName')" />
+    @if (isInvalid('policyName')) { @if (policyTypeForm.get('policyName')?.errors?.['required']) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      Name is required.
+    </p-message>
+    } @else if (policyTypeForm.get('policyName')?.errors?.['minlength']) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      Name must be at least 3 characters.
+    </p-message>
+    } @else if (policyTypeForm.get('policyName')?.errors?.['maxlength']) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      Name must not exceed 100 characters.
+    </p-message>
+    } }
+  </div>
+
+  <!-- StaffMember Types -->
+  <div class="space-y-1">
+    <label
+      for="staffEmploymentTypeIds"
+      class="block font-medium">
+      StaffMember Types
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <p-multiselect
+      formControlName="staffEmploymentTypeIds"
+      inputId="staffEmploymentTypeIds"
+      [options]="staffEmploymentTypeOptions()"
+      optionLabel="typeName"
+      optionValue="id"
+      [loading]="isLoadingStaffEmploymentTypes()"
+      placeholder="Select StaffMember Types"
+      [appendTo]="'body'"
+      [invalid]="isInvalid('staffEmploymentTypeIds')"
+      display="chip"
+      class="w-full">
+      <ng-template
+        let-empType
+        #item>
+        <div class="w-52 truncate">{{ empType.typeName }}</div>
+      </ng-template>
+    </p-multiselect>
+    @if (isInvalid('staffEmploymentTypeIds')) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      At least one staffMember type is required.
+    </p-message>
+    }
+  </div>
+
+  <!-- Description -->
+  <div class="space-y-1">
+    <label
+      for="description"
+      class="block font-medium">
+      Description
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <textarea
+      formControlName="description"
+      pTextarea
+      rows="3"
+      cols="20"
+      id="description"
+      class="w-full resize-none"
+      [invalid]="isInvalid('description')"></textarea>
+    @if (isInvalid('description')) { @if (policyTypeForm.get('description')?.errors?.['required']) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      Description is required.
+    </p-message>
+    } @else if (policyTypeForm.get('description')?.errors?.['minlength']) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      Description must be at least 10 characters.
+    </p-message>
+    } @else if (policyTypeForm.get('description')?.errors?.['maxlength']) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      Description must not exceed 500 characters.
+    </p-message>
+    } }
+  </div>
+
+  <!-- Document -->
+  <div class="space-y-1">
+    <label
+      for="docs"
+      class="block font-medium">
+      Document
+    </label>
+    @let docDetails = (policyType && policyType.docDetails && policyType.docDetails[0]) || null;
+    <app-form-file-upload
+      accept="application/pdf"
+      [existingFileName]="docDetails?.fileName || null"
+      [existingFilePath]="docDetails?.filePath || null"
+      (selectedFile)="onSelectFile($event)" />
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isSaving() ? 'Saving...' : 'Save'"
+      [loading]="isSaving()"
+      [disabled]="policyTypeForm.invalid || isSaving()" />
+  </div>
+</form>

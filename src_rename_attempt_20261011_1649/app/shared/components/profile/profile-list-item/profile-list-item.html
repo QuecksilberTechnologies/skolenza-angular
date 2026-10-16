@@ -1,0 +1,12 @@
+<div class="min-w-0">
+  <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+    <p class="text-lg font-semibold text-zinc-900 dark:text-zinc-50">{{ title() }}</p>
+    <ng-content select="[badges]" />
+  </div>
+  <div
+    class="mt-1 flex flex-wrap items-center gap-y-1 text-zinc-500 dark:text-zinc-400 [&>*:not(:last-child)]:after:mx-2 [&>*:not(:last-child)]:after:content-['·']">
+    <ng-content select="[meta]" />
+  </div>
+  <ng-content />
+</div>
+<ng-content select="[actions]" />

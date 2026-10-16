@@ -1,0 +1,295 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.deviceMasters()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [lazy]="true"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [paginator]="true"
+      [rows]="store.pageSize()"
+      [totalRecords]="store.totalRecords()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} devices"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '64rem' }"
+      [style]="{ background: 'transparent' }"
+      (onLazyLoad)="loadDeviceMasters($event)"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Device type filter -->
+          <p-select
+            [options]="deviceTypeOptions"
+            optionLabel="label"
+            optionValue="id"
+            placeholder="Device Type"
+            ariaLabel="Filter by device type"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-52"
+            [ngModel]="store.deviceType()"
+            (onChange)="onDeviceTypeChange($event.value)" />
+
+          <!-- Status filter -->
+          <p-select
+            [options]="statusOptions"
+            optionLabel="status"
+            optionValue="value"
+            placeholder="Status"
+            ariaLabel="Filter by status"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-52"
+            [ngModel]="store.isActive()"
+            (onChange)="onStatusChange($event.value)" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <div class="flex min-w-0 items-center gap-1">
+              <input
+                pInputText
+                type="search"
+                class="w-full lg:w-44"
+                placeholder="Serial number"
+                aria-label="Find a catalogue entry by serial number"
+                [value]="serialLookup()"
+                (input)="onSerialInput($event)"
+                (keydown.enter)="lookUpSerial(); $event.preventDefault()" />
+              <p-button
+                icon="pi pi-search"
+                severity="secondary"
+                [text]="true"
+                pTooltip="Find by exact serial number"
+                tooltipPosition="bottom"
+                ariaLabel="Find by exact serial number"
+                [loading]="isLookingUpSerial()"
+                [disabled]="!serialLookup().trim()"
+                (onClick)="lookUpSerial()" />
+            </div>
+            <app-table-search-input
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchDeviceMasters($event)" />
+            @if (canAdd()) {
+              <p-button
+                label="Import"
+                icon="pi pi-upload"
+                severity="secondary"
+                [outlined]="true"
+                class="w-full justify-center lg:w-auto"
+                pTooltip="Import devices from a file or pasted rows"
+                tooltipPosition="bottom"
+                (onClick)="openBulkImport()" />
+              <p-button
+                label="Add Device"
+                icon="pi pi-plus"
+                class="w-full justify-center lg:w-auto"
+                pTooltip="Add device to the catalog"
+                tooltipPosition="bottom"
+                (onClick)="createDeviceMaster()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #colgroup>
+        <!-- Widths add up to the table's 64rem min-width so nothing forces extra scroll. -->
+        <colgroup>
+          <col style="width: 15rem" />
+          <col style="width: 10rem" />
+          <col style="width: 9rem" />
+          <col style="width: 11rem" />
+          <col style="width: 7rem" />
+          <col style="width: 6rem" />
+          @if (canUseRowActions()) {
+            <col style="width: 6rem" />
+          }
+        </colgroup>
+      </ng-template>
+
+      <ng-template #header>
+        <tr>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Device
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Brand / Model
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Type
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Capabilities
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! text-right align-middle whitespace-nowrap">
+            Price
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Status
+          </th>
+          @if (canUseRowActions()) {
+            <th
+              scope="col"
+              class="px-3! py-2.5! align-middle whitespace-nowrap">
+              <div class="flex justify-center">Actions</div>
+            </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-device>
+        <tr
+          [pContextMenuRow]="device"
+          [pContextMenuRowDisabled]="!canUseRowActions()">
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <div class="flex flex-col items-start">
+              <button
+                type="button"
+                class="max-w-full truncate text-left font-medium text-primary-600 hover:underline dark:text-primary-400"
+                [attr.aria-label]="'View details for ' + (device.deviceName || 'this device')"
+                (click)="showDetail(device)">
+                {{ device.deviceName || '-' }}
+              </button>
+              <span class="max-w-full truncate text-xs text-gray-500 dark:text-zinc-400">
+                {{ device.deviceCode || '-' }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <div class="flex flex-col">
+              <span class="truncate">{{ device.brandName || device.companyName || '-' }}</span>
+              <span class="truncate text-xs text-gray-500 dark:text-zinc-400">
+                {{ device.modelNo || '-' }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="device.deviceType | getDeviceType"
+              severity="info" />
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <div class="flex flex-wrap gap-1">
+              @if (device.isAttendanceDevice) {
+                <p-tag
+                  value="Attendance"
+                  severity="secondary" />
+              }
+              @if (device.isAccessControlDevice) {
+                <p-tag
+                  value="Access Control"
+                  severity="secondary" />
+              }
+              @if (!device.isAttendanceDevice && !device.isAccessControlDevice) {
+                <span>-</span>
+              }
+            </div>
+          </td>
+          <td class="px-3! py-2.5! text-right align-middle tabular-nums whitespace-nowrap">
+            @if (device.price !== null && device.price !== undefined) {
+              {{ device.price | currency: (device.currencyKey | currencySymbol) : 'symbol' : '1.0-2' }}
+            } @else {
+              -
+            }
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="device.isActive ? 'Active' : 'Inactive'"
+              [severity]="device.isActive ? 'success' : 'danger'" />
+          </td>
+          @if (canUseRowActions()) {
+            <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+              <div class="flex items-center justify-center gap-2">
+                @if (canUpdate()) {
+                  <p-button
+                    class="text-xl!"
+                    [icon]="device.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                    [severity]="device.isActive ? 'success' : 'danger'"
+                    [pTooltip]="device.isActive ? 'Deactivate' : 'Activate'"
+                    tooltipPosition="left"
+                    [showDelay]="300"
+                    [loading]="device.isUpdatingStatus"
+                    [ariaLabel]="
+                      (device.isActive ? 'Deactivate ' : 'Activate ') + (device.deviceName || 'device')
+                    "
+                    (onClick)="confirmToggleActive(device)" />
+                }
+                <app-table-action-button
+                  [ariaLabel]="'Actions for ' + (device.deviceName || 'device')"
+                  (action)="selectedRow.set(device); actionMenu.toggle($event)" />
+              </div>
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.deviceMasters().length === 0) {
+          <tr>
+            <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            @if (hasActiveFilters()) {
+              <app-table-empty-message
+                icon="pi pi-search"
+                message="No devices match your filters"
+                subMessage="Try a different search term or clear the filters" />
+            } @else {
+              <app-table-empty-message
+                icon="pi pi-tablet"
+                message="No devices found"
+                subMessage="Add a device to the catalog to get started" />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<app-headless-drawer [(visible)]="isShowDetail">
+  @if (isShowDetail()) {
+    <app-device-master-detail
+      [device]="detailRow() ?? undefined"
+      [canUpdate]="canUpdate()"
+      (closePopup)="isShowDetail.set(false)"
+      (edit)="onDetailEdit()" />
+  }
+</app-headless-drawer>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+<p-confirmDialog />

@@ -1,0 +1,37 @@
+<p-select
+  [id]="selectId()"
+  [inputId]="inputId()"
+  [formControlName]="controlName()"
+  [options]="options()"
+  optionLabel="countryName"
+  optionValue="id"
+  [loading]="loading()"
+  [invalid]="invalid()"
+  [placeholder]="placeholder()"
+  [appendTo]="'body'"
+  class="w-full"
+  (onChange)="selectionChange.emit($event)">
+  <ng-template
+    #selectedItem
+    let-selectedOption>
+    @if (selectedOption) {
+    <div class="flex items-center gap-2">
+      <img
+        [src]="flagUrl(selectedOption.countryCode)"
+        alt="" />
+      <div>{{ selectedOption.countryName }}</div>
+    </div>
+    }
+  </ng-template>
+  <ng-template
+    #item
+    let-country>
+    <div class="flex items-center gap-2">
+      <img
+        [src]="flagUrl(country.countryCode)"
+        width="20"
+        alt="" />
+      <div>{{ country.countryName }}</div>
+    </div>
+  </ng-template>
+</p-select>

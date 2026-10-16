@@ -1,0 +1,47 @@
+<div class="h-[calc(100dvh-6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-2 sm:m-4">
+    <p-tabs
+      [value]="activeTab()"
+      [scrollable]="true"
+      class="sticky top-0 z-10 block bg-surface-ground-light dark:bg-surface-ground-dark">
+      <p-tablist>
+        @for (tab of tabs(); track tab.route) {
+        <p-tab
+          [value]="tab.route"
+          [routerLink]="['./', tab.route]"
+          routerLinkActive="active-tab"
+          class="flex items-center !gap-2">
+          <i
+            [class]="tab.icon"
+            aria-hidden="true"></i>
+          <span class="truncate">{{ tab.label }}</span>
+          @if (tab.pro) {
+          <app-pro-badge />
+          }
+        </p-tab>
+        }
+      </p-tablist>
+    </p-tabs>
+
+    <div class="mt-4 sm:mt-4">
+      @if (activeTab() !== 'billing') {
+      <header class="px-3 sm:px-4">
+        <h2
+          id="settings-panel-heading"
+          class="text-base font-semibold text-text-primary-light sm:text-lg dark:text-text-primary-dark">
+          {{ activeTabMeta().label }}
+        </h2>
+        <p class="mt-0.5 text-xs text-text-secondary-light sm:text-sm dark:text-text-secondary-dark">
+          {{ activeTabMeta().description }}
+        </p>
+      </header>
+      }
+
+      <router-outlet />
+    </div>
+
+    @if (activeTab() !== 'billing' && !activeTabMeta().autoSave) {
+    <app-setting-actions />
+    }
+  </p-card>
+</div>

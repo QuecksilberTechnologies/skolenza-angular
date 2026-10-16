@@ -1,0 +1,162 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      dataKey="id"
+      [value]="store.refunds()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [lazy]="true"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [paginator]="true"
+      [rows]="store.pageSize()"
+      [totalRecords]="store.totalRecords()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} refunds"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      [style]="{ background: 'transparent' }"
+      (onLazyLoad)="loadRefunds($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <div class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row lg:items-center">
+            <!-- Clearing it *is* "Any status", so there is no separate All option. -->
+            <app-table-filter-select
+              class="w-full min-w-0 lg:w-auto lg:min-w-48"
+              [options]="statusOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Any status"
+              ariaLabel="Filter by refund status"
+              [value]="store.status()"
+              (valueChange)="onStatusChange($event)" />
+          </div>
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            @if (canAdd()) {
+              <p-button
+                label="Request Refund"
+                icon="pi pi-plus"
+                class="w-full justify-center lg:w-auto"
+                pTooltip="Queue a full or partial refund for a payment"
+                tooltipPosition="bottom"
+                (onClick)="requestRefund()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #header>
+        <tr>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Transaction ID
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Institution ID
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! text-right align-middle whitespace-nowrap">
+            Amount
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Status
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Reason
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Requested At
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Completed At
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-refund>
+        @let ui = statusUi(refund.status);
+        <tr>
+          <td class="px-3! py-2.5! align-middle tabular-nums whitespace-nowrap">
+            #{{ refund.paymentTransactionId }}
+          </td>
+          <td class="px-3! py-2.5! align-middle tabular-nums whitespace-nowrap">
+            {{ refund.institutionId }}
+          </td>
+          <td class="px-3! py-2.5! text-right align-middle tabular-nums whitespace-nowrap">
+            {{ refund.amount | currency: refund.currencyCode : 'code' }}
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="ui.label"
+              [severity]="ui.severity"
+              [pTooltip]="refund.failureMessage || undefined"
+              tooltipPosition="top" />
+          </td>
+          <td class="max-w-64 truncate px-3! py-2.5! align-middle whitespace-nowrap">
+            <span
+              [pTooltip]="refund.reason"
+              tooltipPosition="top">
+              {{ refund.reason }}
+            </span>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            {{ refund.requestedAt | date: 'medium' }}
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            @if (refund.completedAt) {
+              {{ refund.completedAt | date: 'medium' }}
+            } @else {
+              <span aria-hidden="true">—</span><span class="sr-only">Not completed</span>
+            }
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.refunds().length === 0) {
+          <tr>
+            <td [attr.colspan]="columnCount"><app-table-loader /></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount">
+            @if (store.status() !== null) {
+              <app-table-empty-message
+                icon="pi pi-search"
+                message="No refunds match this status"
+                subMessage="Clear the status filter to see every refund" />
+            } @else {
+              <app-table-empty-message
+                icon="pi pi-replay"
+                message="No refunds yet"
+                subMessage="Request a refund from a successful payment to get started" />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

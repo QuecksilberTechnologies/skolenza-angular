@@ -1,0 +1,57 @@
+<app-auth-card
+  [heading]="isLoading() ? 'Verifying your email' : isError() ? 'There was an error verifying your email' : 'Successfully verified'"
+  [subheading]="null">
+  <div
+    card-icon
+    class="mb-4 flex w-full justify-center">
+    @if (isLoading()) {
+      <p-progress-spinner
+        styleClass="size-14!"
+        strokeWidth="2"
+        animationDuration="1s"
+        aria-label="Verifying" />
+    } @else if (isError()) {
+      <div class="flex size-16 items-center justify-center rounded-full bg-red-50 dark:bg-red-950">
+        <lucide-angular
+          [img]="CircleX"
+          [size]="28"
+          [strokeWidth]="1.5"
+          aria-hidden="true"
+          class="text-red-700 dark:text-red-400" />
+      </div>
+    } @else {
+      <div class="flex size-16 items-center justify-center rounded-full bg-green-50 dark:bg-green-950">
+        <lucide-angular
+          [img]="CircleCheckBig"
+          [size]="28"
+          [strokeWidth]="1.5"
+          aria-hidden="true"
+          class="text-green-700 dark:text-green-400" />
+      </div>
+    }
+  </div>
+
+  <div
+    class="mb-6 space-y-1"
+    role="status"
+    aria-live="polite">
+    @if (isLoading()) {
+      <p class="text-center text-base text-zinc-600 dark:text-zinc-300">This only takes a moment.</p>
+    } @else if (isError()) {
+      @for (err of errorMessages(); track err) {
+        <p class="text-center text-base text-zinc-600 dark:text-zinc-300">{{ err }}</p>
+      }
+      <p class="text-center text-base text-zinc-600 dark:text-zinc-300">Please try again or contact support.</p>
+    } @else {
+      <p class="text-center text-base text-zinc-600 dark:text-zinc-300">Your email has been successfully verified!</p>
+    }
+  </div>
+
+  @if (isError()) {
+    <p-button
+      label="Back to login"
+      icon="pi pi-arrow-left"
+      [fluid]="true"
+      (onClick)="navigateToLogin()" />
+  }
+</app-auth-card>

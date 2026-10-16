@@ -1,0 +1,248 @@
+<p-card class="flex min-h-[calc(100vh-10.2rem)] w-full flex-col gap-8 md:p-2">
+  @let basic = staffMemberBasics()[0]; @if (isLoading()) {
+  <app-profile-loader />
+  } @else { @if (basic) {
+  <app-profile-header
+    #profileHeader
+    [actionLabel]="'Add Basic Info'"
+    [id]="basic.id"
+    [employementCode]="basic.employementCode || 'N/A'"
+    [completionPercentage]="completionPercentage() || 0"
+    [isInfoVerified]="basic.isInfoVerified || false"
+    [isEditAllowed]="basic.isEditAllowed || false"
+    [isShowAddBtn]="false"
+    [isVerifying]="isVerifying()"
+    [isEditing]="isEditing()"
+    [roleTypeId]="loginInfo?.user?.primaryRole?.roleTypeId"
+    [tabInfoType]="tabInfoType"
+    (refresh)="getStaffMemberBasics()"
+    (updateVerifyStatus)="updateVerifyStatus($event, basic.id)"
+    (updateEditStatus)="updateEditStatus($event, basic.id)"
+    (create)="addBasic()">
+    <p-button
+      ngProjectAs="extra-actions"
+      icon="pi pi-pencil"
+      iconPos="left"
+      styleClass="mr-2"
+      size="small"
+      severity="secondary"
+      variant="text"
+      [rounded]="true"
+      [outlined]="false"
+      [disabled]="!basic.isEditAllowed"
+      [pTooltip]="
+            !basic.isEditAllowed
+              ? 'You do not have permission to edit. Please contact your administrator.'
+              : ''
+          "
+      tooltipPosition="bottom"
+      (onClick)="addBasic(basic)" />
+  </app-profile-header>
+
+  <!-- Basic Personal Details -->
+  <app-profile-info-card>
+    <h2
+      class="mb-2 font-semibold"
+      ngProjectAs="sectionTitle">
+      Basic Personal Details
+    </h2>
+    <!-- First Name -->
+    <app-profile-info-block
+      label="First Name"
+      [value]="basic.firstName" />
+
+    <!-- Middle Name -->
+    <app-profile-info-block
+      label="Middle Name"
+      [value]="basic.middleName" />
+
+    <!-- Last Name -->
+    <app-profile-info-block
+      label="Last Name"
+      [value]="basic.lastName" />
+
+    <!-- Gender -->
+    <app-profile-info-block label="Gender">
+      @if (basic.genderId) { @if (basic.genderId === 1) {
+      <i class="pi pi-mars text-blue-500"></i>
+      } @else {
+      <i class="pi pi-venus text-pink-500"></i>
+      } {{ basic.genderName }} } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+
+    <!-- Date of Birth -->
+    <app-profile-info-block label="Date of Birth">
+      @if (basic.dateOfBirth) {
+      <i class="pi pi-calendar text-gray-500 dark:text-zinc-300"></i>
+      {{ basic.dateOfBirth | date }} } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+
+    <!-- Blood Group -->
+    <app-profile-info-block label="Blood Group">
+      @if (basic.bloodGroup) {
+      <lucide-angular
+        [img]="Droplet"
+        size="16"
+        class="text-red-500" />
+      {{ basic.bloodGroup }} } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+
+    <!-- Nationality -->
+    <app-profile-info-block label="Nationality">
+      <img
+        [src]="`https://flagcdn.com/16x12/${basic.countryCode.toLocaleLowerCase()}.webp`"
+        alt="" />
+      {{ basic.nationality }}
+    </app-profile-info-block>
+  </app-profile-info-card>
+
+  <!-- Contact Information -->
+  <app-profile-info-card>
+    <h2
+      class="mb-2 font-semibold"
+      ngProjectAs="sectionTitle">
+      Contact Information
+    </h2>
+
+    <!-- Official Email -->
+    <app-profile-info-block label="Official Email">
+      @if (basic.officialEmail) {
+      <a
+        [href]="'mailto:' + basic.officialEmail"
+        class="text-primary hover:underline focus:underline focus:outline-none">
+        {{ basic.officialEmail }}
+      </a>
+      } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+
+    <!-- Mobile Number -->
+    <app-profile-info-block label="Mobile Number">
+      @if (basic.mobileNumber) {
+      <a
+        [href]="'tel:' + basic.mobileNumber"
+        class="text-primary hover:underline focus:underline focus:outline-none">
+        {{ basic.mobileNumber }}
+      </a>
+      } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+  </app-profile-info-card>
+
+  <!-- Employment Details -->
+  <app-profile-info-card>
+    <h2
+      class="mb-2 font-semibold"
+      ngProjectAs="sectionTitle">
+      Employment Details
+    </h2>
+
+    <!-- Department -->
+    <app-profile-info-block
+      label="Department"
+      [value]="basic.departmentName" />
+
+    <!-- Designation -->
+    <app-profile-info-block
+      label="Designation"
+      [value]="basic.designationName" />
+
+    <!-- StaffMember Type -->
+    <app-profile-info-block label="StaffMember Type">
+      @if (basic.type) {
+      <i class="pi pi-briefcase text-gray-500 dark:text-zinc-300"></i>
+      {{ basic.type }} } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+
+    <!-- Role Name -->
+    <app-profile-info-block
+      label="Role Name"
+      [value]="basic.roleName" />
+
+    <!-- Role Type -->
+    <app-profile-info-block
+      label="Role Type"
+      [value]="(+basic.roleType | getRoleType)?.name ?? '-'" />
+
+    <!-- Date of Onboarding -->
+    <app-profile-info-block label="Date of Onboarding">
+      @if (basic.dateOfOnBoarding) {
+      <i class="pi pi-calendar text-gray-500 dark:text-zinc-300"></i>
+      {{ basic.dateOfOnBoarding | date }} } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+  </app-profile-info-card>
+
+  <!-- Emergency Contact Details -->
+  <app-profile-info-card>
+    <h2
+      class="mb-2 font-semibold"
+      ngProjectAs="sectionTitle">
+      Emergency Contact Details
+    </h2>
+
+    <!-- Emergency Contact Person -->
+    <app-profile-info-block
+      label="Name"
+      [value]="basic.emergencyContactPerson" />
+
+    <!-- Emergency Contact Number -->
+    <app-profile-info-block label="Contact Number">
+      @if (basic.emergencyContactNumber) {
+      <a
+        [href]="'tel:' + basic.emergencyContactNumber"
+        class="text-primary hover:underline focus:underline focus:outline-none">
+        {{ basic.emergencyContactNumber }}
+      </a>
+      } @else {
+      <span>-</span>
+      }
+    </app-profile-info-block>
+
+    <!-- Relation -->
+    <app-profile-info-block
+      label="Relation"
+      [value]="basic.relation | getRelationName: relationsOptions()" />
+  </app-profile-info-card>
+
+  <!-- Personal Status -->
+  <app-profile-info-card>
+    <h2
+      class="mb-2 font-semibold"
+      ngProjectAs="sectionTitle">
+      Personal Status
+    </h2>
+
+    <!-- Married -->
+    <app-profile-info-block
+      label="Married"
+      [value]="basic.isMarried ? 'Yes' : 'No'" />
+
+    <!-- Confirmed StaffMember (Permanent Status) -->
+    <app-profile-info-block
+      label="Confirmed StaffMember (Permanent Status)"
+      [value]="basic.hasPermanent ? 'Yes' : 'No'" />
+  </app-profile-info-card>
+  } @else {
+  <app-profile-empty
+    [message]="profileEmptyMessage"
+    [description]="profileEmptyDescription"
+    [isShowAddBtn]="false"
+    [tabIcon]="profileEmptyTabIcon"
+    [roleTypeId]="loginInfo?.user?.primaryRole?.roleTypeId"
+    (retry)="getStaffMemberBasics()" />
+  } }
+</p-card>
+
+<p-confirmDialog />

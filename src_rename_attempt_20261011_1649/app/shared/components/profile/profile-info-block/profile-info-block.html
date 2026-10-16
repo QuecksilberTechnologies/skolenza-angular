@@ -1,0 +1,61 @@
+<div>
+  <div class="flex items-center gap-1 leading-0">
+    <span class="mb-1 block text-base font-medium text-gray-500 dark:text-zinc-400">{{ label() }}</span>
+    @if (isMask() && value()) {
+    <p-button
+      [icon]="isMasked() ? 'pi pi-eye' : 'pi pi-eye-slash'"
+      [ariaLabel]="(isMasked() ? 'Hide ' : 'Show ') + label()"
+      [rounded]="true"
+      [text]="true"
+      size="small"
+      [severity]="'secondary'"
+      (click)="onToggleMask()" />
+    }
+  </div>
+
+  @if (loading()) {
+  <p-skeleton
+    width="8rem"
+    height="1.25rem" />
+  } @else {
+  <span class="flex items-center gap-2 text-base text-gray-900 dark:text-zinc-100">
+    @let logo = logoSrc(); @if (logo && value()) {
+    <img
+      [ngSrc]="logo"
+      width="20"
+      height="20"
+      alt=""
+      class="shrink-0 rounded-sm object-contain" />
+    }
+    <ng-content>
+      @if (value() && href()) {
+      <a
+        class="break-all text-primary-700 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:text-primary-300"
+        [href]="href()"
+        >{{ value() }}</a
+      >
+      } @else if (value() && isMask()) {
+      <!-- Decode frames are visual only; screen readers get the final value once. The invisible
+           copy sizes the box to the final value so random glyphs never shift the layout. -->
+      <span
+        aria-hidden="true"
+        class="grid whitespace-nowrap tabular-nums">
+        <span class="invisible col-start-1 row-start-1">{{ value() }}</span>
+        <span class="col-start-1 row-start-1 w-0 min-w-full"
+          >{{ settledText()
+          }}<span class="text-primary-700 dark:text-primary-300">{{ scramblingText() }}</span></span
+        >
+      </span>
+      <span class="sr-only">{{ value() }}</span>
+      } @else if (value()) { {{ value() }} } @else {
+      <span
+        aria-hidden="true"
+        class="text-zinc-500 dark:text-zinc-400"
+        >—</span
+      >
+      <span class="sr-only">Not provided</span>
+      }
+    </ng-content>
+  </span>
+  }
+</div>

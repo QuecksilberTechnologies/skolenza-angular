@@ -1,0 +1,76 @@
+<div class="flex items-center justify-end gap-2">
+  <div class="flex items-center justify-end gap-1">
+    @if (isShowBtnEdit() && editMode() === 'add') {
+    <p-button
+      icon="pi pi-plus"
+      label="Add"
+      [ariaLabel]="itemLabel() ? 'Add ' + itemLabel() : 'Add'"
+      severity="secondary"
+      variant="text"
+      [disabled]="!canEdit()"
+      [pTooltip]="
+          !canEdit()
+            ? 'You do not have permission to add. Please contact your administrator.'
+            : ''
+        "
+      tooltipPosition="bottom"
+      (onClick)="onEdit()" />
+    } @else if (isShowBtnEdit()) {
+    <p-button
+      icon="pi pi-pencil"
+      [ariaLabel]="itemLabel() ? 'Edit ' + itemLabel() : 'Edit'"
+      iconPos="left"
+      severity="secondary"
+      variant="text"
+      [rounded]="true"
+      [outlined]="false"
+      [disabled]="!canEdit()"
+      [pTooltip]="
+          !canEdit()
+            ? 'You do not have permission to edit. Please contact your administrator.'
+            : ''
+        "
+      tooltipPosition="bottom"
+      (onClick)="onEdit()" />
+    } @if (isRemove()) {
+    <p-button
+      icon="pi pi-trash"
+      [ariaLabel]="itemLabel() ? removeVerb() + ' ' + itemLabel() : removeVerb()"
+      iconPos="left"
+      severity="danger"
+      variant="text"
+      [rounded]="true"
+      [outlined]="false"
+      [disabled]="!canEdit()"
+      [pTooltip]="
+          !canEdit()
+            ? 'You do not have permission to ' +
+              removeVerb().toLowerCase() +
+              '. Please contact your administrator.'
+            : ''
+        "
+      tooltipPosition="bottom"
+      (onClick)="onRemove()" />
+    }
+  </div>
+
+  @if (isShowPercentage()) {
+  <div class="flex items-center gap-2">
+    @let completionPercent = completionPercentage() || 0; @let progressColor = completionPercent |
+    getStaffMemberProgressColor;
+    <p-knob
+      aria-hidden="true"
+      [ngModel]="completionPercent.toFixed()"
+      [showValue]="false"
+      [readonly]="true"
+      [tabindex]="-1"
+      [strokeWidth]="14"
+      [size]="24"
+      [valueColor]="progressColor.toString()"
+      class="profile-progress" />
+    <span class="text-sm whitespace-nowrap text-gray-700 dark:text-zinc-100">
+      <span class="font-semibold">{{ completionPercent.toFixed() }}%</span> complete
+    </span>
+  </div>
+  }
+</div>

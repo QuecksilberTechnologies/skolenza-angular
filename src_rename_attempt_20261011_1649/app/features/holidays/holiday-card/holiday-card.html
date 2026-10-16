@@ -1,0 +1,85 @@
+@let dateTone = isPast() ? 'text-gray-600 dark:text-zinc-300' : 'text-primary-700 dark:text-primary-300';
+
+<article
+  [class]="
+    'flex h-full flex-col rounded-xl border p-4 transition-all duration-200 hover:shadow-md dark:hover:shadow-none ' +
+    (isToday()
+      ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-500/20 dark:border-primary-400 dark:bg-primary-900/20'
+      : 'border-gray-200 bg-white hover:border-primary/30 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-primary/40')
+  ">
+  <div class="flex items-start gap-3">
+    <div
+      [class]="
+        'flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl ' +
+        (isPast() ? 'bg-gray-100 dark:bg-zinc-700' : 'bg-primary-50 dark:bg-primary-900/30')
+      ">
+      <span [class]="'text-xl leading-none font-bold ' + dateTone">
+        {{ holiday().holidayDate | date: 'dd' }}
+      </span>
+      <span [class]="'mt-0.5 text-[10px] font-semibold tracking-wider uppercase ' + dateTone">
+        {{ holiday().holidayDate | date: 'MMM' }}
+      </span>
+    </div>
+
+    <!-- Every line here is single-line and fixed-height, so all cards in the grid match. -->
+    <div class="min-w-0 flex-1">
+      <h3 class="flex h-6 min-w-0 items-center gap-2 text-base leading-snug font-semibold">
+        @if (holiday().icon | primeIcon; as icon) {
+        <i
+          [class]="icon + ' shrink-0 ' + dateTone"
+          aria-hidden="true"></i>
+        }
+        <button
+          type="button"
+          class="min-w-0 truncate text-left text-gray-900 hover:text-primary-700 hover:underline dark:text-white dark:hover:text-primary-300"
+          [title]="holiday().holidayName"
+          [attr.aria-label]="'View details for ' + holiday().holidayName"
+          (click)="view.emit(holiday())">
+          {{ holiday().holidayName }}
+        </button>
+        @if (isToday()) {
+        <app-holiday-badge
+          class="shrink-0"
+          kind="today" />
+        } @else if (isNext()) {
+        <app-holiday-badge
+          class="shrink-0"
+          kind="next" />
+        }
+      </h3>
+      <p class="mt-0.5 flex h-5 min-w-0 items-center gap-1 text-xs whitespace-nowrap text-gray-600 dark:text-zinc-400">
+        <span class="shrink-0">{{ holiday().holidayDate | date: 'EEEE' }}</span>
+        <span
+          class="mx-0.5 shrink-0"
+          aria-hidden="true">·</span>
+        <app-holiday-badge
+          class="min-w-0"
+          [kind]="holiday().isOptional ? 'optional' : 'mandatory'"
+          [apiStyle]="holiday().isOptional ? typeStyles().optional : typeStyles().mandatory" />
+        @if (isPast()) {
+        <span class="sr-only">, past holiday</span>
+        }
+      </p>
+      @if (showLocation()) {
+      <p class="mt-0.5 flex items-center gap-1 truncate text-xs text-gray-600 dark:text-zinc-400">
+        <i
+          class="pi pi-map-marker text-[10px]"
+          aria-hidden="true"></i>
+        {{ holiday().locationName ?? '-' }}
+      </p>
+      }
+    </div>
+
+    <app-table-action-button
+      class="-mt-1 -mr-1 shrink-0"
+      [ariaLabel]="'Actions for ' + holiday().holidayName"
+      (action)="action.emit({ event: $event, holiday: holiday() })" />
+  </div>
+
+  <!-- Always two lines tall, filled or not, and clamped with an ellipsis past two. -->
+  <p
+    class="mt-3 line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-gray-600 dark:text-zinc-400"
+    [title]="holiday().description ?? ''">
+    {{ holiday().description }}
+  </p>
+</article>

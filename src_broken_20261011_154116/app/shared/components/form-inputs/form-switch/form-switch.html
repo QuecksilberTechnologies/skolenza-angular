@@ -1,0 +1,25 @@
+<div class="flex items-center gap-1.5">
+  <label
+    [for]="inputId()"
+    class="cursor-pointer">
+    <span class="block font-medium">{{ label() }}</span>
+    <!-- Kept inside the label either way, so the switch's accessible name carries the hint. -->
+    @if (hint()) {
+      <span
+        class="block text-xs text-gray-500 dark:text-zinc-400"
+        [class.sr-only]="hintIcon()">
+        {{ hint() }}
+      </span>
+    }
+  </label>
+
+  @if (hintIcon() && hint(); as hintText) {
+    <app-form-hint-icon
+      [hint]="hintText"
+      [label]="label()" />
+  }
+</div>
+
+<p-toggleswitch
+  [formField]="$any(field())"
+  [inputId]="inputId()" />

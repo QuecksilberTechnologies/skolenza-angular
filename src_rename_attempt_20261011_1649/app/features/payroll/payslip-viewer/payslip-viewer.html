@@ -1,0 +1,242 @@
+@if (payslip(); as slip) {
+<div class="flex flex-col gap-5 p-2">
+  <!-- Brand -->
+  <div class="flex items-center gap-3">
+    <div class="relative h-9 w-40 shrink-0">
+      <img
+        ngSrc="brand/skolenza-logo-system/skolenza-horizontal-full-color-256.png"
+        fill
+        priority
+        [alt]="companyName() || 'Company logo'" />
+    </div>
+    @if (companyName()) {
+    <span class="text-base font-semibold text-surface-900 dark:text-white">{{ companyName() }}</span>
+    }
+  </div>
+
+  <!-- Header -->
+  <div
+    class="flex flex-col gap-3 rounded-lg bg-primary-50 p-4 sm:flex-row sm:items-center sm:justify-between dark:bg-primary-900/20">
+    <div>
+      <h3 class="text-lg font-semibold text-surface-900 dark:text-white">{{ slip.staffMemberFullName }}</h3>
+      <p class="text-sm text-surface-500 dark:text-surface-400">
+        {{ slip.designationName }} &middot; {{ slip.departmentName }}
+      </p>
+    </div>
+    <div class="text-right">
+      <p class="text-sm font-medium text-surface-700 dark:text-surface-300">
+        {{ getMonthName(slip.month) }} {{ slip.year }}
+      </p>
+      <p class="text-xs text-surface-500 dark:text-surface-400">
+        Generated: {{ slip.generatedDate | date: 'dd MMM yyyy' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Attendance Summary -->
+  <div class="flex flex-wrap gap-4">
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-surface-500 dark:text-surface-400">Working Days:</span>
+      <p-tag
+        [value]="'' + slip.workingDays"
+        severity="info" />
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-surface-500 dark:text-surface-400">Present:</span>
+      <p-tag
+        [value]="'' + slip.presentDays"
+        severity="success" />
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-surface-500 dark:text-surface-400">Leave:</span>
+      <p-tag
+        [value]="'' + slip.leaveDays"
+        severity="warn" />
+    </div>
+    @if (slip.lopDays > 0) {
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-surface-500 dark:text-surface-400">LOP:</span>
+      <p-tag
+        [value]="'' + slip.lopDays"
+        severity="danger" />
+    </div>
+    }
+  </div>
+
+  <!-- Earnings & Deductions side by side -->
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <!-- Earnings -->
+    <div class="overflow-hidden rounded-lg border border-surface-200 dark:border-surface-700">
+      <div class="bg-green-50 px-4 py-2 dark:bg-green-900/20">
+        <h4 class="font-semibold text-green-700 dark:text-green-300">Earnings</h4>
+      </div>
+      <div class="flex flex-col gap-2 p-4">
+        @for (earning of slip.earnings; track earning.name) {
+        <div class="flex justify-between text-sm">
+          <span class="text-surface-600 dark:text-surface-400">{{ earning.name }}</span>
+          <span class="font-medium text-surface-900 dark:text-white">
+            {{ earning.amount | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+        }
+        <p-divider />
+        <div class="flex justify-between font-semibold">
+          <span class="text-surface-900 dark:text-white">Gross Salary</span>
+          <span class="text-green-600 dark:text-green-400">
+            {{ slip.grossSalary | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deductions -->
+    <div class="overflow-hidden rounded-lg border border-surface-200 dark:border-surface-700">
+      <div class="bg-red-50 px-4 py-2 dark:bg-red-900/20">
+        <h4 class="font-semibold text-red-700 dark:text-red-300">Deductions</h4>
+      </div>
+      <div class="flex flex-col gap-2 p-4">
+        @for (deduction of slip.deductions; track deduction.name) {
+        <div class="flex justify-between text-sm">
+          <span class="text-surface-600 dark:text-surface-400">{{ deduction.name }}</span>
+          <span class="font-medium text-surface-900 dark:text-white">
+            {{ deduction.amount | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+        }
+        <p-divider />
+        <div class="flex justify-between font-semibold">
+          <span class="text-surface-900 dark:text-white">Total Deductions</span>
+          <span class="text-red-600 dark:text-red-400">
+            {{ slip.totalDeductions | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Net Salary -->
+  <div class="flex items-center justify-between rounded-lg bg-primary-50 p-4 dark:bg-primary-900/20">
+    <span class="text-lg font-semibold text-surface-900 dark:text-white">Net Salary</span>
+    <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+      {{ slip.netSalary | currency: 'INR' : 'symbol' : '1.0-0' }}
+    </span>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex justify-end gap-3">
+    <p-button
+      label="Download"
+      icon="pi pi-download"
+      [outlined]="true"
+      [loading]="isDownloading()"
+      [disabled]="isDownloading()"
+      (onClick)="downloadPayslip()" />
+    <p-button
+      label="Close"
+      severity="secondary"
+      (onClick)="close()" />
+  </div>
+</div>
+
+<!-- Off-screen PDF capture template (always light, for clean PDF) -->
+<div
+  #pdfTemplate
+  aria-hidden="true"
+  class="fixed top-0 -left-[9999px]">
+  <div style="width: 760px; padding: 32px; background: #ffffff; color: #111827; font-family: Inter, sans-serif">
+    <!-- Brand -->
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px">
+      <img
+        src="brand/skolenza-logo-system/skolenza-horizontal-full-color-256.png"
+        alt="Company logo"
+        width="190"
+        height="42" />
+      @if (companyName()) {
+      <span style="font-size: 18px; font-weight: 600; color: #111827">{{ companyName() }}</span>
+      }
+    </div>
+
+    <!-- Header -->
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: #f5f3ff;
+        border-radius: 8px;
+      ">
+      <div>
+        <div style="font-size: 18px; font-weight: 600">{{ slip.staffMemberFullName }}</div>
+        <div style="font-size: 13px; color: #6b7280">{{ slip.designationName }} &middot; {{ slip.departmentName }}</div>
+      </div>
+      <div style="text-align: right">
+        <div style="font-size: 13px; font-weight: 500; color: #374151">
+          {{ getMonthName(slip.month) }} {{ slip.year }}
+        </div>
+        <div style="font-size: 12px; color: #6b7280">Generated: {{ slip.generatedDate | date: 'dd MMM yyyy' }}</div>
+      </div>
+    </div>
+
+    <!-- Attendance -->
+    <div style="margin: 16px 0; font-size: 13px; color: #374151">
+      Working Days: {{ slip.workingDays }} &nbsp;|&nbsp; Present: {{ slip.presentDays }} &nbsp;|&nbsp; Leave: {{
+      slip.leaveDays }} @if (slip.lopDays > 0) { &nbsp;|&nbsp; LOP: {{ slip.lopDays }} }
+    </div>
+
+    <!-- Earnings & Deductions -->
+    <div style="display: flex; gap: 16px">
+      <div style="flex: 1; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden">
+        <div style="background: #ecfdf5; padding: 8px 16px; font-weight: 600; color: #047857">Earnings</div>
+        <div style="padding: 16px">
+          @for (earning of slip.earnings; track earning.name) {
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px">
+            <span style="color: #4b5563">{{ earning.name }}</span>
+            <span style="font-weight: 500">{{ earning.amount | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
+          </div>
+          }
+          <div style="border-top: 1px solid #e5e7eb; margin: 8px 0"></div>
+          <div style="display: flex; justify-content: space-between; font-weight: 600">
+            <span>Gross Salary</span>
+            <span style="color: #059669">{{ slip.grossSalary | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex: 1; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden">
+        <div style="background: #fef2f2; padding: 8px 16px; font-weight: 600; color: #b91c1c">Deductions</div>
+        <div style="padding: 16px">
+          @for (deduction of slip.deductions; track deduction.name) {
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px">
+            <span style="color: #4b5563">{{ deduction.name }}</span>
+            <span style="font-weight: 500">{{ deduction.amount | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
+          </div>
+          }
+          <div style="border-top: 1px solid #e5e7eb; margin: 8px 0"></div>
+          <div style="display: flex; justify-content: space-between; font-weight: 600">
+            <span>Total Deductions</span>
+            <span style="color: #dc2626">{{ slip.totalDeductions | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Net Salary -->
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: #f5f3ff;
+        border-radius: 8px;
+        margin-top: 16px;
+      ">
+      <span style="font-size: 16px; font-weight: 600">Net Salary</span>
+      <span style="font-size: 22px; font-weight: 700; color: #7c3aed">
+        {{ slip.netSalary | currency: 'INR' : 'symbol' : '1.0-0' }}
+      </span>
+    </div>
+  </div>
+</div>
+}

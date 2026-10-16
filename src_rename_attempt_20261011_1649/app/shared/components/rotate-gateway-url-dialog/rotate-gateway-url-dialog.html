@@ -1,0 +1,72 @@
+@if (result(); as issued) {
+  <div class="flex w-full flex-col gap-4">
+    <!-- `alert` rather than `status`: losing this URL means reissuing another one. -->
+    <div
+      role="alert"
+      class="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
+      <i class="pi pi-exclamation-triangle mt-0.5 shrink-0" aria-hidden="true"></i>
+      <span>
+        This URL is shown only once. Copy it before closing - it cannot be retrieved again, and a
+        lost one has to be reissued.
+      </span>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label
+        for="gatewayUrl"
+        class="text-sm font-medium text-gray-700 dark:text-zinc-200">
+        New gateway URL
+      </label>
+      <div class="flex items-start gap-2">
+        <textarea
+          id="gatewayUrl"
+          readonly
+          rows="3"
+          class="w-full resize-none rounded-md border border-zinc-300 bg-zinc-50 p-2 font-mono text-xs break-all text-gray-800 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+          >{{ issued.gatewayUrl }}</textarea
+        >
+        <p-button
+          type="button"
+          [icon]="hasCopied() ? 'pi pi-check' : 'pi pi-clipboard'"
+          [severity]="hasCopied() ? 'success' : 'secondary'"
+          [ariaLabel]="hasCopied() ? 'Gateway URL copied' : 'Copy gateway URL'"
+          [pTooltip]="hasCopied() ? 'Copied' : 'Copy'"
+          tooltipPosition="bottom"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="copyUrl(issued.gatewayUrl)" />
+      </div>
+    </div>
+
+    <div
+      class="flex items-center justify-end gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+      <p-button type="button" label="Done" icon="pi pi-check" (onClick)="onClose()" />
+    </div>
+  </div>
+} @else {
+  <div class="flex w-full flex-col gap-4">
+    <p class="text-sm text-zinc-600 dark:text-zinc-400">
+      Reissue the gateway URL for
+      <strong class="font-medium">{{ data?.deviceName || 'this device' }}</strong>
+      . The old URL keeps working until the device successfully polls using the new one - enter the
+      new URL in the device itself once you have it.
+    </p>
+
+    <div
+      class="flex items-center justify-end gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+      <p-button
+        type="button"
+        label="Cancel"
+        variant="text"
+        severity="secondary"
+        (onClick)="onClose()" />
+      <p-button
+        type="button"
+        [label]="isSaving() ? 'Rotating...' : 'Rotate URL'"
+        icon="pi pi-refresh"
+        [loading]="isSaving()"
+        [disabled]="isSaving()"
+        (onClick)="onConfirm()" />
+    </div>
+  </div>
+}

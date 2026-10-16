@@ -1,0 +1,157 @@
+<form
+  (submit)="onSubmit(); $event.preventDefault()"
+  class="flex w-full flex-col gap-4">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <app-form-select
+      class="md:col-span-2"
+      inputId="staffMemberId"
+      label="StaffMember"
+      required
+      placeholder="Select staffMember"
+      optionLabel="fullName"
+      optionValue="staffMemberId"
+      filter
+      filterBy="fullName"
+      panelStyleClass="select-option-truncate"
+      [options]="staff members.options()"
+      [loading]="staff members.isLoading()"
+      [submitted]="submitted()"
+      [field]="f.staffMemberId" />
+
+    <app-form-date
+      inputId="effectiveFrom"
+      label="Effective from"
+      required
+      placeholder="dd/mm/yyyy"
+      [submitted]="submitted()"
+      [field]="f.effectiveFrom" />
+
+    <app-form-date
+      inputId="effectiveTo"
+      label="Effective to"
+      placeholder="dd/mm/yyyy"
+      hint="Leave empty while the arrangement stands"
+      hintIcon
+      [submitted]="submitted()"
+      [field]="f.effectiveTo" />
+
+    <app-form-select
+      inputId="policyVersionId"
+      label="Attendance policy"
+      required
+      placeholder="Select attendance policy"
+      optionLabel="policyName"
+      optionValue="id"
+      filter
+      filterBy="policyName"
+      emptyTitle="No published attendance policy for this date"
+      emptyDetail="Create and publish one first."
+      [hint]="model().effectiveFrom ? undefined : 'Please select Effective from first.'"
+      [options]="policies()"
+      [loading]="isLoadingPolicies()"
+      [submitted]="submitted()"
+      [field]="f.policyVersionId" />
+
+    <app-form-select
+      inputId="primaryInstitutionLocationId"
+      label="Primary location"
+      placeholder="Select primary location"
+      optionLabel="locationName"
+      optionValue="id"
+      filter
+      filterBy="locationName"
+      showClear
+      [required]="isPrimaryLocationRequired()"
+      [options]="locations()"
+      [loading]="isLoadingLocations()"
+      [submitted]="submitted()"
+      [field]="f.primaryInstitutionLocationId" />
+
+    <app-form-select
+      inputId="workMode"
+      label="Work mode"
+      required
+      placeholder="Select work mode"
+      optionLabel="label"
+      optionValue="id"
+      [options]="workModeOptions"
+      [submitted]="submitted()"
+      [field]="f.workMode" />
+
+    @if (isHybrid()) {
+      <app-form-select
+        inputId="hybridType"
+        label="Hybrid type"
+        required
+        placeholder="Select hybrid type"
+        optionLabel="label"
+        optionValue="id"
+        hint="Fixed follows the weekday pattern; flexible only meets the day counts"
+        hintIcon
+        [options]="hybridTypeOptions"
+        [submitted]="submitted()"
+        [field]="f.hybridType" />
+
+      <div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-3">
+        <app-form-number
+          inputId="minimumOfficeDaysPerWeek"
+          label="Min office days / week"
+          placeholder="e.g. 3"
+          [min]="0"
+          [max]="7"
+          [useGrouping]="false"
+          [submitted]="submitted()"
+          [field]="f.minimumOfficeDaysPerWeek" />
+
+        <app-form-number
+          inputId="minimumOfficeDaysPerMonth"
+          label="Min office days / month"
+          placeholder="e.g. 12"
+          hint="At least the weekly minimum"
+          hintIcon
+          [min]="0"
+          [max]="31"
+          [useGrouping]="false"
+          [submitted]="submitted()"
+          [field]="f.minimumOfficeDaysPerMonth" />
+
+        <app-form-number
+          inputId="maximumWFHDaysPerMonth"
+          label="Max WFH days / month"
+          placeholder="e.g. 8"
+          [min]="0"
+          [max]="31"
+          [useGrouping]="false"
+          [submitted]="submitted()"
+          [field]="f.maximumWFHDaysPerMonth" />
+      </div>
+    }
+
+    <app-form-switch
+      class="md:col-span-2"
+      inputId="isActive"
+      label="Active"
+      hint="An staffMember holds at most one active arrangement"
+      [field]="f.isActive" />
+  </div>
+
+  <div
+    class="sticky bottom-0 flex items-center justify-end gap-2 border-t border-zinc-200 bg-surface-0 py-4 dark:border-zinc-700 dark:bg-surface-900">
+    @if (submitted() && f().invalid()) {
+      <p class="mr-auto text-sm text-red-500 dark:text-red-400">
+        Fix the highlighted fields before saving.
+      </p>
+    }
+    <p-button
+      type="button"
+      label="Cancel"
+      [variant]="'text'"
+      [severity]="'secondary'"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isEditMode ? 'Save changes' : 'Add arrangement'"
+      [loading]="isSaving()"
+      [disabled]="isBusy()" />
+  </div>
+</form>

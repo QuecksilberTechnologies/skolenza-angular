@@ -1,0 +1,283 @@
+<form
+  (submit)="onSubmit(); $event.preventDefault()"
+  class="flex w-full flex-col">
+  <div [class]="contentClass()">
+    @if (!isEditMode()) {
+      <p class="text-sm text-zinc-600 dark:text-zinc-400">
+        @if (deviceName(); as name) {
+          <strong class="font-medium">{{ name }}</strong>
+          has not been set up yet.
+        } @else {
+          This device has not been set up yet.
+        }
+        Choose how it connects to Skolenza before pushing any other setting.
+      </p>
+    }
+
+    <!-- Network -->
+    <app-section-card
+      icon="pi pi-wifi"
+      heading="Network"
+      subheading="How the platform reaches the device.">
+      <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <!-- IP address -->
+        <div class="space-y-1">
+          <label
+            for="ipAddress"
+            class="block font-medium">
+            IP address
+          </label>
+          <input
+            [formField]="f.ipAddress"
+            pInputText
+            type="text"
+            id="ipAddress"
+            class="w-full"
+            [class.p-invalid]="showError(f.ipAddress)"
+            [attr.aria-invalid]="showError(f.ipAddress)"
+            aria-describedby="ipAddress-help"
+            placeholder="192.168.1.50" />
+          <div
+            id="ipAddress-help"
+            class="min-h-5"
+            aria-live="polite">
+            @if (showError(f.ipAddress)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.ipAddress().errors()[0].message }}</span>
+              </p-message>
+            }
+          </div>
+        </div>
+
+        <!-- MAC address -->
+        <div class="space-y-1">
+          <label
+            for="macAddress"
+            class="block font-medium">
+            MAC address
+          </label>
+          <input
+            [formField]="f.macAddress"
+            pInputText
+            type="text"
+            id="macAddress"
+            class="w-full"
+            [class.p-invalid]="showError(f.macAddress)"
+            [attr.aria-invalid]="showError(f.macAddress)"
+            aria-describedby="macAddress-help"
+            placeholder="00:1A:2B:3C:4D:5E" />
+          <div
+            id="macAddress-help"
+            class="min-h-5"
+            aria-live="polite">
+            @if (showError(f.macAddress)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.macAddress().errors()[0].message }}</span>
+              </p-message>
+            }
+          </div>
+        </div>
+
+        <!-- Device port -->
+        <div class="space-y-1">
+          <label
+            for="devicePort"
+            class="block font-medium">
+            Device port
+          </label>
+          <p-inputnumber
+            inputId="devicePort"
+            class="w-full"
+            inputStyleClass="w-full"
+            [showButtons]="false"
+            [min]="0"
+            [useGrouping]="false"
+            placeholder="e.g. 4370"
+            [formField]="$any(f.devicePort)" />
+          <div
+            id="devicePort-help"
+            class="min-h-5"
+            aria-live="polite">
+            @if (showError(f.devicePort)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.devicePort().errors()[0].message }}</span>
+              </p-message>
+            }
+          </div>
+        </div>
+
+        <!-- Communication type -->
+        <div class="space-y-1">
+          <label
+            for="communicationType"
+            class="block font-medium">
+            Communication type
+            <span class="text-red-600 dark:text-red-400">*</span>
+          </label>
+          <p-select
+            inputId="communicationType"
+            class="w-full"
+            [options]="communicationTypeOptions"
+            optionLabel="label"
+            optionValue="id"
+            placeholder="Select communication type"
+            [invalid]="showError(f.communicationType)"
+            [formField]="$any(f.communicationType)" />
+          <div
+            id="communicationType-help"
+            class="min-h-5"
+            aria-live="polite">
+            @if (showError(f.communicationType)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.communicationType().errors()[0].message }}</span>
+              </p-message>
+            }
+          </div>
+        </div>
+      </div>
+    </app-section-card>
+
+    <!-- Server -->
+    <app-section-card
+      icon="pi pi-server"
+      heading="Server"
+      subheading="Where the device sends its data.">
+      <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+        @for (item of serverNumberFields; track item.id) {
+          <div class="space-y-1">
+            <label
+              [for]="item.id"
+              class="block font-medium">
+              {{ item.label }}
+            </label>
+            <p-inputnumber
+              [inputId]="item.id"
+              class="w-full"
+              inputStyleClass="w-full"
+              [showButtons]="false"
+              [min]="0"
+              [useGrouping]="false"
+              [placeholder]="item.placeholder ?? ''"
+              [formField]="$any(item.field)" />
+            <div
+              [id]="item.id + '-help'"
+              class="min-h-5"
+              aria-live="polite">
+              @if (showError(item.field)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ item.field().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+        }
+
+        @for (item of serverTextFields; track item.id) {
+          <div class="space-y-1">
+            <label
+              [for]="item.id"
+              class="block font-medium">
+              {{ item.label }}
+            </label>
+            <input
+              [formField]="item.field"
+              pInputText
+              type="text"
+              [id]="item.id"
+              class="w-full"
+              [class.p-invalid]="showError(item.field)"
+              [attr.aria-invalid]="showError(item.field)"
+              [attr.aria-describedby]="item.id + '-help'"
+              [placeholder]="item.placeholder ?? ''" />
+            <div
+              [id]="item.id + '-help'"
+              class="min-h-5"
+              aria-live="polite">
+              @if (showError(item.field)) {
+                <p-message
+                  severity="error"
+                  size="small"
+                  variant="simple">
+                  <span>{{ item.field().errors()[0].message }}</span>
+                </p-message>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Configuration -->
+        <div class="space-y-1 md:col-span-2">
+          <label
+            for="configuration"
+            class="block font-medium">
+            Configuration
+          </label>
+          <textarea
+            pTextarea
+            id="configuration"
+            rows="3"
+            class="w-full"
+            maxlength="2000"
+            placeholder="Device specific settings, as JSON or key=value lines"
+            [value]="model().configuration"
+            (input)="onConfigurationInput($event)"></textarea>
+          <div
+            id="configuration-help"
+            class="min-h-5"
+            aria-live="polite">
+            @if (showError(f.configuration)) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ f.configuration().errors()[0].message }}</span>
+              </p-message>
+            }
+          </div>
+        </div>
+      </div>
+    </app-section-card>
+
+    <!-- Behaviour -->
+    <app-section-card
+      icon="pi pi-sliders-h"
+      heading="Behaviour"
+      subheading="What the device is allowed to do once it is online.">
+      <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+        @for (toggle of behaviourToggles; track toggle.id) {
+          <app-toggle-field
+            [inputId]="toggle.id"
+            [label]="toggle.label"
+            [hint]="toggle.hint">
+            <p-toggleswitch
+              [inputId]="toggle.id"
+              [formField]="$any(toggle.field)" />
+          </app-toggle-field>
+        }
+      </div>
+    </app-section-card>
+  </div>
+
+  <app-form-action-bar
+    [dialog]="dialog()"
+    [submitLabel]="isEditMode() ? 'Save changes' : 'Set up connection'"
+    [saving]="isSaving()"
+    [disabled]="isSaving()"
+    [errorMessage]="submitted() && f().invalid() ? 'Fix the highlighted fields before saving.' : ''"
+    (cancelled)="onCancel()" />
+</form>

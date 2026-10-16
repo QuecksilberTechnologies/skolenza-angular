@@ -1,0 +1,144 @@
+<!-- One flex column from the dialog down to the tree's scroll pane: every link is `min-h-0` so it
+     can shrink below its content, and the tree pane is the only one that scrolls. The 90vh cap
+     lives on the dialog itself — it is the only box that knows its own header height. -->
+<div
+  class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden"
+  [attr.aria-busy]="isSaving()">
+  @if (isLoading()) {
+  <app-table-loader />
+  } @else if (nodes().length) {
+  <p class="text-sm text-zinc-500 dark:text-zinc-400">
+    Ticking a module includes its sub-modules. Dimmed modules are inactive.
+    <!-- New tab on purpose: a same-tab navigation would discard unsaved ticks. -->
+    <a
+      routerLink="/app/modules"
+      target="_blank"
+      class="text-primary font-medium whitespace-nowrap hover:underline"
+      aria-label="Manage modules (opens in new tab)">
+      Manage modules
+      <i
+        class="pi pi-external-link text-xs!"
+        aria-hidden="true"></i>
+    </a>
+  </p>
+
+  <!-- `propagateSelectionUp` / `propagateSelectionDown` default to true — that is the cascade.
+       The tree owns the only scrollbar in the dialog, so it fills the flex row rather than
+       claiming a fixed height of its own. -->
+  <div
+    class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 dark:border-zinc-700">
+    <p-tree
+      [value]="nodes()"
+      [(selection)]="selection"
+      selectionMode="checkbox"
+      [filter]="true"
+      filterBy="label"
+      filterPlaceholder="Search modules"
+      [indentation]="0"
+      scrollHeight="flex"
+      [ariaLabel]="'Modules for ' + plan.planName"
+      (onNodeUnselect)="onNodeUnselect($event.node)">
+      <!-- Optimus resolves this by reference name; it renders above the filter, so the actions,
+           the search and the rows read as one card. -->
+      <ng-template #header>
+        <div
+          class="flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-gray-200 px-2 py-1.5 dark:border-zinc-700">
+          <!-- The accessible name has to match the visible label (WCAG 2.5.3); the label itself
+               drops to an icon below `sm`, where `ariaLabel` is all that is left. -->
+          <div class="flex items-center gap-0.5 whitespace-nowrap">
+            <p-button
+              icon="pi pi-check-square"
+              severity="secondary"
+              size="small"
+              ariaLabel="Select all"
+              [label]="isCompact() ? undefined : 'Select all'"
+              [text]="true"
+              (onClick)="selectAll()" />
+            <p-button
+              icon="pi pi-times"
+              severity="secondary"
+              size="small"
+              ariaLabel="Clear"
+              [label]="isCompact() ? undefined : 'Clear'"
+              [text]="true"
+              (onClick)="clearAll()" />
+            <span
+              class="mx-1 h-4 w-px bg-gray-200 dark:bg-zinc-700"
+              aria-hidden="true"></span>
+            <p-button
+              icon="pi pi-angle-double-down"
+              severity="secondary"
+              size="small"
+              ariaLabel="Expand all"
+              [label]="isCompact() ? undefined : 'Expand'"
+              [text]="true"
+              (onClick)="expandAll()" />
+            <p-button
+              icon="pi pi-angle-double-up"
+              severity="secondary"
+              size="small"
+              ariaLabel="Collapse all"
+              [label]="isCompact() ? undefined : 'Collapse'"
+              [text]="true"
+              (onClick)="collapseAll()" />
+            <p-button
+              icon="pi pi-refresh"
+              severity="secondary"
+              size="small"
+              ariaLabel="Refresh modules"
+              pTooltip="Refresh modules"
+              tooltipPosition="bottom"
+              [text]="true"
+              [disabled]="isSaving()"
+              (onClick)="refresh()" />
+          </div>
+
+          <span
+            class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold tabular-nums transition-colors"
+            [class.bg-primary-100]="moduleIds().length"
+            [class.text-primary-700]="moduleIds().length"
+            [class.dark:bg-primary-900/40]="moduleIds().length"
+            [class.dark:text-primary-300]="moduleIds().length"
+            [class.bg-zinc-100]="!moduleIds().length"
+            [class.text-zinc-400]="!moduleIds().length"
+            [class.dark:bg-zinc-800]="!moduleIds().length"
+            [class.dark:text-zinc-500]="!moduleIds().length">
+            {{ moduleIds().length }} of {{ totalModules() }} selected
+          </span>
+        </div>
+      </ng-template>
+    </p-tree>
+  </div>
+  } @else {
+  <app-table-empty-message
+    icon="pi pi-sitemap"
+    message="No modules available"
+    subMessage="There is nothing to map to this plan yet" />
+  }
+
+  <div
+    class="flex shrink-0 flex-col-reverse gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:items-center sm:justify-end sm:gap-3 dark:border-zinc-700">
+    @if (isDirty()) {
+    <span class="flex items-center gap-2 text-sm text-zinc-500 sm:mr-auto dark:text-zinc-400">
+      <span
+        class="size-1.5 shrink-0 rounded-full bg-amber-500"
+        aria-hidden="true"></span>
+      Unsaved changes
+    </span>
+    }
+    <p-button
+      class="w-full sm:w-auto"
+      label="Cancel"
+      variant="text"
+      severity="secondary"
+      [disabled]="isSaving()"
+      (onClick)="onCancel()" />
+    <p-button
+      class="w-full sm:w-auto"
+      icon="pi pi-check"
+      [label]="isSaving() ? 'Saving...' : 'Save'"
+      [loading]="isSaving()"
+      [disabled]="!isDirty() || isSaving()"
+      (onClick)="save()" />
+  </div>
+</div>

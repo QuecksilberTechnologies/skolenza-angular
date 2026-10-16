@@ -1,0 +1,25 @@
+<app-dashboard-card [title]="title()">
+  <div class="dash-list">
+    @for (event of calendarEvents; track event.name) {
+      <div class="dash-list-item">
+        <img
+          [src]="event.image"
+          [alt]="event.name"
+          class="dash-avatar" />
+        <div class="flex flex-1 flex-col gap-1">
+          <p class="text-base font-medium text-color-emphasis dark:text-zinc-100">
+            {{ event.name }}
+          </p>
+          <p class="flex items-center dash-text-muted">
+            <i class="pi pi-calendar mr-2 text-sm text-gray-500 dark:text-gray-400"></i>
+            {{ event.date }}
+          </p>
+          <p class="flex items-center dash-text-muted">
+            <i class="pi pi-map-marker mr-2 text-sm text-gray-500 dark:text-gray-400"></i>
+            {{ event.location }}
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+</app-dashboard-card>

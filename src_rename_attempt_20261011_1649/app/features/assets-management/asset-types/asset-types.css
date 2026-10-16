@@ -1,0 +1,20 @@
+:host ::ng-deep {
+  .status-badge {
+    border-radius: 2px;
+    padding: 0.25rem 0.5rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+
+    &.status-active {
+      background: #c8e6c9;
+      color: #256029;
+    }
+
+    &.status-inactive {
+      background: #ffcdd2;
+      color: #c63737;
+    }
+  }
+}

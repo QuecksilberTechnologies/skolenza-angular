@@ -1,0 +1,162 @@
+<form
+  (submit)="onSubmit(); $event.preventDefault()"
+  class="flex max-h-[calc(100vh-16rem)] flex-col gap-4">
+  <div class="grid grid-cols-1 gap-4 overflow-y-auto px-1 pb-1">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <!-- Code -->
+      <div class="space-y-1">
+        <label
+          for="policyTypeCode"
+          class="block font-medium">
+          Code
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <input
+          [formField]="f.policyTypeCode"
+          appTrimInput
+          pInputText
+          [pAutoFocus]="true"
+          type="text"
+          id="policyTypeCode"
+          class="w-full"
+          placeholder="e.g. LEAVE" />
+        @if (f.policyTypeCode().touched() && f.policyTypeCode().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.policyTypeCode().errors()[0].message }}</span>
+        </p-message>
+        }
+      </div>
+
+      <!-- Name -->
+      <div class="space-y-1">
+        <label
+          for="policyName"
+          class="block font-medium">
+          Name
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <input
+          [formField]="f.policyName"
+          appTrimInput
+          pInputText
+          type="text"
+          id="policyName"
+          class="w-full"
+          placeholder="e.g. Leave Policy" />
+        @if (f.policyName().touched() && f.policyName().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.policyName().errors()[0].message }}</span>
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <!-- Category and currency -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="space-y-1">
+        <label
+          for="policyCategoryId"
+          class="block font-medium">
+          Category
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-select
+          inputId="policyCategoryId"
+          class="w-full"
+          [options]="categories"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select category"
+          [appendTo]="'body'"
+          [formField]="$any(f.policyCategoryId)" />
+        @if (f.policyCategoryId().touched() && f.policyCategoryId().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.policyCategoryId().errors()[0].message }}</span>
+        </p-message>
+        }
+      </div>
+
+      <div class="space-y-1">
+        <label
+          for="defaultCurrencyCode"
+          class="block font-medium">
+          Default currency
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <input
+          [formField]="f.defaultCurrencyCode"
+          appTrimInput
+          pInputText
+          type="text"
+          id="defaultCurrencyCode"
+          class="w-full"
+          placeholder="e.g. INR" />
+        @if (f.defaultCurrencyCode().touched() && f.defaultCurrencyCode().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.defaultCurrencyCode().errors()[0].message }}</span>
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="space-y-1">
+      <label
+        for="description"
+        class="block font-medium">
+        Description
+      </label>
+      <!-- `pTextarea` subscribes to `ngControl.valueChanges`, which Signal Forms does not provide,
+           so the value is bound by hand instead of through `[formField]`. -->
+      <textarea
+        pTextarea
+        id="description"
+        rows="3"
+        class="w-full"
+        placeholder="What this policy type covers"
+        [value]="model().description ?? ''"
+        (input)="onDescriptionInput($event)"></textarea>
+    </div>
+
+    @if (policyType) {
+    <!-- Active — the create endpoint has no field for this; it only applies once the type exists. -->
+    <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 dark:border-zinc-700">
+      <label
+        for="isActive"
+        class="cursor-pointer">
+        <span class="block font-medium">Active</span>
+        <span class="block text-xs text-gray-500 dark:text-zinc-400">Selectable when creating a policy</span>
+      </label>
+      <p-toggleswitch
+        inputId="isActive"
+        [formField]="$any(f.isActive)" />
+    </div>
+    }
+  </div>
+
+  <div class="flex shrink-0 justify-end gap-2 border-t border-gray-200 pt-4 dark:border-zinc-700">
+    <p-button
+      label="Cancel"
+      variant="text"
+      severity="secondary"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      icon="pi pi-check"
+      [label]="isSaving() ? 'Saving...' : policyType ? 'Save changes' : 'Create policy type'"
+      [loading]="isSaving()"
+      [disabled]="f().invalid() || isSaving()" />
+  </div>
+</form>

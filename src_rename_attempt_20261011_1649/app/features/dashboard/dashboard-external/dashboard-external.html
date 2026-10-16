@@ -1,0 +1,43 @@
+<section class="flex h-[calc(100vh-4.6rem)] flex-col gap-4 overflow-hidden overflow-y-auto p-4">
+  <app-dashboard-greeting subtitle="Here's your account at a glance." />
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <app-metrics-card
+      title="Client Summary"
+      [section]="store.clientSummary()"
+      [loading]="store.isSectionLoading('client-summary')"
+      (refresh)="store.reload('client-summary')" />
+
+    <app-widget-list-card
+      title="Open Tickets"
+      icon="pi pi-ticket"
+      emptyMessage="No open tickets"
+      [section]="store.openTickets()"
+      [loading]="store.isSectionLoading('open-tickets')"
+      (refresh)="store.reload('open-tickets')" />
+
+    <app-widget-list-card
+      title="Recent Activity"
+      icon="pi pi-history"
+      emptyMessage="No recent activity"
+      [section]="store.recentActivity()"
+      [loading]="store.isSectionLoading('recent-activity')"
+      (refresh)="store.reload('recent-activity')" />
+
+    <app-widget-list-card
+      title="Client Site StaffMembers"
+      icon="pi pi-users"
+      emptyMessage="No staffMembers at your site"
+      [section]="store.clientSiteStaffMembers()"
+      [loading]="store.isSectionLoading('client-site-staffMembers')"
+      (refresh)="store.reload('client-site-staffMembers')" />
+
+    <app-widget-list-card
+      title="Documents"
+      icon="pi pi-file"
+      emptyMessage="No documents"
+      [section]="store.documents()"
+      [loading]="store.isSectionLoading('documents')"
+      (refresh)="store.reload('documents')" />
+  </div>
+</section>

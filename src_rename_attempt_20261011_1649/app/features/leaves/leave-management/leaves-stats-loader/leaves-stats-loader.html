@@ -1,0 +1,24 @@
+<div class="flex flex-wrap gap-4 md:gap-4">
+  @for (item of [0, 1, 2, 3]; track item) {
+  <div
+    class="h-[7.4rem] max-w-full min-w-[calc(50%-0.5rem)] flex-1 rounded-xl border border-surface bg-white p-5 sm:max-w-[calc(50%-0.5rem)] sm:min-w-[180px] lg:max-w-none dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="flex items-center gap-4">
+      <p-skeleton
+        shape="square"
+        width="48px"
+        height="48px"
+        class="rounded-xl!" />
+      <div class="flex flex-1 flex-col gap-1.5">
+        <p-skeleton
+          width="60px"
+          height="28px"
+          class="rounded-md!" />
+        <p-skeleton
+          width="100px"
+          height="14px"
+          class="rounded-md!" />
+      </div>
+    </div>
+  </div>
+  }
+</div>

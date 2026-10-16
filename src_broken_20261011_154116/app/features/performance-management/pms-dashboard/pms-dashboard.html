@@ -1,0 +1,20 @@
+<section class="flex flex-col gap-4">
+  <app-pms-kpi-cards
+    [kpis]="kpiCards()"
+    [loading]="store.isLoading()" />
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <app-pms-trend-chart
+      title="Goal Progress"
+      subtitle="Average completion by category"
+      type="bar"
+      [data]="goalChartData()"
+      [options]="barOptions" />
+    <app-pms-trend-chart
+      title="Rating Trend"
+      subtitle="Average rating across review cycles"
+      type="line"
+      [data]="ratingChartData()"
+      [options]="lineOptions" />
+  </div>
+</section>

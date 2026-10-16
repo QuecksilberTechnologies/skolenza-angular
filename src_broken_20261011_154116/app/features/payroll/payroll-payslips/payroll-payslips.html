@@ -1,0 +1,131 @@
+<p-card>
+  @if (store.isLoading()) {
+  <app-table-loader />
+  } @else { @let slips = store.filteredPayslips() | search: searchText : ['staffMemberFullName', 'departmentName']; @if
+  (slips.length > 0) {
+  <p-table
+    [value]="slips"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    paginatorDropdownAppendTo="body"
+    paginatorDropdownScrollHeight="100px"
+    [sortField]="'generatedDate'"
+    [sortOrder]="-1"
+    [showGridlines]="false"
+    [scrollable]="true"
+    scrollDirection="horizontal"
+    [tableStyle]="{ 'min-width': '65rem' }">
+    <ng-template #caption>
+      <app-table-inline-filters>
+        <div
+          ngProjectAs="right"
+          class="flex gap-2">
+          <app-table-search-input [debounceMs]="0" (searchTerm)="searchPayslip($event)" />
+        </div>
+      </app-table-inline-filters>
+    </ng-template>
+    <ng-template #colgroup>
+      <colgroup>
+        <!-- Widths add up to the table's 65rem min-width so nothing forces extra scroll. -->
+        <col style="width: 13rem" />
+        <col style="width: 9rem" />
+        <col style="width: 6rem" />
+        <col style="width: 8rem" />
+        <col style="width: 8rem" />
+        <col style="width: 8rem" />
+        <col style="width: 7rem" />
+        <col style="width: 6rem" />
+      </colgroup>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th
+          pSortableColumn="staffMemberFullName"
+          class="min-w-52">
+          StaffMember
+          <p-sortIcon field="staffMemberFullName" />
+        </th>
+        <th
+          pSortableColumn="departmentName"
+          class="min-w-36">
+          Department
+          <p-sortIcon field="departmentName" />
+        </th>
+        <th class="min-w-24">Period</th>
+        <th
+          pSortableColumn="grossSalary"
+          class="min-w-32">
+          Gross Salary
+          <p-sortIcon field="grossSalary" />
+        </th>
+        <th class="min-w-32">Deductions</th>
+        <th
+          pSortableColumn="netSalary"
+          class="min-w-32">
+          Net Salary
+          <p-sortIcon field="netSalary" />
+        </th>
+        <th
+          pSortableColumn="generatedDate"
+          class="min-w-28">
+          Generated
+          <p-sortIcon field="generatedDate" />
+        </th>
+        <th
+          scope="col"
+          class="px-3! py-2.5! align-middle whitespace-nowrap">
+          <div class="flex justify-center">Actions</div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template
+      #body
+      let-slip>
+      <tr>
+        <td>
+          <div class="flex items-center gap-3">
+            <app-user-avatar class="shrink-0" [name]="slip.staffMemberFullName" />
+            <div class="flex min-w-0 flex-col">
+              <span class="truncate font-medium text-surface-900 dark:text-white">{{ slip.staffMemberFullName }}</span>
+              <span class="truncate text-xs text-surface-500">{{ slip.designationName }}</span>
+            </div>
+          </div>
+        </td>
+        <td>{{ slip.departmentName }}</td>
+        <td>
+          <span class="text-sm font-medium">{{ getMonthName(slip.month) }} {{ slip.year }}</span>
+        </td>
+        <td class="font-medium">{{ slip.grossSalary | currency: 'INR' : 'symbol' : '1.0-0' }}</td>
+        <td class="text-red-600 dark:text-red-400">
+          {{ slip.totalDeductions | currency: 'INR' : 'symbol' : '1.0-0' }}
+        </td>
+        <td class="font-semibold text-primary-600 dark:text-primary-400">
+          {{ slip.netSalary | currency: 'INR' : 'symbol' : '1.0-0' }}
+        </td>
+        <td class="text-sm">{{ slip.generatedDate | date: 'dd MMM yyyy' }}</td>
+        <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+          <div class="flex items-center justify-center gap-2">
+            <p-button
+              class="text-xl!"
+              icon="pi pi-eye"
+              severity="secondary"
+              pTooltip="View Payslip"
+              tooltipPosition="left"
+              [showDelay]="300"
+              [ariaLabel]="'View payslip for ' + slip.staffMemberFullName"
+              (onClick)="viewPayslip(slip)" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  } @else {
+  <app-table-empty-message
+    icon="pi pi-file"
+    message="No payslips found"
+    subMessage="Payslips will appear here once generated." />
+  } }
+</p-card>

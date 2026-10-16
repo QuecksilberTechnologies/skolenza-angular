@@ -1,0 +1,418 @@
+<!-- Search / Filter bar -->
+<div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+  <p-iconfield
+    iconPosition="left"
+    class="w-full sm:w-72 sm:shrink-0">
+    <p-inputicon class="pi pi-search" />
+    <input
+      type="text"
+      pInputText
+      class="w-full"
+      placeholder="Search modules or actions..."
+      [ngModel]="moduleFilter()"
+      (ngModelChange)="moduleFilter.set($event)"
+      aria-label="Filter modules by name" />
+  </p-iconfield>
+  @if (moduleFilter()) {
+  <span class="text-xs whitespace-nowrap text-zinc-500 tabular-nums dark:text-zinc-400">
+    @if (hasAnyMatches()) { {{ filteredModules().length }}/{{ modules().length }} modules · {{
+    filteredOperationGroups().length }}/{{ operationGroups().length }} groups } @else { no matches }
+  </span>
+  } @else {
+  <p class="text-xs leading-snug text-zinc-500 sm:min-w-0 sm:flex-1 sm:text-right dark:text-zinc-400">
+    <ng-content />
+  </p>
+  }
+</div>
+
+@if (isMobile()) {
+<!-- ==================== MOBILE: Card/Accordion Layout ==================== -->
+<div class="space-y-3">
+  <!-- Global select-all bar -->
+  <div
+    class="flex items-center gap-2.5 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800">
+    <p-checkbox
+      [ngModel]="globalAllState() === 'all'"
+      [binary]="true"
+      (ngModelChange)="toggleAll()"
+      [appIndeterminate]="globalAllState() === 'some'"
+      aria-label="Select all permissions" />
+    <span class="text-xs font-semibold tracking-wider text-zinc-500 uppercase dark:text-zinc-400">Select All</span>
+  </div>
+
+  <!-- Module cards -->
+  @for (module of filteredModules(); track module) {
+  <div class="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
+    <!-- Card header -->
+    <button
+      type="button"
+      class="flex w-full items-center justify-between bg-zinc-50 p-3 text-left dark:bg-zinc-800"
+      (click)="toggleModuleCard(module)"
+      [attr.aria-expanded]="expandedModule() === module"
+      [attr.aria-controls]="'module-panel-' + module">
+      <div class="flex items-center gap-2.5">
+        <p-checkbox
+          [ngModel]="moduleAllState()[module] === 'all'"
+          [binary]="true"
+          (ngModelChange)="toggleModule(module)"
+          [appIndeterminate]="moduleAllState()[module] === 'some'"
+          [attr.aria-label]="'Select all permissions for ' + module"
+          (click)="$event.stopPropagation()" />
+        <span class="font-semibold text-zinc-800 dark:text-zinc-200">{{ module }}</span>
+        <span
+          class="text-[11px] font-medium tabular-nums"
+          [class.text-primary-600]="modulePermCount()[module] > 0"
+          [class.dark:text-primary-400]="modulePermCount()[module] > 0"
+          [class.text-zinc-400]="modulePermCount()[module] === 0"
+          [class.dark:text-zinc-500]="modulePermCount()[module] === 0">
+          {{ modulePermCount()[module] }}/{{ moduleOperationTotals()[module] }}
+        </span>
+      </div>
+      <svg
+        class="h-4 w-4 text-zinc-400 transition-transform duration-200"
+        [class.rotate-180]="expandedModule() === module"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+        aria-hidden="true">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+      </svg>
+    </button>
+
+    <!-- Collapsible body -->
+    @if (expandedModule() === module) {
+    <div
+      [id]="'module-panel-' + module"
+      role="region"
+      [attr.aria-label]="module + ' permissions'"
+      class="border-t border-zinc-200 dark:border-zinc-700">
+      @for (group of filteredOperationGroups(); track group.label) {
+      <!-- Group label -->
+      <div
+        class="flex items-center gap-2 border-b border-zinc-200 bg-zinc-100/80 px-4 py-1.5 dark:border-zinc-700 dark:bg-zinc-800/80">
+        <span class="h-3.5 w-1 rounded-full bg-primary-400 dark:bg-primary-500"></span>
+        <span class="text-[11px] font-bold tracking-widest text-zinc-500 uppercase dark:text-zinc-400">
+          {{ group.label }}
+        </span>
+      </div>
+
+      <!-- Operations in group -->
+      @for (operation of group.operations; track operation.name; let last = $last) { @let applicable =
+      isApplicable(module, operation.name);
+      <div
+        class="relative flex items-center gap-3 bg-white px-4 py-2.5 dark:bg-zinc-900"
+        [class.cursor-pointer]="applicable"
+        [class.opacity-40]="!applicable"
+        [class.border-b]="!last || !$last"
+        [class.border-zinc-200]="!last || !$last"
+        [class.dark:border-zinc-700]="!last || !$last">
+        @if (applicable) {
+        <p-checkbox
+          [ngModel]="permissionMap()[module][operation.name]"
+          [binary]="true"
+          (ngModelChange)="updatePermission(module, operation.name, $event)"
+          [attr.aria-label]="operation.name + ' permission for ' + module + ' module'" />
+        } @else {
+        <span
+          class="w-5 shrink-0 text-center text-sm text-zinc-300 dark:text-zinc-600"
+          aria-hidden="true">
+          &mdash;
+        </span>
+        <span class="sr-only">{{ operation.name }} is not available for {{ module }} module</span>
+        }
+        <i
+          [class]="operation.icon + ' ' + operation.iconClass"
+          aria-hidden="true"></i>
+        <span class="text-zinc-700 dark:text-zinc-300">{{ operation.name }}</span>
+      </div>
+      } }
+    </div>
+    }
+  </div>
+  } @if (!hasAnyMatches()) {
+  <div
+    class="flex flex-col items-center gap-4 rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 px-6 py-10 text-center dark:border-zinc-700 dark:bg-zinc-800/30">
+    @if (modules().length === 0) {
+    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50 dark:bg-primary-900/20">
+      <i class="pi pi-shield text-3xl! text-primary-500 dark:text-primary-400"></i>
+    </div>
+    <div class="space-y-1">
+      <p class="text-base font-semibold text-zinc-700 dark:text-zinc-200">No permissions available</p>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400">
+        There are no modules or actions configured for this institution yet.
+      </p>
+    </div>
+    } @else {
+    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
+      <i class="pi pi-search text-3xl! text-zinc-400 dark:text-zinc-500"></i>
+    </div>
+    <div class="space-y-1">
+      <p class="text-base font-semibold text-zinc-700 dark:text-zinc-200">No results found</p>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400">
+        No modules or actions match
+        <span class="font-medium text-zinc-700 dark:text-zinc-300">"{{ moduleFilter() }}"</span>
+      </p>
+    </div>
+    <p-button
+      label="Clear filter"
+      icon="pi pi-times"
+      severity="secondary"
+      [text]="true"
+      size="small"
+      (onClick)="moduleFilter.set('')" />
+    }
+  </div>
+  }
+</div>
+} @else {
+<!-- ==================== DESKTOP: Grid Layout with Sticky First Column ==================== -->
+<div class="isolate max-h-[71.2vh] overflow-auto rounded-2xl border border-zinc-200 dark:border-zinc-700">
+  <div
+    class="min-w-fit"
+    role="grid"
+    aria-label="Permission matrix"
+    style="display: grid"
+    [style.gridTemplateColumns]="
+        'minmax(200px, 1.2fr) repeat(' + filteredModules().length + ', minmax(156px, 1fr))'
+      ">
+    <!-- Header Row -->
+    <div
+      role="row"
+      class="contents">
+      <!-- Global select-all (top-left corner) -->
+      <div
+        role="columnheader"
+        class="sticky top-0 left-0 z-30 flex min-h-[7rem] flex-col items-start justify-center gap-1.5 border-r border-b border-zinc-200 bg-gradient-to-b from-zinc-50 to-white px-4 dark:border-zinc-700 dark:from-zinc-800 dark:to-zinc-900/60">
+        <div class="flex items-center gap-2.5">
+          <p-checkbox
+            [ngModel]="globalAllState() === 'all'"
+            [binary]="true"
+            (ngModelChange)="toggleAll()"
+            [appIndeterminate]="globalAllState() === 'some'"
+            aria-label="Select all permissions" />
+          <span class="text-[11px] font-bold tracking-[0.08em] text-zinc-600 uppercase dark:text-zinc-300">
+            Select All
+          </span>
+        </div>
+        <span class="pl-[1.65rem] text-[10px] font-medium text-zinc-400 tabular-nums dark:text-zinc-500">
+          {{ filteredModules().length }} modules · {{ allOperations().length }} actions
+        </span>
+        <span class="pl-[1.65rem] text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
+          Cells marked &mdash; are not available for that module
+        </span>
+      </div>
+
+      <!-- Module headers -->
+      @for (module of filteredModules(); track module; let last = $last) { @let isActive = modulePermCount()[module] >
+      0; @let isFull = moduleAllState()[module] === 'all';
+      <div
+        role="columnheader"
+        class="group/col relative sticky top-0 z-20 min-h-[7rem] border-b border-zinc-200 bg-gradient-to-b from-zinc-50 to-white text-center transition-colors duration-150 dark:border-zinc-700 dark:from-zinc-800 dark:to-zinc-900/60"
+        [class.border-r]="!last"
+        [class.!from-primary-100]="hoveredModule() === module"
+        [class.!to-primary-50/40]="hoveredModule() === module"
+        [class.dark:!from-primary-900/30]="hoveredModule() === module"
+        [class.dark:!to-primary-900/10]="hoveredModule() === module"
+        (mouseenter)="hoveredModule.set(module)"
+        (mouseleave)="hoveredModule.set(null)">
+        <!-- Active indicator bar -->
+        @if (isActive) {
+        <span
+          class="absolute inset-x-0 top-0 h-0.5"
+          [class.bg-primary-500]="isFull"
+          [class.bg-primary-300]="!isFull"
+          [class.dark:bg-primary-400]="isFull"
+          [class.dark:bg-primary-600]="!isFull"
+          aria-hidden="true"></span>
+        }
+        <div class="flex h-full flex-col items-center justify-between gap-1.5 px-2.5 py-3">
+          <!-- Checkbox -->
+          <p-checkbox
+            [ngModel]="isFull"
+            [binary]="true"
+            (ngModelChange)="toggleModule(module)"
+            [appIndeterminate]="moduleAllState()[module] === 'some'"
+            [attr.aria-label]="'Select all permissions for ' + module" />
+          <!-- Module name -->
+          <span
+            class="line-clamp-2 px-0.5 text-[12px] leading-[1.15] font-semibold [overflow-wrap:anywhere]"
+            [class.text-zinc-800]="!isActive"
+            [class.dark:text-zinc-200]="!isActive"
+            [class.text-primary-700]="isActive"
+            [class.dark:text-primary-300]="isActive"
+            [title]="module">
+            {{ module }}
+          </span>
+          <!-- Count badge -->
+          <span
+            class="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums transition-colors"
+            [class.bg-primary-100]="isActive"
+            [class.text-primary-700]="isActive"
+            [class.dark:bg-primary-900/40]="isActive"
+            [class.dark:text-primary-300]="isActive"
+            [class.bg-zinc-100]="!isActive"
+            [class.text-zinc-400]="!isActive"
+            [class.dark:bg-zinc-800]="!isActive"
+            [class.dark:text-zinc-500]="!isActive">
+            @if (isFull) {
+            <i
+              class="pi pi-check text-[8px]!"
+              aria-hidden="true"></i>
+            } {{ modulePermCount()[module] }}/{{ moduleOperationTotals()[module] }}
+          </span>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Empty-state row when filter matches nothing -->
+    @if (!hasAnyMatches()) {
+    <div
+      role="row"
+      class="contents">
+      <div
+        class="flex flex-col items-center gap-4 bg-zinc-50/50 px-6 py-12 text-center dark:bg-zinc-800/30"
+        style="grid-column: 1 / -1">
+        @if (modules().length === 0) {
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50 dark:bg-primary-900/20">
+          <i class="pi pi-shield text-3xl text-primary-500 dark:text-primary-400"></i>
+        </div>
+        <div class="space-y-1">
+          <p class="text-base font-semibold text-zinc-700 dark:text-zinc-200">No permissions available</p>
+          <p class="max-w-md text-sm text-zinc-500 dark:text-zinc-400">
+            There are no modules or actions configured for this institution yet. Once modules are enabled, they'll appear
+            here for you to assign permissions.
+          </p>
+        </div>
+        } @else {
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
+          <i class="pi pi-search text-3xl text-zinc-400 dark:text-zinc-500"></i>
+        </div>
+        <div class="space-y-1">
+          <p class="text-base font-semibold text-zinc-700 dark:text-zinc-200">No results found</p>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">
+            No modules or actions match
+            <span class="font-medium text-zinc-700 dark:text-zinc-300">"{{ moduleFilter() }}"</span>
+          </p>
+        </div>
+        <p-button
+          label="Clear filter"
+          icon="pi pi-times"
+          severity="secondary"
+          [text]="true"
+          size="small"
+          (onClick)="moduleFilter.set('')" />
+        }
+      </div>
+    </div>
+    } @else {
+    <!-- Operation Groups -->
+    @for ( group of filteredOperationGroups(); track group.label; let groupIdx = $index; let lastGroup = $last ) {
+    <!-- Group separator row -->
+    <div
+      role="row"
+      class="contents">
+      <div
+        class="border-y border-zinc-200 bg-gradient-to-r from-primary-50/60 via-zinc-100/80 to-zinc-100/80 py-2 dark:border-zinc-700 dark:from-primary-900/20 dark:via-zinc-800/80 dark:to-zinc-800/80"
+        style="grid-column: 1 / -1"
+        role="rowheader"
+        [attr.aria-label]="group.label + ' permissions group'">
+        <div class="sticky left-0 flex w-fit items-center gap-2 px-4">
+          <span class="h-3.5 w-1 rounded-full bg-primary-500 dark:bg-primary-400"></span>
+          <span class="text-[11px] font-bold tracking-widest text-zinc-600 uppercase dark:text-zinc-300">
+            {{ group.label }}
+          </span>
+          <span class="ml-1 text-[10px] font-medium text-zinc-400 tabular-nums dark:text-zinc-500">
+            ({{ group.operations.length }})
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Operation rows within group -->
+    @for ( operation of group.operations; track operation.name; let opIdx = $index; let lastOp = $last ) {
+    <div
+      role="row"
+      class="contents">
+      <!-- Operation name + row select-all -->
+      <div
+        role="rowheader"
+        class="sticky left-0 z-10 flex items-center gap-2.5 border-r border-zinc-200 px-4 py-2.5 font-medium transition-colors duration-150 dark:border-zinc-700"
+        [class.border-b]="!(lastGroup && lastOp)"
+        [class.bg-primary-50]="hoveredOperation() === operation.name"
+        [class.dark:bg-primary-900/10]="hoveredOperation() === operation.name"
+        [class.bg-white]="hoveredOperation() !== operation.name && opIdx % 2 === 0"
+        [class.dark:bg-zinc-900]="hoveredOperation() !== operation.name && opIdx % 2 === 0"
+        [class.bg-zinc-50/70]="hoveredOperation() !== operation.name && opIdx % 2 === 1"
+        [class.dark:bg-zinc-900/60]="
+                  hoveredOperation() !== operation.name && opIdx % 2 === 1
+                "
+        (mouseenter)="hoveredOperation.set(operation.name)"
+        (mouseleave)="hoveredOperation.set(null)">
+        <p-checkbox
+          [ngModel]="operationAllState()[operation.name] === 'all'"
+          [binary]="true"
+          [disabled]="!isOperationSelectable(operation.name)"
+          (ngModelChange)="toggleOperation(operation.name)"
+          [appIndeterminate]="operationAllState()[operation.name] === 'some'"
+          [attr.aria-label]="'Select all modules for ' + operation.name" />
+        <i
+          [class]="operation.icon + ' ' + operation.iconClass + ' text-base'"
+          aria-hidden="true"></i>
+        <span class="text-[13px] text-zinc-700 dark:text-zinc-300">{{ operation.name }}</span>
+      </div>
+
+      <!-- Permission checkboxes per module -->
+      @for (module of filteredModules(); track module; let lastMod = $last) { @let applicable = isApplicable(module,
+      operation.name); @let hot = applicable && (hoveredModule() === module || hoveredOperation() === operation.name);
+      <div
+        role="gridcell"
+        class="relative flex items-center justify-center border-zinc-200 px-2 py-2.5 transition-colors duration-150 dark:border-zinc-700"
+        [class.cursor-pointer]="applicable"
+        [class.border-b]="!(lastGroup && lastOp)"
+        [class.border-r]="!lastMod"
+        [class.bg-primary-50]="hot"
+        [class.dark:bg-primary-900/10]="hot"
+        [class.bg-white]="!hot && opIdx % 2 === 0"
+        [class.dark:bg-zinc-900]="!hot && opIdx % 2 === 0"
+        [class.bg-zinc-50/70]="!hot && opIdx % 2 === 1"
+        [class.dark:bg-zinc-900/60]="!hot && opIdx % 2 === 1"
+        (mouseenter)="hoveredModule.set(module); hoveredOperation.set(operation.name)"
+        (mouseleave)="hoveredModule.set(null); hoveredOperation.set(null)">
+        @if (applicable) {
+        <p-checkbox
+          [ngModel]="permissionMap()[module][operation.name]"
+          [binary]="true"
+          (ngModelChange)="updatePermission(module, operation.name, $event)"
+          [attr.aria-label]="operation.name + ' permission for ' + module + ' module'" />
+        } @else {
+        <span
+          class="text-sm leading-5 text-zinc-300 dark:text-zinc-600"
+          aria-hidden="true">
+          &mdash;
+        </span>
+        <span class="sr-only">{{ operation.name }} is not available for {{ module }} module</span>
+        }
+      </div>
+      }
+    </div>
+    } } }
+  </div>
+</div>
+}
+
+<div class="mt-5 flex items-center justify-end gap-3">
+  @if (isDirty()) {
+  <span class="animate-pulse text-sm text-orange-500 dark:text-orange-400">Unsaved changes</span>
+  }
+  <p-button
+    label="Save Changes"
+    (onClick)="onSave()"
+    [loading]="isSaving()"
+    [disabled]="!isDirty() || isSaving()" />
+</div>

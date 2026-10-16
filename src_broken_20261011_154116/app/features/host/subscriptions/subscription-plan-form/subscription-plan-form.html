@@ -1,0 +1,271 @@
+<form
+  (submit)="onSubmit(); $event.preventDefault()"
+  class="flex max-h-[calc(100vh-16rem)] flex-col gap-4">
+  <div class="grid grid-cols-1 gap-4 overflow-y-auto px-1 pb-1">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <!-- Plan name -->
+      <div class="space-y-1">
+        <label
+          for="planName"
+          class="block font-medium">
+          Plan name
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <input
+          [formField]="f.planName"
+          appTrimInput
+          pInputText
+          [pAutoFocus]="true"
+          type="text"
+          id="planName"
+          class="w-full"
+          placeholder="e.g. Pro Team Plan" />
+        @if (f.planName().touched() && f.planName().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.planName().errors()[0].message }}</span>
+        </p-message>
+        }
+      </div>
+
+      <!-- Max users -->
+      <div class="space-y-1">
+        <label
+          for="maxUsers"
+          class="block font-medium">
+          Max users
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-inputnumber
+          inputId="maxUsers"
+          class="w-full"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+          [showButtons]="false"
+          [min]="1"
+          placeholder="e.g. 25"
+          [formField]="$any(f.maxUsers)" />
+        @if (f.maxUsers().touched() && f.maxUsers().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.maxUsers().errors()[0].message }}</span>
+        </p-message>
+        } @else {
+        <p class="text-xs text-gray-500 dark:text-zinc-400">Hard seat cap for this plan</p>
+        }
+      </div>
+    </div>
+
+    <!-- Flags -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 dark:border-zinc-700">
+        <label
+          for="isMostPopular"
+          class="cursor-pointer">
+          <span class="block font-medium">Most popular</span>
+          <span class="block text-xs text-gray-500 dark:text-zinc-400">Highlight on pricing page</span>
+        </label>
+        <p-toggleswitch
+          inputId="isMostPopular"
+          [formField]="$any(f.isMostPopular)" />
+      </div>
+
+      <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 dark:border-zinc-700">
+        <label
+          for="isCustom"
+          class="cursor-pointer">
+          <span class="block font-medium">Custom plan</span>
+          <span class="block text-xs text-gray-500 dark:text-zinc-400">Negotiated, sales-led</span>
+        </label>
+        <p-toggleswitch
+          inputId="isCustom"
+          [formField]="$any(f.isCustom)" />
+      </div>
+
+      <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 dark:border-zinc-700">
+        <label
+          for="isFree"
+          class="cursor-pointer">
+          <span class="block font-medium">Free plan</span>
+          <span class="block text-xs text-gray-500 dark:text-zinc-400">Zeroes all pricing</span>
+        </label>
+        <p-toggleswitch
+          inputId="isFree"
+          [formField]="$any(f.isFree)" />
+      </div>
+
+      <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 dark:border-zinc-700">
+        <label
+          for="isActive"
+          class="cursor-pointer">
+          <span class="block font-medium">Active</span>
+          <span class="block text-xs text-gray-500 dark:text-zinc-400">Available to purchase</span>
+        </label>
+        <p-toggleswitch
+          inputId="isActive"
+          [formField]="$any(f.isActive)" />
+      </div>
+    </div>
+
+    <!-- Currency -->
+    <div class="space-y-1">
+      <label
+        for="currencyKey"
+        class="block font-medium">
+        Currency
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <p-select
+        inputId="currencyKey"
+        class="w-full"
+        [options]="currencyOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [filter]="true"
+        filterBy="label"
+        placeholder="Select currency"
+        [appendTo]="'body'"
+        [formField]="$any(f.currencyKey)" />
+      @if (f.currencyKey().touched() && f.currencyKey().errors().length) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        <span>{{ f.currencyKey().errors()[0].message }}</span>
+      </p-message>
+      }
+    </div>
+
+    <!-- Pricing -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div class="space-y-1">
+        <label
+          for="perDayPrice"
+          class="block font-medium">
+          Per day price
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-inputnumber
+          inputId="perDayPrice"
+          class="w-full"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+          [showButtons]="false"
+          [min]="0"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="2"
+          [prefix]="currencySymbol() + ' '"
+          [placeholder]="pricePlaceholders().perDay"
+          [disabled]="f.perDayPrice().disabled()"
+          [formField]="$any(f.perDayPrice)" />
+        @if (f.perDayPrice().touched() && f.perDayPrice().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.perDayPrice().errors()[0].message }}</span>
+        </p-message>
+        }
+      </div>
+
+      <div class="space-y-1">
+        <label
+          for="monthlyPrice"
+          class="block font-medium">
+          Monthly price
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-inputnumber
+          inputId="monthlyPrice"
+          class="w-full"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+          [showButtons]="false"
+          [min]="0"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="2"
+          [prefix]="currencySymbol() + ' '"
+          [placeholder]="pricePlaceholders().monthly"
+          [disabled]="f.monthlyPrice().disabled()"
+          [formField]="$any(f.monthlyPrice)" />
+        @if (f.monthlyPrice().touched() && f.monthlyPrice().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.monthlyPrice().errors()[0].message }}</span>
+        </p-message>
+        }
+      </div>
+
+      <div class="space-y-1">
+        <label
+          for="yearlyPrice"
+          class="block font-medium">
+          Yearly price
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-inputnumber
+          inputId="yearlyPrice"
+          class="w-full"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+          [showButtons]="false"
+          [min]="0"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="2"
+          [prefix]="currencySymbol() + ' '"
+          [placeholder]="pricePlaceholders().yearly"
+          [disabled]="f.yearlyPrice().disabled()"
+          [formField]="$any(f.yearlyPrice)" />
+        @if (f.yearlyPrice().touched() && f.yearlyPrice().errors().length) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>{{ f.yearlyPrice().errors()[0].message }}</span>
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <!-- Modules — read-only: the create/update endpoints carry no `modules` field. -->
+    @if (modules().length) {
+    <div class="space-y-2">
+      <p class="font-medium">
+        Modules included
+        <span class="font-normal text-gray-500 dark:text-zinc-400">({{ modules().length }})</span>
+      </p>
+      <ul class="flex flex-wrap gap-2">
+        @for (module of modules(); track module.id) {
+        <li
+          class="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:border-primary-900 dark:bg-primary-900/40 dark:text-primary-200">
+          <i
+            class="pi pi-check !text-[10px]"
+            aria-hidden="true"></i>
+          {{ module.displayName || module.moduleName }}
+        </li>
+        }
+      </ul>
+    </div>
+    }
+  </div>
+
+  <div class="flex shrink-0 justify-end gap-2 border-t border-gray-200 pt-4 dark:border-zinc-700">
+    <p-button
+      label="Cancel"
+      variant="text"
+      severity="secondary"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      icon="pi pi-check"
+      [label]="isSaving() ? 'Saving...' : plan ? 'Save changes' : 'Create plan'"
+      [loading]="isSaving()"
+      [disabled]="f().invalid() || isSaving()" />
+  </div>
+</form>

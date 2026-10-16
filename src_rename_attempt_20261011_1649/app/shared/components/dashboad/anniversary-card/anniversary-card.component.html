@@ -1,0 +1,32 @@
+<app-dashboard-card [title]="title()">
+  <div class="dash-list">
+    @for (anniversary of anniversaries; track anniversary.name) {
+      <div class="dash-list-item items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img
+            [src]="anniversary.avatar"
+            [alt]="anniversary.name"
+            class="dash-avatar" />
+          <div>
+            <p class="text-base font-semibold text-color-emphasis dark:text-zinc-100">
+              {{ anniversary.name }}
+            </p>
+            <p class="mt-0.5 dash-text-muted">{{ anniversary.type }}</p>
+            @if (anniversary.details) {
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                {{ anniversary.details }}
+              </p>
+            }
+          </div>
+        </div>
+        <div class="flex items-center gap-2 p-3 text-gray-500 dark:text-gray-400">
+          <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ anniversary.date }}</p>
+          <lucide-angular
+            [img]="Cake"
+            size="18"
+            class="text-amber-400 transition-colors duration-200 dark:text-amber-300" />
+        </div>
+      </div>
+    }
+  </div>
+</app-dashboard-card>

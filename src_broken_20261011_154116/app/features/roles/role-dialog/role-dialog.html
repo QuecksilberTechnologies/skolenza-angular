@@ -1,0 +1,139 @@
+<form
+  [formGroup]="roleForm!"
+  (ngSubmit)="onSubmit()"
+  class="grid grid-cols-1 gap-4">
+  <div class="space-y-1">
+    <label
+      for="roleName"
+      class="block font-medium">
+      Name
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <input
+      formControlName="roleName"
+      appTrimInput
+      pInputText
+      id="roleName"
+      type="text"
+      class="w-full"
+      [invalid]="isInvalid('roleName')"
+      [pAutoFocus]="true" />
+    @if (isInvalid('roleName')) { @let nameErrors = roleForm.get('roleName')?.errors;
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      @if (nameErrors?.['required']) {
+      <span>Role name is required</span>
+      } @else if (nameErrors?.['minlength']) {
+      <span>Role name must be at least 3 characters</span>
+      } @else if (nameErrors?.['pattern']) {
+      <span>Role name must start with a letter and use only letters, numbers, spaces, hyphens, or underscores.</span>
+      }
+    </p-message>
+    }
+  </div>
+
+  <div class="space-y-1">
+    <label
+      for="roleType"
+      class="block font-medium">
+      Role Type
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <p-select
+      formControlName="roleType"
+      id="roleType"
+      name="roleType"
+      [options]="roleTypes()"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="Select Role Type"
+      [appendTo]="'body'"
+      class="w-full"
+      [invalid]="isInvalid('roleType')">
+      <ng-template
+        #selectedItem
+        let-selectedOption>
+        <div class="flex items-center gap-2">
+          <div>{{ selectedOption.name }}</div>
+        </div>
+      </ng-template>
+      <ng-template
+        let-type
+        #item>
+        <div class="flex flex-col gap-2">
+          <div>{{ type.name }}</div>
+          <div class="w-full truncate text-sm text-gray-500 dark:text-zinc-400">{{ type.description }}</div>
+        </div>
+      </ng-template>
+    </p-select>
+    @if (isInvalid('roleType')) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      <span>Role type is required</span>
+    </p-message>
+    }
+  </div>
+
+  <div class="space-y-1">
+    <label
+      for="remark"
+      class="block font-medium">
+      Remark
+    </label>
+    <textarea
+      formControlName="remark"
+      appTrimInput
+      pTextarea
+      id="remark"
+      rows="3"
+      class="w-full resize-none"
+      [invalid]="isInvalid('remark')"></textarea>
+    <div class="flex w-full items-center justify-start text-sm text-gray-500">
+      <span>{{ roleForm.get('remark')?.value?.length || 0 }}/250 characters</span>
+    </div>
+    @if (isInvalid('remark')) { @let remarkErrors = roleForm.get('remark')?.errors;
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      @if (remarkErrors?.['maxlength']) {
+      <span>Remark cannot exceed 250 characters.</span>
+      }
+    </p-message>
+    }
+  </div>
+
+  <!-- Status -->
+  <div class="space-y-1">
+    <label
+      for="isActive"
+      class="block font-medium">
+      Status
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <p-select
+      formControlName="isActive"
+      inputId="isActive"
+      [options]="statusOptions"
+      optionLabel="status"
+      optionValue="value"
+      appendTo="body"
+      class="w-full" />
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <p-button
+      severity="secondary"
+      label="Cancel"
+      (click)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isSaving() ? 'Saving...' : 'Save'"
+      [loading]="isSaving()"
+      [disabled]="roleForm.invalid || isSaving()" />
+  </div>
+</form>

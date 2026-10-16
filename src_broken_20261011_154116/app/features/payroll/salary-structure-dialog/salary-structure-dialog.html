@@ -1,0 +1,190 @@
+<div
+  class="flex flex-col"
+  style="height: calc(90vh - 6rem)">
+  <!-- Scrollable Content -->
+  <div class="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4">
+    <!-- StaffMember Info -->
+    @if (structure(); as s) {
+    <div class="flex items-center gap-3 rounded-lg bg-surface-50 p-3 dark:bg-surface-800">
+      <app-user-avatar class="shrink-0" [name]="s.staffMemberFullName" />
+      <div>
+        <p class="font-semibold text-surface-900 dark:text-white">{{ s.staffMemberFullName }}</p>
+        <p class="text-sm text-surface-500 dark:text-surface-400">
+          {{ s.designationName }} &middot; {{ s.departmentName }}
+        </p>
+      </div>
+    </div>
+    }
+
+    <!-- Earnings -->
+    <div>
+      <div class="mb-3 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-surface-900 dark:text-white">Earnings</h3>
+        <p-button
+          icon="pi pi-plus"
+          label="Add"
+          [text]="true"
+          size="small"
+          (onClick)="addEarning()" />
+      </div>
+      <div class="flex flex-col gap-3">
+        @for (ctrl of earningsForm.controls; track $index) {
+        <div
+          class="flex items-end gap-3"
+          [formGroup]="ctrl">
+          <div class="flex-1">
+            @if ($index === 0) {
+            <span class="mb-1 block text-sm font-medium text-surface-700 dark:text-surface-300">Component Name</span>
+            }
+            <input
+              pInputText
+              formControlName="name"
+              placeholder="Component name"
+              class="w-full"
+              [attr.aria-label]="'Earning component name'" />
+          </div>
+          <div class="w-36">
+            @if ($index === 0) {
+            <span class="mb-1 block text-sm font-medium text-surface-700 dark:text-surface-300">Type</span>
+            }
+            <p-select
+              formControlName="type"
+              [options]="componentTypes"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+              ariaLabel="Earning component type" />
+          </div>
+          <div class="w-40">
+            @if ($index === 0) {
+            <span class="mb-1 block text-sm font-medium text-surface-700 dark:text-surface-300">Amount</span>
+            }
+            <p-inputNumber
+              formControlName="amount"
+              mode="currency"
+              currency="INR"
+              locale="en-IN"
+              class="w-full"
+              [inputStyleClass]="'w-full'"
+              ariaLabel="Earning amount" />
+          </div>
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [text]="true"
+            size="small"
+            (onClick)="removeEarning($index)"
+            [disabled]="earningsForm.length <= 1"
+            ariaLabel="Remove earning" />
+        </div>
+        }
+      </div>
+    </div>
+
+    <p-divider />
+
+    <!-- Deductions -->
+    <div>
+      <div class="mb-3 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-surface-900 dark:text-white">Deductions</h3>
+        <p-button
+          icon="pi pi-plus"
+          label="Add"
+          [text]="true"
+          size="small"
+          (onClick)="addDeduction()" />
+      </div>
+      <div class="flex flex-col gap-3">
+        @for (ctrl of deductionsForm.controls; track $index) {
+        <div
+          class="flex items-end gap-3"
+          [formGroup]="ctrl">
+          <div class="flex-1">
+            @if ($index === 0) {
+            <span class="mb-1 block text-sm font-medium text-surface-700 dark:text-surface-300">Component Name</span>
+            }
+            <input
+              pInputText
+              formControlName="name"
+              placeholder="Component name"
+              class="w-full"
+              [attr.aria-label]="'Deduction component name'" />
+          </div>
+          <div class="w-36">
+            @if ($index === 0) {
+            <span class="mb-1 block text-sm font-medium text-surface-700 dark:text-surface-300">Type</span>
+            }
+            <p-select
+              formControlName="type"
+              [options]="componentTypes"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full"
+              ariaLabel="Deduction component type" />
+          </div>
+          <div class="w-40">
+            @if ($index === 0) {
+            <span class="mb-1 block text-sm font-medium text-surface-700 dark:text-surface-300">Amount</span>
+            }
+            <p-inputNumber
+              formControlName="amount"
+              mode="currency"
+              currency="INR"
+              locale="en-IN"
+              class="w-full"
+              [inputStyleClass]="'w-full'"
+              ariaLabel="Deduction amount" />
+          </div>
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [text]="true"
+            size="small"
+            (onClick)="removeDeduction($index)"
+            [disabled]="deductionsForm.length <= 1"
+            ariaLabel="Remove deduction" />
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Footer: Summary + Actions -->
+  <div class="flex shrink-0 flex-col gap-4 border-t border-surface-200 px-4 pt-4 dark:border-surface-700">
+    <!-- Summary -->
+    <div class="flex flex-col gap-2 rounded-lg bg-surface-50 p-4 dark:bg-surface-800">
+      <div class="flex justify-between text-sm">
+        <span class="text-surface-600 dark:text-surface-400">Total Earnings</span>
+        <span class="font-medium text-green-600 dark:text-green-400">
+          {{ totalEarnings() | currency: 'INR' : 'symbol' : '1.0-0' }}
+        </span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-surface-600 dark:text-surface-400">Total Deductions</span>
+        <span class="font-medium text-red-600 dark:text-red-400">
+          {{ totalDeductions() | currency: 'INR' : 'symbol' : '1.0-0' }}
+        </span>
+      </div>
+      <p-divider />
+      <div class="flex justify-between text-base font-semibold">
+        <span class="text-surface-900 dark:text-white">Net Salary</span>
+        <span class="text-primary-600 dark:text-primary-400">
+          {{ totalEarnings() - totalDeductions() | currency: 'INR' : 'symbol' : '1.0-0' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3 pb-2">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="cancel()" />
+      <p-button
+        label="Save Changes"
+        icon="pi pi-check"
+        (onClick)="save()" />
+    </div>
+  </div>
+</div>

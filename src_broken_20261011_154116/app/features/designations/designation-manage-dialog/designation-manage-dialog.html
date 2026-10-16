@@ -1,0 +1,130 @@
+<form
+  [formGroup]="designationForm"
+  (ngSubmit)="onSubmit()"
+  class="grid grid-cols-1 gap-4">
+  <!-- Name -->
+  <div class="space-y-1">
+    <label
+      for="designationName"
+      class="block font-medium">
+      Name
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <input
+      formControlName="designationName"
+      appTrimInput
+      pInputText
+      [pAutoFocus]="true"
+      type="text"
+      id="designationName"
+      class="w-full"
+      [invalid]="isInvalid('designationName')" />
+    @if ( designationForm.get('designationName')?.invalid && designationForm.get('designationName')?.touched ) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      @if (designationForm.get('designationName')?.errors?.['required']) {
+      <span>Designation name is required</span>
+      } @else if (designationForm.get('designationName')?.errors?.['minlength']) {
+      <span>Designation name must be at least 3 characters</span>
+      } @else if (designationForm.get('designationName')?.errors?.['pattern']) {
+      <span>
+        Designation name must start with a letter and use only letters, numbers, spaces, hyphens, or underscores.
+      </span>
+      }
+    </p-message>
+    }
+  </div>
+
+  <!-- Department -->
+  <div class="space-y-1">
+    <label
+      for="departmentId"
+      class="block font-medium">
+      Department
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <p-select
+      formControlName="departmentId"
+      id="departmentId"
+      name="departmentId"
+      [options]="departments()"
+      optionLabel="departmentName"
+      optionValue="id"
+      placeholder="Select Department"
+      [appendTo]="'body'"
+      class="w-full"
+      [invalid]="isInvalid('departmentId')" />
+    @if ( designationForm.get('departmentId')?.invalid && designationForm.get('departmentId')?.touched ) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      <span>Department is required</span>
+    </p-message>
+    }
+  </div>
+
+  <!-- Description -->
+  <div class="space-y-1">
+    <label
+      for="description"
+      class="block font-medium">
+      Description
+      <span class="text-sm font-normal text-gray-400">(Optional)</span>
+    </label>
+    <textarea
+      formControlName="description"
+      appTrimInput
+      pTextarea
+      rows="3"
+      cols="20"
+      id="description"
+      class="w-full resize-none"></textarea>
+    <div class="flex w-full items-center justify-start text-sm text-gray-500">
+      <span>{{ designationForm.get('description')?.value?.length || 0 }}/250 characters</span>
+    </div>
+    @if ( designationForm.get('description')?.invalid && designationForm.get('description')?.touched ) {
+    <p-message
+      severity="error"
+      size="small"
+      variant="simple">
+      @if (designationForm.get('description')?.errors?.['maxlength']) {
+      <span>Description cannot exceed 250 characters.</span>
+      }
+    </p-message>
+    }
+  </div>
+
+  <!-- Status -->
+  <div class="space-y-1">
+    <label
+      for="isActive"
+      class="block font-medium">
+      Status
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <p-select
+      formControlName="isActive"
+      inputId="isActive"
+      [options]="statusOptions"
+      optionLabel="status"
+      optionValue="value"
+      appendTo="body"
+      class="w-full" />
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <p-button
+      label="Cancel"
+      variant="text"
+      severity="secondary"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isSaving() ? 'Saving...' : 'Save'"
+      [loading]="isSaving()"
+      [disabled]="designationForm.invalid || isSaving()" />
+  </div>
+</form>

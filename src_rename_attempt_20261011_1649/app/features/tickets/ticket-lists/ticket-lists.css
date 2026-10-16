@@ -1,0 +1,55 @@
+:host {
+  /* Header cells paint their own background, so the row-level class never shows. */
+  --p-datatable-header-cell-background: var(--p-content-hover-background);
+  /* Sorted column: neutral tint; only the sort icon carries the brand colour. */
+  --p-datatable-header-cell-selected-background: var(--p-content-hover-background);
+  --p-datatable-header-cell-selected-color: var(--p-primary-color);
+}
+
+:host ::ng-deep .p-card {
+  /* Following --p-card-border-radius: 0.8rem from styles.css */
+  border-radius: 0.8rem;
+}
+
+:host ::ng-deep .p-card-body {
+  padding: 1.25rem;
+}
+
+:host ::ng-deep .p-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.4rem;
+}
+
+:host ::ng-deep .p-chip {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+}
+
+/* Custom alignment for splitbutton in this page */
+:host ::ng-deep .p-splitbutton {
+  .p-button {
+    border-radius: 0.5rem 0 0 0.5rem;
+  }
+  .p-splitbutton-dropdown {
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+}
+
+/* Full-width "Create Ticket" split-button until lg; natural width from lg up */
+@media (max-width: 1023.98px) {
+  :host ::ng-deep .p-splitbutton {
+    width: 100%;
+  }
+  :host ::ng-deep .p-splitbutton .p-splitbutton-button {
+    flex: 1 1 auto;
+  }
+}
+
+.overflow-y-auto {
+  scrollbar-gutter: stable;
+}

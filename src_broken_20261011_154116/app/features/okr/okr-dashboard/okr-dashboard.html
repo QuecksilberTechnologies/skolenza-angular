@@ -1,0 +1,41 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-y-auto">
+  <div class="p-3 sm:p-4">
+    <app-okr-kpi-cards
+      [kpis]="resolvedKpis()"
+      [loading]="store.isLoading()"
+      (cardClick)="go($event)" />
+
+    <app-okr-filter-bar
+      [departmentOptions]="departmentOptions"
+      [quarterOptions]="quarterOptions"
+      (searchChange)="onSearch($event)"
+      (filterChange)="onFilterChange($event)"
+      (viewAll)="go('/app/okr/company')" />
+
+    <div class="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-3">
+      <app-okr-chart-card
+        class="lg:col-span-1"
+        title="Status Distribution"
+        subtitle="By objective status"
+        type="doughnut"
+        [data]="statusChartData()"
+        [options]="chartOptions" />
+
+      <app-okr-average-progress
+        class="lg:col-span-2"
+        [progress]="avgProgress()"
+        [objectiveCount]="store.okrs().length"
+        [canManage]="canManage()"
+        (navigate)="go($event)" />
+    </div>
+
+    <app-okr-chart-card
+      class="mt-4 block"
+      title="Average Progress by Department"
+      subtitle="Average objective completion"
+      type="bar"
+      [data]="departmentChartData()"
+      [options]="barChartOptions"
+      heightClass="h-64" />
+  </div>
+</div>

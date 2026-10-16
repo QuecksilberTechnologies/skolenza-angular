@@ -1,0 +1,238 @@
+<div class="relative h-full overflow-y-auto">
+  <form
+    class="flex min-h-full w-full flex-col"
+    (submit)="onSubmit(); $event.preventDefault()">
+    <div class="mx-auto grid w-full max-w-5xl grid-cols-1 gap-4 px-3 pt-3 pb-6 sm:px-4 sm:pt-4">
+      <header class="space-y-1">
+        <h1 class="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Form input gallery</h1>
+        <p class="text-zinc-500 dark:text-zinc-400">
+          Every control in <code>shared/components/form-inputs</code>, bound to one Signal Form and one
+          zod schema. Submit with the form empty to see the error slot on each field.
+        </p>
+        <p class="text-xs text-gray-500 dark:text-zinc-400">
+          Fields marked <span class="text-red-600 dark:text-red-400">*</span> are required.
+        </p>
+      </header>
+
+      <app-section-card
+        icon="pi pi-user"
+        heading="Text"
+        subheading="app-form-text, app-form-textarea, app-form-number, app-form-password">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-form-text
+            label="Full name"
+            inputId="fullName"
+            placeholder="e.g. Priya Nair"
+            hint="Trimmed on blur by appTrimInput"
+            autofocus
+            required
+            [field]="f.fullName"
+            [submitted]="submitted()" />
+
+          <app-form-text
+            type="email"
+            label="Email"
+            inputId="email"
+            icon="pi pi-envelope"
+            placeholder="e.g. user@example.com"
+            autocomplete="email"
+            required
+            [field]="f.email"
+            [submitted]="submitted()" />
+
+          <app-form-text
+            type="tel"
+            label="Phone"
+            inputId="phone"
+            icon="pi pi-phone"
+            placeholder="e.g. +91 98765 43210"
+            autocomplete="tel"
+            [field]="f.phone"
+            [submitted]="submitted()" />
+
+          <app-form-number
+            label="Headcount"
+            inputId="headcount"
+            placeholder="e.g. 25"
+            hint="Hard seat cap for this team"
+            required
+            [min]="1"
+            [max]="9999"
+            [field]="f.headcount"
+            [submitted]="submitted()" />
+
+          <app-form-password
+            label="Password"
+            inputId="password"
+            icon="pi pi-lock"
+            placeholder="At least 8 characters"
+            autocomplete="new-password"
+            required
+            [field]="f.password"
+            [submitted]="submitted()" />
+
+          <app-form-textarea
+            class="md:col-span-2"
+            label="Bio"
+            inputId="bio"
+            placeholder="A couple of lines"
+            hint="Up to 500 characters"
+            [rows]="3"
+            [field]="f.bio"
+            [submitted]="submitted()" />
+        </div>
+      </app-section-card>
+
+      <app-section-card
+        icon="pi pi-list"
+        heading="Selection"
+        subheading="app-form-select, app-form-multiselect, app-form-radio-group, app-form-checkbox, app-form-switch">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-form-select
+            label="Department"
+            inputId="departmentId"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select a department"
+            required
+            [options]="departments"
+            [field]="f.departmentId"
+            [submitted]="submitted()" />
+
+          <app-form-multiselect
+            label="Skills"
+            inputId="skillIds"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select skills"
+            hint="At least one"
+            required
+            [options]="skills"
+            [field]="f.skillIds"
+            [submitted]="submitted()" />
+
+          <app-form-radio-group
+            label="Employment type"
+            inputId="employmentType"
+            required
+            [options]="employmentTypes"
+            [field]="f.employmentType"
+            [submitted]="submitted()" />
+
+          <app-form-radio-group
+            label="Work mode"
+            inputId="workMode"
+            orientation="horizontal"
+            required
+            [options]="workModes"
+            [field]="f.workMode"
+            [submitted]="submitted()" />
+
+          <app-form-checkbox
+            label="I accept the terms"
+            inputId="acceptTerms"
+            hint="Required before the form can be submitted"
+            required
+            [field]="f.acceptTerms"
+            [submitted]="submitted()" />
+
+          <app-form-switch
+            class="md:col-span-2"
+            label="Active"
+            inputId="isActive"
+            hint="Inactive records stay searchable but cannot be assigned"
+            [field]="f.isActive" />
+        </div>
+      </app-section-card>
+
+      <app-section-card
+        icon="pi pi-calendar"
+        heading="Date and time"
+        subheading="app-form-date, app-form-date-range">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-form-date
+            label="Joining date"
+            inputId="joiningDate"
+            placeholder="dd/mm/yyyy"
+            required
+            [field]="f.joiningDate"
+            [submitted]="submitted()" />
+
+          <app-form-date-range
+            label="Project window"
+            inputId="projectWindow"
+            placeholder="Start — end"
+            hint="Both ends required once started"
+            [field]="f.projectWindow"
+            [submitted]="submitted()" />
+        </div>
+      </app-section-card>
+
+      <app-section-card
+        icon="pi pi-paperclip"
+        heading="Files and rich input"
+        subheading="app-form-file, app-form-autocomplete, app-form-color, app-form-editor">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-form-file
+            label="Resume"
+            inputId="resume"
+            accept="application/pdf"
+            chooseLabel="Choose PDF"
+            hint="PDF only, up to 5 MB"
+            [field]="f.resume"
+            [submitted]="submitted()" />
+
+          <app-form-autocomplete
+            label="Reports to"
+            inputId="reportsTo"
+            placeholder="Start typing a name"
+            hint="Try 'a'"
+            dropdown
+            [suggestions]="managerSuggestions()"
+            [field]="f.reportsTo"
+            [submitted]="submitted()"
+            (completeMethod)="onCompleteManagers($event)" />
+
+          <app-form-color
+            label="Brand colour"
+            inputId="brandColor"
+            hint="Must clear 3:1 against white"
+            [field]="f.brandColor"
+            [submitted]="submitted()" />
+
+          <app-form-editor
+            class="md:col-span-2"
+            label="Notes"
+            inputId="notes"
+            placeholder="Rich text - the field holds the HTML the editor produces"
+            hint="Up to 2000 characters of markup"
+            [field]="f.notes"
+            [submitted]="submitted()" />
+        </div>
+      </app-section-card>
+
+      <app-section-card
+        icon="pi pi-code"
+        heading="Live model"
+        subheading="What the form actually holds right now">
+        <pre
+          class="mt-2 max-h-80 overflow-auto rounded-md bg-zinc-50 p-3 text-xs text-gray-700 dark:bg-zinc-800 dark:text-zinc-100"
+          >{{ modelJson() }}</pre
+        >
+        @if (lastSubmission()) {
+          <p-message
+            severity="success"
+            size="small"
+            variant="simple">
+            <span>Submitted — the schema passed on every field.</span>
+          </p-message>
+        }
+      </app-section-card>
+    </div>
+
+    <app-form-action-bar
+      submitLabel="Submit demo"
+      [saving]="saving()"
+      (cancelled)="onCancel()" />
+  </form>
+</div>

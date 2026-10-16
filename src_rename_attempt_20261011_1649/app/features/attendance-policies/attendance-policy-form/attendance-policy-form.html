@@ -1,0 +1,313 @@
+<div class="relative h-full overflow-y-auto">
+  <form
+    (submit)="onSubmit(); $event.preventDefault()"
+    class="flex min-h-full w-full flex-col">
+    @if (isLoading()) {
+    <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 pt-3 pb-6 sm:px-4 sm:pt-4"
+      role="status">
+      <span class="sr-only">Loading policy…</span>
+      <app-section-card
+        icon="pi pi-verified"
+        heading="Policy"
+        subheading="What this policy is called and which policy type it belongs to.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-skeleton-field
+            control="select"
+            slot />
+          <app-skeleton-field slot />
+          <app-skeleton-field
+            control="textarea"
+            [textareaRows]="3"
+            slot
+            class="md:col-span-2" />
+          <app-skeleton-field
+            control="textarea"
+            [textareaRows]="2"
+            slot
+            class="md:col-span-2" />
+        </div>
+      </app-section-card>
+      <app-section-card
+        icon="pi pi-map"
+        heading="Location Scope"
+        subheading="Which locations attendance is accepted from, and what needs approval.">
+        <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <app-skeleton-field
+            control="select"
+            slot />
+          <app-skeleton-toggle />
+          <app-skeleton-toggle />
+        </div>
+      </app-section-card>
+    </div>
+    } @else {
+      <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 pt-3 pb-6 sm:px-4 sm:pt-4">
+        <!-- Policy -->
+        <app-section-card
+          icon="pi pi-verified"
+          heading="Policy"
+          subheading="What this policy is called and which policy type it belongs to.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <!-- Policy type -->
+            <div class="space-y-1">
+              <label
+                for="policyTypeId"
+                class="block font-medium">
+                Policy type
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                inputId="policyTypeId"
+                class="w-full"
+                styleClass="w-full"
+                [options]="policyTypes()"
+                optionLabel="policyName"
+                optionValue="id"
+                [filter]="true"
+                filterBy="policyName"
+                [loading]="isLoadingPolicyTypes()"
+                placeholder="Select policy type"
+                [invalid]="showError(f.policyTypeId)"
+                [formField]="$any(f.policyTypeId)" />
+              <div
+                id="policyTypeId-help"
+                class="min-h-5"
+                aria-live="polite">
+                @if (showError(f.policyTypeId)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.policyTypeId().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Policy name -->
+            <div class="space-y-1">
+              <label
+                for="policyName"
+                class="block font-medium">
+                Policy name
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <input
+                [formField]="f.policyName"
+                pInputText
+                [pAutoFocus]="true"
+                type="text"
+                id="policyName"
+                class="w-full"
+                [class.p-invalid]="showError(f.policyName)"
+                [attr.aria-invalid]="showError(f.policyName)"
+                aria-describedby="policyName-help"
+                placeholder="e.g. Hybrid Attendance" />
+              <div
+                id="policyName-help"
+                class="min-h-5"
+                aria-live="polite">
+                @if (showError(f.policyName)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.policyName().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="space-y-1 md:col-span-2">
+              <label
+                for="description"
+                class="block font-medium">
+                Description
+              </label>
+              <!-- `pTextarea` subscribes to `ngControl.valueChanges`, which Signal Forms does not
+                   provide, so the value is bound by hand instead of through `[formField]`. -->
+              <textarea
+                pTextarea
+                id="description"
+                rows="3"
+                class="w-full"
+                maxlength="2000"
+                placeholder="What this policy covers and who it is for"
+                [value]="model().description"
+                (input)="onTextareaInput('description', $event)"></textarea>
+              <div
+                id="description-help"
+                class="min-h-5"
+                aria-live="polite">
+                @if (showError(f.description)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.description().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Remark -->
+            <div class="space-y-1 md:col-span-2">
+              <label
+                for="remark"
+                class="block font-medium">
+                Remark
+              </label>
+              <textarea
+                pTextarea
+                id="remark"
+                rows="2"
+                class="w-full"
+                maxlength="500"
+                placeholder="Internal note"
+                [value]="model().remark"
+                (input)="onTextareaInput('remark', $event)"></textarea>
+              <div
+                id="remark-help"
+                class="min-h-5"
+                aria-live="polite">
+                @if (showError(f.remark)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.remark().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+          </div>
+        </app-section-card>
+
+        <!-- Location scope -->
+        <app-section-card
+          icon="pi pi-map"
+          heading="Location Scope"
+          subheading="Which locations attendance is accepted from, and what needs approval.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="space-y-1">
+              <label
+                for="attendanceLocationScope"
+                class="block font-medium">
+                Attendance location scope
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                inputId="attendanceLocationScope"
+                class="w-full"
+                styleClass="w-full"
+                [options]="locationScopeOptions"
+                optionLabel="label"
+                optionValue="id"
+                placeholder="Select location scope"
+                [invalid]="showError(f.attendanceLocationScope)"
+                [formField]="$any(f.attendanceLocationScope)" />
+              <div
+                id="attendanceLocationScope-help"
+                class="min-h-5"
+                aria-live="polite">
+                @if (showError(f.attendanceLocationScope)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.attendanceLocationScope().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            @for (toggle of approvalToggles; track toggle.id) {
+              <div class="space-y-1">
+                <app-toggle-field
+                  [inputId]="toggle.id"
+                  [label]="toggle.label"
+                  [hint]="toggle.hint">
+                  <p-toggleswitch
+                    [inputId]="toggle.id"
+                    [formField]="$any(toggle.field)" />
+                </app-toggle-field>
+                <div
+                  [id]="toggle.id + '-help'"
+                  class="min-h-5"
+                  aria-live="polite">
+                  @if (showError(toggle.field)) {
+                    <p-message
+                      severity="error"
+                      size="small"
+                      variant="simple">
+                      <span>{{ toggle.field().errors()[0].message }}</span>
+                    </p-message>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </app-section-card>
+
+        <!-- Allowed channels -->
+        <app-section-card
+          icon="pi pi-sliders-h"
+          heading="Allowed Channels"
+          subheading="How staffMembers on this policy may mark attendance.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            @for (toggle of channelToggles; track toggle.id) {
+              <div class="space-y-1">
+                <app-toggle-field
+                  [inputId]="toggle.id"
+                  [label]="toggle.label"
+                  [hint]="toggle.hint">
+                  <p-toggleswitch
+                    [inputId]="toggle.id"
+                    [formField]="$any(toggle.field)" />
+                </app-toggle-field>
+                <div
+                  [id]="toggle.id + '-help'"
+                  class="min-h-5"
+                  aria-live="polite">
+                  @if (showError(toggle.field)) {
+                    <p-message
+                      severity="error"
+                      size="small"
+                      variant="simple">
+                      <span>{{ toggle.field().errors()[0].message }}</span>
+                    </p-message>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </app-section-card>
+
+        <!-- Status -->
+        <app-section-card
+          icon="pi pi-power-off"
+          heading="Status"
+          subheading="Whether this policy can be assigned.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <app-toggle-field
+              inputId="isActive"
+              label="Active"
+              hint="Inactive policies cannot be assigned to new work arrangements">
+              <p-toggleswitch
+                inputId="isActive"
+                [formField]="$any(f.isActive)" />
+            </app-toggle-field>
+          </div>
+        </app-section-card>
+      </div>
+    }
+
+    <app-form-action-bar
+      [submitLabel]="isEditMode ? 'Save changes' : 'Add policy'"
+      [saving]="isSaving()"
+      [disabled]="isSaving() || isLoading()"
+      [errorMessage]="submitted() && f().invalid() ? 'Fix the highlighted fields before saving.' : ''"
+      (cancelled)="onCancel()" />
+  </form>
+</div>

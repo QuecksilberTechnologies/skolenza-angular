@@ -1,0 +1,156 @@
+<div
+  class="z-50 flex max-h-[calc(100vh-2rem)] w-[26rem] max-w-[90vw] flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+  <!-- Skeleton loader (hidden, not destroyed, when loading completes) -->
+  <div
+    class="flex flex-col gap-3 p-4"
+    [class.hidden]="!isLoading()">
+    <div class="flex items-center gap-3">
+      <p-skeleton
+        shape="circle"
+        size="3rem" />
+      <div class="flex flex-1 flex-col gap-1.5">
+        <p-skeleton
+          width="60%"
+          height="1rem" />
+        <p-skeleton
+          width="40%"
+          height="0.75rem" />
+      </div>
+    </div>
+    @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
+    <div class="flex items-center gap-2">
+      <p-skeleton
+        shape="circle"
+        size="1.25rem" />
+      <p-skeleton
+        width="30%"
+        height="0.75rem" />
+      <div class="flex-1"></div>
+      <p-skeleton
+        width="35%"
+        height="0.75rem" />
+    </div>
+    }
+  </div>
+
+  <!-- Content (hidden while loading) -->
+  <div
+    class="flex min-h-0 flex-1 flex-col"
+    [class.hidden]="isLoading()">
+    @let s = summary(); @if (s) {
+    <!-- Header -->
+    <div class="p-4 pb-0">
+      <app-avatar-popup-header
+        [staffMember]="staffMember()"
+        [summary]="s" />
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="flex max-h-96 min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-3">
+      <!-- Work Section -->
+      <section>
+        <h4 class="mb-1 px-2 text-[11px] font-semibold tracking-wider text-gray-400 uppercase dark:text-zinc-500">
+          Work
+        </h4>
+        <app-avatar-popup-item
+          label="Role Type"
+          [value]="(+s.roleType | getRoleType)?.name ?? '-'"
+          [icon]="UserCog" />
+        <app-avatar-popup-item
+          label="Department"
+          [value]="s.department"
+          [icon]="Building" />
+        <app-avatar-popup-item
+          label="Designation"
+          [value]="s.designation"
+          [icon]="Briefcase" />
+        <app-avatar-popup-item
+          label="StaffMember Type"
+          [value]="s.staffEmploymentTypeName"
+          [icon]="UserCheck" />
+        <app-avatar-popup-item
+          label="Date of Joining"
+          [value]="(s.dateOfJoining | date) || '-'"
+          [icon]="CalendarCheck2" />
+        <app-avatar-popup-item
+          label="Salary Status"
+          [value]="s.currentSalaryStatusRemark"
+          [icon]="Banknote" />
+      </section>
+
+      <!-- Personal Section -->
+      <section>
+        <h4 class="mb-1 px-2 text-[11px] font-semibold tracking-wider text-gray-400 uppercase dark:text-zinc-500">
+          Personal
+        </h4>
+        <app-avatar-popup-item
+          label="Marital Status"
+          [value]="s.isMarried ? 'Married' : 'Unmarried'"
+          [icon]="HeartHandshake" />
+        <app-avatar-popup-item
+          label="Relation"
+          [value]="s.relation ? (s.relation | getRelationName: relationsOptions()) : '-'"
+          [icon]="Users" />
+        <app-avatar-popup-item
+          label="Blood Group"
+          [value]="s.bloodGroup"
+          [icon]="Droplet" />
+      </section>
+
+      <!-- Contact Section -->
+      <section>
+        <h4 class="mb-1 px-2 text-[11px] font-semibold tracking-wider text-gray-400 uppercase dark:text-zinc-500">
+          Contact
+        </h4>
+        <app-avatar-popup-item
+          label="Mobile"
+          [value]="s.mobileNumber"
+          [icon]="Smartphone" />
+        <app-avatar-popup-item
+          label="Emergency Person"
+          [value]="s.emergencyContactPerson"
+          [icon]="Contact" />
+        <app-avatar-popup-item
+          label="Emergency Number"
+          [value]="s.emergencyContactNumber"
+          [icon]="PhoneCall" />
+      </section>
+
+      <!-- Location Section -->
+      <section>
+        <h4 class="mb-1 px-2 text-[11px] font-semibold tracking-wider text-gray-400 uppercase dark:text-zinc-500">
+          Location
+        </h4>
+        <app-avatar-popup-item
+          label="City"
+          [value]="s.city"
+          [icon]="MapPin" />
+        <app-avatar-popup-item
+          label="Address"
+          [value]="s.address"
+          [icon]="Home" />
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <div class="border-t border-gray-200 px-4 py-2.5 dark:border-zinc-700">
+      <a
+        class="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md py-1 text-[13px] font-medium text-primary-600 transition-colors hover:bg-primary-50 hover:text-primary-700 dark:text-primary-400 dark:hover:bg-primary-900/20 dark:hover:text-primary-300"
+        [routerLink]="['/app/profile/basic-info']"
+        [queryParams]="{ staffMemberId: staffMember().staffMemberId, countryId: staffMember().countryId }">
+        View Full Profile
+        <lucide-angular
+          [img]="ExternalLink"
+          size="13" />
+      </a>
+    </div>
+    } @else if (!isLoading()) {
+    <div class="flex flex-col items-center justify-center gap-2 p-8 text-gray-400 dark:text-zinc-500">
+      <lucide-angular
+        [img]="UserX"
+        size="32" />
+      <span class="text-sm">No summary data available</span>
+    </div>
+    }
+  </div>
+</div>

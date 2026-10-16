@@ -1,0 +1,88 @@
+@let staffMemberFullName = authStore.staffMemberFullName();
+@let institutionName = authStore.institutionName();
+@let officialEmail = authStore.officialEmail();
+@let userPrimaryRole = authStore.userPrimaryRoleName();
+@let profileImage = authStore.profileImageLink();
+
+<!-- Profile Header -->
+<div class="flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-3 dark:border-zinc-700 dark:bg-zinc-900">
+  <app-user-avatar
+    class="shrink-0"
+    size="large"
+    [imagePath]="profileImage"
+    [name]="staffMemberFullName" />
+
+  <div class="flex min-w-0 flex-col">
+    <div class="truncate text-base font-medium text-gray-900 capitalize dark:text-zinc-100">{{ staffMemberFullName }}</div>
+    <div class="truncate text-sm text-gray-500 dark:text-zinc-400">{{ officialEmail }}</div>
+  </div>
+</div>
+
+<!-- Role & Institution -->
+<div
+  class="flex flex-col gap-1 border-b border-gray-200 bg-gray-50 px-4 py-2.5 dark:border-zinc-700 dark:bg-zinc-800/50">
+  <div class="flex items-center gap-1.5 truncate text-sm text-gray-700 dark:text-zinc-300">
+    <i
+      class="pi pi-shield shrink-0 text-xs text-primary-500 dark:text-primary-400"
+      aria-hidden="true"></i>
+    <span class="truncate">{{ userPrimaryRole }}</span>
+  </div>
+  <div class="flex items-center gap-1.5 truncate text-sm text-gray-500 dark:text-zinc-400">
+    <i
+      class="pi pi-building shrink-0 text-xs"
+      aria-hidden="true"></i>
+    <span class="truncate">{{ institutionName }}</span>
+  </div>
+</div>
+
+<!-- Menu Items -->
+<div class="flex flex-col bg-white dark:bg-zinc-900">
+  @if (authStore.isUserMenuLoading()) {
+  <app-user-menu-loader />
+  } @else {
+  <ul class="py-2">
+    @if (authStore.hasNoUserMenuLinks()) {
+    <li class="flex flex-col items-center p-4 text-center text-balance">
+      <div class="flex w-full flex-col items-center">
+        <span class="mb-1 text-lg font-semibold text-gray-700 dark:text-zinc-200">No Quick Actions Available</span>
+        <span class="mb-2 text-center text-sm text-gray-500 dark:text-zinc-400">
+          It looks like you don't have any shortcuts or menu items pinned yet.
+        </span>
+        <div class="mt-2 flex flex-col items-center rounded-lg bg-primary-50 px-4 py-2 dark:bg-zinc-800">
+          <span class="font-medium text-primary">Need more convenience?</span>
+          <span class="mt-1 text-center text-xs text-gray-600 dark:text-zinc-300">
+            Contact your admin to get access,
+            <br />
+            or ask to pin your most-used modules here for faster navigation.
+          </span>
+        </div>
+      </div>
+    </li>
+    }
+
+    @for ( menuChildModule of authStore.userMenuItems(); track menuChildModule.moduleId ) { @if (!isLogout(menuChildModule)) {
+    <a
+      class="flex w-full items-center gap-2 px-4 py-2 text-gray-600 transition-colors hover:cursor-pointer hover:bg-primary-50 hover:text-primary-500 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:hover:text-primary-400"
+      tabindex="0"
+      role="button"
+      (click)="onClickNav($event, menuChildModule)"
+      (keydown.enter)="onClickNav($event, menuChildModule)">
+      <i class="pi pi-circle-off text-xs! text-gray-500 dark:text-zinc-100"></i>
+      {{ menuChildModule?.displayName }}
+    </a>
+    } @else {
+    <li class="border-t border-gray-200 dark:border-zinc-700">
+      <a
+        class="block px-4 py-2 text-gray-600 transition-colors hover:cursor-pointer hover:bg-primary-50 hover:text-primary-500 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:hover:text-primary-400"
+        (click)="onLogout($event)"
+        (keydown.enter)="onLogout($event)"
+        tabindex="0"
+        role="button">
+        <i class="pi pi-sign-out me-1.5 text-xs! text-gray-500 dark:text-zinc-400"></i>
+        {{ menuChildModule?.displayName }}
+      </a>
+    </li>
+    } }
+  </ul>
+  }
+</div>

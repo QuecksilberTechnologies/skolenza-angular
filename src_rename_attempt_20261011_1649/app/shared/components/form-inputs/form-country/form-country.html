@@ -1,0 +1,49 @@
+<app-form-field-shell
+  #shell
+  [field]="field()"
+  [inputId]="inputId()"
+  [label]="label()"
+  [required]="required()"
+  [hint]="hint()"
+  [hintIcon]="hintIcon()"
+  [submitted]="submitted()">
+  <p-select
+    class="w-full"
+    appendTo="body"
+    optionLabel="countryName"
+    optionValue="id"
+    filterBy="countryName"
+    [formField]="$any(field())"
+    [inputId]="inputId()"
+    [options]="options()"
+    [placeholder]="placeholder()"
+    [loading]="loading()"
+    [filter]="filter()"
+    [invalid]="shell.showError()"
+    [pt]="{ label: aria() }"
+    (onChange)="selectionChange.emit($event)">
+    <ng-template
+      #selectedItem
+      let-selectedOption>
+      @if (selectedOption) {
+        <div class="flex items-center gap-2">
+          <img
+            [src]="flagUrl(selectedOption.countryCode)"
+            alt="" />
+          <div>{{ selectedOption.countryName }}</div>
+        </div>
+      }
+    </ng-template>
+    <ng-template
+      #item
+      let-country>
+      <div class="flex items-center gap-2">
+        <img
+          [src]="flagUrl(country.countryCode)"
+          width="20"
+          alt="" />
+        <div>{{ country.countryName }}</div>
+      </div>
+    </ng-template>
+  </p-select>
+</app-form-field-shell>

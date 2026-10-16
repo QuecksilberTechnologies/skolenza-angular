@@ -1,0 +1,662 @@
+<div class="relative h-full overflow-y-auto">
+  <form
+    (submit)="onSubmit(); $event.preventDefault()"
+    class="form-invalid-visible flex min-h-full w-full flex-col">
+    @if (isLoading()) {
+      <div
+        class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 pt-3 pb-6 sm:px-4 sm:pt-4"
+        role="status">
+        <span class="sr-only">Loading card…</span>
+        <app-section-card
+          icon="pi pi-id-card"
+          heading="Card"
+          subheading="Identifies the card in the institution's inventory.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <app-skeleton-field slot />
+            <app-skeleton-field slot />
+            <app-skeleton-field
+              control="select"
+              slot />
+          </div>
+        </app-section-card>
+      </div>
+    } @else {
+      <div class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 pt-3 pb-6 sm:px-4 sm:pt-4">
+        <!-- Card -->
+        <app-section-card
+          icon="pi pi-id-card"
+          heading="Card"
+          subheading="Identifies the card in the institution's inventory.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <!-- Institution -->
+            <div class="space-y-1">
+              <label
+                for="institutionId"
+                class="block font-medium">
+                Institution
+                <span
+                  class="text-red-600 dark:text-red-400"
+                  aria-hidden="true">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <p-select
+                inputId="institutionId"
+                class="w-full"
+                styleClass="w-full"
+                [options]="institutions()"
+                optionLabel="companyName"
+                optionValue="id"
+                [filter]="true"
+                [loading]="isLoadingInstitutions()"
+                placeholder="Select an institution"
+                [invalid]="showError(f.institutionId)"
+                [formField]="$any(f.institutionId)" />
+              <div
+                id="institutionId-help"
+                class="min-h-5">
+                @if (showError(f.institutionId)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.institutionId().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Card number -->
+            <div class="space-y-1">
+              <label
+                for="cardNumber"
+                class="block font-medium">
+                Card number
+                <span
+                  class="text-red-600 dark:text-red-400"
+                  aria-hidden="true">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <input
+                [formField]="f.cardNumber"
+                pInputText
+                [pAutoFocus]="true"
+                type="text"
+                id="cardNumber"
+                class="w-full"
+                aria-required="true"
+                [class.p-invalid]="showError(f.cardNumber)"
+                [attr.aria-invalid]="showError(f.cardNumber)"
+                aria-describedby="cardNumber-help"
+                placeholder="e.g. 1234567890123456" />
+              <div
+                id="cardNumber-help"
+                class="min-h-5">
+                @if (showError(f.cardNumber)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.cardNumber().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Card reference -->
+            <div class="space-y-1">
+              <label
+                for="cardReference"
+                class="block font-medium">
+                Card reference
+              </label>
+              <input
+                [formField]="f.cardReference"
+                pInputText
+                type="text"
+                id="cardReference"
+                class="w-full"
+                [class.p-invalid]="showError(f.cardReference)"
+                [attr.aria-invalid]="showError(f.cardReference)"
+                aria-describedby="cardReference-help"
+                placeholder="e.g. batch reference" />
+              <div
+                id="cardReference-help"
+                class="min-h-5">
+                @if (showError(f.cardReference)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.cardReference().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Active -->
+            <app-toggle-field
+              inputId="isActive"
+              label="Active"
+              hint="Inactive cards stay in the record but drop out of active filters">
+              <p-toggleswitch
+                inputId="isActive"
+                [formField]="$any(f.isActive)" />
+            </app-toggle-field>
+          </div>
+        </app-section-card>
+
+        <!-- Purchase -->
+        <app-section-card
+          icon="pi pi-wallet"
+          heading="Purchase"
+          subheading="What the card cost and where the invoice came from.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <!-- Currency -->
+            <div class="space-y-1">
+              <label
+                for="purchaseCurrencyCode"
+                class="block font-medium">
+                Currency
+                <span
+                  class="text-red-600 dark:text-red-400"
+                  aria-hidden="true">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <input
+                [formField]="f.purchaseCurrencyCode"
+                pInputText
+                type="text"
+                id="purchaseCurrencyCode"
+                class="w-full"
+                [class.p-invalid]="showError(f.purchaseCurrencyCode)"
+                [attr.aria-invalid]="showError(f.purchaseCurrencyCode)"
+                aria-describedby="purchaseCurrencyCode-help"
+                placeholder="e.g. INR" />
+              <div
+                id="purchaseCurrencyCode-help"
+                class="min-h-5">
+                @if (showError(f.purchaseCurrencyCode)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.purchaseCurrencyCode().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Unit price -->
+            <div class="space-y-1">
+              <label
+                for="unitPurchasePriceExcludingTax"
+                class="block font-medium">
+                Unit price (excl. tax)
+                <span
+                  class="text-red-600 dark:text-red-400"
+                  aria-hidden="true">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <p-inputnumber
+                inputId="unitPurchasePriceExcludingTax"
+                class="w-full"
+                styleClass="w-full"
+                inputStyleClass="w-full"
+                [showButtons]="false"
+                [min]="0"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2"
+                placeholder="e.g. 250"
+                [formField]="$any(f.unitPurchasePriceExcludingTax)" />
+              <div
+                id="unitPurchasePriceExcludingTax-help"
+                class="min-h-5">
+                @if (showError(f.unitPurchasePriceExcludingTax)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.unitPurchasePriceExcludingTax().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Invoice number -->
+            <div class="space-y-1">
+              <label
+                for="purchaseInvoiceNumber"
+                class="block font-medium">
+                Invoice number
+              </label>
+              <input
+                [formField]="f.purchaseInvoiceNumber"
+                pInputText
+                type="text"
+                id="purchaseInvoiceNumber"
+                class="w-full"
+                [class.p-invalid]="showError(f.purchaseInvoiceNumber)"
+                [attr.aria-invalid]="showError(f.purchaseInvoiceNumber)"
+                aria-describedby="purchaseInvoiceNumber-help"
+                placeholder="e.g. INV-2026-0001" />
+              <div
+                id="purchaseInvoiceNumber-help"
+                class="min-h-5">
+                @if (showError(f.purchaseInvoiceNumber)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.purchaseInvoiceNumber().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Invoice date -->
+            <div class="space-y-1">
+              <label
+                for="purchaseInvoiceDate"
+                class="block font-medium">
+                Invoice date
+              </label>
+              <p-datepicker
+                inputId="purchaseInvoiceDate"
+                class="w-full"
+                dateFormat="dd-mm-yy"
+                [appendTo]="'body'"
+                inputStyleClass="w-full"
+                placeholder="dd-mm-yyyy"
+                [formField]="$any(f.purchaseInvoiceDate)" />
+              <div
+                id="purchaseInvoiceDate-help"
+                class="min-h-5"
+                aria-live="polite">
+                @if (showError(f.purchaseInvoiceDate)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.purchaseInvoiceDate().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+          </div>
+        </app-section-card>
+
+        <!-- Supplier -->
+        <app-section-card
+          icon="pi pi-truck"
+          heading="Supplier"
+          subheading="Who the card was purchased from.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <!-- Supplier name -->
+            <div class="space-y-1">
+              <label
+                for="supplierName"
+                class="block font-medium">
+                Supplier name
+              </label>
+              <input
+                [formField]="f.supplierName"
+                pInputText
+                type="text"
+                id="supplierName"
+                class="w-full"
+                [class.p-invalid]="showError(f.supplierName)"
+                [attr.aria-invalid]="showError(f.supplierName)"
+                aria-describedby="supplierName-help" />
+              <div
+                id="supplierName-help"
+                class="min-h-5">
+                @if (showError(f.supplierName)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.supplierName().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Supplier tax registration number -->
+            <div class="space-y-1">
+              <label
+                for="supplierTaxRegistrationNumber"
+                class="block font-medium">
+                Supplier tax registration no.
+              </label>
+              <input
+                [formField]="f.supplierTaxRegistrationNumber"
+                pInputText
+                type="text"
+                id="supplierTaxRegistrationNumber"
+                class="w-full"
+                [class.p-invalid]="showError(f.supplierTaxRegistrationNumber)"
+                [attr.aria-invalid]="showError(f.supplierTaxRegistrationNumber)"
+                aria-describedby="supplierTaxRegistrationNumber-help" />
+              <div
+                id="supplierTaxRegistrationNumber-help"
+                class="min-h-5">
+                @if (showError(f.supplierTaxRegistrationNumber)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.supplierTaxRegistrationNumber().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Supplier country -->
+            <div class="space-y-1">
+              <label
+                for="supplierCountryId"
+                class="block font-medium">
+                Supplier country
+              </label>
+              <p-select
+                inputId="supplierCountryId"
+                class="w-full"
+                styleClass="w-full"
+                [options]="countries()"
+                optionLabel="countryName"
+                optionValue="id"
+                [filter]="true"
+                [loading]="isLoadingCountries()"
+                placeholder="Select a country"
+                [invalid]="showError(f.supplierCountryId)"
+                [formField]="$any(f.supplierCountryId)"
+                (onChange)="onSupplierCountryChange()" />
+              <div
+                id="supplierCountryId-help"
+                class="min-h-5">
+                @if (showError(f.supplierCountryId)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.supplierCountryId().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Supplier state -->
+            <div class="space-y-1">
+              <label
+                for="supplierStateId"
+                class="block font-medium">
+                Supplier state
+              </label>
+              <p-select
+                inputId="supplierStateId"
+                class="w-full"
+                styleClass="w-full"
+                [options]="supplierStates()"
+                optionLabel="stateName"
+                optionValue="id"
+                [filter]="true"
+                [loading]="isLoadingSupplierStates()"
+                [disabled]="!f.supplierCountryId().value()"
+                placeholder="Select a state"
+                [invalid]="showError(f.supplierStateId)"
+                [formField]="$any(f.supplierStateId)" />
+              <div
+                id="supplierStateId-help"
+                class="min-h-5">
+                @if (showError(f.supplierStateId)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.supplierStateId().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+          </div>
+        </app-section-card>
+
+        <!-- Place of supply -->
+        <app-section-card
+          icon="pi pi-map-marker"
+          heading="Place of Supply"
+          subheading="Where the purchase is deemed to have taken place, for tax purposes.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <!-- Place of supply country -->
+            <div class="space-y-1">
+              <label
+                for="placeOfSupplyCountryId"
+                class="block font-medium">
+                Country
+              </label>
+              <p-select
+                inputId="placeOfSupplyCountryId"
+                class="w-full"
+                styleClass="w-full"
+                [options]="countries()"
+                optionLabel="countryName"
+                optionValue="id"
+                [filter]="true"
+                [loading]="isLoadingCountries()"
+                placeholder="Select a country"
+                [invalid]="showError(f.placeOfSupplyCountryId)"
+                [formField]="$any(f.placeOfSupplyCountryId)"
+                (onChange)="onPlaceOfSupplyCountryChange()" />
+              <div
+                id="placeOfSupplyCountryId-help"
+                class="min-h-5">
+                @if (showError(f.placeOfSupplyCountryId)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.placeOfSupplyCountryId().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            <!-- Place of supply state -->
+            <div class="space-y-1">
+              <label
+                for="placeOfSupplyStateId"
+                class="block font-medium">
+                State
+              </label>
+              <p-select
+                inputId="placeOfSupplyStateId"
+                class="w-full"
+                styleClass="w-full"
+                [options]="placeOfSupplyStates()"
+                optionLabel="stateName"
+                optionValue="id"
+                [filter]="true"
+                [loading]="isLoadingPlaceOfSupplyStates()"
+                [disabled]="!f.placeOfSupplyCountryId().value()"
+                placeholder="Select a state"
+                [invalid]="showError(f.placeOfSupplyStateId)"
+                [formField]="$any(f.placeOfSupplyStateId)" />
+              <div
+                id="placeOfSupplyStateId-help"
+                class="min-h-5">
+                @if (showError(f.placeOfSupplyStateId)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.placeOfSupplyStateId().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+          </div>
+        </app-section-card>
+
+        <!-- Tax -->
+        <app-section-card
+          icon="pi pi-percentage"
+          heading="Tax"
+          subheading="Tax treatment and the breakdown that applies to it.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <!-- Tax treatment -->
+            <div class="space-y-1 md:col-span-2">
+              <label
+                for="taxTreatment"
+                class="block font-medium">
+                Tax treatment
+                <span
+                  class="text-red-600 dark:text-red-400"
+                  aria-hidden="true">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <p-select
+                inputId="taxTreatment"
+                class="w-full"
+                styleClass="w-full"
+                [options]="taxTreatmentOptions()"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select a tax treatment"
+                [invalid]="showError(f.taxTreatment)"
+                [formField]="$any(f.taxTreatment)" />
+              <div
+                id="taxTreatment-help"
+                class="min-h-5">
+                @if (showError(f.taxTreatment)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.taxTreatment().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+
+            @for (item of taxFields; track item.id) {
+              <div class="space-y-1">
+                <label
+                  [for]="item.id"
+                  class="block font-medium">
+                  {{ item.label }}
+                </label>
+                <p-inputnumber
+                  [inputId]="item.id"
+                  class="w-full"
+                  styleClass="w-full"
+                  inputStyleClass="w-full"
+                  [showButtons]="false"
+                  [min]="0"
+                  [minFractionDigits]="0"
+                  [maxFractionDigits]="2"
+                  [formField]="$any(item.field)" />
+                <div
+                  [id]="item.id + '-help'"
+                  class="min-h-5">
+                  @if (showError(item.field)) {
+                    <p-message
+                      severity="error"
+                      size="small"
+                      variant="simple">
+                      <span>{{ item.field().errors()[0].message }}</span>
+                    </p-message>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Foreign tax label -->
+            <div class="space-y-1 md:col-span-2">
+              <label
+                for="foreignTaxLabel"
+                class="block font-medium">
+                Foreign tax label
+              </label>
+              <input
+                [formField]="f.foreignTaxLabel"
+                pInputText
+                type="text"
+                id="foreignTaxLabel"
+                class="w-full"
+                [class.p-invalid]="showError(f.foreignTaxLabel)"
+                [attr.aria-invalid]="showError(f.foreignTaxLabel)"
+                aria-describedby="foreignTaxLabel-help"
+                placeholder="e.g. VAT" />
+              <div
+                id="foreignTaxLabel-help"
+                class="min-h-5">
+                @if (showError(f.foreignTaxLabel)) {
+                  <p-message
+                    severity="error"
+                    size="small"
+                    variant="simple">
+                    <span>{{ f.foreignTaxLabel().errors()[0].message }}</span>
+                  </p-message>
+                }
+              </div>
+            </div>
+          </div>
+        </app-section-card>
+
+        <!-- Additional costs -->
+        <app-section-card
+          icon="pi pi-box"
+          heading="Additional Costs"
+          subheading="Import costs on top of the unit price and tax.">
+          <div class="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+            @for (item of costFields; track item.id) {
+              <div class="space-y-1">
+                <label
+                  [for]="item.id"
+                  class="block font-medium">
+                  {{ item.label }}
+                </label>
+                <p-inputnumber
+                  [inputId]="item.id"
+                  class="w-full"
+                  styleClass="w-full"
+                  inputStyleClass="w-full"
+                  [showButtons]="false"
+                  [min]="0"
+                  [minFractionDigits]="0"
+                  [maxFractionDigits]="2"
+                  [formField]="$any(item.field)" />
+                <div
+                  [id]="item.id + '-help'"
+                  class="min-h-5">
+                  @if (showError(item.field)) {
+                    <p-message
+                      severity="error"
+                      size="small"
+                      variant="simple">
+                      <span>{{ item.field().errors()[0].message }}</span>
+                    </p-message>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </app-section-card>
+      </div>
+    }
+
+    <app-form-action-bar
+      [submitLabel]="isEditMode ? 'Save changes' : 'Add card'"
+      [submitIcon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+      [saving]="isSaving()"
+      [disabled]="isSaving() || isLoading() || isAssignedCard()"
+      [errorMessage]="
+        isAssignedCard()
+          ? 'This card is assigned to an staffMember device and cannot be edited.'
+          : submitted() && f().invalid()
+            ? 'Fix the highlighted fields before saving.'
+            : ''
+      "
+      (cancelled)="onCancel()" />
+  </form>
+</div>

@@ -1,0 +1,168 @@
+@if (store.isLoading()) {
+<div class="flex h-64 items-center justify-center text-gray-400">
+  <i class="pi pi-spin pi-spinner text-2xl"></i>
+</div>
+} @else {
+<div class="flex flex-col gap-4">
+  <app-task-kpi-cards [stats]="store.stats()" />
+
+  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+    <!-- Today's + Upcoming -->
+    <app-section-card cardClass="xl:col-span-2">
+      <div
+        cardTitle
+        class="flex w-full items-center justify-between">
+        <span class="text-base font-semibold text-gray-900 dark:text-zinc-100">Due Today</span>
+        <p-button
+          label="Open board"
+          icon="pi pi-th-large"
+          size="small"
+          [text]="true"
+          (onClick)="goToBoard()" />
+      </div>
+
+      @if (todayTasks().length) {
+      <ul class="divide-y divide-gray-200 dark:divide-zinc-700">
+        @for (task of todayTasks(); track task.id) {
+        <li>
+          <button
+            type="button"
+            (click)="open(task)"
+            class="flex w-full items-center gap-3 py-2.5 text-left hover:opacity-80">
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-sm font-medium text-gray-900 dark:text-zinc-100">{{ task.title }}</div>
+              <div class="text-xs text-gray-400">{{ task.assigneeName }}</div>
+            </div>
+            <app-task-priority-badge [priority]="task.priority" />
+            <app-task-status-tag [status]="task.status" />
+          </button>
+        </li>
+        }
+      </ul>
+      } @else {
+      <p class="py-6 text-center text-sm text-gray-400">Nothing due today. Nice.</p>
+      }
+
+      <div class="mt-4 border-t border-gray-200 pt-3 dark:border-zinc-700">
+        <div class="mb-2 text-sm font-semibold text-gray-700 dark:text-zinc-200">Upcoming</div>
+        @if (upcomingTasks().length) {
+        <ul class="divide-y divide-gray-200 dark:divide-zinc-700">
+          @for (task of upcomingTasks(); track task.id) {
+          <li>
+            <button
+              type="button"
+              (click)="open(task)"
+              class="flex w-full items-center gap-3 py-2 text-left hover:opacity-80">
+              <div class="min-w-0 flex-1">
+                <div class="truncate text-sm text-gray-700 dark:text-zinc-200">{{ task.title }}</div>
+              </div>
+              <span class="text-xs text-gray-400">{{ task.dueDate }}</span>
+              <app-task-priority-badge [priority]="task.priority" />
+            </button>
+          </li>
+          }
+        </ul>
+        } @else {
+        <p class="py-4 text-center text-sm text-gray-400">No upcoming tasks.</p>
+        }
+      </div>
+    </app-section-card>
+
+    <!-- Overdue -->
+    <app-section-card>
+      <span
+        cardTitle
+        class="text-base font-semibold text-red-500">
+        Overdue
+      </span>
+      @if (overdueTasks().length) {
+      <ul class="divide-y divide-gray-200 dark:divide-zinc-700">
+        @for (task of overdueTasks(); track task.id) {
+        <li>
+          <button
+            type="button"
+            (click)="open(task)"
+            class="flex w-full flex-col gap-1.5 py-2.5 text-left hover:opacity-80">
+            <div class="flex items-center justify-between gap-2">
+              <span class="truncate text-sm font-medium text-gray-900 dark:text-zinc-100">{{ task.title }}</span>
+              <span class="shrink-0 text-xs font-semibold text-red-500">{{ task.dueDate }}</span>
+            </div>
+            <app-task-progress [value]="task.progress" />
+          </button>
+        </li>
+        }
+      </ul>
+      } @else {
+      <p class="py-6 text-center text-sm text-gray-400">No overdue tasks.</p>
+      }
+    </app-section-card>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+    <!-- Pending Review -->
+    <app-section-card cardClass="xl:col-span-1">
+      <span
+        cardTitle
+        class="text-base font-semibold text-gray-900 dark:text-zinc-100">
+        Pending Review
+      </span>
+      @if (reviewTasks().length) {
+      <ul class="divide-y divide-gray-200 dark:divide-zinc-700">
+        @for (task of reviewTasks(); track task.id) {
+        <li>
+          <button
+            type="button"
+            (click)="open(task)"
+            class="flex w-full items-center gap-3 py-2.5 text-left hover:opacity-80">
+            <div class="min-w-0 flex-1 truncate text-sm text-gray-700 dark:text-zinc-200">{{ task.title }}</div>
+            <span class="text-xs text-gray-400">{{ task.progress }}%</span>
+          </button>
+        </li>
+        }
+      </ul>
+      } @else {
+      <p class="py-6 text-center text-sm text-gray-400">Nothing awaiting review.</p>
+      }
+    </app-section-card>
+
+    <!-- Recent Activity -->
+    <app-section-card cardClass="xl:col-span-2">
+      <span
+        cardTitle
+        class="text-base font-semibold text-gray-900 dark:text-zinc-100">
+        Recent Activity
+      </span>
+      @if (recentActivity().length) {
+      <ul class="flex flex-col gap-3">
+        @for (item of recentActivity(); track item.id) {
+        <li class="flex gap-3">
+          <span
+            class="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-600 dark:bg-zinc-700 dark:text-zinc-300">
+            {{ item.actor.charAt(0) }}
+          </span>
+          <div class="min-w-0 flex-1 text-sm">
+            <span class="text-gray-700 dark:text-zinc-200">
+              <span class="font-medium">{{ item.actor }}</span>
+              {{ item.action }}
+            </span>
+            @if (item.detail) {
+            <span class="text-gray-400">— {{ item.detail }}</span>
+            }
+            <button
+              type="button"
+              (click)="openTask(item.taskId)"
+              class="ml-1 truncate text-primary-500 hover:underline">
+              {{ item.taskTitle }}
+            </button>
+            <div class="text-xs text-gray-400">{{ item.createdAt }}</div>
+          </div>
+        </li>
+        }
+      </ul>
+      } @else {
+      <p class="py-6 text-center text-sm text-gray-400">No recent activity.</p>
+      }
+    </app-section-card>
+  </div>
+</div>
+}

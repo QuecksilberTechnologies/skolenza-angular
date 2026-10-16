@@ -1,0 +1,88 @@
+<div class="px-2 py-4">
+  <div class="mb-4 flex items-center justify-between border-b border-surface pb-2">
+    <div class="flex grow items-center gap-3">
+      <span
+        class="flex h-10 w-10 items-center justify-center rounded-full text-white"
+        [style.background-color]="typeMeta.color">
+        <i [class]="typeMeta.icon"></i>
+      </span>
+      <div>
+        <h2 class="m-0 text-xl font-semibold text-color">{{ item.title }}</h2>
+        <span class="text-color-secondary text-sm">{{ typeMeta.label }}</span>
+      </div>
+    </div>
+
+    @if (item.allDay) {
+      <span class="me-4 shrink-0 rounded-2xl bg-green-100 px-4 py-2 text-sm font-semibold text-green-800">All Day</span>
+    }
+
+    <div class="flex items-center gap-1">
+      <p-button
+        icon="pi pi-pencil"
+        severity="secondary"
+        [text]="true"
+        [rounded]="true"
+        ariaLabel="Edit"
+        (onClick)="onEdit()" />
+      <p-button
+        icon="pi pi-trash"
+        severity="danger"
+        [text]="true"
+        [rounded]="true"
+        ariaLabel="Delete"
+        (onClick)="onDelete()" />
+      <p-button
+        icon="pi pi-times"
+        severity="secondary"
+        [text]="true"
+        [rounded]="true"
+        ariaLabel="Close"
+        (onClick)="onClose()" />
+    </div>
+  </div>
+
+  @if (item.description) {
+    <p class="text-color-secondary mb-6 text-base leading-relaxed">{{ item.description }}</p>
+  }
+
+  <div class="mt-6 flex flex-col gap-4">
+    <div class="flex items-center text-color">
+      <span class="me-2 h-3 w-3 shrink-0 rounded-full bg-green-500"></span>
+      <div>
+        <span class="text-color-secondary me-2 font-semibold">Starts</span>
+        {{ item.start | date: 'mediumDate' }}{{ !item.allDay ? ' ' + (item.start | date: 'shortTime') : '' }}
+      </div>
+    </div>
+
+    @if (item.end) {
+      <div class="flex items-center text-color">
+        <span class="me-2 h-3 w-3 shrink-0 rounded-full bg-red-500"></span>
+        <div>
+          <span class="text-color-secondary me-2 font-semibold">Ends</span>
+          {{ item.end | date: 'mediumDate' }}{{ !item.allDay ? ' ' + (item.end | date: 'shortTime') : '' }}
+        </div>
+      </div>
+    }
+
+    @if (item.location) {
+      <div class="flex items-center text-color">
+        <i class="pi pi-map-marker text-color-secondary me-2 shrink-0 text-xl"></i>
+        <span class="capitalize">{{ item.location }}</span>
+      </div>
+    }
+
+    @if (linkedTaskTitle) {
+      <div class="flex items-center text-color">
+        <i class="pi pi-link text-color-secondary me-2 shrink-0 text-xl"></i>
+        <span>Linked to: {{ linkedTaskTitle }}</span>
+      </div>
+    }
+
+    @if (item.reminder) {
+      <div class="flex items-center text-color">
+        <i class="pi pi-bell text-color-secondary me-2 shrink-0 text-xl"></i>
+        <span>Reminder {{ item.reminder | date: 'medium' }}</span>
+      </div>
+    }
+  </div>
+</div>

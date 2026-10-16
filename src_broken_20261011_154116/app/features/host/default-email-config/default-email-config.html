@@ -1,0 +1,229 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.visibleConfigs()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      [style]="{ background: 'transparent' }"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <!-- `get-all` takes no filters, so the search runs over the rows already in hand. -->
+        <app-table-inline-filters>
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input [debounceMs]="0"
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchConfigs($event)" />
+            @if (canAdd()) {
+              <p-button
+                label="Add Configuration"
+                icon="pi pi-plus"
+                class="w-full justify-center whitespace-nowrap lg:w-auto"
+                pTooltip="Add a central SMTP account"
+                tooltipPosition="bottom"
+                (onClick)="createConfig()" />
+            }
+          </div>
+
+          <!-- Searching swaps the grid silently; this is the only confirmation a reader gets. -->
+          <div
+            class="sr-only"
+            aria-live="polite">
+            {{ resultSummary() }}
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #colgroup>
+        <!-- 14 + 14 + 14 + 8 + 4 = the table's 60rem min-width less the 6rem Actions column, so a
+             full row never forces scroll of its own. -->
+        <colgroup>
+          <col style="width: 14rem" />
+          <col style="width: 14rem" />
+          <col style="width: 14rem" />
+          <col style="width: 8rem" />
+          <col style="width: 4rem" />
+          @if (canUseRowActions()) {
+            <col style="width: 6rem" />
+          }
+        </colgroup>
+      </ng-template>
+
+      <ng-template #header>
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Name
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            SMTP Host / Port
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            From
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Status
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Default
+          </th>
+          @if (canUseRowActions()) {
+            <th
+              scope="col"
+              class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+              <div class="flex justify-center">Actions</div>
+            </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-config>
+        <tr
+          class="cursor-pointer"
+          tabindex="0"
+          [attr.aria-label]="'View details for ' + (config.configName ?? 'this configuration')"
+          [pContextMenuRow]="config"
+          [pContextMenuRowDisabled]="!canUseRowActions()"
+          (click)="showDetail(config)"
+          (keyup.enter)="showDetail(config)">
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <span
+              class="block max-w-52 truncate font-medium"
+              [pTooltip]="config.configName ?? '-'"
+              tooltipPosition="bottom">
+              {{ config.configName ?? '-' }}
+            </span>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex flex-col">
+              <span
+                class="block max-w-52 truncate"
+                [pTooltip]="config.smtpHost ?? '-'"
+                tooltipPosition="bottom">
+                {{ config.smtpHost ?? '-' }}
+              </span>
+              <span class="text-xs text-gray-500 dark:text-zinc-400">
+                Port {{ config.smtpPort }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex flex-col">
+              <span
+                class="block max-w-52 truncate"
+                [pTooltip]="config.fromEmail ?? '-'"
+                tooltipPosition="bottom">
+                {{ config.fromEmail ?? '-' }}
+              </span>
+              <span class="max-w-52 truncate text-xs text-gray-500 dark:text-zinc-400">
+                {{ config.fromName ?? '-' }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="config.isActive ? 'Active' : 'Inactive'"
+              [icon]="config.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+              [severity]="config.isActive ? 'success' : 'danger'" />
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            @if (config.isDefault) {
+              <i
+                class="pi pi-star-fill text-amber-500"
+                pTooltip="New institutions inherit this configuration"
+                tooltipPosition="bottom"></i>
+              <span class="sr-only">Default for new institutions</span>
+            } @else {
+              <span
+                class="text-gray-400 dark:text-zinc-500"
+                aria-hidden="true">
+                —
+              </span>
+              <span class="sr-only">Not the default</span>
+            }
+          </td>
+          @if (canUseRowActions()) {
+            <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+              <div class="flex items-center justify-center gap-2">
+                <!-- The row opens the drawer, so the menu has to keep its click to itself. -->
+                <app-table-action-button
+                  [ariaLabel]="'Actions for ' + (config.configName ?? 'this configuration')"
+                  (action)="
+                    $event.stopPropagation(); selectedRow.set(config); actionMenu.toggle($event)
+                  " />
+              </div>
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.visibleConfigs().length === 0) {
+          <tr>
+            <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            @if (hasActiveFilters()) {
+              <app-table-empty-message
+                icon="pi pi-search"
+                message="No configurations match your search"
+                subMessage="Try a different search term" />
+            } @else {
+              <app-table-empty-message
+                icon="pi pi-envelope"
+                message="No email configurations found"
+                subMessage="Add an SMTP account so new institutions can send mail" />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<app-headless-drawer [(visible)]="isShowDetail">
+  @if (isShowDetail()) {
+    <app-default-email-config-detail
+      [config]="detailRow() ?? undefined"
+      [canUpdate]="canUpdate()"
+      (closePopup)="isShowDetail.set(false)"
+      (edit)="onDetailEdit()" />
+  }
+</app-headless-drawer>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+<p-confirmDialog />

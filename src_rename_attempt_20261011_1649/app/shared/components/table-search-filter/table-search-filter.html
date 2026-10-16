@@ -1,0 +1,16 @@
+<div class="flexH hidden gap-3">
+  <p-overlaybadge
+    [value]="filterCount()"
+    [badgeDisabled]="!filterCount()"
+    severity="danger"
+    badgeSize="small">
+    <p-button
+      type="button"
+      icon="pi pi-filter"
+      [rounded]="false"
+      severity="secondary"
+      aria-label="Open filter"
+      [disabled]="true"
+      (onClick)="onFilter()" />
+  </p-overlaybadge>
+</div>

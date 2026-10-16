@@ -1,0 +1,59 @@
+<a
+  tabindex="0"
+  (click)="onLogoClick($event)"
+  (keydown.enter)="onLogoClick($event)"
+  (keydown.space)="onLogoClick($event)"
+  class="flex h-[55px] items-center gap-2 overflow-hidden bg-white py-2 dark:bg-zinc-900"
+  [class]="!isCompact() ? 'px-6' : 'justify-center'"
+  aria-label="Go to dashboard">
+  @if (!isCompact()) {
+  <div class="relative h-12 w-[10.5rem] overflow-hidden">
+    @if (customLogo(); as logo) {
+    <img
+      [src]="logo"
+      alt="Brand logo"
+      class="absolute inset-0 h-full w-full object-contain" />
+    } @else {
+    <img
+      ngSrc="brand/skolenza-logo-system/skolenza-horizontal-full-color-256.png"
+      fill
+      priority
+      placeholder="data:image/png;base64,iVBORw0K..."
+      alt="App logo" />
+    }
+  </div>
+  } @else { @if (platform.ANDROID || platform.IOS) {
+  <div class="relative h-12 w-[10.5rem] overflow-hidden">
+    @if (customLogo(); as logo) {
+    <img
+      [src]="logo"
+      alt="Brand logo"
+      class="absolute inset-0 h-full w-full object-contain" />
+    } @else {
+    <img
+      ngSrc="brand/skolenza-logo-system/skolenza-horizontal-full-color-256.png"
+      fill
+      priority
+      placeholder="data:image/png;base64,iVBORw0K..."
+      alt="App logo"
+      class="w-full" />
+    }
+  </div>
+  } @else {
+  <div class="relative h-10 w-[2.6rem] overflow-hidden">
+    @if (customLogo(); as logo) {
+    <img
+      [src]="logo"
+      alt="Brand logo"
+      class="absolute inset-0 h-full w-full object-contain" />
+    } @else {
+    <img
+      ngSrc="brand/skolenza-logo-system/skolenza-app-icon-full-color-128.png"
+      fill
+      priority
+      placeholder="data:image/png;base64,iVBORw0K..."
+      alt="App logo" />
+    }
+  </div>
+  } }
+</a>

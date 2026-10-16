@@ -1,0 +1,88 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [modal]="true"
+  [dismissableMask]="true"
+  [maximizable]="true"
+  header="Email preview"
+  [style]="{ width: '68rem', maxWidth: '95vw', maxHeight: '92vh' }"
+  contentStyleClass="flex min-h-0 flex-col gap-4">
+  <!-- The mail client's own chrome: who it comes from, who is copied, what the inbox row says. -->
+  <div
+    class="flex shrink-0 flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
+    <h3 class="text-lg font-semibold break-words text-gray-900 dark:text-zinc-100">
+      {{ subject() || 'No subject' }}
+    </h3>
+
+    <div class="flex items-start gap-3">
+      <span
+        class="bg-primary-500 flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
+        aria-hidden="true">
+        {{ senderInitial() }}
+      </span>
+      <div class="flex min-w-0 flex-col gap-0.5 text-sm">
+        <span class="break-words text-gray-900 dark:text-zinc-100">
+          <span class="font-medium">{{ senderName() }}</span>
+          @if (senderEmail()) {
+            <span class="text-gray-500 dark:text-zinc-400">&lt;{{ senderEmail() }}&gt;</span>
+          }
+        </span>
+        <span class="text-gray-500 dark:text-zinc-400">to the recipient of this event</span>
+
+        @if (ccList().length) {
+          <span class="break-all text-gray-500 dark:text-zinc-400">
+            <span class="font-medium">cc:</span>
+            {{ ccList().join(', ') }}
+          </span>
+        }
+        @if (bccList().length) {
+          <span class="break-all text-gray-500 dark:text-zinc-400">
+            <span class="font-medium">bcc:</span>
+            {{ bccList().join(', ') }}
+          </span>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (hasBody()) {
+    <!-- `srcdoc` is set in the component. See its docblock for why, and for what the `sandbox`
+         list denies. The frame is sized to its content and never scrolls itself; this wrapper is
+         the single scroller, so a mail taller than the dialog cannot push the caption and the
+         footer out of view. The white ground is the mail client's, not the app's - a dark
+         preview would misrepresent what the recipient sees. -->
+    <div
+      class="min-h-0 flex-1 overflow-auto rounded-md border border-gray-200 bg-white dark:border-zinc-600">
+      <!-- `min-w` keeps the frame at the width these mails are laid out for. Below it the wrapper
+           scrolls sideways, which is the honest failure: squeezing the frame would reflow a
+           fixed-width mail into something the recipient never sees. -->
+      <!-- The frame keeps its own scrollbar as the fallback: `fitToContent` normally sizes it so
+           that scrollbar never appears, but a measurement it cannot make must leave the mail
+           reachable rather than cut it off at `h-96`. -->
+      <iframe
+        #bodyPreview
+        sandbox="allow-same-origin"
+        title="Email body preview"
+        class="block h-96 w-full min-w-[40rem]"
+        (load)="fitToContent(bodyPreview)"></iframe>
+    </div>
+    <p class="shrink-0 text-[11px] text-gray-500 dark:text-zinc-400">
+      Shown on white, the way the recipient's mail client draws it. Placeholders such as
+      {{ '{{' }}UserName{{ '}}' }} are filled in when the mail is sent.
+    </p>
+  } @else {
+    <p
+      class="rounded-md border border-dashed border-gray-300 p-6 text-center text-gray-500 dark:border-zinc-600 dark:text-zinc-400">
+      Nothing to preview yet. Write the body first.
+    </p>
+  }
+
+  <ng-template #footer>
+    <p-button
+      type="button"
+      label="Close"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="visible.set(false)" />
+  </ng-template>
+</p-dialog>

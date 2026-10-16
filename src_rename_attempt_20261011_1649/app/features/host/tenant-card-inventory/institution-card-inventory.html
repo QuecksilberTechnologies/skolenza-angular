@@ -1,0 +1,290 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.cardMasters()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [lazy]="true"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [paginator]="true"
+      [rows]="store.pageSize()"
+      [totalRecords]="store.totalRecords()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} cards"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '64rem' }"
+      [style]="{ background: 'transparent' }"
+      (onLazyLoad)="loadCardMasters($event)"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Three filters is more than one row holds at `lg`, so they wrap among themselves
+               rather than pushing the search box and the primary action off the caption. -->
+          <div class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row lg:flex-wrap lg:items-center">
+            <!-- Institution filter. Clearing it lists every institution's card inventory. -->
+            <app-table-filter-select
+              class="w-full min-w-0 lg:w-auto lg:min-w-48"
+              [options]="store.institutions()"
+              optionLabel="companyName"
+              optionValue="id"
+              placeholder="Any institution"
+              ariaLabel="Filter by institution"
+              [filter]="true"
+              [loading]="store.isInstitutionsLoading()"
+              [value]="store.institutionId()"
+              (valueChange)="onInstitutionChange($event)" />
+
+            <!-- Card status filter -->
+            <app-table-filter-select
+              class="w-full min-w-0 lg:w-auto lg:min-w-48"
+              [options]="store.cardStatusOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Any card status"
+              ariaLabel="Filter by card status"
+              [value]="store.cardStatus()"
+              (valueChange)="onCardStatusChange($event)" />
+
+            <!-- Active/Inactive filter. Clearing it *is* "All", so there is no separate All option. -->
+            <app-table-filter-select
+              class="w-full min-w-0 lg:w-auto lg:min-w-48"
+              [options]="statusOptions"
+              optionLabel="status"
+              optionValue="value"
+              placeholder="Any status"
+              ariaLabel="Filter by status"
+              [value]="store.isActive()"
+              (valueChange)="onStatusChange($event)" />
+          </div>
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchCardMasters($event)" />
+            @if (canAdd()) {
+              <p-button
+                label="Import"
+                icon="pi pi-upload"
+                severity="secondary"
+                [outlined]="true"
+                [disabled]="!canImport()"
+                class="w-full justify-center lg:w-auto"
+                [pTooltip]="
+                  canImport()
+                    ? 'Import cards into the selected institution'
+                    : 'Select an institution before importing cards'
+                "
+                tooltipPosition="bottom"
+                (onClick)="openBulkImport()" />
+              <p-button
+                label="Add Card"
+                icon="pi pi-plus"
+                class="w-full justify-center lg:w-auto"
+                pTooltip="Add a card to the inventory"
+                tooltipPosition="bottom"
+                (onClick)="createCardMaster()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #colgroup>
+        <!-- Widths add up to the table's 64rem min-width so nothing forces extra scroll. -->
+        <colgroup>
+          <col style="width: 13rem" />
+          <col style="width: 11rem" />
+          <col style="width: 11rem" />
+          <col style="width: 9rem" />
+          <col style="width: 8rem" />
+          <col style="width: 7rem" />
+          @if (canUseRowActions()) {
+            <col style="width: 6rem" />
+          }
+        </colgroup>
+      </ng-template>
+
+      <ng-template #header>
+        <tr>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Card
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Institution
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Supplier
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! text-right align-middle whitespace-nowrap">
+            Purchase Price
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Card Status
+          </th>
+          <th
+            scope="col"
+            class="px-3! py-2.5! align-middle whitespace-nowrap">
+            Status
+          </th>
+          @if (canUseRowActions()) {
+            <th
+              scope="col"
+              class="px-3! py-2.5! align-middle whitespace-nowrap">
+              <div class="flex justify-center">Actions</div>
+            </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-card>
+        <tr
+          [pContextMenuRow]="card"
+          [pContextMenuRowDisabled]="!canUseRowActions()">
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <div class="flex flex-col items-start">
+              <button
+                type="button"
+                class="max-w-full truncate text-left font-medium text-primary-600 hover:underline dark:text-primary-400"
+                [attr.aria-label]="'View details for ' + (card.cardNumber || 'this card')"
+                (click)="showDetail(card)">
+                {{ card.cardNumber || '-' }}
+              </button>
+              <span class="max-w-full truncate text-xs text-gray-500 dark:text-zinc-400">
+                {{ card.cardReference || '-' }}
+              </span>
+            </div>
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            {{ card.institutionName || '-' }}
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            {{ card.supplierName || '-' }}
+          </td>
+          <td class="px-3! py-2.5! text-right align-middle tabular-nums whitespace-nowrap">
+            @if (card.unitPurchasePriceExcludingTax !== null) {
+              {{ card.purchaseCurrencyCode }} {{ card.unitPurchasePriceExcludingTax }}
+            } @else {
+              -
+            }
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="cardStatusLabel(card.cardStatus)"
+              severity="info" />
+          </td>
+          <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="card.isActive ? 'Active' : 'Inactive'"
+              [severity]="card.isActive ? 'success' : 'danger'" />
+          </td>
+          @if (canUseRowActions()) {
+            <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+              <div class="flex items-center justify-center gap-2">
+                @if (canUpdate()) {
+                  @let isCardAssigned = isAssigned(card);
+                  <p-button
+                    class="text-xl!"
+                    [icon]="card.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                    [severity]="card.isActive ? 'success' : 'danger'"
+                    [pTooltip]="
+                      isCardAssigned
+                        ? 'Assigned to an staffMember device'
+                        : card.isActive
+                          ? 'Deactivate'
+                          : 'Activate'
+                    "
+                    tooltipPosition="left"
+                    [showDelay]="300"
+                    [loading]="card.isUpdatingStatus"
+                    [disabled]="isCardAssigned"
+                    [ariaLabel]="
+                      (card.isActive ? 'Deactivate ' : 'Activate ') + (card.cardNumber || 'card')
+                    "
+                    (onClick)="confirmToggleActive(card)" />
+                }
+                <app-table-action-button
+                  [ariaLabel]="'Actions for ' + (card.cardNumber || 'card')"
+                  (action)="selectedRow.set(card); actionMenu.toggle($event)" />
+              </div>
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.cardMasters().length === 0) {
+          <tr>
+            <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            @if (!store.hasInstitution()) {
+              <app-table-empty-message
+                icon="pi pi-building"
+                message="Select an institution"
+                subMessage="Card inventory is scoped to one institution at a time" />
+            } @else if (hasActiveFilters()) {
+              <app-table-empty-message
+                icon="pi pi-search"
+                message="No cards match your filters"
+                subMessage="Try a different search term or clear the filters" />
+            } @else {
+              <app-table-empty-message
+                icon="pi pi-id-card"
+                message="No cards found"
+                subMessage="Add a card to the inventory to get started" />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<app-headless-drawer [(visible)]="isShowDetail">
+  @if (isShowDetail()) {
+    @let detail = detailRow();
+    <app-institution-card-inventory-detail
+      [card]="detail ?? undefined"
+      [cardStatusLabel]="cardStatusLabel(detail?.cardStatus)"
+      [canUpdate]="canUpdate() && !isAssigned(detail)"
+      (closePopup)="isShowDetail.set(false)"
+      (edit)="onDetailEdit()" />
+  }
+</app-headless-drawer>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+<p-confirmDialog />

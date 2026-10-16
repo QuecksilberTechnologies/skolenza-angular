@@ -1,0 +1,82 @@
+<form
+  (submit)="onSubmit(); $event.preventDefault()"
+  class="flex w-full flex-col gap-4">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <app-form-select
+      class="md:col-span-2"
+      inputId="dayOfWeek"
+      label="Day"
+      required
+      placeholder="Select day"
+      optionLabel="label"
+      optionValue="id"
+      hint="Days already configured are not listed: one row per weekday"
+      [options]="dayOptions"
+      [submitted]="submitted()"
+      [field]="f.dayOfWeek" />
+
+    <!-- The switches share a row so their boxes match, and sit above the fields Working day
+         hides, so toggling it never moves either switch. -->
+    <app-form-switch
+      inputId="isWorkingDay"
+      label="Working day"
+      hint="Turn off for a weekly off"
+      [field]="f.isWorkingDay" />
+
+    <app-form-switch
+      inputId="isActive"
+      label="Active"
+      hint="Inactive rows stop applying to the week"
+      [field]="f.isActive" />
+
+    @if (isWorkingDay()) {
+      <app-form-select
+        inputId="workMode"
+        label="Work mode"
+        required
+        placeholder="Select work mode"
+        optionLabel="label"
+        optionValue="id"
+        [options]="workModeOptions()"
+        [hint]="inheritsArrangementMode() ? 'Inherited from the selected work arrangement' : 'Choose the mode for this fixed hybrid weekday'"
+        [submitted]="submitted()"
+        [field]="f.workMode"
+        (selectionChange)="onWorkModeChange()" />
+
+      <app-form-select
+        inputId="campusId"
+        label="Location"
+        placeholder="Select location"
+        optionLabel="locationName"
+        optionValue="id"
+        filter
+        filterBy="locationName"
+        showClear
+        [required]="isLocationRequired()"
+        [options]="locations()"
+        [loading]="isLoadingLocations()"
+        [submitted]="submitted()"
+        [field]="f.campusId" />
+    }
+  </div>
+
+  <div class="flex items-center justify-end gap-2 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+    @if (submitted() && f().invalid()) {
+      <p class="mr-auto text-sm text-red-500 dark:text-red-400">
+        Fix the highlighted fields before saving.
+      </p>
+    }
+    <p-button
+      type="button"
+      label="Cancel"
+      [variant]="'text'"
+      [severity]="'secondary'"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isEditMode ? 'Save changes' : 'Add day'"
+      icon="pi pi-check"
+      [loading]="isSaving()"
+      [disabled]="isBusy()" />
+  </div>
+</form>

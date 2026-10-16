@@ -1,0 +1,354 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <div class="m-3 flex flex-col sm:m-4">
+    @defer { @if (!store.isLoadingAssets()) {
+    <app-asset-stats [assetStatistics]="store.assetStatistics()" />
+    } @else {
+    <app-asset-stats-loader />
+    } } @placeholder {
+    <app-asset-stats-loader />
+    }
+  </div>
+
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      #dt
+      [value]="store.assets()"
+      [loading]="store.isLoadingAssets()"
+      [showGridlines]="false"
+      [showLoader]="false"
+      [lazy]="true"
+      [paginator]="true"
+      [showCurrentPageReport]="true"
+      [rows]="store.pageSize()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="store.totalRecords()"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '78rem' }"
+      paginatorDropdownAppendTo="body"
+      [globalFilterFields]="['name', 'serialNumber', 'assignedTo']"
+      [selectionMode]="'single'"
+      [sortMode]="'single'"
+      [sortOrder]="-1"
+      [(contextMenuSelection)]="selectedRow"
+      [contextMenu]="
+        (loginInfo?.user?.primaryRole?.roleTypeId ?? 2) !== 2 ? actionContextMenu : null
+      "
+      (onLazyLoad)="getAssets($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter -->
+          <p-select
+            optionLabel="categoryName"
+            optionValue="id"
+            placeholder=" Select Category"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-52"
+            [options]="store.assetCategories()"
+            [loading]="store.isLoadingCategories()"
+            [disabled]="store.isLoadingCategories()"
+            [showClear]="true"
+            panelStyleClass="select-option-truncate"
+            (onChange)="onCategoryChange($event)" />
+
+          <p-select
+            optionLabel="typeName"
+            optionValue="id"
+            placeholder=" Select Type"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-52"
+            [options]="store.assetTypes()"
+            [loading]="store.isLoadingTypes()"
+            [disabled]="store.isLoadingTypes()"
+            [showClear]="true"
+            panelStyleClass="select-option-truncate"
+            (onChange)="onTypeChange($event)" />
+
+          <p-select
+            optionLabel="statusName"
+            optionValue="id"
+            placeholder=" Select Status"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-52"
+            [options]="store.assetStatuses()"
+            [loading]="store.isLoadingStatus()"
+            [disabled]="store.isLoadingStatus()"
+            [showClear]="true"
+            (onChange)="onStatusChange($event)">
+            <ng-template
+              #selectedItem
+              let-selectedOption>
+              @if (selectedOption) {
+              <div class="flex items-center gap-2">
+                <div
+                  class="h-4 w-4 rounded-full"
+                  [style.background]="selectedOption?.colorKey || '#777'"></div>
+                {{ selectedOption.statusName }}
+              </div>
+              }
+            </ng-template>
+            <ng-template
+              let-status
+              #item>
+              <div class="flex items-center gap-2">
+                <div
+                  class="h-4 w-4 rounded-full"
+                  [style.background]="status?.colorKey || '#777'"></div>
+                {{ status.statusName }}
+              </div>
+            </ng-template>
+            <ng-template #empty>
+              <div class="flex max-w-full flex-col items-center justify-center text-center text-gray-500">
+                <span class="pi pi-info-circle mb-2 text-3xl! text-primary"></span>
+                <div class="mb-1 text-base font-semibold">No Asset Statuses Found</div>
+                <div class="text-sm">
+                  You currently have no asset statuses configured.
+                  <br />
+                  <span class="font-medium text-primary">Contact your institution admin</span>
+                  to add asset statuses and enable asset assignment.
+                </div>
+              </div>
+            </ng-template>
+            <ng-template #emptyfilter>
+              <div class="flex items-center gap-2 text-gray-500">
+                <span class="pi pi-search"></span>
+                No asset statuses match your search. Please contact your institution admin to add asset statuses if needed.
+              </div>
+            </ng-template>
+          </p-select>
+
+          <!-- Advance filter -->
+          <app-table-search-filter
+            [filterCount]="store.appliedFilterCount()"
+            (filter)="filterAssets()" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input [debounceMs]="0"
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchAssets(dt, $event)" />
+            @if (canManageAssets) {
+            <p-splitbutton
+              label="Add Asset"
+              icon="pi pi-plus"
+              dropdownIcon="pi pi-cog"
+              class="w-full lg:w-auto"
+              (onClick)="upsertAsset()"
+              [model]="primaryActionItems" />
+            } @else {
+            <p-button
+              label="Request Asset"
+              icon="pi pi-plus"
+              styleClass="w-full lg:w-auto" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #colgroup>
+        <colgroup>
+          <col style="width: 18rem" />
+          <col style="width: 11rem" />
+          <col style="width: 11rem" />
+          <col style="width: 10rem" />
+          <col style="width: 12rem" />
+          <col style="width: 9rem" />
+          @if (canManageAssets) {
+          <col style="width: 9rem" />
+          }
+        </colgroup>
+      </ng-template>
+      <ng-template #header>
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          <th class="px-3! py-3! align-middle whitespace-nowrap">Name</th>
+          <th class="px-3! py-3! align-middle whitespace-nowrap">Category</th>
+          <th class="px-3! py-3! align-middle whitespace-nowrap">Asset Type</th>
+          <th class="px-3! py-3! align-middle whitespace-nowrap">Status</th>
+          <th class="px-3! py-3! align-middle whitespace-nowrap">Assigned To</th>
+          <th class="px-3! py-3! align-middle whitespace-nowrap">Repairable</th>
+          @if (canManageAssets) {
+          <th class="px-3! py-3! align-middle whitespace-nowrap">
+            <div class="flex justify-center">Actions</div>
+          </th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-asset>
+        <tr [pContextMenuRow]="asset">
+          <td class="px-3! py-3! align-middle">
+            <div class="flex items-center gap-2.5">
+              <div class="flex justify-center">
+                @if (asset.assetImagePath) {
+                <img
+                  [src]="asset.assetImagePath"
+                  [alt]="asset.assetName"
+                  class="aspect-square h-12 w-12 rounded border border-gray-200 object-cover dark:border-zinc-800" />
+                } @else {
+                <img
+                  src="https://placehold.net/product.svg"
+                  alt="No asset image"
+                  class="aspect-square h-12 w-12 rounded-lg border-gray-200 bg-zinc-50 object-cover dark:border-zinc-700 dark:bg-zinc-900" />
+                }
+              </div>
+              <div class="w-60 truncate">
+                <a
+                  class="cursor-pointer text-primary-500 hover:text-primary-700 focus:outline-none dark:text-primary-100 dark:hover:text-primary-300"
+                  (click)="onDetail(asset)"
+                  (keydown.enter)="onDetail(asset)"
+                  (keydown.space)="onDetail(asset)"
+                  tabindex="0"
+                  aria-label="View details for {{ asset.assetName }}">
+                  {{ asset.assetName }}
+                </a>
+              </div>
+            </div>
+          </td>
+          <td class="px-3! py-3! align-middle">{{ asset?.categoryName || '-' }}</td>
+          <td class="px-3! py-3! align-middle">{{ asset?.typeName || '-' }}</td>
+          <td class="px-3! py-3! align-middle whitespace-nowrap">
+            @if (asset?.statusName) {
+            <p-tag
+              [value]="asset?.statusName || '-'"
+              [class]="`text-white! font-normal!`"
+              [style.background]="asset?.colorKey" />
+            } @else {
+            <span class="text-gray-700 dark:text-zinc-300">-</span>
+            }
+          </td>
+          <td class="px-3! py-3! align-middle whitespace-nowrap">
+            @if (canManageAssets) {
+            <ng-template #assignMenu>
+              <app-assign-asset-popup
+                cdkMenu
+                [asset]="asset"
+                [userStaffMemberId]="loginInfo?.user?.staffMemberId ?? ''"
+                (assetAssigned)="onAssetAssigned()" />
+            </ng-template>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors hover:cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+              [class.border-primary-200]="asset.isAssigned"
+              [class.dark:border-primary-700]="asset.isAssigned"
+              [class.bg-primary-50]="asset.isAssigned"
+              [class.dark:bg-primary-900/30]="asset.isAssigned"
+              [class.text-primary-700]="asset.isAssigned"
+              [class.dark:text-primary-200]="asset.isAssigned"
+              [class.hover:bg-primary-100]="asset.isAssigned"
+              [class.border-dashed]="!asset.isAssigned"
+              [class.border-gray-300]="!asset.isAssigned"
+              [class.dark:border-zinc-600]="!asset.isAssigned"
+              [class.text-gray-500]="!asset.isAssigned"
+              [class.dark:text-zinc-400]="!asset.isAssigned"
+              [class.hover:bg-gray-50]="!asset.isAssigned"
+              [attr.aria-label]="'Assign staff members to ' + asset.assetName"
+              appCdkCloseMenuOnScroll
+              [cdkMenuTriggerFor]="assignMenu">
+              <i class="pi pi-user text-[10px]"></i>
+              <span>{{ asset.isAssigned ? 'Assigned' : 'Assign' }}</span>
+              @if (asset.hasMultipleUser) {
+              <i
+                class="pi pi-users text-[9px] opacity-60"
+                pTooltip="Multiple users allowed"
+                tooltipPosition="top"></i>
+              }
+            </button>
+            } @else {
+            <span class="text-sm text-gray-500 dark:text-zinc-400">{{ asset.isAssigned ? 'Assigned' : '-' }}</span>
+            }
+          </td>
+          <td class="px-3! py-3! align-middle whitespace-nowrap">
+            <p-tag
+              [value]="asset.isRepairable ? 'Yes' : 'No'"
+              [severity]="asset.isRepairable ? 'success' : 'danger'" />
+          </td>
+          @if (canManageAssets) {
+          <td class="px-3! py-3! align-middle whitespace-nowrap">
+            <div class="flex justify-center gap-2">
+              <p-button
+                class="text-xl!"
+                [disabled]="(loginInfo?.user?.primaryRole?.roleTypeId ?? 2) === 2"
+                [icon]="asset.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                [severity]="asset.isActive ? 'success' : 'danger'"
+                [pTooltip]="
+                    (loginInfo?.user?.primaryRole?.roleTypeId ?? 2) === 2
+                      ? 'You do not have permission to change asset status. Please contact your Admin.'
+                      : asset.isActive
+                        ? 'Deactivate asset'
+                        : 'Activate asset'
+                  "
+                tooltipPosition="left"
+                [showDelay]="300"
+                [loading]="asset.isUpdatingStatus"
+                (onClick)="toggleActiveInactive(asset)" />
+
+              <app-table-action-button
+                [ariaLabel]="'Actions for ' + (asset.assetName || 'asset')"
+                (action)="selectedRow = asset; actionMenu.toggle($event)" />
+            </div>
+          </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (store.assets().length === 0) {
+        <tr>
+          <td [attr.colspan]="columnCount">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount">
+            <app-table-empty-message
+              icon="pi pi-folder"
+              message="No assets found"
+              subMessage="Create a new asset to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems"
+  appendTo="body" />
+<p-confirmDialog />
+
+<!-- Asset Details -->
+<app-headless-drawer [(visible)]="isShowDetail">
+  @if (isShowDetail) { @defer {
+  <app-asset-detail
+    [asset]="store.selectedAsset()"
+    (closePopup)="isShowDetail = false" />
+  } @placeholder {
+  <div class="flex h-screen flex-col items-center justify-center p-8">
+    <span class="text-lg text-gray-500 dark:text-zinc-400">Asset details...</span>
+  </div>
+  } }
+</app-headless-drawer>
+
+<!-- Asset Filter -->
+<app-headless-drawer [(visible)]="isShowFilter">
+  @if (isShowFilter) { @defer {
+  <app-asset-filter
+    [appliedFilters]="store.appliedFilters()"
+    (applyFiltersEvent)="onFilterApplied($event)"
+    (closePopup)="isShowFilter = false" />
+  } @placeholder {
+  <div class="flex h-screen flex-col items-center justify-center p-8">
+    <span class="text-lg text-gray-500 dark:text-zinc-400">Loading filters...</span>
+  </div>
+  } }
+</app-headless-drawer>

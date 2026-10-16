@@ -1,0 +1,142 @@
+@let plan = subscriptionPlan(); @let currentPlan = isCurrentPlan();
+
+<!-- Pricing Card Container -->
+<section
+  class="relative flex h-full flex-col gap-4 rounded-2xl border border-surface-200 bg-surface-0 p-5 shadow-lg transition-all focus-within:ring-2 focus-within:ring-primary-300 sm:p-6 dark:border-zinc-700 dark:bg-zinc-800"
+  [attr.aria-labelledby]="planNameId()"
+  [class.hover:ring-2]="!currentPlan"
+  [class.hover:ring-primary-300]="!currentPlan"
+  [class.ring-2]="plan.isMostPopular || currentPlan"
+  [class.ring-primary-500]="plan.isMostPopular && !currentPlan"
+  [class.ring-emerald-500]="currentPlan"
+  [class.z-10]="plan.isMostPopular || currentPlan">
+  <!-- Current Plan Badge -->
+  @if (currentPlan) {
+  <span
+    class="absolute -top-4 left-4 rounded-full bg-emerald-500 px-3 py-1 text-xs font-bold text-white shadow dark:bg-emerald-600"
+    animate.enter="badge-enter">
+    CURRENT PLAN
+  </span>
+  }
+
+  <!-- Most Popular Badge — primary, so the ribbon and the ring it belongs to agree -->
+  @if (plan.isMostPopular) {
+  <span
+    class="absolute -top-4 right-4 rounded-full bg-primary-600 px-3 py-1 text-xs font-bold text-white shadow dark:bg-primary-500"
+    animate.enter="badge-enter">
+    MOST POPULAR
+  </span>
+  }
+
+  <!-- Plan Name — clamped to two lines so every card's price starts at the same height -->
+  <h3
+    class="line-clamp-2 min-h-[3.5rem] text-center text-xl font-medium text-balance text-zinc-900 [overflow-wrap:anywhere] dark:text-zinc-100"
+    [id]="planNameId()"
+    [attr.title]="plan.planName">
+    {{ plan.planName }}
+  </h3>
+
+  <!-- Price and Period Display -->
+  <div class="text-center">
+    <div
+      class="flex items-center justify-center font-sans text-3xl font-bold text-zinc-900 sm:text-4xl dark:text-zinc-100"
+      aria-hidden="true">
+      {{ plan.price | currency: (plan.currencyKey | currencySymbol) : 'symbol' : '1.0-0' }}
+    </div>
+    <span class="sr-only">{{ plan.price | number: '1.0-0' }} {{ plan.currencyKey }} {{ periodLabel() }}</span>
+    <div class="font-medium text-surface-500 dark:text-zinc-400">
+      @if (plan.period === '/ year') {
+      <span
+        class="dark:text-zinc-400"
+        animate.enter="period-enter"
+        >billed annually</span
+      >
+      } @if (plan.period === '/ month') {
+      <span
+        class="dark:text-zinc-400"
+        animate.enter="period-enter"
+        >billed monthly</span
+      >
+      }
+    </div>
+
+    <!-- Both footnotes are optional; one reserved block keeps every card's CTA on the same line -->
+    <div class="mt-1 min-h-[2.5rem]">
+      <!-- Yearly saving — rendered only when paying yearly actually costs less -->
+      @if (yearlySaving(); as saving) {
+      <p
+        class="text-sm font-semibold text-emerald-700 dark:text-emerald-400"
+        animate.enter="period-enter">
+        Save {{ saving }}% vs monthly
+      </p>
+      }
+
+      <!-- Day rate is quoted as-is; it does not derive from either billing period -->
+      @if (plan.perDayPrice) {
+      <p class="text-sm text-surface-500 dark:text-zinc-400">
+        Day rate: {{ plan.perDayPrice | currency: (plan.currencyKey | currencySymbol) : 'symbol' : '1.0-2' }}
+      </p>
+      }
+    </div>
+  </div>
+
+  <!-- Plan Action Button - Standardized CTA across all plans -->
+  @let action = cta();
+  <p-button
+    [severity]="action.severity"
+    [raised]="false"
+    [label]="action.label"
+    [fluid]="true"
+    [ariaLabel]="action.ariaLabel"
+    [disabled]="action.disabled"
+    (onClick)="onPlanSelect(plan)" />
+
+  <!-- Features List - Lists all features of the plan with a check icon -->
+  <div class="min-h-[12rem] text-left">
+    <ul
+      class="space-y-1.5"
+      [id]="featuresListId()">
+      @for (feature of visibleFeatures(); track feature.key) {
+      <li
+        class="flex items-start gap-2 text-surface-800 dark:text-zinc-200"
+        animate.enter="feature-enter"
+        animate.leave="feature-leave">
+        <lucide-angular
+          [img]="BadgeCheck"
+          size="16"
+          aria-hidden="true"
+          class="mt-0.5 shrink-0 text-surface-400 dark:text-zinc-500" />
+        <!-- Tags hug deliberately: a newline here renders as a space outside the &nbsp;. -->
+        <span class="text-base">{{ feature.label
+          }}@if (feature.count) {<span class="text-sm text-surface-500 dark:text-zinc-400"
+            ><span aria-hidden="true">&nbsp;+{{ feature.count }}</span
+            ><span class="sr-only">, plus {{ feature.count }} {{ subModuleWord(feature.count) }}</span
+          ></span>}</span>
+      </li>
+      }
+    </ul>
+
+    @if (hiddenFeatureCount()) {
+    <button
+      type="button"
+      class="mt-2 rounded-sm text-sm font-medium text-primary-600 underline-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:outline-none dark:text-primary-400"
+      [attr.aria-expanded]="isFeaturesExpanded()"
+      [attr.aria-controls]="featuresListId()"
+      (click)="toggleFeatures()">
+      {{ disclosureLabel() }}
+    </button>
+    }
+
+    <!-- No entitlement claim — the plan genuinely carries no module list from the API -->
+    @if (!hasModules()) {
+    <p class="mt-2 text-sm text-surface-500 dark:text-zinc-400">
+      Full module list on request —
+      <a
+        class="rounded-sm font-medium text-primary-600 underline-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:outline-none dark:text-primary-400"
+        [href]="salesMailto()">
+        contact us
+      </a>
+    </p>
+    }
+  </div>
+</section>

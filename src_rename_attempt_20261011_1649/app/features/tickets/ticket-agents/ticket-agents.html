@@ -1,0 +1,114 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      [value]="supportTeams()"
+      [showLoader]="false"
+      [paginator]="false"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} agents"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [rowHover]="true"
+      [(contextMenuSelection)]="selectedRow"
+      [contextMenu]="actionContextMenu">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <app-table-search-filter [filterCount]="0" />
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input />
+            <p-button
+              label="Add Support Team"
+              icon="pi pi-plus"
+              styleClass="w-full lg:w-auto"
+              (onClick)="onAddSupportTeam()" />
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #colgroup>
+        <colgroup>
+          <col style="width: 22rem" />
+          <col style="width: 14rem" />
+          <col style="width: 14rem" />
+          <col style="width: 6rem" />
+        </colgroup>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">Support Team</th>
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">Department</th>
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">Designation</th>
+          <th class="!px-3 !py-2.5 align-middle whitespace-nowrap">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-agent>
+        <tr [pContextMenuRow]="agent">
+          <td class="!px-3 !py-2.5 align-middle">
+            <div class="flex items-center gap-2">
+              <div>
+                <app-user-avatar class="hover:cursor-pointer" [name]="agent.agentName" />
+              </div>
+              <div class="max-w-52 truncate">
+                {{ agent.agentName }}
+                <div
+                  class="truncate text-sm text-gray-500 dark:text-zinc-400"
+                  [pTooltip]="agent.email"
+                  tooltipPosition="bottom">
+                  {{ agent.email }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="!px-3 !py-2.5 align-middle">{{ agent.department }}</td>
+          <td class="!px-3 !py-2.5 align-middle">{{ agent.designation }}</td>
+          <td class="!px-3 !py-2.5 align-middle whitespace-nowrap">
+            <p-button
+              class="text-xl!"
+              type="button"
+              icon="pi pi-ellipsis-h"
+              [rounded]="false"
+              severity="secondary"
+              [disabled]="!agent?.id"
+              (onClick)="selectedRow = agent; actionMenu.toggle($event)" />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (supportTeams().length === 0) {
+        <tr>
+          <td colspan="4">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="4">
+            <app-table-empty-message
+              icon="pi pi-users"
+              message="No support agents found"
+              subMessage="Add a new agent to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems"
+  appendTo="body" />
+<p-confirmDialog />

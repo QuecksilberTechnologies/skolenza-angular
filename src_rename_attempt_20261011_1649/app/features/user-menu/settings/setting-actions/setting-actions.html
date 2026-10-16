@@ -1,0 +1,19 @@
+<div
+  class="sticky bottom-0 z-10 -mx-3 border-t border-border-light bg-surface-light px-3 py-3 sm:static sm:mx-0 sm:border-t-0 sm:bg-transparent sm:px-0 sm:py-0 sm:pt-2 dark:border-border-dark dark:bg-surface-dark sm:dark:bg-transparent">
+  <div class="flex items-center justify-end">
+    <div class="flex w-full items-center gap-2 sm:w-auto sm:gap-3">
+      <p-button
+        label="Discard"
+        variant="text"
+        severity="secondary"
+        [disabled]="!isDirty()"
+        (onClick)="onDiscard()"
+        class="flex-1 sm:flex-none" />
+      <p-button
+        label="Save Changes"
+        [disabled]="!isDirty()"
+        (onClick)="onSave()"
+        class="flex-1 sm:flex-none" />
+    </div>
+  </div>
+</div>

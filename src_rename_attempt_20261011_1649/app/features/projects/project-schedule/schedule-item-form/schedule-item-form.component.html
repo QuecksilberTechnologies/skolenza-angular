@@ -1,0 +1,181 @@
+<form
+  (submit)="$event.preventDefault(); save()"
+  class="flex flex-col gap-4">
+  <!-- Title -->
+  <div class="flex flex-col gap-1.5">
+    <label
+      for="title"
+      class="text-sm font-medium">
+      Title
+      <span class="text-red-600 dark:text-red-400">*</span>
+    </label>
+    <input
+      id="title"
+      type="text"
+      pInputText
+      class="w-full"
+      [formField]="f.title"
+      placeholder="Schedule item title" />
+    @if (f.title().touched() && f.title().invalid()) {
+      <small class="text-red-500">{{ f.title().errors()[0]?.message }}</small>
+    }
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <!-- Type -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        for="type"
+        class="text-sm font-medium">
+        Type
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <p-select
+        inputId="type"
+        class="w-full"
+        [options]="typeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [appendTo]="'body'"
+        [formField]="$any(f.type)" />
+    </div>
+
+    <!-- Linked task -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        for="linked"
+        class="text-sm font-medium">
+        Linked task
+      </label>
+      <p-select
+        inputId="linked"
+        class="w-full"
+        [options]="linkedTasks"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="None"
+        [showClear]="true"
+        [appendTo]="'body'"
+        [formField]="$any(f.linkedTaskId)" />
+    </div>
+  </div>
+
+  <!-- All day -->
+  <div class="flex items-center gap-3">
+    <p-toggleswitch
+      inputId="allDay"
+      [formField]="$any(f.allDay)" />
+    <label
+      for="allDay"
+      class="text-sm font-medium">
+      All day
+    </label>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <!-- Start -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        for="start"
+        class="text-sm font-medium">
+        Start
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <p-datepicker
+        inputId="start"
+        class="w-full"
+        inputStyleClass="w-full"
+        dateFormat="yy-mm-dd"
+        [showTime]="showTime()"
+        [showIcon]="true"
+        [appendTo]="'body'"
+        [formField]="$any(f.start)" />
+      @if (f.start().touched() && f.start().invalid()) {
+        <small class="text-red-500">{{ f.start().errors()[0]?.message }}</small>
+      }
+    </div>
+
+    <!-- End -->
+    <div class="flex flex-col gap-1.5">
+      <label
+        for="end"
+        class="text-sm font-medium">
+        End
+      </label>
+      <p-datepicker
+        inputId="end"
+        class="w-full"
+        inputStyleClass="w-full"
+        dateFormat="yy-mm-dd"
+        [showTime]="showTime()"
+        [showIcon]="true"
+        [appendTo]="'body'"
+        [formField]="$any(f.end)" />
+      @if (f.end().touched() && f.end().invalid()) {
+        <small class="text-red-500">{{ f.end().errors()[0]?.message }}</small>
+      }
+    </div>
+  </div>
+
+  <!-- Location -->
+  <div class="flex flex-col gap-1.5">
+    <label
+      for="location"
+      class="text-sm font-medium">
+      Location
+    </label>
+    <input
+      id="location"
+      type="text"
+      pInputText
+      class="w-full"
+      [formField]="f.location"
+      placeholder="Room, link…" />
+  </div>
+
+  <!-- Reminder -->
+  <div class="flex flex-col gap-1.5">
+    <label
+      for="reminder"
+      class="text-sm font-medium">
+      Reminder
+    </label>
+    <p-datepicker
+      inputId="reminder"
+      class="w-full"
+      inputStyleClass="w-full"
+      dateFormat="yy-mm-dd"
+      [showTime]="true"
+      [showIcon]="true"
+      [appendTo]="'body'"
+      [formField]="$any(f.reminder)" />
+  </div>
+
+  <!-- Description -->
+  <div class="flex flex-col gap-1.5">
+    <label
+      for="description"
+      class="text-sm font-medium">
+      Description
+    </label>
+    <textarea
+      id="description"
+      rows="2"
+      class="w-full rounded-md border border-surface bg-transparent px-3 py-2 text-sm focus:border-primary focus:outline-none"
+      [formField]="f.description"></textarea>
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      [text]="true"
+      (onClick)="cancel()" />
+    <p-button
+      type="submit"
+      [label]="isEdit ? 'Save changes' : 'Add item'"
+      icon="pi pi-check"
+      [disabled]="f().invalid()"
+      (onClick)="save()" />
+  </div>
+</form>

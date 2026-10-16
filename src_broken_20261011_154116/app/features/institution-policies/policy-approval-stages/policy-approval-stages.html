@@ -1,0 +1,169 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.stages()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [showLoader]="false"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [paginator]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '48rem' }"
+      [style]="{ background: 'transparent' }"
+      [globalFilterFields]="['stageName']"
+      [selectionMode]="'single'"
+      [sortMode]="'single'"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Category filter -->
+          <p-select
+            [options]="store.categories()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select Category"
+            ariaLabel="Filter by policy category"
+            [showClear]="true"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-48"
+            [ngModel]="store.policyCategoryId()"
+            (onChange)="onCategoryChange($event.value)" />
+
+          <!-- Status filter -->
+          <p-select
+            [options]="statusOptions"
+            optionLabel="status"
+            optionValue="value"
+            placeholder="Select Status"
+            ariaLabel="Filter by status"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-48"
+            [ngModel]="store.isActive()"
+            (onChange)="onStatusChange($event.value)" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input [debounceMs]="0"
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchStages(dt, $event)" />
+            <p-button
+              [disabled]="!canAdd()"
+              label="Add Stage"
+              icon="pi pi-plus"
+              class="w-full lg:w-auto"
+              (onClick)="upsertStage()" />
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #header>
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          <th
+            class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap"
+            pSortableColumn="stageOrder">
+            Order
+            <p-sortIcon field="stageOrder" />
+          </th>
+          <th
+            class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap"
+            pSortableColumn="stageName">
+            Stage
+            <p-sortIcon field="stageName" />
+          </th>
+          <th class="hidden !px-3 !py-3 align-middle text-gray-700 lg:table-cell dark:text-zinc-100">
+            Category
+          </th>
+          <th class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap">
+            Approver role
+          </th>
+          <th class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap">
+            Approvals
+          </th>
+          <th class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap">Status</th>
+          @if (canUseRowActions()) {
+          <th class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap">
+            <div class="flex justify-center">Actions</div>
+          </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-stage>
+        <tr
+          [pContextMenuRow]="stage"
+          [pContextMenuRowDisabled]="!canUseRowActions()">
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">{{ stage.stageOrder }}</td>
+          <td class="!px-3 !py-3 align-middle font-medium whitespace-nowrap">
+            {{ stage.stageName }}
+            @if (!stage.isMandatory) {
+              <span class="ml-2 text-xs text-gray-500 dark:text-zinc-400">Optional</span>
+            }
+          </td>
+          <td class="hidden !px-3 !py-3 align-middle text-gray-700 lg:table-cell dark:text-zinc-100">
+            {{ categoryName(stage.policyCategoryId) }}
+          </td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">{{ roleName(stage.approverRoleId) }}</td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">
+            {{ stage.minimumApprovals }} {{ stage.minimumApprovals === 1 ? 'approval' : 'approvals' }}
+          </td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">
+            <p-tag
+              [value]="stage.isActive ? 'Active' : 'Inactive'"
+              [severity]="stage.isActive ? 'success' : 'danger'" />
+          </td>
+          @if (canUseRowActions()) {
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">
+            <div class="flex justify-center gap-2">
+              <app-table-action-button
+                [ariaLabel]="'Actions for ' + stage.stageName"
+                (action)="selectedRow.set(stage); actionMenu.toggle($event)" />
+            </div>
+          </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.stages().length === 0) {
+        <tr>
+          <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+        </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            <app-table-empty-message
+              icon="pi pi-sitemap"
+              message="No approval stages found"
+              subMessage="Add a stage to gate policy versions before they publish" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+<p-confirmDialog />

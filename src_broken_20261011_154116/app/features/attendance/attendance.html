@@ -1,0 +1,189 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <div class="m-3 flex flex-col sm:m-4">
+    @defer { @if (isLoading()) {
+    <app-attendance-stats-loader />
+    } @else if (attendanceRecords().length > 0) {
+    <app-attendance-stats [stats]="stats()" />
+    } } @placeholder (minimum 300ms) {
+    <app-attendance-stats-loader />
+    }
+  </div>
+
+  <p-card class="m-3 sm:m-4">
+    <!-- Table -->
+    @if (isLoading()) {
+    <app-table-loader />
+    } @else { @let records = filteredRecords() | search: searchText : ['remark']; @if (records.length > 0) {
+    <p-table
+      [value]="records"
+      [paginator]="true"
+      [rows]="15"
+      [rowsPerPageOptions]="[10, 15, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
+      [sortField]="'date'"
+      [sortOrder]="-1"
+      [showGridlines]="false"
+      [showLoader]="false"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '60rem' }">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter -->
+          @if (isAdmin()) {
+          <p-select
+            [ngModel]="selectedStaffMemberId()"
+            [options]="staff members()"
+            optionLabel="staffMemberFullName"
+            optionValue="staffMemberId"
+            [showClear]="true"
+            [filter]="true"
+            filterBy="staffMemberFullName,departmentName"
+            placeholder="Select staffMember"
+            class="w-full min-w-0 lg:min-w-52"
+            [appendTo]="'body'"
+            (onChange)="onStaffMemberChange($event.value)">
+            <ng-template
+              #selectedItem
+              let-selected>
+              <div class="flex items-center gap-2">
+                <app-user-avatar [name]="selected.staffMemberFullName" avatarClass="h-6! w-6!" />
+                <span class="truncate">{{ selected.staffMemberFullName }}</span>
+              </div>
+            </ng-template>
+            <ng-template
+              #item
+              let-staffMember>
+              <div class="flex items-center gap-3 py-1">
+                <app-user-avatar [name]="staffMember.staffMemberFullName" avatarClass="h-8! w-8!" />
+                <div class="min-w-0">
+                  <div class="truncate font-medium">{{ staffMember.staffMemberFullName }}</div>
+                  <div class="truncate text-xs text-surface-500">
+                    {{ staffMember.designationName }} &middot; {{ staffMember.departmentName }}
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </p-select>
+          } @if (!isAdmin() && loginInfo.user; as emp) {
+          <div class="flex min-w-0 items-center gap-2 lg:min-w-52">
+            <app-user-avatar
+              class="shrink-0"
+              [imagePath]="emp.profileImageUrl"
+              [name]="emp.fullName"
+              avatarClass="size-9! text-xl!" />
+            <div class="min-w-0">
+              <p class="truncate text-sm leading-tight font-semibold text-surface-900 dark:text-white">
+                {{ emp.fullName }}
+              </p>
+              <p class="truncate text-xs text-surface-500 dark:text-surface-400">
+                {{ emp.designationName }} &middot; {{ emp.departmentName }}
+              </p>
+            </div>
+          </div>
+          }
+          <p-datepicker
+            [(ngModel)]="selectedMonth"
+            view="month"
+            dateFormat="MM yy"
+            [showIcon]="true"
+            [appendTo]="'body'"
+            placeholder="Select month"
+            inputStyleClass="w-full"
+            class="w-full min-w-0 lg:min-w-52"
+            (onSelect)="onMonthChange()" />
+          <p-select
+            [(ngModel)]="selectedStatus"
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            placeholder="Filter by status"
+            class="w-full min-w-0 lg:min-w-52"
+            [appendTo]="'body'"
+            (onChange)="selectedStatus.set($event.value)" />
+          <div
+            ngProjectAs="right"
+            class="flex w-full gap-2 lg:w-auto">
+            <app-table-search-input [debounceMs]="0"
+              class="flex-1 lg:flex-none"
+              (searchTerm)="searchTerm($event)" />
+            <p-button
+              class="shrink-0"
+              icon="pi pi-refresh"
+              [outlined]="true"
+              pTooltip="Refresh"
+              tooltipPosition="left"
+              (onClick)="loadAttendance()" />
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th
+            pSortableColumn="date"
+            class="min-w-32 !px-3 !py-3 align-middle whitespace-nowrap">
+            Date
+            <p-sortIcon field="date" />
+          </th>
+          <th class="min-w-24 !px-3 !py-3 align-middle whitespace-nowrap">Day</th>
+          <th
+            pSortableColumn="checkIn"
+            class="min-w-24 !px-3 !py-3 align-middle whitespace-nowrap">
+            Check In
+            <p-sortIcon field="checkIn" />
+          </th>
+          <th
+            pSortableColumn="checkOut"
+            class="min-w-24 !px-3 !py-3 align-middle whitespace-nowrap">
+            Check Out
+            <p-sortIcon field="checkOut" />
+          </th>
+          <th
+            pSortableColumn="totalHours"
+            class="min-w-24 !px-3 !py-3 align-middle whitespace-nowrap">
+            Total Hours
+            <p-sortIcon field="totalHours" />
+          </th>
+          <th
+            pSortableColumn="status"
+            class="min-w-28 !px-3 !py-3 align-middle whitespace-nowrap">
+            Status
+            <p-sortIcon field="status" />
+          </th>
+          <th class="min-w-40 !px-3 !py-3 align-middle whitespace-nowrap">Remark</th>
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-record>
+        <tr>
+          <td
+            class="!px-3 !py-3 align-middle font-medium whitespace-nowrap text-surface-700 tabular-nums dark:text-zinc-200">
+            {{ record.date | date: 'dd MMM yyyy' }}
+          </td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">{{ record.date | date: 'EEE' }}</td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap tabular-nums">{{ record.checkIn || '-' }}</td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap tabular-nums">{{ record.checkOut || '-' }}</td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap tabular-nums">
+            @if (record.totalHours > 0) { {{ record.totalHours | number: '1.1-1' }}h } @else { - }
+          </td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">
+            <p-tag
+              [value]="getStatusLabel(record.status)"
+              [severity]="getStatusSeverity(record.status)" />
+          </td>
+          <td class="!px-3 !py-3 align-middle text-sm text-surface-500">{{ record.remark || '—' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    } @else {
+    <app-table-empty-message
+      icon="pi pi-clock"
+      message="No attendance records found"
+      subMessage="Attendance records will appear here once available." />
+    } }
+  </p-card>
+</div>

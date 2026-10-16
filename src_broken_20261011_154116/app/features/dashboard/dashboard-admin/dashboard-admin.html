@@ -1,0 +1,184 @@
+<section class="flex h-[calc(100vh-4.6rem)] flex-col gap-4 overflow-hidden overflow-y-auto p-4">
+  <app-dashboard-greeting subtitle="Here's what's happening with your team today." />
+
+  <!-- Top Summary Cards -->
+  @defer (on idle) { @if (!store.isSectionLoading('summary')) {
+  <app-admin-dashboard-stats [summary]="store.summary()" />
+  } @else {
+  <app-admin-dashboard-stats-loader />
+  } } @placeholder {
+  <app-admin-dashboard-stats-loader />
+  } @error {
+  <span>Failed to load dashboard stats</span>
+  }
+
+  <!-- Widgets Row -->
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <!-- Note: Don't remove commented code -->
+
+    <!-- Leave Breakdown -->
+    <!-- @defer (on timer(500ms)) {
+      <app-leave-breakdown-card [title]="'dashboard.LeaveBreakdown' | translate" />
+    } @placeholder {
+      <app-dashboard-card-placeholder [title]="'dashboard.LeaveBreakdown' | translate" />
+    } @error {
+      <span>Failed to load leave breakdown</span>
+    } -->
+
+    <!-- Activity Heatmap -->
+    <!-- @defer (on timer(500ms)) {
+      <app-hr-activity-card [title]="'dashboard.HRActivityHeatmap' | translate" />
+    } @placeholder {
+      <app-dashboard-card-placeholder [title]="'dashboard.HRActivityHeatmap' | translate" />
+    } @error {
+      <span>Failed to load activity heatmap</span>
+    } -->
+
+    <!-- Projects Stats Card -->
+    <!-- @defer (on timer(500ms)) {
+      <app-projects-stats-card [title]="'dashboard.ProjectsStats' | translate" />
+    } @placeholder {
+      <app-dashboard-card-placeholder [title]="'dashboard.ProjectsStats' | translate" />
+    } @error {
+      <span>Failed to load projects stats</span>
+    } -->
+
+    <!-- Request Status Card -->
+    <!-- @defer (on timer(500ms)) {
+      <app-request-status-card [title]="'dashboard.RequestStatus' | translate" />
+    } @placeholder {
+      <app-dashboard-card-placeholder [title]="'dashboard.RequestStatus' | translate" />
+    } @error {
+      <span>Failed to load request status</span>
+    } -->
+
+    <!-- StaffMember Overview -->
+    @defer (on idle) {
+    <app-staffMember-stats-card
+      title="StaffMember Overview"
+      [statistics]="store.staffMemberOverview()"
+      [loading]="store.isSectionLoading('staffMember-overview')"
+      (refresh)="store.reload('staffMember-overview')" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="StaffMember Overview" />
+    } @error {
+    <span>Failed to load staffMember stats</span>
+    }
+
+    <!-- Currently On Leave -->
+    @defer (on idle) {
+    <app-on-leave-card
+      title="Currently On Leave"
+      [leaves]="store.currentlyOnLeave() ?? []"
+      [loading]="store.isSectionLoading('currently-on-leave')" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="Currently On Leave" />
+    } @error {
+    <span>Failed to load leave data</span>
+    }
+
+    <!-- Staff Members On Notice -->
+    @defer (on idle) {
+    <app-notice-period-card
+      title="Staff Members On Notice"
+      [staff members]="store.staff membersOnNotice()"
+      [loading]="store.isSectionLoading('staff members-on-notice')"
+      (refresh)="store.reload('staff members-on-notice')" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="Staff Members On Notice" />
+    } @error {
+    <span>Failed to load staff members on notice</span>
+    }
+
+    <!-- Recently Exited -->
+    @defer (on idle) {
+    <app-widget-list-card
+      title="Recently Exited"
+      icon="pi pi-sign-out"
+      emptyMessage="No recent exits"
+      [section]="store.exitedStaff Members()"
+      [loading]="store.isSectionLoading('recently-exited')"
+      (refresh)="store.reload('recently-exited')" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="Recently Exited" />
+    } @error {
+    <span>Failed to load recent exits</span>
+    }
+
+    <!-- Locations -->
+    @if (canViewLocations()) { @defer (on idle) {
+    <app-locations-card title="Locations" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="Locations" />
+    } @error {
+    <span>Failed to load locations</span>
+    } }
+
+    <!-- Upcoming Birthdays -->
+    @defer (on idle) {
+    <app-birthday-card
+      title="Upcoming Birthdays"
+      [staff members]="store.birthdays()"
+      [loading]="store.isSectionLoading('upcoming-birthdays')"
+      (refresh)="store.reload('upcoming-birthdays')" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="Upcoming Birthdays" />
+    } @error {
+    <span>Failed to load birthdays</span>
+    }
+
+    <!-- Storage Status -->
+    @defer (on idle) {
+    <app-storage-status-card
+      title="Storage Status"
+      [storage]="store.storage()"
+      [placeholder]="store.storagePlaceholder()"
+      [loading]="store.isSectionLoading('storage-status')"
+      (refresh)="store.reload('storage-status')" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="Storage Status" />
+    } @error {
+    <span>Failed to load storage status</span>
+    }
+
+    <!-- Hiring Pipeline -->
+    @defer (on idle) {
+    <app-hiring-pipeline-card
+      title="Hiring Pipeline"
+      [pipeline]="store.hiringPipeline()"
+      [placeholder]="store.hiringPipelinePlaceholder()"
+      [loading]="store.isSectionLoading('hiring-pipeline')"
+      (refresh)="store.reload('hiring-pipeline')" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="Hiring Pipeline" />
+    } @error {
+    <span>Failed to load hiring pipeline</span>
+    }
+
+    <!-- Department Headcount -->
+    @defer (on idle) {
+    <app-department-headcount-card
+      title="Department Headcount"
+      [headcounts]="store.departmentHeadcount()"
+      [loading]="store.isSectionLoading('department-headcount')"
+      (refresh)="store.reload('department-headcount')" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="Department Headcount" />
+    } @error {
+    <span>Failed to load department headcount</span>
+    }
+
+    <!-- Recent Onboarding -->
+    @defer (on idle) {
+    <app-onboarding-card
+      title="Recent Onboarding"
+      [staff members]="store.onboarding()"
+      [loading]="store.isSectionLoading('recent-onboarding')"
+      (refresh)="store.reload('recent-onboarding')" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="Recent Onboarding" />
+    } @error {
+    <span>Failed to load recent onboarding</span>
+    }
+  </div>
+</section>

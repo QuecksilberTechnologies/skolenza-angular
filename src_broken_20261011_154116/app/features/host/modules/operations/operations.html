@@ -1,0 +1,171 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.filteredOperations()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [showLoader]="false"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [paginator]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ 'min-width': '44rem' }"
+      [style]="{ background: 'transparent' }"
+      [globalFilterFields]="['operationName', 'remark']"
+      [selectionMode]="'single'"
+      [sortMode]="'single'"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Operation type filter -->
+          <p-select
+            [options]="typeOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select Type"
+            ariaLabel="Filter by operation type"
+            [showClear]="true"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-48"
+            [ngModel]="store.operationType()"
+            (onChange)="onTypeChange($event.value)" />
+
+          <!-- Status filter -->
+          <p-select
+            [options]="statusOptions"
+            optionLabel="status"
+            optionValue="value"
+            placeholder="Select Status"
+            ariaLabel="Filter by status"
+            [appendTo]="'body'"
+            class="w-full min-w-0 lg:min-w-48"
+            [ngModel]="store.isActive()"
+            (onChange)="onStatusChange($event.value)" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input [debounceMs]="0"
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchOperations(dt, $event)" />
+            <p-splitbutton
+              [buttonDisabled]="!canAdd()"
+              label="Add Operation"
+              icon="pi pi-plus"
+              dropdownIcon="pi pi-cog"
+              class="w-full lg:w-auto"
+              [model]="primaryActionItems()"
+              (onClick)="upsertOperation()" />
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #header>
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          <th
+            class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap"
+            pSortableColumn="operationName">
+            Operation
+            <p-sortIcon field="operationName" />
+          </th>
+          <th
+            class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap"
+            pSortableColumn="operationType">
+            Type
+            <p-sortIcon field="operationType" />
+          </th>
+          <th
+            class="hidden !px-3 !py-3 align-middle text-gray-700 lg:table-cell dark:text-zinc-100">
+            Remark
+          </th>
+          <th class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap">Status</th>
+          @if (canUseRowActions()) {
+          <th class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100 whitespace-nowrap">
+            <div class="flex justify-center">Actions</div>
+          </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-operation>
+        <tr
+          [pContextMenuRow]="operation"
+          [pContextMenuRowDisabled]="!canUseRowActions()">
+          <td class="!px-3 !py-3 align-middle font-medium whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              <app-icon-tile
+                [icon]="operation.iconImage"
+                fallback="pi pi-bolt" />
+              <span class="truncate">{{ operation.operationName }}</span>
+            </div>
+          </td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">
+            @if (typeLabel(operation.operationType); as label) {
+            <p-tag
+              [value]="label"
+              severity="info" />
+            } @else { - }
+          </td>
+          <!-- Free text, and the least load-bearing column: it drops out below `lg`. -->
+          <td class="hidden !px-3 !py-3 align-middle text-gray-700 lg:table-cell dark:text-zinc-100">
+            {{ operation.remark || '-' }}
+          </td>
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">
+            <p-tag
+              [value]="operation.isActive ? 'Active' : 'Inactive'"
+              [severity]="operation.isActive ? 'success' : 'danger'" />
+          </td>
+          @if (canUseRowActions()) {
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">
+            <div class="flex justify-center gap-2">
+              <app-table-action-button
+                [ariaLabel]="'Actions for ' + operation.operationName"
+                (action)="selectedRow.set(operation); actionMenu.toggle($event)" />
+            </div>
+          </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.operations().length === 0) {
+        <tr>
+          <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+        </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            <app-table-empty-message
+              icon="pi pi-bolt"
+              message="No operations found"
+              subMessage="Create an operation to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+<p-confirmDialog />

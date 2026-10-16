@@ -1,0 +1,254 @@
+/* --- Chrome ------------------------------------------------------------------------- */
+
+.editor-frame {
+  overflow: hidden;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.375rem;
+}
+
+:host-context(.dark) .editor-frame {
+  border-color: #3f3f46;
+}
+
+.editor-invalid {
+  border-color: var(--p-inputtext-invalid-border-color, #ef4444);
+}
+
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.25rem;
+  border-block-end: 1px solid #e4e4e7;
+  background: #fafafa;
+}
+
+:host-context(.dark) .editor-toolbar {
+  border-block-end-color: #3f3f46;
+  background: #27272a;
+}
+
+.editor-sep {
+  align-self: stretch;
+  inline-size: 1px;
+  margin-inline: 0.25rem;
+  background: #e4e4e7;
+}
+
+:host-context(.dark) .editor-sep {
+  background: #3f3f46;
+}
+
+/* `::ng-deep`, because the two colour triggers are `app-color-picker`'s own button and so sit
+   outside this component's emulated encapsulation. */
+:host ::ng-deep .editor-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  border-radius: 0.25rem;
+  color: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+:host ::ng-deep .editor-tool:hover:not(:disabled) {
+  background: #e4e4e7;
+}
+
+:host-context(.dark) ::ng-deep .editor-tool:hover:not(:disabled) {
+  background: #3f3f46;
+}
+
+:host ::ng-deep .editor-tool[aria-pressed='true'] {
+  background: var(--p-primary-100, #dbeafe);
+  color: var(--p-primary-700, #1d4ed8);
+}
+
+:host-context(.dark) ::ng-deep .editor-tool[aria-pressed='true'] {
+  background: var(--p-primary-900, #1e3a8a);
+  color: var(--p-primary-200, #bfdbfe);
+}
+
+:host ::ng-deep .editor-tool:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* The bar under the glyph is the only place the current colour shows, so it carries the value. */
+.editor-swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border-block-end: 3px solid transparent;
+}
+
+.editor-action {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #e4e4e7;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+:host-context(.dark) .editor-action {
+  border-color: #3f3f46;
+}
+
+.editor-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.editor-action-primary {
+  border-color: transparent;
+  background: var(--p-primary-color, #2563eb);
+  color: var(--p-primary-contrast-color, #ffffff);
+}
+
+/* --- The page ----------------------------------------------------------------------- */
+
+/* The content area is a page in a mail client, and mail clients are white. A body's own inline
+   styles - `color: #333` on a white ground, pale fills - assume that, so a dark canvas puts dark
+   text on a dark ground and renders the fills as boxes. Pin the page light in both themes and the
+   author sees what the recipient will. The toolbar above is app chrome and keeps its theme.
+
+   `::ng-deep` is unavoidable: ProseMirror builds the content element at runtime, so it carries no
+   `_ngcontent` attribute for the emulated encapsulation to match. */
+.editor-content {
+  overflow: auto;
+  background: #ffffff;
+  color: #3f3f46;
+  /* Scrollbars, and any control the pasted markup carries, render light with the page. */
+  color-scheme: light;
+}
+
+:host ::ng-deep .tiptap {
+  min-block-size: inherit;
+  padding: 0.75rem;
+  outline: none;
+}
+
+/* Placeholder defaults from `@tiptap/extensions`: the class lands on the editor's first child
+   while the document is empty, and the text rides in on the data attribute. */
+:host ::ng-deep .tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: inline-start;
+  block-size: 0;
+  color: #71717a;
+  pointer-events: none;
+}
+
+/* Tailwind's preflight resets headings and lists to nothing and the reset reaches inside the
+   editor, so an `<h1>` in the body would look identical to a paragraph while editing. Quill's
+   vendored stylesheet used to supply the list markers; nothing does now.
+
+   Written flat, one selector per rule: Angular's emulated-encapsulation shim does not expand
+   native CSS nesting underneath `::ng-deep`, so a nested block here silently never applies. */
+:host ::ng-deep .tiptap h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+}
+
+:host ::ng-deep .tiptap h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+}
+
+:host ::ng-deep .tiptap h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+:host ::ng-deep .tiptap ul {
+  list-style: disc;
+  padding-inline-start: 1.5rem;
+}
+
+:host ::ng-deep .tiptap ol {
+  list-style: decimal;
+  padding-inline-start: 1.5rem;
+}
+
+:host ::ng-deep .tiptap img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* The image node is inline so the align buttons can reach it through its paragraph, which makes
+   the resize node view's container an `inline-flex` box sitting on the text baseline - a gap the
+   height of a descender under every lone image. */
+:host ::ng-deep .tiptap [data-resize-container] {
+  vertical-align: bottom;
+}
+
+/* The resize node view creates bare `div[data-resize-handle]`s - positioned, but with no size or
+   colour of their own - so the handles are invisible until styled here. Corner handles only. */
+:host ::ng-deep .tiptap [data-resize-handle] {
+  inline-size: 10px;
+  block-size: 10px;
+  margin: -5px;
+  border: 1px solid #ffffff;
+  border-radius: 9999px;
+  background: var(--p-primary-color, #2563eb);
+  /* Four dots on every image at rest read as decoration on the body being authored, so the
+     handles only appear over the image the pointer is on. Hidden they must not be grabbable
+     either - half of each dot hangs outside the image, and an invisible hit target at the
+     corner would swallow a click meant for the text beside it. */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-in-out;
+}
+
+/* Selected covers the keyboard path, and resizing holds them up once the pointer has left the
+   image - a drag outwards is exactly the gesture that would otherwise hide its own handle. */
+:host ::ng-deep .tiptap [data-resize-container]:hover [data-resize-handle],
+:host ::ng-deep .tiptap [data-resize-container].ProseMirror-selectednode [data-resize-handle],
+:host ::ng-deep .tiptap [data-resize-container][data-resize-state='true'] [data-resize-handle] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host ::ng-deep .tiptap [data-resize-handle] {
+    transition: none;
+  }
+}
+
+:host ::ng-deep .tiptap [data-resize-handle='top-left'],
+:host ::ng-deep .tiptap [data-resize-handle='bottom-right'] {
+  cursor: nwse-resize;
+}
+
+:host ::ng-deep .tiptap [data-resize-handle='top-right'],
+:host ::ng-deep .tiptap [data-resize-handle='bottom-left'] {
+  cursor: nesw-resize;
+}
+
+:host ::ng-deep .tiptap a {
+  color: #0066cc;
+  text-decoration: underline;
+}
+
+:host ::ng-deep .tiptap blockquote {
+  border-inline-start: 4px solid #cccccc;
+  padding-inline-start: 0.75rem;
+}
+
+:host ::ng-deep .tiptap code,
+:host ::ng-deep .tiptap pre {
+  background: #f0f0f0;
+  color: #3f3f46;
+}
+
+:host ::ng-deep .tiptap pre {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+}

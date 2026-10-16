@@ -1,0 +1,185 @@
+<p-card class="flex min-h-[calc(100vh-10.2rem)] w-full flex-col gap-8 md:p-2">
+  @let experiences = staffMemberExperienceInfo(); @if (isLoading() && experiences.length === 0) {
+  <app-profile-loader />
+  } @else { @if (experiences && experiences.length > 0) {
+  <app-profile-header
+    #profileHeader
+    [actionLabel]="'Add Experience'"
+    [id]="experiences[0].id"
+    [employementCode]="'N/A'"
+    [completionPercentage]="completionPercentage()"
+    [isInfoVerified]="experiences[0]?.isInfoVerified || false"
+    [isEditAllowed]="experiences[0]?.isEditAllowed || false"
+    [isVerifying]="isVerifying()"
+    [isEditing]="isEditing()"
+    [roleTypeId]="loginInfo?.user?.primaryRole?.roleTypeId"
+    [tabInfoType]="tabInfoType"
+    (create)="addExperience()"
+    (refresh)="getStaffMemberExperience()"
+    (updateVerifyStatus)="updateVerifyStatus($event, experiences[0].id)"
+    (updateEditStatus)="updateEditStatus($event, experiences[0].id)" />
+
+  @for (experience of sortedExperiences(); track experience.id) {
+  @let isVerified = experience.isExperienceVerified || experience.isExperienceVerifiedByMail ||
+  experience.isExperienceVerifiedByCall;
+  @let isCurrent = experience.id === currentExperienceId();
+  <app-profile-info-card>
+    <span ngProjectAs="sectionTitle">{{ experience.designation }}</span>
+
+    <div
+      cardSubtitle
+      class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-gray-700 dark:text-zinc-100">
+      <span class="font-medium">{{ experience.companyName }}</span>
+      <span class="text-zinc-500 dark:text-zinc-400">
+        {{ experience.startDate | date }} – @if (experience.endDate) {
+        {{ experience.endDate | date }} } @else if (isCurrent) { Present } @else { End date not set
+        } @if (experience.endDate || isCurrent) { @let duration =
+        durationLabel(experience.startDate, experience.endDate); @if (duration) { · {{ duration }}
+        } }
+      </span>
+      <app-status-badge
+        [label]="verificationLabel(experience)"
+        [tone]="isVerified ? 'success' : 'neutral'"
+        [icon]="isVerified ? 'pi-check-circle' : 'pi-clock'" />
+    </div>
+
+    <!-- Employment -->
+    <h3
+      class="col-span-full mt-4 border-t border-zinc-200 pt-3 text-sm font-semibold text-zinc-500 uppercase dark:border-zinc-800 dark:text-zinc-400">
+      Employment
+    </h3>
+    <app-profile-info-block
+      label="Company StaffMember ID"
+      [value]="experience.staffMemberIdOfCompany" />
+    @let ctc = experience.ctc ? '₹' + (experience.ctc | number: '1.0-2') : null;
+    @let ctcRevealed = revealedCtcIds().has(experience.id);
+    <app-profile-info-block
+      label="CTC"
+      [value]="ctcRevealed ? ctc : maskValue(ctc, 1)"
+      [isMask]="true"
+      [isMasked]="ctcRevealed"
+      (toggleMask)="toggleCtc(experience.id)" />
+    <app-profile-info-block
+      label="Work From Home"
+      [value]="experience.isWFH ? 'Yes' : 'No'" />
+    <app-profile-info-block
+      label="Foreign Experience"
+      [value]="experience.isForeignExperience ? 'Yes' : 'No'" />
+
+    <!-- Exit -->
+    <h3
+      class="col-span-full mt-4 border-t border-zinc-200 pt-3 text-sm font-semibold text-zinc-500 uppercase dark:border-zinc-800 dark:text-zinc-400">
+      Exit
+    </h3>
+    <app-profile-info-block
+      label="Reason For Leaving"
+      [value]="experience.reasonForLeaving" />
+    <app-profile-info-block
+      label="Employment Gap"
+      class="sm:col-span-2">
+      @if (experience.isAnyGap) {
+      <span class="flex flex-col">
+        <span>
+          @if (experience.gapYearFrom || experience.gapYearTo) {
+          {{ experience.gapYearFrom | date }} – {{ experience.gapYearTo | date }} } @else { Dates not
+          set }
+        </span>
+        @if (experience.reasonOfGap) {
+        <span class="text-zinc-500 dark:text-zinc-400">{{ experience.reasonOfGap }}</span>
+        }
+      </span>
+      } @else { None }
+    </app-profile-info-block>
+    <app-profile-info-block
+      label="Remark"
+      class="col-span-full"
+      [value]="experience.remark" />
+
+    <!-- References -->
+    <h3
+      class="col-span-full mt-4 border-t border-zinc-200 pt-3 text-sm font-semibold text-zinc-500 uppercase dark:border-zinc-800 dark:text-zinc-400">
+      References
+    </h3>
+    <app-profile-info-block label="Colleague">
+      @let colleague = joinParts(experience.colleagueName, experience.colleagueDesignation);
+      @if (colleague || experience.colleagueContactNumber) {
+      <span class="flex flex-col">
+        @if (colleague) {
+        <span>{{ colleague }}</span>
+        } @if (experience.colleagueContactNumber) {
+        <a
+          class="w-fit text-primary-700 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:text-primary-300"
+          [href]="'tel:' + experience.colleagueContactNumber"
+          >{{ experience.colleagueContactNumber }}</a
+        >
+        }
+      </span>
+      } @else {
+      <span
+        aria-hidden="true"
+        class="text-zinc-500 dark:text-zinc-400"
+        >—</span
+      >
+      <span class="sr-only">Not provided</span>
+      }
+    </app-profile-info-block>
+    <app-profile-info-block label="Reporting Manager">
+      @if (experience.reportingManagerName || experience.reportingManagerNumber) {
+      <span class="flex flex-col">
+        @if (experience.reportingManagerName) {
+        <span>{{ experience.reportingManagerName }}</span>
+        } @if (experience.reportingManagerNumber) {
+        <a
+          class="w-fit text-primary-700 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:text-primary-300"
+          [href]="'tel:' + experience.reportingManagerNumber"
+          >{{ experience.reportingManagerNumber }}</a
+        >
+        }
+      </span>
+      } @else {
+      <span
+        aria-hidden="true"
+        class="text-zinc-500 dark:text-zinc-400"
+        >—</span
+      >
+      <span class="sr-only">Not provided</span>
+      }
+    </app-profile-info-block>
+    <app-profile-info-block
+      label="Verification Email"
+      [value]="experience.verificationEmail"
+      [href]="'mailto:' + experience.verificationEmail" />
+
+    <app-profile-document-list
+      ngProjectAs="[documents]"
+      [documents]="getUploadedDocuments(experience)" />
+
+    <app-profile-block-actions
+      ngProjectAs="actions"
+      [roleTypeId]="loginInfo?.user?.primaryRole?.roleTypeId"
+      [itemLabel]="experience.companyName + ' experience'"
+      [completionPercentage]="experience.completionPercentage"
+      [isEditAllowed]="experience.isEditAllowed"
+      (edit)="addExperience(experience)"
+      (remove)="removeExperience(experience)" />
+  </app-profile-info-card>
+  } @empty {
+  <app-profile-empty
+    [message]="profileEmptyMessage"
+    [description]="profileEmptyDescription"
+    [tabIcon]="profileEmptyTabIcon"
+    [roleTypeId]="loginInfo?.user?.primaryRole?.roleTypeId"
+    (retry)="getStaffMemberExperience()"
+    (add)="addExperience()" />
+  } } @else {
+  <app-profile-empty
+    [message]="profileEmptyMessage"
+    [description]="profileEmptyDescription"
+    [tabIcon]="profileEmptyTabIcon"
+    [roleTypeId]="loginInfo?.user?.primaryRole?.roleTypeId"
+    (retry)="getStaffMemberExperience()"
+    (add)="addExperience()" />
+  } }
+</p-card>
+
+<p-confirmDialog />

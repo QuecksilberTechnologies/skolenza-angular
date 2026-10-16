@@ -1,0 +1,85 @@
+<app-dashboard-card
+  [title]="title()"
+  [badge]="workDateLabel()">
+  <div>
+    <div class="mb-6 flex items-center gap-6">
+      <div
+        class="relative rounded-xl border border-orange-100 bg-gradient-to-br from-orange-50 to-orange-100 p-4 shadow-sm hover:shadow-md dark:border-orange-950 dark:bg-gradient-to-tl dark:from-zinc-900 dark:to-orange-900">
+        <lucide-angular
+          [img]="Fingerprint"
+          size="24"
+          class="text-orange-400 dark:text-orange-300"
+          [strokeWidth]="2" />
+        @if (isClockedIn()) {
+          <span
+            class="absolute -top-3 -right-3 animate-pulse rounded-full border border-green-300 bg-green-500 px-2 py-1 text-xs font-medium text-white shadow-md dark:border-green-900 dark:bg-green-700">
+            Active
+          </span>
+        }
+      </div>
+      <div>
+        <p class="text-4xl font-bold text-color-emphasis dark:text-orange-100">
+          {{ punchCount() }}
+          <span class="text-base font-medium text-muted-color">{{ punchCount() === 1 ? 'punch' : 'punches' }}</span>
+        </p>
+        <div class="mt-2 flex items-center gap-4">
+          @if (isLoading()) {
+            <p class="text-lg font-medium text-muted-color" role="status">Loading attendance...</p>
+          } @else if (hasLoadFailed()) {
+            <p class="text-lg font-medium text-red-600 dark:text-red-400" role="alert">
+              Could not load attendance
+            </p>
+          } @else if (isClockedIn()) {
+            <p class="flex items-center gap-2 text-lg font-medium text-green-600 dark:text-green-300">
+              <lucide-angular
+                [img]="Check"
+                size="14"
+                class="rounded-full border border-green-200 bg-green-500 text-white dark:border-green-800 dark:bg-green-600" />
+              <span class="dark:text-green-200">Checked In</span>
+            </p>
+          } @else if (hasCheckedInToday()) {
+            <p class="flex items-center gap-2 text-lg font-medium text-blue-600 dark:text-blue-300">
+              <lucide-angular
+                [img]="Check"
+                size="14"
+                class="rounded-full border border-blue-200 bg-blue-500 text-white dark:border-blue-800 dark:bg-blue-600" />
+              <span class="dark:text-blue-200">Checked Out</span>
+            </p>
+          } @else {
+            <p class="flex items-center gap-2 text-lg font-medium text-red-600 dark:text-red-400">
+              <lucide-angular
+                [img]="X"
+                size="14"
+                class="rounded-full border border-red-200 bg-red-500 text-white dark:border-red-900 dark:bg-red-700" />
+              <span class="dark:text-red-300">Not Clocked In</span>
+            </p>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-between text-base font-medium text-gray-700 dark:text-zinc-200">
+    <div class="flex items-center gap-4">
+      <i class="pi pi-arrow-right !text-lg text-blue-600 dark:text-blue-300"></i>
+      <div class="flex flex-col">
+        <span class="text-xs text-gray-500 dark:text-gray-400">Check In</span>
+        <span
+          class="text-xl font-semibold"
+          [class.animate-pulse]="isClockedIn()"
+          [class.text-green-600]="isClockedIn()"
+          [class.dark:text-green-400]="isClockedIn()"
+          [class.text-muted-color]="!isClockedIn()">
+          {{ checkInTime() }}
+        </span>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <i class="pi pi-arrow-right !text-lg text-red-600 dark:text-red-400"></i>
+      <div class="flex flex-col">
+        <span class="text-xs text-gray-500 dark:text-gray-400">Check Out</span>
+        <span class="text-xl font-semibold dark:text-zinc-100">{{ checkOutTime() }}</span>
+      </div>
+    </div>
+  </div>
+</app-dashboard-card>

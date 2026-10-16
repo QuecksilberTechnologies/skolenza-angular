@@ -1,0 +1,70 @@
+<form
+  (submit)="onSubmit(); $event.preventDefault()"
+  class="flex h-full min-h-0 w-full flex-col">
+  <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-1 pt-1 pb-4">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <app-form-select
+        label="StaffMember"
+        inputId="staffMemberId"
+        placeholder="Select an staffMember"
+        required
+        filter
+        optionLabel="fullName"
+        optionValue="staffMemberId"
+        [options]="staffMemberOptions()"
+        [loading]="isLoadingStaff Members()"
+        [field]="f.staffMemberId" />
+
+      <app-form-number
+        label="Exception type"
+        inputId="exceptionType"
+        placeholder="e.g. 1"
+        hint="The numeric exception type the policy API defines. It publishes no label list, so use the code your policy team agreed on."
+        required
+        [min]="1"
+        [field]="f.exceptionType" />
+    </div>
+
+    <app-form-textarea
+      label="Override configuration"
+      inputId="overrideConfiguration"
+      placeholder='{"allowRemoteAttendance":true}'
+      hint="A JSON object recorded against this staffMember. It is stored as written and is not applied to payroll or leave on its own."
+      required
+      [rows]="4"
+      [field]="f.overrideConfiguration" />
+
+    <app-form-textarea
+      label="Reason"
+      inputId="reason"
+      placeholder="Why this staffMember needs the override"
+      required
+      [rows]="2"
+      [field]="f.reason" />
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <app-form-date
+        label="Effective from"
+        inputId="exceptionEffectiveFrom"
+        placeholder="Select a date"
+        required
+        [field]="f.effectiveFrom" />
+
+      <app-form-date
+        label="Effective to"
+        inputId="exceptionEffectiveTo"
+        placeholder="Select an end date"
+        hint="Exceptions are temporary and require an end date."
+        required
+        [field]="f.effectiveTo" />
+    </div>
+  </div>
+
+  <app-form-action-bar
+    dialog
+    submitLabel="Submit exception"
+    submitIcon="pi pi-flag"
+    savingLabel="Submitting..."
+    [saving]="isSaving()"
+    (cancelled)="onCancel()" />
+</form>

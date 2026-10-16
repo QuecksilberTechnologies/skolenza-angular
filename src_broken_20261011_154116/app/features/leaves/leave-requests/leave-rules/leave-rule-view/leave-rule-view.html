@@ -1,0 +1,67 @@
+@let leaveRuleVal = leaveRule();
+
+<div class="grid grid-cols-1 gap-6 rounded-xl border border-gray-100 p-4">
+  <div class="flex flex-col">
+    Policy Type
+    <span class="font-bold">{{ leaveRuleVal?.policyTypeName || '-' }}</span>
+  </div>
+  <div class="flex flex-col">
+    Leave Type
+    <span class="font-bold">{{ leaveRuleVal?.leaveTypeName || '-' }}</span>
+  </div>
+  <div class="flex flex-col">
+    StaffMember Type
+    <span class="font-bold">{{ leaveRuleVal?.staffEmploymentTypeName || '-' }}</span>
+  </div>
+  <div class="flex flex-col">
+    Applicable Gender
+    <span class="font-bold">{{ leaveRuleVal?.applicableGender || '-' }}</span>
+  </div>
+  <div class="flex flex-col">
+    Applicable Marital Status
+    <span class="font-bold">{{ leaveRuleVal?.applicableMaritalStatus || '-' }}</span>
+  </div>
+  <div class="flex flex-col">
+    Total Leaves Per Year
+    <span class="font-bold">{{ leaveRuleVal?.totalLeavesPerYear }}</span>
+  </div>
+  <div class="flex flex-col">
+    Monthly Accrual
+    <div>
+      <p-badge
+        [value]="leaveRuleVal?.monthlyAccrual ? 'Yes' : 'No'"
+        severity="contrast"
+        class="leading-0" />
+    </div>
+  </div>
+  <div class="flex flex-col">
+    Carry Forward
+    <div>
+      <p-badge
+        [value]="leaveRuleVal?.carryForward ? 'Yes' : 'No'"
+        severity="contrast"
+        class="leading-0" />
+    </div>
+  </div>
+  <div class="flex flex-col">
+    Encashable
+    <div>
+      <p-badge
+        [value]="leaveRuleVal?.encashable ? 'Yes' : 'No'"
+        severity="contrast"
+        class="leading-0" />
+    </div>
+  </div>
+  <div class="flex flex-col">
+    Effective From
+    <span class="font-bold">{{ leaveRuleVal?.effectiveFrom | date }}</span>
+  </div>
+  <div class="flex flex-col">
+    Effective To
+    <span class="font-bold">{{ leaveRuleVal?.effectiveTo | date }}</span>
+  </div>
+  <div class="flex flex-col">
+    Remark
+    <span class="font-bold">{{ leaveRuleVal?.remark }}</span>
+  </div>
+</div>

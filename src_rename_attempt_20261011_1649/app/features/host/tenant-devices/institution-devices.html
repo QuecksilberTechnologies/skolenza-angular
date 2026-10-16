@@ -1,0 +1,353 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <p-table
+      #dt
+      dataKey="id"
+      [value]="store.institutionDevices()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [rowHover]="true"
+      [showLoader]="false"
+      [lazy]="true"
+      [paginator]="true"
+      [rows]="store.pageSize()"
+      [totalRecords]="store.totalRecords()"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} devices"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      paginatorDropdownAppendTo="body"
+      [tableStyle]="{ width: '100%', 'table-layout': 'fixed' }"
+      [style]="{ background: 'transparent' }"
+      (onLazyLoad)="loadInstitutionDevices($event)"
+      [contextMenu]="actionContextMenu"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Five filters is more than one row holds at `lg`, so they wrap among themselves rather
+               than pushing the search box and the primary action off the caption. -->
+          <div class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row lg:flex-wrap lg:items-center">
+            <!-- Institution filter. Clearing it lists every institution's devices. -->
+            <app-table-filter-select
+              class="w-full min-w-0 lg:w-auto lg:min-w-48"
+              [options]="store.institutions()"
+              optionLabel="companyName"
+              optionValue="id"
+              placeholder="Any institution"
+              ariaLabel="Filter by institution"
+              [filter]="true"
+              [loading]="store.isInstitutionsLoading()"
+              [value]="store.institutionId()"
+              (valueChange)="onInstitutionChange($event)" />
+
+            <!-- Location filter, enabled once a institution narrows it. The placeholder stays constant so
+                 it never truncates; the tooltip carries the reason the control is blocked. -->
+            <app-table-filter-select
+              class="w-full min-w-0 lg:w-auto lg:min-w-48"
+              [options]="store.campuses()"
+              optionLabel="locationName"
+              optionValue="id"
+              placeholder="Any campus"
+              ariaLabel="Filter by location"
+              [disabled]="!store.hasInstitution()"
+              blockedReason="Select an institution first"
+              [filter]="true"
+              [loading]="store.isCampusesLoading()"
+              [value]="store.campusId()"
+              (valueChange)="onLocationChange($event)" />
+
+            <!-- Device master filter -->
+            <app-table-filter-select
+              class="w-full min-w-0 lg:w-auto lg:min-w-48"
+              [options]="store.deviceMasters()"
+              optionLabel="deviceName"
+              optionValue="id"
+              placeholder="Any model"
+              ariaLabel="Filter by device model"
+              [filter]="true"
+              [loading]="store.isDeviceMastersLoading()"
+              [value]="store.deviceMasterId()"
+              (valueChange)="onDeviceMasterChange($event)" />
+
+            <!-- Attendance filter -->
+            <app-table-filter-select
+              class="w-full min-w-0 lg:w-auto lg:min-w-48"
+              [options]="attendanceOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Any attendance"
+              ariaLabel="Filter by attendance device"
+              [value]="store.isAttendanceDevice()"
+              (valueChange)="onAttendanceChange($event)" />
+
+            <!-- Status filter. Clearing it *is* "All", so there is no separate All option. -->
+            <app-table-filter-select
+              class="w-full min-w-0 lg:w-auto lg:min-w-48"
+              [options]="statusOptions"
+              optionLabel="status"
+              optionValue="value"
+              placeholder="Any status"
+              ariaLabel="Filter by status"
+              [value]="store.isActive()"
+              (valueChange)="onStatusChange($event)" />
+          </div>
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchInstitutionDevices($event)" />
+            @if (canAdd()) {
+              <p-button
+                label="Add Device"
+                icon="pi pi-plus"
+                class="w-full justify-center whitespace-nowrap lg:w-auto"
+                pTooltip="Assign a device to an institution"
+                tooltipPosition="bottom"
+                (onClick)="createInstitutionDevice()" />
+            }
+          </div>
+
+          <!-- Filtering swaps the grid silently; this is the only confirmation a reader gets. -->
+          <div class="sr-only" aria-live="polite">{{ resultSummary() }}</div>
+        </app-table-inline-filters>
+      </ng-template>
+
+      <ng-template #header>
+        <!--
+          `table-layout: fixed` sizes the columns off these widths, so a cell truncates exactly at
+          its own edge and never sooner. Columns drop by priority as the viewport narrows so the
+          table never scrolls sideways: Attendance goes at `xl`, Config at `lg`, Location and Model
+          at `md`, Institution and Status at `sm`. Only Device and Actions survive every width, and each
+          responsive class here must stay in step with its `td` below. The status a phone cannot do
+          without folds into a dot beside the device name.
+
+          Fixed layout ignores `min-width`, so Device carries no width below `lg`: it has to be the
+          auto column that takes the slack the dropped columns leave. Everything hidden is still in
+          the row's detail drawer.
+        -->
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          <th
+            scope="col"
+            class="min-w-[150px] px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 lg:w-[20%] dark:text-zinc-100">
+            Device
+          </th>
+          <th
+            scope="col"
+            class="hidden px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 sm:table-cell sm:w-[16%] dark:text-zinc-100">
+            Institution
+          </th>
+          <th
+            scope="col"
+            class="hidden px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 md:table-cell md:w-[12%] dark:text-zinc-100">
+            Location
+          </th>
+          <th
+            scope="col"
+            class="hidden px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 md:table-cell md:w-[16%] dark:text-zinc-100">
+            Model
+          </th>
+          <th
+            scope="col"
+            class="hidden px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 xl:table-cell xl:w-[7%] dark:text-zinc-100">
+            Attendance
+          </th>
+          <th
+            scope="col"
+            class="hidden px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 lg:table-cell lg:w-[11%] dark:text-zinc-100">
+            Config
+          </th>
+          <th
+            scope="col"
+            class="hidden px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 sm:table-cell sm:w-[10%] sm:min-w-[90px] dark:text-zinc-100">
+            Status
+          </th>
+          @if (canUseRowActions()) {
+            <th
+              scope="col"
+              class="w-[110px] px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+              <div class="flex justify-center">Actions</div>
+            </th>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template
+        #body
+        let-device>
+        <tr
+          class="cursor-pointer"
+          tabindex="0"
+          [attr.aria-label]="'View details for ' + (device.deviceName ?? 'this device')"
+          [pContextMenuRow]="device"
+          [pContextMenuRowDisabled]="!canUseRowActions()"
+          (click)="showDetail(device)"
+          (keyup.enter)="showDetail(device)">
+          <td class="px-3! py-2.5! align-middle text-gray-700 dark:text-zinc-100">
+            <div class="flex min-w-0 items-center gap-2">
+              <!-- Below `sm` the Status column is gone; the dot is the only state left on the row. -->
+              <span
+                class="size-2 shrink-0 rounded-full sm:hidden"
+                [class.bg-green-500]="device.isActive"
+                [class.bg-red-500]="!device.isActive"
+                aria-hidden="true"></span>
+              <span class="sr-only sm:hidden">{{ device.isActive ? 'Active' : 'Inactive' }}</span>
+              <div class="flex min-w-0 flex-col">
+                <span
+                  class="min-w-0 truncate font-medium text-gray-800 dark:text-zinc-100"
+                  [pTooltip]="device.deviceName || '-'"
+                  tooltipPosition="bottom">
+                  {{ device.deviceName || '-' }}
+                </span>
+                <span class="min-w-0 truncate text-xs text-gray-500 dark:text-zinc-400">
+                  {{ device.deviceCode || '-' }}
+                </span>
+              </div>
+            </div>
+          </td>
+          <td class="hidden px-3! py-2.5! align-middle text-gray-700 sm:table-cell dark:text-zinc-100">
+            <div
+              class="min-w-0 truncate"
+              [pTooltip]="device.institutionName ?? '-'"
+              tooltipPosition="bottom">
+              {{ device.institutionName ?? '-' }}
+            </div>
+          </td>
+          <td class="hidden px-3! py-2.5! align-middle text-gray-700 md:table-cell dark:text-zinc-100">
+            <div class="flex min-w-0 flex-col">
+              <span
+                class="min-w-0 truncate"
+                [pTooltip]="device.campusName ?? '-'"
+                tooltipPosition="bottom">
+                {{ device.campusName ?? '-' }}
+              </span>
+              @if (device.locationCode) {
+                <span class="min-w-0 truncate text-xs text-gray-500 dark:text-zinc-400">
+                  {{ device.locationCode }}
+                </span>
+              }
+            </div>
+          </td>
+          <td class="hidden px-3! py-2.5! align-middle text-gray-700 md:table-cell dark:text-zinc-100">
+            <div class="flex min-w-0 flex-col">
+              <span
+                class="min-w-0 truncate"
+                [pTooltip]="device.deviceMasterName ?? '-'"
+                tooltipPosition="bottom">
+                {{ device.deviceMasterName ?? '-' }}
+              </span>
+              @if (device.deviceMasterModelNo) {
+                <span class="min-w-0 truncate text-xs text-gray-500 dark:text-zinc-400">
+                  {{ device.deviceMasterModelNo }}
+                </span>
+              }
+            </div>
+          </td>
+          <!-- A capability, not a state. An icon keeps it from reading as a third status chip. -->
+          <td
+            class="hidden px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 xl:table-cell dark:text-zinc-100">
+            @if (device.isAttendanceDevice) {
+              <i
+                class="pi pi-check text-green-600 dark:text-green-400"
+                aria-hidden="true"></i>
+              <span class="sr-only">Yes</span>
+            } @else {
+              <i
+                class="pi pi-minus text-zinc-400 dark:text-zinc-500"
+                aria-hidden="true"></i>
+              <span class="sr-only">No</span>
+            }
+          </td>
+          <td
+            class="hidden px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 lg:table-cell dark:text-zinc-100">
+            <p-tag
+              [value]="device.hasConfiguration ? 'Configured' : 'Not configured'"
+              [icon]="device.hasConfiguration ? 'pi pi-cog' : 'pi pi-exclamation-triangle'"
+              [severity]="device.hasConfiguration ? 'secondary' : 'warn'" />
+          </td>
+          <td
+            class="hidden px-3! py-2.5! align-middle whitespace-nowrap text-gray-700 sm:table-cell dark:text-zinc-100">
+            <p-tag
+              [value]="device.isActive ? 'Active' : 'Inactive'"
+              [icon]="device.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+              [severity]="device.isActive ? 'success' : 'danger'" />
+          </td>
+          @if (canUseRowActions()) {
+            <td class="px-3! py-2.5! align-middle whitespace-nowrap">
+              <!-- The row opens the drawer, so these have to keep their clicks to themselves. -->
+              <div class="flex items-center justify-center gap-2">
+                @if (canUpdate()) {
+                  <p-button
+                    class="text-xl!"
+                    [icon]="device.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                    [severity]="device.isActive ? 'success' : 'danger'"
+                    [pTooltip]="device.isActive ? 'Deactivate' : 'Activate'"
+                    tooltipPosition="left"
+                    [showDelay]="300"
+                    [loading]="device.isUpdatingStatus"
+                    [ariaLabel]="
+                      (device.isActive ? 'Deactivate ' : 'Activate ') + (device.deviceName || 'device')
+                    "
+                    (onClick)="$event.stopPropagation(); confirmToggleActive(device)" />
+                }
+                <app-table-action-button
+                  [ariaLabel]="'Actions for ' + (device.deviceName || 'device')"
+                  (action)="
+                    $event.stopPropagation(); selectedRow.set(device); actionMenu.toggle($event)
+                  " />
+              </div>
+            </td>
+          }
+        </tr>
+      </ng-template>
+
+      <ng-template #loadingbody>
+        @if (store.institutionDevices().length === 0) {
+          <tr>
+            <td [attr.colspan]="columnCount()"><app-table-loader /></td>
+          </tr>
+        }
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            @if (hasActiveFilters()) {
+              <app-table-empty-message
+                icon="pi pi-search"
+                message="No institution devices match your filters"
+                subMessage="Try a different search term or clear the filters" />
+            } @else {
+              <app-table-empty-message
+                icon="pi pi-sitemap"
+                message="No institution devices found"
+                subMessage="Assign a device to an institution location to get started" />
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<app-headless-drawer [(visible)]="isShowDetail">
+  @if (isShowDetail()) {
+    <app-institution-device-detail
+      [device]="detailRow() ?? undefined"
+      [canUpdate]="canUpdate()"
+      (closePopup)="isShowDetail.set(false)"
+      (edit)="onDetailEdit()" />
+  }
+</app-headless-drawer>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  appendTo="body" />
+<p-confirmDialog />

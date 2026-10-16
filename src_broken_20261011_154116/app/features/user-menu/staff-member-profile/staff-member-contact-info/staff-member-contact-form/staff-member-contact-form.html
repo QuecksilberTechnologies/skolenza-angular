@@ -1,0 +1,527 @@
+<!-- Contact Form Section: collects staffMember contact information -->
+<section class="max-h-[calc(100vh-18rem)] overflow-y-auto">
+  <form
+    [formGroup]="contactForm"
+    class="grid grid-cols-1 gap-4">
+    <!-- Contact Name -->
+    <div class="space-y-1">
+      <label
+        for="contactName"
+        class="block font-medium">
+        Contact Name
+        <span class="font-light text-gray-500">(Land loard/owner name)</span>
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        formControlName="contactName"
+        appTrimInput
+        id="contactName"
+        type="text"
+        pInputText
+        [invalid]="isInvalid('contactName')"
+        class="w-full"
+        placeholder="e.g. John Doe" />
+      @if (contactForm.get('contactName')?.touched && contactForm.get('contactName')?.errors) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (contactForm.get('contactName')?.errors?.['required']) { Contact name is required. } @else if
+        (contactForm.get('contactName')?.errors?.['minlength']) { Contact name must be at least 3 characters. } @else if
+        (contactForm.get('contactName')?.errors?.['maxlength']) { Contact name cannot exceed 302 characters. } @else if
+        (contactForm.get('contactName')?.errors?.['pattern']) { Contact name must contain letters, spaces, and hyphens
+        only. }
+      </p-message>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <!-- Contact Type -->
+      <div class="space-y-1">
+        <label
+          for="contactType"
+          class="block font-medium">
+          Contact Type
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-select
+          formControlName="contactType"
+          [options]="contactTypeOptions()"
+          id="contactType"
+          placeholder="Select Contact Type"
+          [appendTo]="'body'"
+          class="w-full"
+          [invalid]="isInvalid('contactType')" />
+        @if (contactForm.get('contactType')?.invalid && contactForm.get('contactType')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (contactForm.get('contactType')?.errors?.['required']) { Contact type is required }
+        </p-message>
+        }
+      </div>
+
+      <!-- Relation -->
+      <div class="space-y-1">
+        <label
+          for="relation"
+          class="block font-medium">
+          Relation
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-select
+          formControlName="relation"
+          id="relation"
+          [options]="relationsOptions()"
+          optionLabel="label"
+          optionValue="id"
+          [loading]="isLoadingRelations()"
+          placeholder="Select Relation"
+          [appendTo]="'body'"
+          class="w-full"
+          [invalid]="isInvalid('relation')" />
+        @if (contactForm.get('relation')?.invalid && contactForm.get('relation')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (contactForm.get('relation')?.errors?.['required']) { Contact relation is required }
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <!-- Country -->
+      <div class="space-y-1">
+        <label
+          for="countryId"
+          class="block font-medium">
+          Country
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <app-country-select
+          selectId="countryId"
+          controlName="countryId"
+          [options]="countries()"
+          [loading]="isLoadingCountries()"
+          [invalid]="isInvalid('countryId')"
+          (selectionChange)="onCountryChange($event)" />
+        @if (contactForm.get('countryId')?.invalid && contactForm.get('countryId')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (contactForm.get('countryId')?.errors?.['required']) { Country is required }
+        </p-message>
+        }
+      </div>
+
+      <!-- State -->
+      <div class="space-y-1">
+        <label
+          for="stateId"
+          class="block font-medium">
+          State
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-select
+          id="stateId"
+          formControlName="stateId"
+          [options]="states()"
+          optionLabel="stateName"
+          optionValue="id"
+          [loading]="isLoadingStates()"
+          placeholder="Select a state"
+          appendTo="body"
+          [invalid]="isInvalid('stateId')"
+          class="w-full"
+          (onChange)="onStateChange($event)" />
+        @if (contactForm.get('stateId')?.invalid && contactForm.get('stateId')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (contactForm.get('stateId')?.errors?.['required']) { State is required }
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <!-- District -->
+      <div class="space-y-1">
+        <label
+          for="districtId"
+          class="block font-medium">
+          District
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-select
+          id="districtId"
+          formControlName="districtId"
+          [options]="districts()"
+          optionLabel="districtName"
+          optionValue="id"
+          [loading]="isLoadingDistricts()"
+          placeholder="Select a district"
+          appendTo="body"
+          [invalid]="isInvalid('districtId')"
+          class="w-full"
+          (onChange)="onDistrictChange($event)" />
+        @if (contactForm.get('districtId')?.invalid && contactForm.get('districtId')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (contactForm.get('districtId')?.errors?.['required']) { District is required }
+        </p-message>
+        }
+      </div>
+
+      <!-- Locality -->
+      <div class="space-y-1">
+        <label
+          for="localityId"
+          class="block font-medium">
+          Locality
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-select
+          id="localityId"
+          formControlName="localityId"
+          [options]="localities()"
+          optionLabel="localityName"
+          optionValue="id"
+          [loading]="isLoadingLocalities()"
+          placeholder="Select a locality"
+          appendTo="body"
+          [invalid]="isInvalid('localityId')"
+          class="w-full" />
+        @if (contactForm.get('localityId')?.invalid && contactForm.get('localityId')?.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (contactForm.get('localityId')?.errors?.['required']) { Locality is required }
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <!-- Contact Number -->
+      <div class="space-y-1">
+        <label
+          for="contactNumber"
+          class="block font-medium">
+          Contact Number
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-inputgroup>
+          @if (selectedDialCode()) {
+          <p-inputgroup-addon>{{ selectedDialCode() }}</p-inputgroup-addon>
+          }
+          <input
+            formControlName="contactNumber"
+            appTrimInput
+            pInputText
+            type="text"
+            id="contactNumber"
+            class="w-full"
+            placeholder="e.g. 555-1234"
+            [invalid]="isInvalid('contactNumber')" />
+        </p-inputgroup>
+        @if ( contactForm.get('contactNumber')?.invalid && contactForm.get('contactNumber')?.touched ) { @if
+        (contactForm.get('contactNumber')?.errors?.['required']) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          Contact number is required
+        </p-message>
+        } @if (contactForm.get('contactNumber')?.errors?.['pattern']) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          Enter a valid phone number (digits only)
+        </p-message>
+        } @if (contactForm.get('contactNumber')?.errors?.['phoneLength']; as phoneLength) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (phoneLength.min === phoneLength.max) { Phone number must be exactly {{ phoneLength.min }} digits } @else
+          { Phone number must be {{ phoneLength.min }}-{{ phoneLength.max }} digits }
+        </p-message>
+        } }
+      </div>
+
+      <!-- Alternate Number -->
+      <div class="space-y-1">
+        <label
+          for="alternateNumber"
+          class="block font-medium">
+          Alternate Number
+        </label>
+        <p-inputgroup>
+          @if (selectedDialCode()) {
+          <p-inputgroup-addon>{{ selectedDialCode() }}</p-inputgroup-addon>
+          }
+          <input
+            formControlName="alternateNumber"
+            appTrimInput
+            pInputText
+            type="text"
+            id="alternateNumber"
+            class="w-full"
+            placeholder="e.g. 555-4321" />
+        </p-inputgroup>
+        @if ( contactForm.get('alternateNumber')?.invalid && contactForm.get('alternateNumber')?.touched ) { @if
+        (contactForm.get('alternateNumber')?.errors?.['pattern']) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          Enter a valid phone number (digits only)
+        </p-message>
+        } @if (contactForm.get('alternateNumber')?.errors?.['phoneLength']; as phoneLength) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (phoneLength.min === phoneLength.max) { Phone number must be exactly {{ phoneLength.min }} digits } @else
+          { Phone number must be {{ phoneLength.min }}-{{ phoneLength.max }} digits }
+        </p-message>
+        } } @if (contactForm.errors?.['sameNumber'] && contactForm.controls.alternateNumber.touched) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          Alternate number cannot match contact number
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div class="space-y-1">
+      <label
+        for="email"
+        class="block font-medium">
+        Email
+      </label>
+      <input
+        formControlName="email"
+        appTrimInput
+        pInputText
+        type="text"
+        id="email"
+        class="w-full"
+        placeholder="e.g. name@example.com"
+        [invalid]="isInvalid('email')" />
+      @if (contactForm.get('email')?.invalid && contactForm.get('email')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if ( contactForm.get('email')?.errors?.['email'] || contactForm.get('email')?.errors?.['pattern'] ) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          Enter a valid email address (e.g. user&#64;example.com).
+        </p-message>
+        }
+      </p-message>
+      }
+    </div>
+
+    <!-- House No -->
+    <div class="space-y-1">
+      <label
+        for="houseNo"
+        class="block font-medium">
+        House No
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        formControlName="houseNo"
+        appTrimInput
+        pInputText
+        type="text"
+        id="houseNo"
+        class="w-full"
+        placeholder="e.g. 123A"
+        [invalid]="isInvalid('houseNo')" />
+      @if (contactForm.get('houseNo')?.invalid && contactForm.get('houseNo')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (contactForm.get('houseNo')?.errors?.['required']) { House No is required }
+      </p-message>
+      }
+    </div>
+
+    <!-- Street -->
+    <div class="space-y-1">
+      <label
+        for="street"
+        class="block font-medium">
+        Street
+      </label>
+      <input
+        formControlName="street"
+        appTrimInput
+        pInputText
+        type="text"
+        id="street"
+        class="w-full"
+        placeholder="e.g. Elm Street"
+        [invalid]="isInvalid('street')" />
+      @if (contactForm.get('street')?.invalid && contactForm.get('street')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (contactForm.get('street')?.errors?.['maxlength']) { Street cannot exceed 100 characters. }
+      </p-message>
+      }
+    </div>
+
+    <!-- Landmark -->
+    <div class="space-y-1">
+      <label
+        for="landMark"
+        class="block font-medium">
+        Landmark
+      </label>
+      <input
+        formControlName="landMark"
+        appTrimInput
+        pInputText
+        type="text"
+        id="landMark"
+        class="w-full"
+        placeholder="e.g. Near Main Park"
+        [invalid]="isInvalid('landMark')" />
+      @if (contactForm.get('landMark')?.invalid && contactForm.get('landMark')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (contactForm.get('landMark')?.errors?.['maxlength']) { Landmark cannot exceed 100 characters. }
+      </p-message>
+      }
+    </div>
+
+    <!-- Address -->
+    <div class="space-y-1">
+      <label
+        for="address"
+        class="block font-medium">
+        Address
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        formControlName="address"
+        appTrimInput
+        pInputText
+        type="text"
+        id="address"
+        class="w-full"
+        placeholder="e.g. Apartment 4B"
+        [invalid]="isInvalid('address')" />
+      @if (contactForm.get('address')?.invalid && contactForm.get('address')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (contactForm.get('address')?.errors?.['required']) { Address is required. } @else if
+        (contactForm.get('address')?.errors?.['maxlength']) { Address cannot exceed 250 characters. }
+      </p-message>
+      }
+    </div>
+
+    <!-- Description -->
+    <div class="space-y-1">
+      <label
+        for="description"
+        class="block font-medium">
+        Description
+      </label>
+      <textarea
+        formControlName="description"
+        appTrimInput
+        pTextarea
+        rows="3"
+        cols="20"
+        id="description"
+        class="w-full resize-none"
+        placeholder="Description about this contact"
+        [invalid]="isInvalid('description')"></textarea>
+      @if (contactForm.get('description')?.invalid && contactForm.get('description')?.touched) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (contactForm.get('description')?.errors?.['maxlength']) { Description cannot exceed 250 characters. }
+      </p-message>
+      }
+    </div>
+
+    <!-- Remark -->
+    @if (contactForm.controls.remark.enabled) {
+    <div class="space-y-1">
+      <label
+        for="remark"
+        class="block font-medium">
+        Remark
+      </label>
+      <textarea
+        formControlName="remark"
+        appTrimInput
+        pTextarea
+        rows="3"
+        cols="20"
+        id="remark"
+        class="w-full resize-none"
+        placeholder="Any additional notes"></textarea>
+    </div>
+    }
+
+    <!-- Is Primary -->
+    <div class="grid grid-cols-1 gap-4">
+      <div class="flex items-center justify-between space-y-1 rounded-2xl bg-zinc-50 p-4 dark:bg-zinc-800">
+        <div>
+          <label
+            for="isPrimary"
+            class="block font-medium">
+            Is Primary
+          </label>
+          <p class="text-sm text-muted-color">Mark this contact as primary.</p>
+        </div>
+        <p-toggleswitch
+          formControlName="isPrimary"
+          inputId="isPrimary" />
+      </div>
+    </div>
+  </form>
+</section>
+
+<!-- Form Actions: Cancel and Save buttons -->
+<div class="mt-6 flex justify-end gap-2">
+  <p-button
+    label="Cancel"
+    variant="text"
+    severity="secondary"
+    (onClick)="onCancel()" />
+  <p-button
+    [label]="isSaving() ? 'Saving...' : 'Save'"
+    [loading]="isSaving()"
+    [disabled]="contactForm.invalid || isSaving()"
+    (onClick)="onSubmit()" />
+</div>

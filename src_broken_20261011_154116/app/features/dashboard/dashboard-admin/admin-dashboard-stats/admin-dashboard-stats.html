@@ -1,0 +1,18 @@
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <app-stat-card
+    icon="pi pi-users"
+    [value]="summary()?.totalStaff Members || 0"
+    [label]="'dashboard.TotalStaff Members' | translate" />
+  <app-stat-card
+    icon="pi pi-user-plus"
+    [value]="summary()?.newHiresThisMonth || 0"
+    [label]="'dashboard.NewHiresThisMonth' | translate" />
+  <app-stat-card
+    icon="pi pi-briefcase"
+    [value]="summary()?.openPositions || 0"
+    [label]="'dashboard.OpenPositions' | translate" />
+  <app-stat-card
+    icon="pi pi-inbox"
+    [value]="summary()?.pendingApprovals || 0"
+    [label]="'dashboard.PendingApprovals' | translate" />
+</div>

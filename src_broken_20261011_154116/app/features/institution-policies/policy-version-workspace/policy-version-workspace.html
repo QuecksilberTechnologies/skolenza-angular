@@ -1,0 +1,826 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="flex flex-col gap-5">
+      <!-- The summary row below is fetched by policy, so it always describes the policy's current
+           version while the tabs are fetched by the version the URL names. Saying so beats letting
+           the two disagree silently. -->
+      @if (!isViewingCurrentVersion()) {
+        <p-message
+          severity="warn"
+          icon="pi pi-exclamation-triangle">
+          <span>
+            The details below describe this policy's current version, not the version this page is
+            open on. The tabs still show the version from the address bar. Actions that depend on
+            version status are turned off until you open the current version.
+          </span>
+        </p-message>
+      }
+
+      <!-- Version summary. The policy name and the trail back to the list live in the page
+           header's breadcrumb, so this row carries only what the breadcrumb cannot. -->
+      <section
+        aria-label="Version summary"
+        class="flex flex-col gap-4 rounded-md border border-zinc-200 bg-zinc-50 p-4 lg:flex-row lg:items-start dark:border-zinc-800 dark:bg-zinc-800/40">
+        <div class="min-w-0 flex-1">
+          @if (store.detail(); as detail) {
+            <dl class="grid grid-cols-1 gap-x-6 gap-y-4 min-[30rem]:grid-cols-2 lg:grid-cols-3">
+              <div class="flex min-w-0 items-center gap-3">
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                  aria-hidden="true">
+                  <i class="pi pi-tag"></i>
+                </span>
+                <div class="min-w-0">
+                  <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Code</dt>
+                  <dd class="mt-0.5 truncate text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                    {{ detail.code }}
+                  </dd>
+                </div>
+              </div>
+              <div class="flex min-w-0 items-center gap-3">
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                  aria-hidden="true">
+                  <i class="pi pi-hashtag"></i>
+                </span>
+                <div class="min-w-0">
+                  <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Version</dt>
+                  <dd class="mt-0.5 text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                    v{{ detail.versionNumber }}
+                  </dd>
+                </div>
+              </div>
+              <div class="flex min-w-0 items-center gap-3">
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                  aria-hidden="true">
+                  <i class="pi pi-bookmark"></i>
+                </span>
+                <div class="min-w-0">
+                  <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Policy type</dt>
+                  <dd class="mt-0.5 truncate text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                    @if (policyTypeName(); as typeName) {
+                      {{ typeName }}
+                    } @else {
+                      <span aria-hidden="true">—</span>
+                      <span class="sr-only">Policy type unavailable</span>
+                    }
+                  </dd>
+                </div>
+              </div>
+              <div class="flex min-w-0 items-center gap-3">
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                  aria-hidden="true">
+                  <i class="pi pi-building"></i>
+                </span>
+                <div class="min-w-0">
+                  <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                    Owner department
+                  </dt>
+                  <dd class="mt-0.5 truncate text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                    @if (ownerDepartmentName(); as departmentName) {
+                      {{ departmentName }}
+                    } @else {
+                      <span aria-hidden="true">—</span>
+                      <span class="sr-only">No owner department</span>
+                    }
+                  </dd>
+                </div>
+              </div>
+              <div class="flex min-w-0 items-center gap-3">
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                  aria-hidden="true">
+                  <i class="pi pi-calendar"></i>
+                </span>
+                <div class="min-w-0">
+                  <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Effective</dt>
+                  <dd class="mt-0.5 text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                    {{ detail.effectiveFrom | date: 'dd MMM yyyy' }}
+                    @if (detail.effectiveTo) {
+                      – {{ detail.effectiveTo | date: 'dd MMM yyyy' }}
+                    }
+                  </dd>
+                </div>
+              </div>
+              <div class="flex min-w-0 items-center gap-3">
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+                  aria-hidden="true">
+                  <i class="pi pi-info-circle"></i>
+                </span>
+                <div class="min-w-0">
+                  <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Status</dt>
+                  <dd class="mt-0.5">
+                    <p-tag
+                      [value]="detail.status"
+                      [severity]="statusSeverity(detail.status)" />
+                  </dd>
+                </div>
+              </div>
+            </dl>
+          } @else if (store.isLoadingDetail()) {
+            <!-- Same grid as the real summary above, so nothing shifts when the detail lands. -->
+            <div
+              class="grid grid-cols-1 gap-x-6 gap-y-4 min-[30rem]:grid-cols-2 lg:grid-cols-3"
+              role="status"
+              aria-label="Loading policy">
+              @for (_ of [1, 2, 3, 4, 5, 6]; track $index) {
+                <div class="flex min-w-0 items-center gap-3">
+                  <p-skeleton
+                    width="2rem"
+                    height="2rem"
+                    class="shrink-0 rounded-md!" />
+                  <div class="min-w-0">
+                    <p-skeleton
+                      width="4.5rem"
+                      height="0.75rem"
+                      class="rounded-md!" />
+                    <p-skeleton
+                      width="7rem"
+                      height="1.25rem"
+                      class="mt-1 rounded-md!" />
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <p-button
+          label="Clone version"
+          icon="pi pi-copy"
+          severity="contrast"
+          class="w-full lg:w-auto"
+          [disabled]="!canClone()"
+          (onClick)="cloneVersion()" />
+      </section>
+
+      <!-- Tabs -->
+      <p-tabs
+        [value]="store.activeTab()"
+        [scrollable]="true"
+        (valueChange)="onTabChange($event)">
+        <p-tablist>
+          @for (tab of tabs; track tab.value) {
+            <p-tab
+              [value]="tab.value"
+              class="flex items-center gap-2! truncate text-inherit">
+              <span
+                [class]="tab.icon"
+                aria-hidden="true"></span>
+              <span class="truncate">{{ tab.label }}</span>
+            </p-tab>
+          }
+        </p-tablist>
+
+        <p-tabpanels class="px-0! pt-4! pb-0!">
+          <!-- Documents -->
+          <p-tabpanel value="documents">
+            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+              <p-table
+                class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
+                [value]="store.documents()"
+                [loading]="store.isLoadingDocuments()"
+                [showLoader]="false"
+                [rowHover]="true"
+                [scrollable]="true"
+                [tableStyle]="{ 'min-width': '44rem' }"
+                [style]="{ background: 'transparent' }">
+                <ng-template #caption>
+                  <div class="px-3 py-2.5">
+                    <app-table-inline-filters>
+                      <div class="min-w-0">
+                        <h2 class="text-base leading-snug font-semibold text-zinc-900 dark:text-zinc-50">Policy documents</h2>
+                        <p class="text-sm leading-snug text-zinc-500 dark:text-zinc-400">
+                          @if (isDocumentMutable()) {
+                            Signed files attached to this version. Opening a file uses a temporary
+                            link, so save the file rather than the link.
+                          } @else if (isVersionStatusKnown()) {
+                            Signed files attached to this version. Files are locked when review
+                            starts so every approval covers the exact same content.
+                          } @else {
+                            Signed files attached to this version. Its status could not be read, so
+                            files can be opened but not added or removed. Reload to try again.
+                          }
+                        </p>
+                      </div>
+                      <div ngProjectAs="right">
+                        <p-button
+                          label="Upload document"
+                          icon="pi pi-upload"
+                          class="w-full lg:w-auto"
+                          [disabled]="!canUploadDocument()"
+                          (onClick)="uploadDocument()" />
+                      </div>
+                    </app-table-inline-filters>
+                  </div>
+                </ng-template>
+                <ng-template #colgroup>
+                  <colgroup>
+                    <col style="width: 14rem" />
+                    <col style="width: 12rem" />
+                    <col style="width: 6rem" />
+                    <col style="width: 7rem" />
+                    <col style="width: 5rem" />
+                  </colgroup>
+                </ng-template>
+                <ng-template #header>
+                  <tr class="bg-gray-50 dark:bg-zinc-800">
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Title</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">File</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Language</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Visibility</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">
+                      <div class="flex justify-center">Actions</div>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template
+                  #body
+                  let-document>
+                  <tr class="transition-colors duration-200">
+                    <td class="!px-3 !py-3 font-medium text-zinc-900 dark:text-zinc-50">
+                      {{ document.title }}
+                    </td>
+                    <td class="!px-3 !py-3">{{ document.originalFileName }}</td>
+                    <td class="!px-3 !py-3">{{ document.languageCode }}</td>
+                    <td class="!px-3 !py-3">
+                      <p-tag
+                        [value]="document.isStaffMemberVisible ? 'Staff Members' : 'Administrators'"
+                        [severity]="document.isStaffMemberVisible ? 'success' : 'secondary'" />
+                    </td>
+                    <td class="!px-3 !py-3">
+                      <div class="flex justify-center gap-2">
+                        <p-button
+                          icon="pi pi-external-link"
+                          severity="secondary"
+                          [text]="true"
+                          [ariaLabel]="'Open ' + document.title"
+                          (onClick)="openDocument(document)" />
+                        <p-button
+                          icon="pi pi-trash"
+                          severity="danger"
+                          [text]="true"
+                          [disabled]="!canDeleteDocument()"
+                          [ariaLabel]="'Delete ' + document.title"
+                          (onClick)="confirmDeleteDocument(document)" />
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #loadingbody>
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-loader />
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-empty-message
+                        icon="pi pi-file"
+                        message="No documents yet"
+                        subMessage="Upload the signed policy document for this version" />
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-tabpanel>
+
+          <!-- Assignments -->
+          <p-tabpanel value="assignments">
+            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+              <p-table
+                class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
+                [value]="store.assignments()"
+                [loading]="store.isLoadingAssignments()"
+                [showLoader]="false"
+                [rowHover]="true"
+                [scrollable]="true"
+                [tableStyle]="{ 'min-width': '44rem' }"
+                [style]="{ background: 'transparent' }">
+                <ng-template #caption>
+                  <div class="px-3 py-2.5">
+                    <app-table-inline-filters>
+                      <div class="min-w-0">
+                        <h2 class="text-base leading-snug font-semibold text-zinc-900 dark:text-zinc-50">Manual assignments</h2>
+                        <p class="text-sm leading-snug text-zinc-500 dark:text-zinc-400">
+                          @if (isAssignable()) {
+                            Staff Members assigned to this version directly
+                          } @else if (isVersionStatusKnown()) {
+                            Assigning is available only on a published version
+                          } @else {
+                            This version's status could not be read, so assigning is unavailable
+                          }
+                        </p>
+                      </div>
+                      <div
+                        ngProjectAs="right"
+                        class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+                        <p-button
+                          label="Import"
+                          icon="pi pi-upload"
+                          severity="secondary"
+                          [outlined]="true"
+                          class="w-full lg:w-auto"
+                          [disabled]="!canImportAssignments()"
+                          (onClick)="openAssignmentImport()" />
+                        <p-button
+                          label="Assign staff members"
+                          icon="pi pi-user-plus"
+                          class="w-full lg:w-auto"
+                          [disabled]="!canAssign()"
+                          (onClick)="assignPolicy()" />
+                      </div>
+                    </app-table-inline-filters>
+                  </div>
+                </ng-template>
+                <ng-template #colgroup>
+                  <colgroup>
+                    <col style="width: 14rem" />
+                    <col style="width: 13rem" />
+                    <col style="width: 6rem" />
+                    <col style="width: 6rem" />
+                    <col style="width: 5rem" />
+                  </colgroup>
+                </ng-template>
+                <ng-template #header>
+                  <tr class="bg-gray-50 dark:bg-zinc-800">
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">StaffMember</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Effective</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Mandatory</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">State</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">
+                      <div class="flex justify-center">Actions</div>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template
+                  #body
+                  let-assignment>
+                  <tr class="transition-colors duration-200">
+                    <td class="!px-3 !py-3 font-medium text-zinc-900 dark:text-zinc-50">
+                      {{ staffMemberName(assignment.staffMemberId) }}
+                    </td>
+                    <td class="!px-3 !py-3 whitespace-nowrap">
+                      {{ assignment.effectiveFrom | date: 'dd MMM yyyy' }}
+                      @if (assignment.effectiveTo) {
+                        – {{ assignment.effectiveTo | date: 'dd MMM yyyy' }}
+                      }
+                    </td>
+                    <td class="!px-3 !py-3">{{ assignment.isMandatory ? 'Yes' : 'No' }}</td>
+                    <td class="!px-3 !py-3">
+                      <p-tag
+                        [value]="
+                          assignment.stateReason === 'VERSION_ARCHIVED'
+                            ? 'Inactive - version archived'
+                            : assignment.isActive
+                              ? 'Active'
+                              : 'Removed'
+                        "
+                        [severity]="assignment.isEffective ? 'success' : 'secondary'" />
+                    </td>
+                    <td class="!px-3 !py-3">
+                      <div class="flex justify-center">
+                        <p-button
+                          icon="pi pi-user-minus"
+                          severity="danger"
+                          [text]="true"
+                          [disabled]="!canRemoveAssignment() || !assignment.isEffective"
+                          [ariaLabel]="'Remove assignment for ' + staffMemberName(assignment.staffMemberId)"
+                          (onClick)="confirmRemoveAssignment(assignment)" />
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #loadingbody>
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-loader />
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-empty-message
+                        icon="pi pi-users"
+                        message="No manual assignments"
+                        subMessage="Staff Members matched by applicability rules are not listed here" />
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-tabpanel>
+
+          <!-- Exceptions -->
+          <p-tabpanel value="exceptions">
+            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+              <p-table
+                class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
+                [value]="store.exceptions()"
+                [loading]="store.isLoadingExceptions()"
+                [showLoader]="false"
+                [rowHover]="true"
+                [scrollable]="true"
+                [tableStyle]="{ 'min-width': '52rem' }"
+                [style]="{ background: 'transparent' }">
+                <ng-template #caption>
+                  <div class="px-3 py-2.5">
+                    <app-table-inline-filters>
+                      <div class="min-w-0">
+                        <h2 class="text-base leading-snug font-semibold text-zinc-900 dark:text-zinc-50">Exceptions</h2>
+                        <p class="text-sm leading-snug text-zinc-500 dark:text-zinc-400">Overrides of this version for a single staffMember</p>
+                      </div>
+                      <div ngProjectAs="right">
+                        <p-button
+                          label="Submit exception"
+                          icon="pi pi-flag"
+                          class="w-full lg:w-auto"
+                          [disabled]="!canAddException()"
+                          (onClick)="addException()" />
+                      </div>
+                    </app-table-inline-filters>
+                  </div>
+                </ng-template>
+                <ng-template #colgroup>
+                  <colgroup>
+                    <col style="width: 13rem" />
+                    <col style="width: 18rem" />
+                    <col style="width: 10rem" />
+                    <col style="width: 6rem" />
+                    <col style="width: 5rem" />
+                  </colgroup>
+                </ng-template>
+                <ng-template #header>
+                  <tr class="bg-gray-50 dark:bg-zinc-800">
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">StaffMember</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Reason</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Effective</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">State</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">
+                      <div class="flex justify-center">Decision</div>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template
+                  #body
+                  let-exception>
+                  <tr class="transition-colors duration-200">
+                    <td class="!px-3 !py-3 font-medium text-zinc-900 dark:text-zinc-50">
+                      {{ staffMemberName(exception.staffMemberId) }}
+                    </td>
+                    <td class="!px-3 !py-3">{{ exception.reason }}</td>
+                    <td class="!px-3 !py-3 whitespace-nowrap">
+                      {{ exception.effectiveFrom | date: 'dd MMM yyyy' }}
+                      @if (exception.effectiveTo) {
+                        – {{ exception.effectiveTo | date: 'dd MMM yyyy' }}
+                      }
+                    </td>
+                    <td class="!px-3 !py-3">
+                      <p-tag
+                        [value]="exception.isActive ? 'Active' : 'Inactive'"
+                        [severity]="exception.isActive ? 'success' : 'secondary'" />
+                    </td>
+                    <td class="!px-3 !py-3">
+                      <div class="flex justify-center gap-2">
+                        <p-button
+                          icon="pi pi-check-circle"
+                          severity="success"
+                          [text]="true"
+                          [disabled]="!canApproveException()"
+                          [ariaLabel]="'Approve exception for ' + staffMemberName(exception.staffMemberId)"
+                          (onClick)="confirmDecision(exception, true)" />
+                        <p-button
+                          icon="pi pi-times-circle"
+                          severity="danger"
+                          [text]="true"
+                          [disabled]="!canRejectException()"
+                          [ariaLabel]="'Reject exception for ' + staffMemberName(exception.staffMemberId)"
+                          (onClick)="confirmDecision(exception, false)" />
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #loadingbody>
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-loader />
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-empty-message
+                        icon="pi pi-flag"
+                        message="No exceptions"
+                        subMessage="Exceptions override this version for one staffMember at a time" />
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-tabpanel>
+
+          <!-- Acknowledgements -->
+          <p-tabpanel value="acknowledgements">
+            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+              <p-table
+                class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
+                [value]="store.acknowledgements()"
+                [loading]="store.isLoadingAcknowledgements()"
+                [showLoader]="false"
+                [rowHover]="true"
+                [scrollable]="true"
+                [tableStyle]="{ 'min-width': '44rem' }"
+                [style]="{ background: 'transparent' }">
+                <ng-template #caption>
+                  <div class="px-3 py-2.5">
+                    <app-table-inline-filters>
+                      <div class="min-w-0">
+                        <h2 class="text-base leading-snug font-semibold text-zinc-900 dark:text-zinc-50">Acknowledgements</h2>
+                        <p class="text-sm leading-snug text-zinc-500 dark:text-zinc-400">Who has viewed and acknowledged this version</p>
+                      </div>
+                      <div ngProjectAs="right">
+                        <!-- Records the signed-in staffMember's own acknowledgement, which is why it
+                             sits with this evidence rather than beside the policy-level actions. -->
+                        <p-button
+                          label="Acknowledge as me"
+                          icon="pi pi-check"
+                          severity="secondary"
+                          class="w-full lg:w-auto"
+                          [outlined]="true"
+                          [disabled]="!canAcknowledge()"
+                          (onClick)="confirmAcknowledge()" />
+                      </div>
+                    </app-table-inline-filters>
+                  </div>
+                </ng-template>
+                <ng-template #header>
+                  <tr class="bg-gray-50 dark:bg-zinc-800">
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">StaffMember</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">State</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Assigned</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Viewed</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Acknowledged</th>
+                  </tr>
+                </ng-template>
+                <ng-template
+                  #body
+                  let-row>
+                  <tr class="transition-colors duration-200">
+                    <td class="!px-3 !py-3 font-medium text-zinc-900 dark:text-zinc-50">
+                      {{ staffMemberName(row.staffMemberId) }}
+                    </td>
+                    <td class="!px-3 !py-3">
+                      <p-tag
+                        [value]="acknowledgementState(row).label"
+                        [severity]="acknowledgementState(row).severity" />
+                    </td>
+                    <td class="!px-3 !py-3 whitespace-nowrap">
+                      {{ row.assignedDateTime | date: 'dd MMM yyyy, HH:mm' }}
+                    </td>
+                    <td class="!px-3 !py-3 whitespace-nowrap">
+                      @if (row.viewedDateTime) {
+                        {{ row.viewedDateTime | date: 'dd MMM yyyy, HH:mm' }}
+                      } @else {
+                        <span aria-hidden="true">—</span>
+                        <span class="sr-only">Not viewed</span>
+                      }
+                    </td>
+                    <td class="!px-3 !py-3 whitespace-nowrap">
+                      @if (row.acknowledgedDateTime) {
+                        {{ row.acknowledgedDateTime | date: 'dd MMM yyyy, HH:mm' }}
+                      } @else {
+                        <span aria-hidden="true">—</span>
+                        <span class="sr-only">Not acknowledged</span>
+                      }
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #loadingbody>
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-loader />
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-empty-message
+                        icon="pi pi-check-square"
+                        message="No acknowledgement evidence"
+                        subMessage="Evidence appears once the version is assigned to staff members" />
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-tabpanel>
+
+          <!-- Approval progress -->
+          <p-tabpanel value="approvals">
+            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+              <p-table
+                class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
+                [value]="store.approvalProgress()"
+                [loading]="store.isLoadingApprovalProgress()"
+                [showLoader]="false"
+                [rowHover]="true"
+                [scrollable]="true"
+                [tableStyle]="{ 'min-width': '36rem' }"
+                [style]="{ background: 'transparent' }">
+                <ng-template #caption>
+                  <div class="px-3 py-2.5">
+                    <app-table-inline-filters>
+                      <div class="min-w-0">
+                        <h2 class="text-base leading-snug font-semibold text-zinc-900 dark:text-zinc-50">Approval progress</h2>
+                        <p class="text-sm leading-snug text-zinc-500 dark:text-zinc-400">Stages this version passes before it is published</p>
+                      </div>
+                    </app-table-inline-filters>
+                  </div>
+                </ng-template>
+                <ng-template #colgroup>
+                  <colgroup>
+                    <col style="width: 5rem" />
+                    <col style="width: 16rem" />
+                    <col style="width: 8rem" />
+                    <col style="width: 7rem" />
+                  </colgroup>
+                </ng-template>
+                <ng-template #header>
+                  <tr class="bg-gray-50 dark:bg-zinc-800">
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Order</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Stage</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Approvals</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">State</th>
+                  </tr>
+                </ng-template>
+                <ng-template
+                  #body
+                  let-stage>
+                  <tr class="transition-colors duration-200">
+                    <td class="!px-3 !py-3">{{ stage.stageOrder }}</td>
+                    <td class="!px-3 !py-3 font-medium text-zinc-900 dark:text-zinc-50">
+                      {{ stage.stageName }}
+                    </td>
+                    <td class="!px-3 !py-3">
+                      {{ stage.approvalCount }} of {{ stage.minimumApprovals }}
+                    </td>
+                    <td class="!px-3 !py-3">
+                      <p-tag
+                        [value]="stage.isComplete ? 'Complete' : 'Pending'"
+                        [severity]="stage.isComplete ? 'success' : 'warn'" />
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #loadingbody>
+                  <tr>
+                    <td
+                      colspan="4"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-loader />
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td
+                      colspan="4"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-empty-message
+                        icon="pi pi-sitemap"
+                        message="No approval stages"
+                        subMessage="This version's category has no configured approval route" />
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-tabpanel>
+
+          <!-- Audit -->
+          <p-tabpanel value="audit">
+            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+              <p-table
+                class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
+                [value]="store.audit()"
+                [loading]="store.isLoadingAudit()"
+                [showLoader]="false"
+                [rowHover]="true"
+                [scrollable]="true"
+                [tableStyle]="{ 'min-width': '44rem' }"
+                [style]="{ background: 'transparent' }">
+                <ng-template #caption>
+                  <div class="px-3 py-2.5">
+                    <app-table-inline-filters>
+                      <div class="min-w-0">
+                        <h2 class="text-base leading-snug font-semibold text-zinc-900 dark:text-zinc-50">Audit trail</h2>
+                        <p class="text-sm leading-snug text-zinc-500 dark:text-zinc-400">Every change made to this policy</p>
+                      </div>
+                    </app-table-inline-filters>
+                  </div>
+                </ng-template>
+                <ng-template #colgroup>
+                  <colgroup>
+                    <col style="width: 11rem" />
+                    <col style="width: 9rem" />
+                    <col style="width: 9rem" />
+                    <col style="width: 7rem" />
+                    <col style="width: 9rem" />
+                  </colgroup>
+                </ng-template>
+                <ng-template #header>
+                  <tr class="bg-gray-50 dark:bg-zinc-800">
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">When</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Entity</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Action</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Version</th>
+                    <th class="!px-3 !py-3 text-gray-700 dark:text-zinc-100">Changed by</th>
+                  </tr>
+                </ng-template>
+                <ng-template
+                  #body
+                  let-entry>
+                  <tr class="transition-colors duration-200">
+                    <td class="!px-3 !py-3 whitespace-nowrap">
+                      <span class="font-medium text-zinc-900 dark:text-zinc-50">
+                        {{ entry.changedDateTime | date: 'dd MMM yyyy' }}
+                      </span>
+                      <span class="ml-1 text-zinc-500 dark:text-zinc-400">
+                        {{ entry.changedDateTime | date: 'HH:mm' }}
+                      </span>
+                    </td>
+                    <td class="!px-3 !py-3">{{ entry.entityName }}</td>
+                    <td class="!px-3 !py-3">
+                      <p-tag
+                        [value]="entry.actionName"
+                        severity="secondary" />
+                    </td>
+                    <td class="!px-3 !py-3">
+                      @if (auditVersion(entry); as version) {
+                        <span [class]="version.isRawId ? 'text-zinc-500 dark:text-zinc-400' : ''">
+                          {{ version.label }}
+                        </span>
+                      } @else {
+                        <span aria-hidden="true">—</span>
+                        <span class="sr-only">Not version specific</span>
+                      }
+                    </td>
+                    <td class="!px-3 !py-3">{{ auditActorName(entry) }}</td>
+                  </tr>
+                </ng-template>
+                <ng-template #loadingbody>
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-loader />
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td
+                      colspan="5"
+                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      <app-table-empty-message
+                        icon="pi pi-history"
+                        message="No audit evidence"
+                        subMessage="Every change to this policy is recorded here" />
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+    </div>
+  </p-card>
+</div>
+
+<p-confirmDialog />

@@ -1,0 +1,89 @@
+<div class="flex h-full flex-col">
+  <!-- Header -->
+  <section class="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+    <div class="flex items-center justify-between gap-2">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900">
+        <i class="pi pi-filter text-2xl text-primary-600 dark:text-primary-300"></i>
+      </span>
+      <div>
+        <div class="text-lg font-semibold text-gray-800 dark:text-zinc-100">Asset Filter</div>
+        <div class="text-sm text-gray-500 dark:text-zinc-400">
+          Use the filters below to find specific assets in your inventory.
+        </div>
+      </div>
+    </div>
+    <p-button
+      type="button"
+      icon="pi pi-times"
+      rounded="true"
+      [variant]="'text'"
+      [size]="'small'"
+      [severity]="'secondary'"
+      (onClick)="onCancel()" />
+  </section>
+
+  <!-- Content -->
+  <section class="h-[calc(100vh-8.8rem)] overflow-y-auto bg-gray-50 p-4 dark:bg-zinc-900">
+    <form
+      [formGroup]="assetFilterForm"
+      class="grid grid-cols-1 gap-4">
+      <div class="space-y-1">
+        <label
+          for="assetType"
+          class="block font-semibold">
+          Asset Type
+        </label>
+        <app-select-field
+          selectId="assetType"
+          controlName="assetType"
+          optionValue="id"
+          optionLabel="typeName"
+          placeholder="Select asset type"
+          emptyTitle="No Asset Types Found"
+          emptyDetail="You currently have no asset types configured."
+          emptyActionText="Contact your institution admin"
+          emptyActionSuffix="to add asset types and enable asset assignment."
+          emptyFilterMessage="No asset types match your search. Please contact your institution admin to add asset types if needed."
+          [loading]="isLoadingTypes()"
+          [options]="assetTypes()" />
+      </div>
+
+      <div class="space-y-1">
+        <label
+          for="status"
+          class="block font-semibold">
+          Status
+        </label>
+        <app-asset-status-select
+          selectId="status"
+          controlName="status"
+          [loading]="isLoadingStatus()"
+          [options]="assetStatuses()" />
+      </div>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <section class="mt-auto flex justify-between gap-2 border-t border-zinc-200 px-4 py-3 dark:border-zinc-700">
+    <div>
+      <p-button
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        [label]="isSaving() ? 'Resetting...' : 'Reset Filters'"
+        [loading]="isSaving()"
+        (onClick)="onReset()" />
+    </div>
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        (onClick)="onCancel()" />
+      <p-button
+        [label]="isSaving() ? 'Applying...' : 'Apply'"
+        [loading]="isSaving()"
+        [disabled]="assetFilterForm.invalid || isSaving()"
+        (onClick)="onApply()" />
+    </div>
+  </section>
+</div>

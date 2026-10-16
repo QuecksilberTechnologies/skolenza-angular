@@ -1,0 +1,232 @@
+<form
+  [formGroup]="hostUserForm"
+  (ngSubmit)="onSubmit()"
+  class="flex max-h-[calc(100vh-16rem)] flex-col gap-4">
+  <div class="grid grid-cols-1 gap-4 overflow-y-auto px-1 pb-1">
+    <!-- Name -->
+    <div class="space-y-1">
+      <label
+        for="name"
+        class="block font-medium">
+        Name
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <input
+        formControlName="name"
+        appTrimInput
+        pInputText
+        [pAutoFocus]="true"
+        type="text"
+        id="name"
+        class="w-full"
+        autocomplete="name"
+        [invalid]="isInvalid('name')" />
+      @if (isInvalid('name')) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (hostUserForm.get('name')?.errors?.['required']) {
+        <span>Name is required</span>
+        } @else if (hostUserForm.get('name')?.errors?.['minlength']) {
+        <span>Name must be at least 3 characters</span>
+        } @else if (hostUserForm.get('name')?.errors?.['pattern']) {
+        <span>Name must start with a letter and use only letters, spaces or hyphens.</span>
+        }
+      </p-message>
+      }
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <!-- Login ID -->
+      <div class="space-y-1">
+        <label
+          for="loginId"
+          class="block font-medium">
+          Login ID (Email)
+          @if (hostUserForm.controls.loginId.enabled) {
+          <span class="text-red-600 dark:text-red-400">*</span>
+          }
+        </label>
+        <input
+          formControlName="loginId"
+          appTrimInput
+          pInputText
+          type="email"
+          id="loginId"
+          class="w-full"
+          autocomplete="username"
+          [invalid]="isInvalid('loginId')" />
+        @if (isInvalid('loginId')) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (hostUserForm.get('loginId')?.errors?.['required']) {
+          <span>Login ID is required</span>
+          } @else if (hostUserForm.get('loginId')?.errors?.['pattern']) {
+          <span>Enter a valid email address</span>
+          }
+        </p-message>
+        } @if (hostUserForm.controls.loginId.disabled) {
+        <p class="text-muted-color text-sm">Login ID cannot be changed after the user is created.</p>
+        }
+      </div>
+
+      <!-- Role -->
+      <div class="space-y-1">
+        <label
+          for="hostRoleId"
+          class="block font-medium">
+          Role
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <p-select
+          formControlName="hostRoleId"
+          inputId="hostRoleId"
+          [options]="hostRolesResource.value()"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select role"
+          [loading]="hostRolesResource.isLoading()"
+          [appendTo]="'body'"
+          class="w-full"
+          [invalid]="isInvalid('hostRoleId')" />
+        @if (isInvalid('hostRoleId')) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          <span>Role is required</span>
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <!-- Email -->
+      <div class="space-y-1">
+        <label
+          for="email"
+          class="block font-medium">
+          Email
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <input
+          formControlName="email"
+          appTrimInput
+          pInputText
+          type="email"
+          id="email"
+          class="w-full"
+          autocomplete="email"
+          [invalid]="isInvalid('email')" />
+        @if (isInvalid('email')) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (hostUserForm.get('email')?.errors?.['required']) {
+          <span>Email is required</span>
+          } @else {
+          <span>Enter a valid email address</span>
+          }
+        </p-message>
+        }
+      </div>
+
+      <!-- Mobile number -->
+      <div class="space-y-1">
+        <label
+          for="mobileNumber"
+          class="block font-medium">
+          Mobile Number
+          <span class="text-red-600 dark:text-red-400">*</span>
+        </label>
+        <input
+          formControlName="mobileNumber"
+          appTrimInput
+          pInputText
+          type="tel"
+          id="mobileNumber"
+          class="w-full"
+          autocomplete="tel"
+          [invalid]="isInvalid('mobileNumber')" />
+        @if (isInvalid('mobileNumber')) {
+        <p-message
+          severity="error"
+          size="small"
+          variant="simple">
+          @if (hostUserForm.get('mobileNumber')?.errors?.['required']) {
+          <span>Mobile number is required</span>
+          } @else if (hostUserForm.get('mobileNumber')?.errors?.['phoneLength']; as lengthError) {
+          <span>Mobile number must be {{ lengthError.min }} digits</span>
+          } @else {
+          <span>Mobile number must contain digits only</span>
+          }
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <!-- Password (create only) -->
+    @if (hostUserForm.controls.password.enabled) {
+    <div class="space-y-1">
+      <label
+        for="password"
+        class="block font-medium">
+        Password
+        <span class="text-red-600 dark:text-red-400">*</span>
+      </label>
+      <p-password
+        formControlName="password"
+        inputId="password"
+        class="w-full"
+        inputStyleClass="w-full"
+        [toggleMask]="true"
+        autocomplete="off"
+        appendTo="body"
+        [invalid]="isInvalid('password')" />
+      @if (isInvalid('password')) {
+      <p-message
+        severity="error"
+        size="small"
+        variant="simple">
+        @if (hostUserForm.get('password')?.errors?.['required']) {
+        <span>Password is required</span>
+        } @else if (hostUserForm.get('password')?.errors?.['minlength']) {
+        <span>Password must be at least {{ minPasswordLength }} characters</span>
+        } @else if (hostUserForm.get('password')?.errors?.['maxlength']) {
+        <span>Password cannot exceed {{ maxPasswordLength }} characters</span>
+        }
+      </p-message>
+      }
+    </div>
+    }
+
+    <!-- Status -->
+    <div class="flex items-center gap-3">
+      <p-toggleSwitch
+        formControlName="isActive"
+        inputId="isActive" />
+      <label
+        for="isActive"
+        class="font-medium">
+        Active
+      </label>
+    </div>
+  </div>
+
+  <div class="flex shrink-0 justify-end gap-2 border-t border-gray-200 pt-4 dark:border-zinc-700">
+    <p-button
+      label="Cancel"
+      variant="text"
+      severity="secondary"
+      (onClick)="onCancel()" />
+    <p-button
+      type="submit"
+      [label]="isSaving() ? 'Saving...' : 'Save'"
+      [loading]="isSaving()"
+      [disabled]="hostUserForm.invalid || isSaving()" />
+  </div>
+</form>

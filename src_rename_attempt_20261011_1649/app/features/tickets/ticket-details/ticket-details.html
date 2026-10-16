@@ -1,0 +1,19 @@
+@if (store.isLoading()) {
+<app-ticket-details-skeleton />
+} @else if (store.ticketDetail(); as detail) {
+<div class="h-[calc(100vh-4.6rem)] overflow-y-auto bg-zinc-50 lg:overflow-hidden dark:bg-zinc-950">
+  <div class="grid grid-cols-1 gap-4 p-4 lg:h-full lg:grid-cols-4">
+    <!-- Main content (left, 2/3) -->
+    <div class="flex flex-col gap-4 lg:col-span-3 lg:h-full lg:min-h-0">
+      <app-ticket-details-header
+        [detail]="detail"
+        (editClick)="onEdit()"
+        (copyLinkClick)="onCopyLink()" />
+      <app-ticket-details-body [detail]="detail" />
+    </div>
+
+    <!-- Right sidebar (dumb component) -->
+    <app-ticket-detail-sidebar [detail]="detail" />
+  </div>
+</div>
+}

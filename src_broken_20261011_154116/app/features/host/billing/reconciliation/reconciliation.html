@@ -1,0 +1,138 @@
+@let summary = store.summary();
+
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 sm:m-4 dark:border dark:border-zinc-800 dark:bg-zinc-900">
+    <section aria-labelledby="reconciliation-summary-heading">
+      <h2
+        id="reconciliation-summary-heading"
+        class="sr-only">
+        Summary
+      </h2>
+      <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-1">
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">
+            @if (summary) {
+              Generated at
+              <time [attr.datetime]="summary.generatedAt">
+                {{ summary.generatedAt | date: 'medium' }}
+              </time>
+            } @else if (store.isLoading()) {
+              Loading summary
+            } @else {
+              Summary unavailable
+            }
+          </p>
+          @if (isAllClear()) {
+            <p
+              class="flex items-center gap-1.5 text-sm font-medium text-green-700 dark:text-green-400">
+              <i
+                class="pi pi-check-circle"
+                aria-hidden="true"></i>
+              All clear: nothing needs attention
+            </p>
+          }
+        </div>
+        <p-button
+          label="Refresh"
+          icon="pi pi-refresh"
+          severity="secondary"
+          [outlined]="true"
+          class="w-full justify-center sm:w-auto"
+          [loading]="store.isLoading()"
+          (onClick)="store.reload()" />
+      </div>
+
+      <ul
+        class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+        aria-label="Reconciliation counts"
+        [attr.aria-busy]="store.isLoading()">
+        @for (tile of tiles(); track tile.key) {
+          <li
+            class="flex flex-col gap-2 rounded-md border border-zinc-200 bg-white p-4 sm:last:col-span-2 xl:last:col-span-1 dark:border-zinc-700 dark:bg-zinc-800">
+            <div
+              class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-zinc-300">
+              <i
+                [class]="tile.icon + ' ' + (tile.toneClass || 'text-zinc-500 dark:text-zinc-400')"
+                aria-hidden="true"></i>
+              <span>{{ tile.label }}</span>
+            </div>
+            <span
+              class="text-3xl font-semibold tabular-nums"
+              [class]="tile.toneClass || 'text-zinc-900 dark:text-zinc-50'">
+              @if (tile.count !== null) {
+                {{ tile.count }}
+              } @else if (store.isLoading()) {
+                <span
+                  class="inline-block h-8 w-12 animate-pulse rounded-sm bg-zinc-200 dark:bg-zinc-700"
+                  aria-hidden="true"></span>
+                <span class="sr-only">Loading</span>
+              } @else {
+                <span aria-hidden="true">—</span>
+                <span class="sr-only">Not available</span>
+              }
+            </span>
+            <span class="text-sm text-zinc-500 dark:text-zinc-400">{{ tile.hint }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    @if (canRetry()) {
+      <section
+        class="mt-4 flex flex-col gap-3 border-t border-zinc-200 pt-4 lg:flex-row lg:items-start lg:justify-between dark:border-zinc-800"
+        aria-labelledby="webhook-retry-heading">
+        <div>
+          <h2
+            id="webhook-retry-heading"
+            class="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+            Retry webhook event
+          </h2>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">
+            Requeue a failed webhook event by its ID. Retries stay within the configured retry
+            limit.
+          </p>
+        </div>
+
+        <form
+          class="flex flex-col gap-1"
+          novalidate
+          (submit)="onRetry($event)">
+          <label
+            for="webhook-event-id"
+            class="text-sm font-medium text-gray-700 dark:text-zinc-200">
+            Event ID
+          </label>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <p-inputnumber
+              inputId="webhook-event-id"
+              class="w-full sm:w-64"
+              inputStyleClass="w-full"
+              [useGrouping]="false"
+              [showButtons]="false"
+              [min]="1"
+              placeholder="e.g. 42"
+              ariaDescribedBy="webhook-event-id-error"
+              [invalid]="showEventIdError()"
+              [formField]="$any(f.eventId)" />
+            <p-button
+              type="submit"
+              label="Retry"
+              icon="pi pi-replay"
+              class="w-full justify-center sm:w-auto"
+              [loading]="store.isRetrying()" />
+          </div>
+          <div id="webhook-event-id-error">
+            @if (showEventIdError()) {
+              <p-message
+                severity="error"
+                size="small"
+                variant="simple">
+                <span>{{ eventIdError() }}</span>
+              </p-message>
+            }
+          </div>
+        </form>
+      </section>
+    }
+  </p-card>
+</div>

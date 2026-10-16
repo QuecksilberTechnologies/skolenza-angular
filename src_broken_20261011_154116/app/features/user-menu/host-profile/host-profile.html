@@ -1,0 +1,269 @@
+@let hostUser = store.hostUser();
+
+<div class="m-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+  <!-- Identity -->
+  <p-card styleClass="lg:col-span-1 relative overflow-hidden dark:bg-zinc-900 dark:border-zinc-800">
+    <div
+      class="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-primary-500/10 blur-3xl"
+      aria-hidden="true"></div>
+
+    <div class="relative flex flex-col items-center gap-3 text-center">
+      <div class="relative inline-flex">
+        <app-user-avatar
+          size="xlarge"
+          [name]="hostUser?.name ?? ''"
+          avatarClass="rounded-full ring-1 ring-black/5 dark:ring-white/10" />
+        @if (hostUser?.isActive) {
+        <span
+          class="absolute right-0 bottom-0 inline-flex items-center justify-center rounded-full bg-white text-emerald-500 dark:bg-zinc-900"
+          aria-hidden="true">
+          <i class="pi pi-check-circle text-base"></i>
+        </span>
+        }
+      </div>
+
+      <div class="w-full min-w-0">
+        <h5 class="truncate text-lg font-medium text-gray-900 capitalize dark:text-zinc-100">{{ hostUser?.name }}</h5>
+        <p class="truncate text-sm text-gray-500 dark:text-zinc-400">{{ hostUser?.email }}</p>
+      </div>
+
+      <p-badge
+        [value]="hostUser?.isActive ? 'Active' : 'Inactive'"
+        [severity]="hostUser?.isActive ? 'success' : 'danger'" />
+    </div>
+
+    <div class="relative mt-5 border-t border-gray-200 pt-4 dark:border-zinc-700">
+      <h6 class="text-[11px] font-semibold tracking-wider text-gray-400 uppercase dark:text-zinc-500">
+        Role &amp; Access
+      </h6>
+      <div class="mt-3 flex flex-col gap-3">
+        <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-zinc-300">
+          <i
+            class="pi pi-shield text-xs text-primary-500 dark:text-primary-400"
+            aria-hidden="true"></i>
+          <span class="truncate">{{ store.hostRoleName() }}</span>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-zinc-400">
+          <i
+            class="pi pi-building text-xs"
+            aria-hidden="true"></i>
+          <span class="truncate">{{ store.institutionName() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative mt-4 border-t border-gray-200 pt-4 dark:border-zinc-700">
+      <h6 class="text-[11px] font-semibold tracking-wider text-gray-400 uppercase dark:text-zinc-500">
+        Account Information
+      </h6>
+      <dl class="mt-3 flex flex-col gap-3">
+        <div class="flex items-start justify-between gap-3 text-sm">
+          <dt class="shrink-0 text-gray-500 dark:text-zinc-400">Login ID</dt>
+          <dd class="truncate text-right text-gray-900 dark:text-zinc-100">{{ hostUser?.loginId ?? '-' }}</dd>
+        </div>
+        <div class="flex items-start justify-between gap-3 text-sm">
+          <dt class="shrink-0 text-gray-500 dark:text-zinc-400">Added On</dt>
+          <dd class="truncate text-right text-gray-900 dark:text-zinc-100">
+            {{ (hostUser?.addedDateTime | date: 'dd MMM yyyy') ?? '-' }}
+          </dd>
+        </div>
+        <div class="flex items-start justify-between gap-3 text-sm">
+          <dt class="shrink-0 text-gray-500 dark:text-zinc-400">Last Updated</dt>
+          <dd class="truncate text-right text-gray-900 dark:text-zinc-100">
+            {{ (hostUser?.updatedDateTime | date: 'dd MMM yyyy') ?? '-' }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div
+      role="note"
+      class="relative mt-4 flex items-start gap-2 rounded-md bg-blue-50/80 px-2.5 py-2 text-[11px] text-blue-600 dark:bg-blue-950/20 dark:text-blue-400">
+      <i
+        class="pi pi-info-circle mt-0.5 text-[10px]"
+        aria-hidden="true"></i>
+      <span>Your role and status are managed by the platform and cannot be changed here.</span>
+    </div>
+  </p-card>
+
+  <div class="flex flex-col gap-4 lg:col-span-2">
+    <!-- Editable details -->
+    <p-card styleClass="dark:bg-zinc-900 dark:border-zinc-800">
+      <h5
+        id="personal-details"
+        class="mb-1 text-lg font-medium text-gray-900 dark:text-zinc-100">
+        Personal Details
+      </h5>
+      <p class="mb-5 text-sm text-gray-500 dark:text-zinc-400">
+        Update your personal information. Changes will reflect across the platform.
+      </p>
+
+      <form
+        (submit)="onSubmit(); $event.preventDefault()"
+        aria-labelledby="personal-details"
+        class="grid grid-cols-1 gap-4">
+        <!-- Name -->
+        <div class="space-y-1">
+          <label
+            for="name"
+            class="block font-medium">
+            Full Name
+            <span class="text-red-600 dark:text-red-400">*</span>
+          </label>
+          <p-iconfield class="block">
+            <p-inputicon class="pi pi-user text-zinc-400 dark:text-zinc-500" />
+            <input
+              [formField]="profileForm.name"
+              appTrimInput
+              pInputText
+              type="text"
+              id="name"
+              class="w-full"
+              autocomplete="name"
+              [attr.aria-invalid]="profileForm.name().touched() && profileForm.name().invalid()"
+              [attr.aria-describedby]="
+                profileForm.name().touched() && profileForm.name().errors().length
+                  ? 'name-error'
+                  : null
+              " />
+          </p-iconfield>
+          @if (profileForm.name().touched() && profileForm.name().errors().length) {
+          <p-message
+            severity="error"
+            size="small"
+            variant="simple">
+            <span id="name-error">{{ profileForm.name().errors()[0].message }}</span>
+          </p-message>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <!-- Email -->
+          <div class="space-y-1">
+            <label
+              for="email"
+              class="block font-medium">
+              Email Address
+              <span class="text-red-600 dark:text-red-400">*</span>
+            </label>
+            <p-iconfield class="block">
+              <p-inputicon class="pi pi-envelope text-zinc-400 dark:text-zinc-500" />
+              <input
+                [formField]="profileForm.email"
+                appTrimInput
+                pInputText
+                type="email"
+                id="email"
+                class="w-full"
+                autocomplete="email"
+                [attr.aria-invalid]="profileForm.email().touched() && profileForm.email().invalid()"
+                [attr.aria-describedby]="
+                  profileForm.email().touched() && profileForm.email().errors().length
+                    ? 'email-error'
+                    : null
+                " />
+            </p-iconfield>
+            @if (profileForm.email().touched() && profileForm.email().errors().length) {
+            <p-message
+              severity="error"
+              size="small"
+              variant="simple">
+              <span id="email-error">{{ profileForm.email().errors()[0].message }}</span>
+            </p-message>
+            }
+          </div>
+
+          <!-- Mobile -->
+          <div class="space-y-1">
+            <label
+              for="mobileNumber"
+              class="block font-medium">
+              Mobile Number
+              <span class="text-red-600 dark:text-red-400">*</span>
+            </label>
+            <p-iconfield class="block">
+              <p-inputicon class="pi pi-phone text-zinc-400 dark:text-zinc-500" />
+              <input
+                [formField]="profileForm.mobileNumber"
+                appTrimInput
+                pInputText
+                type="tel"
+                id="mobileNumber"
+                class="w-full"
+                autocomplete="tel"
+                [attr.aria-invalid]="
+                  profileForm.mobileNumber().touched() && profileForm.mobileNumber().invalid()
+                "
+                [attr.aria-describedby]="
+                  profileForm.mobileNumber().touched() && profileForm.mobileNumber().errors().length
+                    ? 'mobileNumber-error'
+                    : null
+                " />
+            </p-iconfield>
+            @if ( profileForm.mobileNumber().touched() && profileForm.mobileNumber().errors().length ) {
+            <p-message
+              severity="error"
+              size="small"
+              variant="simple">
+              <span id="mobileNumber-error">{{ profileForm.mobileNumber().errors()[0].message }}</span>
+            </p-message>
+            }
+          </div>
+        </div>
+
+        <div
+          role="note"
+          class="flex items-start gap-2 rounded-md bg-amber-50/80 px-3 py-2.5 text-sm text-amber-600 dark:bg-amber-950/20 dark:text-amber-400">
+          <i
+            class="pi pi-exclamation-circle mt-0.5 text-xs"
+            aria-hidden="true"></i>
+          <span>Login ID, role and status are managed by the platform and cannot be changed here.</span>
+        </div>
+
+        <div class="mt-2 flex justify-end gap-2 border-t border-gray-200 pt-4 dark:border-zinc-700">
+          <p-button
+            label="Cancel"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="store.isSaving() || !isDirty()"
+            (onClick)="resetForm()" />
+          <p-button
+            label="Save Changes"
+            type="submit"
+            icon="pi pi-check"
+            [loading]="store.isSaving()"
+            [disabled]="!isDirty()" />
+        </div>
+      </form>
+    </p-card>
+
+    <!-- Support -->
+    <p-card styleClass="dark:bg-zinc-900 dark:border-zinc-800">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <span
+          class="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-500/10 text-primary-500 dark:text-primary-400"
+          aria-hidden="true">
+          <i class="pi pi-headphones"></i>
+        </span>
+
+        <div class="min-w-0 flex-1">
+          <h6 class="font-medium text-gray-900 dark:text-zinc-100">Need help?</h6>
+          <p class="text-sm text-gray-500 dark:text-zinc-400">
+            Contact our support team if you have any questions or need assistance.
+          </p>
+        </div>
+
+        <a
+          pButton
+          label="Contact Support"
+          icon="pi pi-external-link"
+          iconPos="right"
+          severity="secondary"
+          [outlined]="true"
+          class="shrink-0"
+          [href]="'mailto:' + supportEmail"
+          [attr.aria-label]="'Contact support at ' + supportEmail"></a>
+      </div>
+    </p-card>
+  </div>
+</div>

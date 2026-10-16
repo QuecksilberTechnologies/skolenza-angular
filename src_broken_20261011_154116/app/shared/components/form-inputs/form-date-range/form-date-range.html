@@ -1,0 +1,26 @@
+<app-form-field-shell
+  #shell
+  [field]="field()"
+  [inputId]="inputId()"
+  [label]="label()"
+  [required]="required()"
+  [hint]="hint()"
+  [hintIcon]="hintIcon()"
+  [submitted]="submitted()">
+  <p-datepicker
+    class="w-full"
+    inputStyleClass="w-full"
+    appendTo="body"
+    selectionMode="range"
+    [formField]="$any(field())"
+    [inputId]="inputId()"
+    [dateFormat]="dateFormat()"
+    [showIcon]="showIcon()"
+    [showButtonBar]="showButtonBar()"
+    [numberOfMonths]="numberOfMonths()"
+    [minDate]="minDate()"
+    [maxDate]="maxDate()"
+    [placeholder]="placeholder() ?? ''"
+    [invalid]="shell.showError()"
+    [pt]="{ pcInputText: { root: aria() } }" />
+</app-form-field-shell>

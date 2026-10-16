@@ -1,0 +1,125 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      #dt
+      [value]="assetCategories()"
+      [loading]="isLoadingCategories()"
+      [showGridlines]="false"
+      [showLoader]="false"
+      [lazy]="true"
+      [paginator]="true"
+      [showCurrentPageReport]="true"
+      [rows]="pageSize()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="totalRecords()"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      paginatorDropdownAppendTo="body"
+      [globalFilterFields]="['categoryName', 'remark']"
+      [selectionMode]="'single'"
+      [sortMode]="'single'"
+      [sortOrder]="-1"
+      [(contextMenuSelection)]="selectedRow"
+      [contextMenu]="
+        ((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2 ? actionContextMenu : null
+      "
+      (onLazyLoad)="loadCategories($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter -->
+
+          <!-- Advance filter -->
+          <!-- <app-table-search-filter [filterCount]="0" /> -->
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input [debounceMs]="0" (searchTerm)="searchAssets(dt, $event)" />
+            @if (((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2) {
+            <p-button
+              label="Add Asset Category"
+              icon="pi pi-plus"
+              class="w-full lg:w-auto"
+              styleClass="w-full lg:w-auto"
+              (onClick)="upsertAssetCategory()" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th>Name</th>
+          <th>Remark</th>
+          <th class="whitespace-nowrap">Multiple User</th>
+          @if (((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2) {
+          <th>
+            <div class="flex justify-center">Actions</div>
+          </th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-category>
+        <tr [pContextMenuRow]="category">
+          <td>{{ category.categoryName }}</td>
+          <td>
+            <div
+              class="max-w-[12rem] truncate"
+              [title]="category.remark || '-'">
+              {{ category.remark || '-' }}
+            </div>
+          </td>
+          <td>
+            <p-tag
+              [value]="category.hasMultipleUser ? 'Yes' : 'No'"
+              [severity]="category.hasMultipleUser ? 'success' : 'danger'" />
+          </td>
+          @if (((loginInfo && loginInfo.user?.primaryRole?.roleTypeId) ?? 2) !== 2) {
+          <td>
+            <div class="flex justify-center gap-2">
+              <p-button
+                class="text-xl!"
+                type="button"
+                icon="pi pi-ellipsis-h"
+                [rounded]="false"
+                severity="secondary"
+                (click)="selectedRow = category; actionMenu.toggle($event)" />
+            </div>
+          </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (assetCategories().length === 0) {
+        <tr>
+          <td colspan="4">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="4">
+            <app-table-empty-message
+              icon="pi pi-folder"
+              message="No asset categories found"
+              subMessage="Add a new category to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-menu
+  #actionMenu
+  [model]="actionMenuItems"
+  [popup]="true"
+  appendTo="body" />
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems"
+  appendTo="body" />
+<p-confirmDialog
+  acceptButtonStyleClass="p-button-danger" />

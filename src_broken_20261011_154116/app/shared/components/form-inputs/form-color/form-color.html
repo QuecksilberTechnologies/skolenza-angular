@@ -1,0 +1,37 @@
+<app-form-field-shell
+  #shell
+  [field]="field()"
+  [inputId]="inputId()"
+  [label]="label()"
+  [required]="required()"
+  [hint]="hint()"
+  [hintIcon]="hintIcon()"
+  [submitted]="submitted()">
+  <div class="flex items-center gap-2">
+    <!-- The ring keeps a near-white swatch visible against the card surface. -->
+    <span class="inline-flex shrink-0 rounded-md ring-1 ring-gray-300 dark:ring-zinc-600">
+      <p-colorpicker
+        appendTo="body"
+        [formField]="$any(field())"
+        [inputId]="inputId()"
+        format="hex"
+        [pt]="{ preview: aria() }" />
+    </span>
+    <input
+      pInputText
+      type="text"
+      class="w-full font-mono"
+      spellcheck="false"
+      autocomplete="off"
+      placeholder="#2563eb"
+      [id]="inputId() + '-hex'"
+      [value]="field()().value()"
+      [class.p-invalid]="shell.showError()"
+      [attr.aria-label]="label() + ' hex value'"
+      [attr.aria-required]="required() || null"
+      [attr.aria-invalid]="shell.showError()"
+      [attr.aria-describedby]="inputId() + '-help'"
+      (input)="onHexInput($event)"
+      (blur)="onHexBlur($event)" />
+  </div>
+</app-form-field-shell>

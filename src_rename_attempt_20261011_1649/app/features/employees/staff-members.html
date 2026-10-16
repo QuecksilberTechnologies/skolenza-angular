@@ -1,0 +1,440 @@
+<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+  <div class="m-3 flex flex-col sm:m-4">
+    @defer { @if (!store.isLoadingStatistics()) {
+    <app-staffMember-stats [staffMemberStatistics]="store.statistics()" />
+    } @else {
+    <app-asset-stats-loader />
+    } } @placeholder (minimum 300ms) {
+    <app-asset-stats-loader />
+    }
+  </div>
+
+  <p-card class="m-3 overflow-x-auto sm:m-4">
+    <p-table
+      #dt
+      [value]="store.staffMembers()"
+      [loading]="store.isLoading()"
+      [showGridlines]="false"
+      [showLoader]="false"
+      [scrollable]="true"
+      scrollDirection="horizontal"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      [lazy]="true"
+      [paginator]="true"
+      [showCurrentPageReport]="true"
+      [rows]="store.pageSize()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="store.totalRecords()"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      paginatorDropdownAppendTo="body"
+      [globalFilterFields]="['employementCode']"
+      [selectionMode]="'single'"
+      [sortMode]="'single'"
+      [sortOrder]="-1"
+      [contextMenuSelection]="selectedRow()"
+      (contextMenuSelectionChange)="selectedRow.set($event)"
+      [contextMenu]="canUseRowActions() ? actionContextMenu : null"
+      (onLazyLoad)="loadStaffMembers($event)">
+      <ng-template #caption>
+        <app-table-inline-filters>
+          <!-- Basic filter -->
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            optionLabel="departmentName"
+            optionValue="id"
+            placeholder="Select Department"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [options]="departmentOptions()"
+            [loading]="isLoadingDepartments()"
+            [disabled]="isLoadingDepartments()"
+            panelStyleClass="select-option-truncate"
+            (onChange)="onDepartmentChange($event.value)" />
+
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            optionLabel="designationName"
+            optionValue="id"
+            placeholder="Select Designation"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [options]="store.designationOptions()"
+            [loading]="store.isLoadingDesignations()"
+            [disabled]="store.isLoadingDesignations() || !store.appliedFilters()?.department"
+            panelStyleClass="select-option-truncate"
+            (onChange)="onDesignationChange($event.value)" />
+
+          <p-select
+            class="w-full min-w-0 lg:min-w-52"
+            optionLabel="typeName"
+            optionValue="id"
+            placeholder="Select Type"
+            [appendTo]="'body'"
+            [showClear]="true"
+            [options]="staffEmploymentTypeOptions()"
+            [loading]="isLoadingStaffEmploymentTypes()"
+            [disabled]="isLoadingStaffEmploymentTypes()"
+            panelStyleClass="select-option-truncate"
+            (onChange)="onTypeChange($event.value)" />
+
+          <!-- Advance filter -->
+          <app-table-search-filter
+            [filterCount]="store.appliedFilterCount()"
+            (filter)="openFilterDrawer()" />
+
+          <div
+            ngProjectAs="right"
+            class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row">
+            <app-table-search-input [debounceMs]="0"
+              class="min-w-0 flex-1 lg:flex-none"
+              (searchTerm)="searchStaffMembers(dt, $event)" />
+            @if (canAdd()) {
+            <p-splitbutton
+              label="Add StaffMember"
+              icon="pi pi-plus"
+              [model]="staffMemberSplitButtonItems"
+              appendTo="body"
+              expandAriaLabel="More staffMember actions"
+              (onClick)="createStaffMember()"
+              class="add-staffMember-btn w-full lg:w-auto" />
+            }
+          </div>
+        </app-table-inline-filters>
+      </ng-template>
+      <ng-template #header>
+        <tr class="bg-gray-50 dark:bg-zinc-800">
+          @if (showStaffMemberCode()) {
+          <th
+            pSortableColumn="employementCode"
+            class="max-w-52 !px-3 !py-3 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              StaffMember Code
+              <p-sortIcon field="employementCode" />
+            </div>
+          </th>
+          }
+          <th
+            pSortableColumn="firstName"
+            class="max-w-52 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2">
+              Name
+              <p-sortIcon field="firstName" />
+            </div>
+          </th>
+          <th
+            pSortableColumn="staffEmploymentTypeId"
+            class="max-w-40 !px-3 !py-3 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex items-center gap-2 truncate">
+              Employment Type
+              <p-sortIcon field="staffEmploymentTypeId" />
+            </div>
+          </th>
+          @if (showCountry()) {
+          <th class="max-w-28 !px-3 !py-3 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            Country
+          </th>
+          }
+          <th class="max-w-36 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">Department</th>
+          <th class="max-w-36 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">Designation</th>
+          @if (showRole()) {
+          <th class="max-w-48 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">Role</th>
+          } @if (showProfileCompletion()) {
+          <th class="max-w-44 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
+            <div class="flex truncate">Profile Completion</div>
+          </th>
+          }
+          @if (showJoiningDate()) {
+          <th class="max-w-32 !px-3 !py-3 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex truncate">Joining Date</div>
+          </th>
+          }
+          @if (canUseRowActions()) {
+          <th class="max-w-40 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
+            <div class="flex justify-center">Actions</div>
+          </th>
+          }
+        </tr>
+      </ng-template>
+      <ng-template
+        #body
+        let-staffMember>
+        <tr [pContextMenuRow]="staffMember">
+          @if (showStaffMemberCode()) {
+          <td class="max-w-52 !px-3 !py-3 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="group flex items-center justify-start gap-0">
+              <span class="me-2 truncate font-sans font-semibold">{{ staffMember.employementCode }}</span>
+              <div class="opacity-0 group-hover:opacity-100">
+                <p-button
+                  icon="pi pi-clipboard"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="secondary"
+                  pTooltip="Copy"
+                  tooltipPosition="bottom"
+                  (onClick)="copyStaffMemberCode(staffMember.employementCode)" />
+              </div>
+            </div>
+          </td>
+          }
+          <td class="!px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
+            @let summaryLabel = 'Profile summary for ' + staffMember.firstName + ' ' + staffMember.lastName;
+            @let isSummaryOpen = openSummaryId() === staffMember.staffMemberId;
+            <div
+              class="flex items-center gap-2"
+              cdkOverlayOrigin
+              #summaryOrigin="cdkOverlayOrigin">
+              <p-overlaybadge
+                severity="danger"
+                styleClass="top-1! right-1!"
+                pTooltip="Click to view profile summary">
+                <app-user-avatar
+                  class="hover:cursor-pointer"
+                  [imagePath]="staffMember.staffMemberImagePath"
+                  [name]="staffMember.firstName"
+                  role="button"
+                  tabindex="0"
+                  aria-haspopup="dialog"
+                  [attr.aria-expanded]="isSummaryOpen"
+                  [attr.aria-label]="summaryLabel"
+                  (click)="toggleSummary(staffMember.staffMemberId)"
+                  (keydown.enter)="toggleSummary(staffMember.staffMemberId)"
+                  (keydown.space)="$event.preventDefault(); toggleSummary(staffMember.staffMemberId)" />
+              </p-overlaybadge>
+              <ng-template
+                cdkConnectedOverlay
+                appRepositionOnResize
+                [cdkConnectedOverlayOrigin]="summaryOrigin"
+                [cdkConnectedOverlayOpen]="isSummaryOpen"
+                [cdkConnectedOverlayPositions]="cardOverlayPositions"
+                [cdkConnectedOverlayPush]="true"
+                [cdkConnectedOverlayViewportMargin]="8"
+                [cdkConnectedOverlayScrollStrategy]="overlayScrollStrategy"
+                (overlayOutsideClick)="onSummaryOutsideClick($event, summaryOrigin.elementRef.nativeElement)"
+                (overlayKeydown)="$event.key === 'Escape' ? closeSummary() : null"
+                (detach)="closeSummary()">
+                <app-avatar-popup
+                  cdkTrapFocus
+                  [cdkTrapFocusAutoCapture]="true"
+                  role="dialog"
+                  [attr.aria-label]="summaryLabel"
+                  [staffMember]="staffMember"
+                  [staffMemberSummary]="store.summaries()[staffMember.staffMemberId] ?? staffMember.summaryStaffMemberInfo"
+                  (summaryLoaded)="onSummaryLoaded(staffMember.staffMemberId, $event)" />
+              </ng-template>
+              <div
+                class="max-w-52 truncate hover:cursor-pointer"
+                role="button"
+                tabindex="-1"
+                aria-haspopup="dialog"
+                [attr.aria-expanded]="isSummaryOpen"
+                (click)="toggleSummary(staffMember.staffMemberId)"
+                (keydown.enter)="toggleSummary(staffMember.staffMemberId)"
+                (keydown.space)="$event.preventDefault(); toggleSummary(staffMember.staffMemberId)">
+                <div class="flex items-center gap-1.5">
+                  <span class="truncate">
+                    {{ staffMember.firstName }} {{ staffMember.middleName }} {{ staffMember.lastName }}
+                  </span>
+                  @if (staffMember.dateOfOnBoarding | getNewJoinerBadge; as badge) {
+                  <span
+                    class="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] leading-none font-semibold whitespace-nowrap"
+                    [style.background-color]="badge.bgColor"
+                    [style.color]="badge.color"
+                    [pTooltip]="badge.label"
+                    tooltipPosition="top">
+                    {{ badge.label }}
+                  </span>
+                  }
+                  @for (badge of staffMember.dateOfBirth | getCelebrationBadges: staffMember.dateOfOnBoarding; track badge.kind) {
+                  <i
+                    class="pi shrink-0 text-base leading-none"
+                    [class]="badge.icon"
+                    role="img"
+                    [attr.aria-label]="badge.label"
+                    [pTooltip]="badge.label"
+                    tooltipPosition="top"></i>
+                  }
+                </div>
+                <div
+                  class="truncate text-sm text-gray-500 dark:text-zinc-400"
+                  [pTooltip]="staffMember.officialEmail"
+                  tooltipPosition="bottom">
+                  {{ staffMember.officialEmail }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="max-w-40 !px-3 !py-3 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="truncate">{{ staffMember?.staffEmploymentTypeName || '-' }}</div>
+          </td>
+          @if (showCountry()) {
+          <td class="max-w-28 !px-3 !py-3 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div
+              class="flex items-center gap-2"
+              [pTooltip]="staffMember.nationality || countryCode(staffMember)"
+              tooltipPosition="bottom">
+              @if (countryFlag(staffMember); as flagUrl) {
+              <img
+                class="h-3 w-4 shrink-0 object-cover"
+                [src]="flagUrl"
+                [alt]="(staffMember.nationality || countryCode(staffMember)) + ' flag'" />
+              }
+              <span>{{ countryCode(staffMember) }}</span>
+            </div>
+          </td>
+          }
+          <td class="max-w-36 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
+            <div
+              class="truncate"
+              [pTooltip]="staffMember?.departmentName || '-'"
+              tooltipPosition="bottom">
+              {{ staffMember?.departmentName || '-' }}
+            </div>
+          </td>
+          <td class="max-w-36 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
+            <div
+              class="truncate"
+              [pTooltip]="staffMember?.designationName || '-'"
+              tooltipPosition="bottom">
+              {{ staffMember?.designationName || '-' }}
+            </div>
+          </td>
+          @if (showRole()) {
+          <td class="max-w-48 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
+            <app-staffMember-role-cell
+              [staffMember]="staffMember"
+              [userStaffMemberId]="userStaffMemberId()"
+              [canManage]="canAssignRole()"
+              [cachedRoles]="cachedRoles()"
+              (rolesLoaded)="onRolesLoaded($event)"
+              (rolesAssigned)="onRolesAssigned(staffMember, $event)" />
+          </td>
+          }
+          @if (showProfileCompletion()) {
+          <td class="max-w-44 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
+            @let completion = staffMember?.completionPercentage ?? null;
+            @if (completion !== null) { @let progressTone = completion | getProgressTone; @let progressPercent =
+            completion.toFixed();
+            <button
+              #verificationTrigger
+              type="button"
+              class="group m-0 flex w-full flex-col items-stretch gap-1 rounded-sm border-0 bg-transparent p-0 text-left hover:cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+              [attr.aria-label]="`Profile ${progressPercent}% complete. View missing details`"
+              aria-haspopup="dialog"
+              [attr.aria-expanded]="verificationStaffMember()?.staffMemberId === staffMember.staffMemberId"
+              (click)="openVerificationSheet(staffMember, verificationTrigger)">
+              <span class="flex items-center gap-2.5">
+                <span class="relative h-2 flex-1 overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700">
+                  <span
+                    class="absolute inset-y-0 left-0 rounded-full transition-all duration-300 group-hover:opacity-80"
+                    [class]="progressTone.bar"
+                    [style.width.%]="completion"></span>
+                </span>
+                <span class="w-8 shrink-0 text-right text-xs font-semibold" [class]="progressTone.text">
+                  {{ progressPercent }}%
+                </span>
+              </span>
+              <span
+                class="text-[11px] leading-tight font-normal text-zinc-500 underline decoration-dotted underline-offset-2 group-hover:text-zinc-700 dark:text-zinc-400 dark:group-hover:text-zinc-200">
+                View missing details
+              </span>
+            </button>
+            } @else {
+            <span>-</span>
+            }
+          </td>
+          }
+          @if (showJoiningDate()) {
+          <td class="max-w-32 !px-3 !py-3 align-middle whitespace-nowrap text-gray-700 dark:text-zinc-100">
+            <div class="flex">{{ staffMember.dateOfOnBoarding | date }}</div>
+          </td>
+          }
+          @if (canUseRowActions()) {
+          <td class="!px-3 !py-3 align-middle whitespace-nowrap">
+            <div class="flex justify-center gap-2">
+              @if (canUpdate()) {
+              <p-button
+                class="text-xl!"
+                [icon]="staffMember.isActive ? 'pi pi-check-circle' : 'pi pi-ban'"
+                [severity]="staffMember.isActive ? 'success' : 'danger'"
+                [pTooltip]="staffMember.isActive ? 'Deactivate' : 'Activate'"
+                tooltipPosition="left"
+                [showDelay]="300"
+                [loading]="staffMember.isUpdatingStatus"
+                (onClick)="confirmStatusChange(staffMember)" />
+              }
+
+              <app-table-action-button (action)="selectedRow.set(staffMember); actionMenu.toggle($event)" />
+            </div>
+          </td>
+          }
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @if (store.staffMembers().length === 0) {
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            <app-table-loader />
+          </td>
+        </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="columnCount()">
+            <app-table-empty-message
+              icon="pi pi-users"
+              message="No staffMembers found"
+              subMessage="Create a new staffMember to get started" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<p-tieredmenu
+  #actionMenu
+  [model]="actionMenuItems()"
+  [autoDisplay]="true"
+  [popup]="true"
+  styleClass="staffMember-action-menu"
+  appendTo="body" />
+
+<p-contextMenu
+  #actionContextMenu
+  [model]="actionMenuItems()"
+  styleClass="staffMember-action-menu"
+  appendTo="body" />
+
+<p-confirmDialog />
+
+<!-- StaffMember Filter -->
+<p-drawer
+  [(visible)]="isShowFilter"
+  position="right"
+  styleClass="w-full! sm:min-w-[40rem] sm:w-auto!">
+  <ng-template #headless>
+    @if (isShowFilter) { @defer {
+    <app-staffMember-filter
+      [appliedFilters]="store.appliedFilters()"
+      (applyFiltersEvent)="onFilterApplied($event)"
+      (closePopup)="isShowFilter = false" />
+    } @placeholder {
+    <div class="flex h-screen flex-col items-center justify-center p-8">
+      <span class="text-lg text-gray-500 dark:text-zinc-400">Loading filters...</span>
+    </div>
+    } }
+  </ng-template>
+</p-drawer>
+
+<!-- Profile completion sheet -->
+<app-headless-drawer
+  [dismissible]="false"
+  [visible]="verificationStaffMember() !== null">
+  @if (verificationStaffMember(); as verificationStaffMemberRow) {
+  <app-verification-settings
+    [staffMember]="verificationStaffMemberRow"
+    (closePopup)="finishVerificationPopupClose()"
+    (saveSettings)="finishVerificationPopupClose()" />
+  }
+</app-headless-drawer>
