@@ -18,14 +18,20 @@ import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { Droplet, LucideAngularModule } from 'lucide-angular';
 import { finalize } from 'rxjs';
 
-import { Common, StaffAcademicStructureApi, StaffMemberBasicAPI, ProfileAccessApi, StaffProfessionalStructureApi } from '@core/services';
-import { AuthStore, FeaturePageStore, LookupStore } from '@core/stores';
-import { StaffAcademicProfile } from '@shared/interfaces';
+import {
+  Common,
+  StaffAcademicStructureApi,
+  StaffMemberBasicAPI,
+  ProfileAccessApi,
+  StaffProfessionalStructureApi,
+} from '@core/services';
+import { FeaturePageStore, LookupStore } from '@core/stores';
 import { ProfileEmpty } from '@shared/components/profile/profile-empty/profile-empty';
 import { ProfileHeader } from '@shared/components/profile/profile-header/profile-header';
 import { ProfileInfoBlock } from '@shared/components/profile/profile-info-block/profile-info-block';
 import { ProfileInfoCard } from '@shared/components/profile/profile-info-card/profile-info-card';
 import { ProfileLoader } from '@shared/components/profile/profile-loader/profile-loader';
+import { StaffAcademicProfile } from '@shared/interfaces';
 import { GetStaffMemberBasicReq, IStaffMemberBasicInfo, LoginInfo } from '@shared/interfaces';
 import { GetRelationNamePipe, GetRoleTypePipe } from '@shared/pipes';
 import { PROFILE_TABS } from '@shared/utilities/common-data';
@@ -59,7 +65,6 @@ export default class StaffMemberBasicInfo implements OnInit {
   readonly #destroyRef = inject(DestroyRef);
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
-  readonly #authStore = inject(AuthStore);
   readonly #lookupStore = inject(LookupStore);
   readonly #featurePageStore = inject(FeaturePageStore);
   readonly profileHeader = viewChild<ProfileHeader>('profileHeader');
@@ -71,7 +76,10 @@ export default class StaffMemberBasicInfo implements OnInit {
   readonly profileEmptyTabIcon = 'pi pi-user';
   // True from the start: ngOnInit awaits the session before the request goes out.
   readonly isLoading = signal(true);
-  readonly academicProfile = signal<StaffAcademicProfile>({ teachingAssignments: [], classTeacherAssignments: [] });
+  readonly academicProfile = signal<StaffAcademicProfile>({
+    teachingAssignments: [],
+    classTeacherAssignments: [],
+  });
   readonly isVerifying = computed(() => this.#profileAccessApi.isVerifying());
   readonly isEditing = computed(() => this.#profileAccessApi.isEditing());
   readonly Droplet = Droplet;
@@ -135,12 +143,19 @@ export default class StaffMemberBasicInfo implements OnInit {
   }
 
   #loadAcademicProfile(staffMemberId: string): void {
-    this.#academicApi.getStaffProfile(staffMemberId).pipe(takeUntilDestroyed(this.#destroyRef)).subscribe({
-      next: (response) => this.academicProfile.set(
-        response.isSucceeded ? response.data : { teachingAssignments: [], classTeacherAssignments: [] },
-      ),
-      error: () => this.academicProfile.set({ teachingAssignments: [], classTeacherAssignments: [] }),
-    });
+    this.#academicApi
+      .getStaffProfile(staffMemberId)
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe({
+        next: (response) =>
+          this.academicProfile.set(
+            response.isSucceeded
+              ? response.data
+              : { teachingAssignments: [], classTeacherAssignments: [] },
+          ),
+        error: () =>
+          this.academicProfile.set({ teachingAssignments: [], classTeacherAssignments: [] }),
+      });
   }
 
   async addBasic(staffMemberBasic?: IStaffMemberBasicInfo) {
@@ -151,22 +166,11 @@ export default class StaffMemberBasicInfo implements OnInit {
     });
   }
 
-  #refreshProfileSummaryAndMenu() {
-    const staffMemberId = this.#getTargetStaffMemberId();
-    // Refresh profile summary and sync the updated name to the top-right menu + storage
-    this.#staffMemberBasicAPI
-      .fetchProfileSummary(staffMemberId)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
-      .subscribe((res) => {
-        if (res?.isSucceeded && res.data?.fullName) {
-          this.#authStore.updateStaffMemberName(res.data.fullName);
-        }
-      });
-  }
-
   #getTargetStaffMemberId(): string {
     return (
-      this.#route.snapshot.queryParamMap.get('staffMemberId') ?? this.loginInfo?.user?.staffMemberId ?? ''
+      this.#route.snapshot.queryParamMap.get('staffMemberId') ??
+      this.loginInfo?.user?.staffMemberId ??
+      ''
     );
   }
 
@@ -182,18 +186,25 @@ export default class StaffMemberBasicInfo implements OnInit {
 
   canApproveCapabilities(): boolean {
     const roleType = this.loginInfo?.user?.primaryRole?.roleTypeId;
-    return roleType === 1 || (roleType === 3 && this.#featurePageStore.canPerform('STAFF_DIRECTORY', 'Approve'));
+    return (
+      roleType === 1 ||
+      (roleType === 3 && this.#featurePageStore.canPerform('STAFF_DIRECTORY', 'Approve'))
+    );
   }
 
   verifyCapability(assignmentId: number, isApproved: boolean): void {
-    this.#professionalApi.verifyCapability(assignmentId, isApproved).pipe(
-      takeUntilDestroyed(this.#destroyRef),
-    ).subscribe({
-      next: async (response) => {
-        this.#commonService.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
-        if (response.isSucceeded) await this.getStaffMemberBasics();
-      },
-      error: (error) => this.#commonService.showMessage(error.message, 'error'),
-    });
+    this.#professionalApi
+      .verifyCapability(assignmentId, isApproved)
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe({
+        next: async (response) => {
+          this.#commonService.showMessage(
+            response.message,
+            response.isSucceeded ? 'success' : 'error',
+          );
+          if (response.isSucceeded) await this.getStaffMemberBasics();
+        },
+        error: (error) => this.#commonService.showMessage(error.message, 'error'),
+      });
   }
 }

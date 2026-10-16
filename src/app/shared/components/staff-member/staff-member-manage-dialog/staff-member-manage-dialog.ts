@@ -34,7 +34,7 @@ import { RolesApi } from '@core/services/roles-api';
 import { StaffMembersApi } from '@core/services/staff-member-api';
 import { StaffMemberBasicAPI } from '@core/services/staff-member-basic-api';
 import { StaffProfessionalStructureApi } from '@core/services/staff-professional-structure-api';
-import { LookupStore } from '@core/stores';
+import { AuthStore, LookupStore } from '@core/stores';
 import { TrimInput } from '@shared/directives';
 import {
   BasicForm,
@@ -93,6 +93,7 @@ export class StaffMemberManageDialog implements OnInit {
   readonly #destroyRef = inject(DestroyRef);
   readonly #route = inject(ActivatedRoute);
   readonly #lookupStore = inject(LookupStore);
+  readonly #authStore = inject(AuthStore);
   protected readonly isPageMode = !this.#dialogRef;
   readonly staffMemberBasic = signal<IStaffMemberBasicInfo | undefined>(undefined);
   readonly departmentOptions = this.#lookupStore.departmentOptions;
@@ -583,6 +584,7 @@ export class StaffMemberManageDialog implements OnInit {
           this.#commonService.showMessage(res.message, res.isSucceeded ? 'success' : 'error');
           if (res.isSucceeded) {
             this.#staffMemberBasicAPI.updateStaffMemberOfficialSignal(body, this.gendersOptions());
+            this.#syncOwnNameToMenu(body.staffMemberId, sessionUser.staffMemberId);
             this.finish(res);
           }
         },
@@ -629,6 +631,7 @@ export class StaffMemberManageDialog implements OnInit {
           this.#commonService.showMessage(res.message, res.isSucceeded ? 'success' : 'error');
           if (res.isSucceeded) {
             this.#staffMemberBasicAPI.updateStaffMemberBasicSignal(body, this.gendersOptions());
+            this.#syncOwnNameToMenu(body.staffMemberId, sessionUser.staffMemberId);
             this.finish(res);
           }
         },
@@ -654,6 +657,22 @@ export class StaffMemberManageDialog implements OnInit {
       return;
     }
     void this.#router.navigate(['/app/staff']);
+  }
+
+  /** Syncs the server-formatted name to the header menu and stored loginInfo after a
+   *  self-edit. No `takeUntilDestroyed`: `finish()` navigates away right after, and this
+   *  one-shot request must still complete. */
+  #syncOwnNameToMenu(editedStaffMemberId: string, sessionStaffMemberId: string) {
+    if (editedStaffMemberId.toLowerCase() !== sessionStaffMemberId.toLowerCase()) return;
+    this.#staffMemberBasicAPI.fetchProfileSummary(editedStaffMemberId).subscribe({
+      next: (res) => {
+        if (res?.isSucceeded && res.data?.fullName) {
+          this.#authStore.updateStaffMemberName(res.data.fullName).catch(() => undefined);
+        }
+      },
+      // Best-effort: the save already succeeded, so a failed refresh only leaves the old name.
+      error: () => undefined,
+    });
   }
 
   #updatePhoneValidators(countryCode: string) {
