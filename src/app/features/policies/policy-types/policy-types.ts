@@ -180,7 +180,7 @@ export default class PolicyTypes implements OnInit {
       },
       { separator: true },
       {
-        label: 'Leave - StaffMember Policy Mapping',
+        label: 'Leave - Staff Member Policy Mapping',
         icon: 'pi pi-cog',
         routerLink: ['/app/policies/leave-staff-member-policy-mapping'],
       },
