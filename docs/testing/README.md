@@ -15,3 +15,4 @@ Current Skolenza Angular verification is recorded here. Files ending in
 - [Staff Academic Structure UI review fixes — 2026-10-16](staff/academic-structure-ui/2026-10-16.md)
 - [Staff Curriculum & Lesson Delivery UI review fixes — 2026-10-16](staff/curriculum-delivery-ui/2026-10-16.md)
 - [Staff structure screens busy indicators — 2026-10-16](staff/structure-busy-state/2026-10-16.md)
+- [Staff form control names, policy mapping route and self-edit name sync — 2026-10-16](staff/form-control-names/2026-10-16.md)
