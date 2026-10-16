@@ -400,14 +400,15 @@ export default class StaffMembers implements OnInit {
     this.store.applyFilters({
       ...this.store.appliedFilters(),
       department: departmentId,
+      position: undefined,
     });
-    this.store.loadDesignations(Number(departmentId));
+    this.store.loadPositions(Number(departmentId));
   }
 
-  onDesignationChange(designationId: number) {
+  onPositionChange(positionId: number) {
     this.store.applyFilters({
       ...this.store.appliedFilters(),
-      designation: designationId,
+      position: positionId,
     });
   }
 

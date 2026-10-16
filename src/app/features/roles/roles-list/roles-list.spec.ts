@@ -2,7 +2,8 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ConfirmationService } from '@openng/optimus-ui/api';
-import { of } from 'rxjs';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 
 import { Common, RolesApi } from '@core/services';
@@ -41,12 +42,16 @@ describe('RolesList search', () => {
   };
 
   let component: RolesList;
+  let dialogClosed: Subject<unknown>;
+  const dialogServiceMock = { open: vi.fn() };
 
   beforeEach(() => {
     vi.clearAllMocks();
     commonMock.getLoginInfo.mockResolvedValue({ user: { staffMemberId: 'emp-guid-1' } });
     rolesApiMock.getRoles.mockReturnValue(of({ isSucceeded: true, data: [], totalRecords: 0 }));
     rolesApiMock.getRoleTypeOptions.mockReturnValue(of({ isSucceeded: true, data: [] }));
+    dialogClosed = new Subject<unknown>();
+    dialogServiceMock.open.mockReturnValue({ onClose: dialogClosed, close: vi.fn() });
 
     TestBed.configureTestingModule({
       imports: [RolesList],
@@ -62,7 +67,9 @@ describe('RolesList search', () => {
       ],
     });
     // The search path is the request body, not the grid; rendering it would need the whole page.
-    TestBed.overrideComponent(RolesList, { set: { template: '' } });
+    TestBed.overrideComponent(RolesList, {
+      set: { template: '', providers: [{ provide: DialogService, useValue: dialogServiceMock }] },
+    });
     component = TestBed.createComponent(RolesList).componentInstance;
   });
 
@@ -87,5 +94,36 @@ describe('RolesList search', () => {
     expect(rolesApiMock.getRoles).toHaveBeenLastCalledWith(
       expect.objectContaining({ RoleName: undefined }),
     );
+  });
+
+  it('reloads canonical rows and totals on page one under existing filters after a save', async () => {
+    component.pageNumber.set(3);
+    component.appliedFilters.set({ status: true, roleTypeId: '2' });
+    const savedRole = {
+      id: 501,
+      roleName: 'Teaching Staff',
+      roleType: 2,
+      roleTypeName: 'Staff Member',
+      isActive: true,
+    };
+    rolesApiMock.getRoles.mockReturnValue(
+      of({ isSucceeded: true, data: [savedRole], totalRecords: 21 }),
+    );
+
+    component.upsertRole();
+    dialogClosed.next([savedRole]);
+
+    await vi.waitFor(() => expect(rolesApiMock.getRoles).toHaveBeenCalledTimes(1));
+    expect(rolesApiMock.getRoles).toHaveBeenCalledWith(
+      expect.objectContaining({ PageNumber: 1, IsActive: true, RoleType: '2' }),
+    );
+    expect(rolesApiMock.setRoles).toHaveBeenLastCalledWith([savedRole]);
+    expect(rolesApiMock.setTotalRecords).toHaveBeenLastCalledWith(21);
+  });
+
+  it('does not reload when the role form is cancelled', () => {
+    component.upsertRole();
+    dialogClosed.next(undefined);
+    expect(rolesApiMock.getRoles).not.toHaveBeenCalled();
   });
 });

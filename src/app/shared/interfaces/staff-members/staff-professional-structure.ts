@@ -51,7 +51,6 @@ export interface StaffPositionMaster {
   staffCategoryId: number;
   staffCategoryName: string;
   departmentId?: number;
-  designationId?: number;
   code: string;
   name: string;
   description?: string;
@@ -66,7 +65,6 @@ export interface SaveStaffPositionMaster {
   staffJobFamilyMasterId: number;
   institutionStaffCategoryMasterId: number;
   departmentId?: number;
-  designationId?: number;
   code: string;
   name: string;
   description?: string;

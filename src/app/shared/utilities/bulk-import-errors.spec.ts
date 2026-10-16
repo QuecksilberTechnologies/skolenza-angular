@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import { columnAliases, erroringColumns, errorsByColumn } from './bulk-import-errors';
 
-const COLUMNS = ['OfficialEmail', 'CountryId', 'ContactCountryId', 'DepartmentId', 'StaffMember Name'];
+const COLUMNS = [
+  'OfficialEmail',
+  'CountryId',
+  'ContactCountryId',
+  'DepartmentId',
+  'StaffMember Name',
+];
 
 describe('columnAliases', () => {
   it('orders aliases longest first, so a shared tail does not win', () => {
@@ -35,7 +41,7 @@ describe('erroringColumns', () => {
 
   it('ignores a column merely referenced mid-sentence', () => {
     const columns = erroringColumns(
-      ['DesignationId must belong to the DepartmentId given.'],
+      ['StaffPositionMasterId must belong to the selected institution.'],
       COLUMNS,
     );
 

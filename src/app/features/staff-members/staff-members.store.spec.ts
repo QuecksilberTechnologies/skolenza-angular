@@ -4,7 +4,7 @@ import { TableLazyLoadEvent } from '@openng/optimus-ui/table';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 
-import { Common, DesignationsApi, StaffMembersApi, RolesApi } from '@core/services';
+import { Common, StaffMembersApi, RolesApi, StaffProfessionalStructureApi } from '@core/services';
 import { GetAllStaffMembersReq, IStaffMember } from '@shared/interfaces';
 
 import { StaffMembersStore } from './staff-members.store';
@@ -24,8 +24,8 @@ function createStaffMember(overrides: Partial<IStaffMember> = {}): IStaffMember 
     dateOfOnBoarding: '2024-01-01',
     departmentId: 3,
     departmentName: 'Engineering',
-    designationId: 4,
-    designationName: 'Engineer',
+    staffPositionMasterId: 4,
+    positionName: 'Engineer',
     staffEmploymentTypeId: 1,
     staffEmploymentTypeName: 'Full Time',
     officialEmail: 'asha@skolenza.test',
@@ -62,7 +62,7 @@ describe('StaffMembersStore', () => {
     updateStaffMemberUpdateStatus: vi.fn(),
   };
 
-  const designationsApiMock = { getDesignationOptions: vi.fn() };
+  const professionalStructureApiMock = { getPositions: vi.fn() };
   const rolesApiMock = { assignRolesToUser: vi.fn() };
 
   const commonMock = {
@@ -96,7 +96,7 @@ describe('StaffMembersStore', () => {
     staffMembersApiMock.updateStaffMemberUpdateStatus.mockReturnValue(
       of({ isSucceeded: true, message: 'Updated.', errors: [], data: [] }),
     );
-    designationsApiMock.getDesignationOptions.mockReturnValue(
+    professionalStructureApiMock.getPositions.mockReturnValue(
       of({ isSucceeded: true, message: '', errors: [], data: [] }),
     );
     rolesApiMock.assignRolesToUser.mockReturnValue(
@@ -107,7 +107,7 @@ describe('StaffMembersStore', () => {
       providers: [
         StaffMembersStore,
         { provide: StaffMembersApi, useValue: staffMembersApiMock },
-        { provide: DesignationsApi, useValue: designationsApiMock },
+        { provide: StaffProfessionalStructureApi, useValue: professionalStructureApiMock },
         { provide: RolesApi, useValue: rolesApiMock },
         { provide: Common, useValue: commonMock },
       ],
@@ -141,7 +141,7 @@ describe('StaffMembersStore', () => {
         staffMemberId: 'AX-002',
         staffEmploymentType: 1,
         department: 3,
-        designation: 4,
+        position: 4,
       });
       await TestBed.inject(ApplicationRef).whenStable();
 
@@ -149,7 +149,7 @@ describe('StaffMembersStore', () => {
         EmployementCode: 'AX-002',
         StaffEmploymentTypeId: 1,
         DepartmentId: 3,
-        DesignationId: 4,
+        StaffPositionMasterId: 4,
       });
     });
 
@@ -161,7 +161,7 @@ describe('StaffMembersStore', () => {
       const request = lastStaffMembersRequest();
       expect(request.DepartmentId).toBe(3);
       expect(request.EmployementCode).toBeUndefined();
-      expect(request.DesignationId).toBeUndefined();
+      expect(request.StaffPositionMasterId).toBeUndefined();
     });
 
     it('falls back to sorting by staffMember id, newest first', async () => {

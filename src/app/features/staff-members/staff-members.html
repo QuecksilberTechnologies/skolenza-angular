@@ -53,16 +53,16 @@
 
           <p-select
             class="w-full min-w-0 lg:min-w-44"
-            optionLabel="designationName"
+            optionLabel="name"
             optionValue="id"
-            [placeholder]="store.appliedFilters()?.department ? 'Select Designation' : 'Select department first'"
+            [placeholder]="store.appliedFilters()?.department ? 'Select Position' : 'Select department first'"
             [appendTo]="'body'"
             [showClear]="true"
-            [options]="store.designationOptions()"
-            [loading]="store.isLoadingDesignations()"
-            [disabled]="store.isLoadingDesignations() || !store.appliedFilters()?.department"
+            [options]="store.positionOptions()"
+            [loading]="store.isLoadingPositions()"
+            [disabled]="store.isLoadingPositions() || !store.appliedFilters()?.department"
             panelStyleClass="select-option-truncate"
-            (onChange)="onDesignationChange($event.value)" />
+            (onChange)="onPositionChange($event.value)" />
 
           <p-select
             class="w-full min-w-0 lg:min-w-44"
@@ -141,7 +141,7 @@
           </th>
           }
           <th class="max-w-36 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">Department</th>
-          <th class="max-w-36 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">Designation</th>
+          <th class="max-w-36 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">Position</th>
           @if (showRole()) {
           <th class="max-w-48 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">Role</th>
           } @if (showProfileCompletion()) {
@@ -300,9 +300,9 @@
           <td class="max-w-36 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
             <div
               class="truncate"
-              [pTooltip]="staffMember?.designationName || '-'"
+              [pTooltip]="staffMember?.positionName || '-'"
               tooltipPosition="bottom">
-              {{ staffMember?.designationName || '-' }}
+              {{ staffMember?.positionName || '-' }}
             </div>
           </td>
           @if (showRole()) {

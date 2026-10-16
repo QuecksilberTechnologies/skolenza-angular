@@ -11,8 +11,8 @@ import { IdCardPopover } from './id-card-popover';
 const summary = {
   staffMemberId: 'emp-1',
   fullName: 'Sujeet Kumar Jaiswara',
-  designation: 1,
-  designationType: 'Senior Software Engineer',
+  staffPositionMasterId: 1,
+  positionName: 'Senior Software Engineer',
   department: 2,
   departmentType: 'Engineering',
   staffMemberCode: 'SJ/2026/MAR/0001',

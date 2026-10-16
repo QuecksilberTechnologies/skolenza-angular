@@ -26,7 +26,6 @@ export * from './currency';
 export * from './dashboard';
 export * from './dashboard-admin';
 export * from './department';
-export * from './designation';
 export * from './device/device';
 export * from './device/device-master';
 export * from './device/institution-device';

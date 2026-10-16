@@ -27,12 +27,6 @@ export const BULK_UPLOAD_ROUTES: Routes = [
     data: { pageTitle: 'Bulk Upload Departments' },
   },
   {
-    path: 'designations',
-    loadComponent: () => import('./designations-bulk-upload'),
-    title: title('Bulk Upload Designations'),
-    data: { pageTitle: 'Bulk Upload Designations' },
-  },
-  {
     path: 'roles',
     loadComponent: () => import('./roles-bulk-upload'),
     title: title('Bulk Upload Roles'),
@@ -45,4 +39,3 @@ export const BULK_UPLOAD_ROUTES: Routes = [
     data: { pageTitle: 'Bulk Upload Staff Employment Types' },
   },
 ];
-

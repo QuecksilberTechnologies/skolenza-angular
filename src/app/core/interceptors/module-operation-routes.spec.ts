@@ -60,7 +60,7 @@ const LIVE_PAGES: Readonly<Record<string, readonly string[]>> = {
   // Operations Add 1, Delete 3, Update 2, View 4.
   INSTITUTION_EMAIL_TEMPLATE: ['View', 'Add', 'Update', 'Delete'],
   // Host menu, read live 2026-09-06: module id 54, operations Add 1, Delete 3, Update 2, View 4.
-  // The device catalog screen — `HOST_DEVICE_INVENTORY` (37) is the separate, unbuilt page.
+  // The device catalog screen â€” `HOST_DEVICE_INVENTORY` (37) is the separate, unbuilt page.
   // `Import` added 2026-09-19: the all-targets live smoke run resolved it from `my-menu` for
   // this code and imported through `/DeviceMaster/import/*` with it.
   HOST_DEVICE_SETUP: ['View', 'Add', 'Update', 'Delete', 'Import'],
@@ -100,7 +100,7 @@ const LIVE_PAGES: Readonly<Record<string, readonly string[]>> = {
   INSTITUTION_POLICY_HOLIDAY: ['View', 'Add', 'Update', 'Delete', 'Import', 'Export'],
   // Host billing leaves, children of `HOST_SUBSCRIPTIONS`. Taken from the backend seed
   // `database-scripts/SeedHostBillingConfigurationModule.sql` (main_branch, 2026-10-04), not yet
-  // read live — refresh from `my-menu` once a Host session is captured.
+  // read live â€” refresh from `my-menu` once a Host session is captured.
   HOST_BILLING_CONFIGURATION: ['View', 'Update'],
   HOST_BILLING_PLAN_PRICES: ['View', 'Add', 'Update', 'Delete'],
   HOST_BILLING_TAX_RULES: ['View', 'Add', 'Update', 'Delete'],
@@ -113,7 +113,7 @@ const LIVE_PAGES: Readonly<Record<string, readonly string[]>> = {
 
 /**
  * Codes a row may name that `LIVE_PAGES` above cannot cover, because that capture is a host
- * session's menu and these are the institution-scope twins — or, for `HOST_MODULES`, because it has not
+ * session's menu and these are the institution-scope twins â€” or, for `HOST_MODULES`, because it has not
  * been read live at all yet. Listed rather than skipped so a typo in the second half of a pair
  * still fails: the fixture has to be told about a code before it passes.
  */
@@ -298,31 +298,15 @@ describe('resolveModuleOperationRoute', () => {
     }
   });
 
-  it('authorises the designation bulk writes against Add, not the inferred Update', () => {
-    for (const path of ['/Designation/bulk/preview', '/Designation/bulk/confirm']) {
-      const route = resolveModuleOperationRoute('POST', `${environment.apiUrl}${path}`);
-      expect(route).toMatchObject({
-        module: 'INSTITUTION_STAFF_DESIGNATIONS',
-        operation: 'Add',
-        carrier: 'body',
-      });
-    }
-  });
-
-  it('leaves the designation bulk reads on the fallback, which already resolves View on the query', () => {
-    const paths = [
-      '/Designation/bulk/template',
-      '/Designation/bulk/jobs/job-1',
-      '/Designation/bulk/jobs/job-1/report',
-    ];
-
-    for (const path of paths) {
-      const route = resolveModuleOperationRoute('GET', `${environment.apiUrl}${path}`);
-      expect(route).toMatchObject({
-        module: 'INSTITUTION_STAFF_DESIGNATIONS',
-        operation: 'View',
-        carrier: 'query',
-      });
+  it('does not resolve retired work-title endpoints to a permission module', () => {
+    for (const method of ['GET', 'POST', 'DELETE']) {
+      for (const path of [
+        '/Designation/bulk/preview',
+        '/Designation/bulk/template',
+        '/Designation/delete',
+      ]) {
+        expect(resolveModuleOperationRoute(method, `${environment.apiUrl}${path}`)).toBeUndefined();
+      }
     }
   });
 
@@ -646,7 +630,7 @@ describe('MODULE_OPERATION_ROUTES', () => {
     for (const route of MODULE_OPERATION_ROUTES) {
       if (typeof route.module === 'function') continue;
       // Every candidate has to be accounted for, or a typo in the second code of a pair would be
-      // checked against nothing — `UNCAPTURED_PAGES` is the explicit list of the ones this host
+      // checked against nothing â€” `UNCAPTURED_PAGES` is the explicit list of the ones this host
       // fixture cannot cover, so adding a code is a deliberate act rather than a silent pass.
       for (const code of asCandidateList(route.module)) {
         expect(code in LIVE_PAGES || UNCAPTURED_PAGES.has(code)).toBe(true);
@@ -785,7 +769,7 @@ describe('the controller fallback', () => {
       ['GET', '/InstitutionDevice/get-by-id/7', 'View'],
       ['DELETE', '/InstitutionDevice/delete/7', 'Remove'],
       ['POST', '/InstitutionDevice/create', 'Assign'],
-      ['POST', '/Designation/add', 'Add'],
+      ['POST', '/Department/add', 'Add'],
       ['POST', '/InstitutionDevice/update-status', 'Update'],
       ['PUT', '/Role/update', 'Update'],
     ];
@@ -812,7 +796,7 @@ describe('the controller fallback', () => {
         ?.carrier,
     ).toBe('query');
     expect(
-      resolveModuleOperationRoute('DELETE', `${environment.apiUrl}/Designation/delete`)?.carrier,
+      resolveModuleOperationRoute('DELETE', `${environment.apiUrl}/Department/delete`)?.carrier,
     ).toBe('query');
     expect(
       resolveModuleOperationRoute('POST', `${environment.apiUrl}/Institution/update-institution`)
@@ -1010,7 +994,7 @@ describe('the controller fallback', () => {
       ['GET', '/OperationsMaster/get-operation/3'],
       ['POST', '/ParentModule/create'],
       ['POST', '/ChildModule/create'],
-      // Lookups. `/Option` is the pointed one — its `OperationId` filters the result set.
+      // Lookups. `/Option` is the pointed one â€” its `OperationId` filters the result set.
       ['GET', '/Option/has-access'],
       ['GET', '/Enum/get-all'],
       ['GET', '/CommonMenu/get-all'],

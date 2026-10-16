@@ -35,7 +35,7 @@ export function applicabilityDetailToInput(
     districtId: row.districtId,
     localityId: row.localityId,
     departmentId: row.departmentId,
-    designationId: row.designationId,
+    staffPositionMasterId: row.staffPositionMasterId,
     staffMemberId: row.staffMemberId,
     staffMemberPublicId: null,
     genderId: row.genderId,

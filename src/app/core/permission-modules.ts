@@ -5,7 +5,7 @@
  * `ModuleId` / `OperationId` params that the API now requires, so they must stay byte-identical
  * to the backend (matching is case-insensitive, nothing else is).
  *
- * VERIFY BEFORE RELYING ON THESE. Only `StaffMembers`, `Departments` and `Designations` are confirmed
+ * VERIFY BEFORE RELYING ON THESE. Only `StaffMembers` and `Departments` are confirmed
  * against a live catalog; the rest are the app's existing coarse guard keys, which are not
  * guaranteed to be the endpoint's own module. To check, log the catalog in the browser console on
  * any signed-in page:
@@ -19,7 +19,6 @@
 export const INSTITUTION_MODULE = {
   staffMembers: 'StaffMembers',
   departments: 'Departments',
-  designations: 'Designations',
   roles: 'Roles',
   reportingTypes: 'ReportingType',
   assets: 'Assets',

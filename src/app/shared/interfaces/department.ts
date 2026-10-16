@@ -74,7 +74,5 @@ export interface DepartmentForm {
 
 export interface IDepartmentFilter {
   departmentId?: number;
-  designationId?: number;
-  designationName?: string;
   status?: boolean | null;
 }

@@ -177,7 +177,7 @@ export interface BulkImportFieldConfig {
   /** `select` only: whether the list is still being fetched. */
   optionsLoading?: Signal<boolean>;
   /**
-   * The column this one's options hang off — `DesignationId` depends on `DepartmentId`. The field
+   * The column this one's options hang off — `StaffPositionMasterId` depends on `DepartmentId`. The field
    * is disabled while the parent is blank, and cleared when the parent changes.
    */
   dependsOn?: string;

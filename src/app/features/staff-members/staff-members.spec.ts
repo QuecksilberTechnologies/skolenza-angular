@@ -7,7 +7,13 @@ import { TableLazyLoadEvent } from '@openng/optimus-ui/table';
 import { Observable, of } from 'rxjs';
 import { vi } from 'vitest';
 
-import { AuthApi, Common, DesignationsApi, StaffMembersApi, RolesApi } from '@core/services';
+import {
+  AuthApi,
+  Common,
+  StaffMembersApi,
+  RolesApi,
+  StaffProfessionalStructureApi,
+} from '@core/services';
 import { FeaturePageStore, LookupStore } from '@core/stores';
 import { BulkImportDialogData, IStaffMember } from '@shared/interfaces';
 
@@ -28,8 +34,8 @@ function createStaffMember(overrides: Partial<IStaffMember> = {}): IStaffMember 
     dateOfOnBoarding: '2024-01-01',
     departmentId: 3,
     departmentName: 'Engineering',
-    designationId: 4,
-    designationName: 'Engineer',
+    staffPositionMasterId: 4,
+    positionName: 'Engineer',
     staffEmploymentTypeId: 1,
     staffEmploymentTypeName: 'Full Time',
     officialEmail: 'asha@skolenza.test',
@@ -83,7 +89,7 @@ describe('StaffMembers', () => {
     sendBulkImportInvitations: vi.fn(),
   };
 
-  const designationsApiMock = { getDesignationOptions: vi.fn() };
+  const professionalStructureApiMock = { getPositions: vi.fn() };
 
   /** Typed wide enough for the several dialogs this page opens and the values they close with. */
   const dialogServiceMock = {
@@ -137,7 +143,7 @@ describe('StaffMembers', () => {
         ConfirmationService,
         { provide: DialogService, useValue: dialogServiceMock },
         { provide: StaffMembersApi, useValue: staffMembersApiMock },
-        { provide: DesignationsApi, useValue: designationsApiMock },
+        { provide: StaffProfessionalStructureApi, useValue: professionalStructureApiMock },
         { provide: LookupStore, useValue: lookupStoreMock },
         { provide: Common, useValue: commonMock },
         { provide: AuthApi, useValue: { resendCredential: vi.fn() } },
@@ -159,8 +165,13 @@ describe('StaffMembers', () => {
     staffMembersApiMock.getStaffMemberStatistics.mockReturnValue(
       of({ isSucceeded: true, message: '', errors: [], data: null }),
     );
-    designationsApiMock.getDesignationOptions.mockReturnValue(
-      of({ isSucceeded: true, message: '', errors: [], data: [] }),
+    professionalStructureApiMock.getPositions.mockReturnValue(
+      of({
+        isSucceeded: true,
+        message: '',
+        errors: [],
+        data: [{ id: 4, name: 'Engineer', departmentId: 3 }],
+      }),
     );
   });
 
@@ -247,27 +258,26 @@ describe('StaffMembers', () => {
   });
 
   describe('filters', () => {
-    it('loads the designations of the chosen department', async () => {
+    it('loads positions for the chosen department', async () => {
       await createComponent();
 
       component.onDepartmentChange(3);
       await TestBed.inject(ApplicationRef).whenStable();
 
       expect(component.store.appliedFilters()).toEqual({ department: 3 });
-      expect(designationsApiMock.getDesignationOptions).toHaveBeenCalledWith({
-        UserStaffMemberId: 'emp-1',
-        DepartmentId: 3,
-        IsActive: true,
-      });
+      expect(professionalStructureApiMock.getPositions).toHaveBeenCalledWith();
+      expect(component.store.positionOptions()).toEqual([
+        expect.objectContaining({ id: 4, name: 'Engineer', departmentId: 3 }),
+      ]);
     });
 
-    it('keeps the department when a designation is chosen', async () => {
+    it('keeps the department when a position is chosen', async () => {
       await createComponent();
 
       component.onDepartmentChange(3);
-      component.onDesignationChange(4);
+      component.onPositionChange(4);
 
-      expect(component.store.appliedFilters()).toEqual({ department: 3, designation: 4 });
+      expect(component.store.appliedFilters()).toEqual({ department: 3, position: 4 });
     });
 
     it('closes the drawer and applies the advanced filters', async () => {
@@ -361,7 +371,9 @@ describe('StaffMembers', () => {
       adapter.sendInvitations!({ jobId: 'job-1' });
       expect(staffMembersApiMock.previewBulkImport).toHaveBeenCalled();
       expect(staffMembersApiMock.confirmBulkImport).toHaveBeenCalledWith({ jobId: 'job-1' });
-      expect(staffMembersApiMock.sendBulkImportInvitations).toHaveBeenCalledWith({ jobId: 'job-1' });
+      expect(staffMembersApiMock.sendBulkImportInvitations).toHaveBeenCalledWith({
+        jobId: 'job-1',
+      });
     });
 
     it('reloads the first page once an import ran', async () => {
@@ -431,7 +443,11 @@ describe('StaffMembers', () => {
     it('keeps a column one single row fills', async () => {
       loadRows(
         createStaffMember({ staffMemberId: 'a', employementCode: '', completionPercentage: 0 }),
-        createStaffMember({ staffMemberId: 'b', employementCode: 'AX-009', completionPercentage: 64 }),
+        createStaffMember({
+          staffMemberId: 'b',
+          employementCode: 'AX-009',
+          completionPercentage: 64,
+        }),
       );
       await createComponent();
       await TestBed.inject(ApplicationRef).whenStable();
@@ -529,7 +545,7 @@ describe('StaffMembers', () => {
       await createComponent();
       await TestBed.inject(ApplicationRef).whenStable();
 
-      // Name, Employment Type, Department, Designation — joining date is blank on every row too.
+      // Name, Employment Type, Department, Position — joining date is blank on every row too.
       expect(component.columnCount()).toBe(4);
     });
   });
@@ -558,4 +574,3 @@ describe('StaffMembers', () => {
     });
   });
 });
-

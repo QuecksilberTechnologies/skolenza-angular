@@ -2,8 +2,8 @@ import { computed, inject, Signal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 
-import { DesignationsApi } from '@core/services/designations-api';
 import { RolesApi } from '@core/services/roles-api';
+import { StaffProfessionalStructureApi } from '@core/services/staff-professional-structure-api';
 import { LookupStore } from '@core/stores/lookup.store';
 import { BulkImportFieldConfig, BulkImportFieldOption } from '@shared/interfaces';
 
@@ -20,7 +20,7 @@ const ADDITIONAL = 'Additional information';
  *
  * Costs nothing to build: `layout.ts` initialises `LookupStore` on every institution session, so
  * countries, genders, staffMember types and departments are already resolved by the time the list
- * renders. Designations, roles, states and districts are fetched on demand, which for the first two
+ * renders. Positions, roles, states and districts are fetched on demand, which for the first two
  * means the first time the editor opens rather than whenever the wizard does.
  *
  * Must be called from an injection context. `userStaffMemberId` is read at fetch time rather than
@@ -31,25 +31,29 @@ export function staffMemberImportFields(
   userStaffMemberId: () => string,
 ): readonly BulkImportFieldConfig[] {
   const lookup = inject(LookupStore);
-  const designationsApi = inject(DesignationsApi);
+  const professionalApi = inject(StaffProfessionalStructureApi);
   const rolesApi = inject(RolesApi);
 
-  /** The department whose designations are wanted. Blank until a row names one. */
-  const departmentId = signal('');
+  const categoryId = signal('');
+  const categoriesWanted = signal(false);
+  const categories = rxResource({
+    params: () => (categoriesWanted() ? {} : undefined),
+    stream: () =>
+      professionalApi
+        .getCategories()
+        .pipe(map((response) => (response.isSucceeded ? response.data : []))),
+    defaultValue: [],
+  });
 
-  const designations = rxResource({
+  const positions = rxResource({
     params: () => {
-      const id = Number(departmentId());
+      const id = Number(categoryId());
 
       return id ? { id } : undefined;
     },
     stream: ({ params }) =>
-      designationsApi
-        .getDesignationOptions({
-          UserStaffMemberId: userStaffMemberId(),
-          DepartmentId: params.id,
-          IsActive: true,
-        })
+      professionalApi
+        .getPositions(params.id)
         .pipe(map((response) => (response.isSucceeded ? response.data : []))),
     defaultValue: [],
   });
@@ -137,18 +141,27 @@ export function staffMemberImportFields(
       optionsLoading: lookup.isLoadingDepartmentOptions,
     },
     {
-      column: 'DesignationId',
-      label: 'Designation',
+      column: 'InstitutionStaffCategoryMasterId',
+      label: 'Staff category',
       section: ORGANIZATION,
       type: 'select',
       required: true,
-      // The import rejects a designation that does not belong to the department, so the list only
-      // ever offers the ones that do.
-      dependsOn: 'DepartmentId',
-      loadOptions: (value) => departmentId.set(value),
-      options: options(designations.value),
-      optionLabel: 'designationName',
-      optionsLoading: designations.isLoading,
+      loadOptions: () => categoriesWanted.set(true),
+      options: options(categories.value),
+      optionLabel: 'name',
+      optionsLoading: categories.isLoading,
+    },
+    {
+      column: 'StaffPositionMasterId',
+      label: 'Position',
+      section: ORGANIZATION,
+      type: 'select',
+      required: true,
+      dependsOn: 'InstitutionStaffCategoryMasterId',
+      loadOptions: (value) => categoryId.set(value),
+      options: options(positions.value),
+      optionLabel: 'name',
+      optionsLoading: positions.isLoading,
     },
     {
       column: 'StaffEmploymentTypeId',

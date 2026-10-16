@@ -15,7 +15,7 @@ export type AgentConnectionStatus =
 export interface MonitoredStaffMember {
   staffMemberId: string;
   staffMemberFullName: string;
-  designationName: string;
+  positionName: string;
   departmentName: string;
 }
 

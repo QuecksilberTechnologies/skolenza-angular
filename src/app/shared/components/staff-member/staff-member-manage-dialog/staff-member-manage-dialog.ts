@@ -30,7 +30,6 @@ import { Droplet, LucideAngularModule } from 'lucide-angular';
 import { finalize } from 'rxjs';
 
 import { Common } from '@core/services/common';
-import { DesignationsApi } from '@core/services/designations-api';
 import { RolesApi } from '@core/services/roles-api';
 import { StaffMembersApi } from '@core/services/staff-member-api';
 import { StaffMemberBasicAPI } from '@core/services/staff-member-basic-api';
@@ -41,9 +40,7 @@ import {
   BasicForm,
   BloodGroup,
   CreateStaffMemberReq,
-  GetDesignationOptionReq,
   GetRolesReq,
-  IDesignation,
   IStaffMemberBasicInfo,
   InstitutionStaffCategory,
   LoginInfo,
@@ -84,7 +81,6 @@ import { CountrySelect } from '../../country-select/country-select';
 export class StaffMemberManageDialog implements OnInit {
   readonly #staffMemberApi = inject(StaffMembersApi);
   readonly #staffMemberBasicAPI = inject(StaffMemberBasicAPI);
-  readonly #designationsApi = inject(DesignationsApi);
   readonly #rolesApi = inject(RolesApi);
   readonly #fb = inject(NonNullableFormBuilder);
   readonly #dialogRef = inject(DynamicDialogRef, { optional: true });
@@ -99,14 +95,12 @@ export class StaffMemberManageDialog implements OnInit {
   readonly #lookupStore = inject(LookupStore);
   protected readonly isPageMode = !this.#dialogRef;
   readonly staffMemberBasic = signal<IStaffMemberBasicInfo | undefined>(undefined);
-  readonly designationOptions = signal<IDesignation[]>([]);
   readonly departmentOptions = this.#lookupStore.departmentOptions;
   readonly roleOptions = signal<Role[]>([]);
   readonly bloodGroupOptions = signal<BloodGroup[]>(BLOOD_GROUPS);
   readonly relationsOptions = this.#lookupStore.relations;
   readonly isLoadingRelations = this.#lookupStore.isLoadingRelations;
   readonly isLoadingDepartments = this.#lookupStore.isLoadingDepartmentOptions;
-  readonly isLoadingDesignation = signal<boolean>(false);
   readonly isLoadingRoles = signal<boolean>(false);
   readonly isSaving = signal<boolean>(false);
   readonly selectedDialCode = signal('');
@@ -141,22 +135,6 @@ export class StaffMemberManageDialog implements OnInit {
     );
 
     this.initForm();
-
-    effect(() => {
-      this.isLoadingDesignation.set(this.#designationsApi.isLoading());
-      const designations = this.#designationsApi.designations();
-      this.designationOptions.set(designations);
-
-      // Clear designationId if the current value is not in the loaded options
-      const currentDesignationId = this.staffMemberForm?.controls.designationId.value;
-      if (
-        currentDesignationId &&
-        designations.length > 0 &&
-        !designations.some((d) => d.id === currentDesignationId)
-      ) {
-        this.staffMemberForm.controls.designationId.setValue(undefined);
-      }
-    });
 
     effect(() => {
       this.isLoadingRoles.set(this.#rolesApi.isLoadingRoles());
@@ -248,10 +226,6 @@ export class StaffMemberManageDialog implements OnInit {
         nonNullable: true,
         validators: [Validators.required],
       }),
-      designationId: new FormControl<number | undefined>(undefined, {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
       staffEmploymentTypeId: new FormControl<number | undefined>(undefined, {
         nonNullable: true,
         validators: [Validators.required],
@@ -324,10 +298,11 @@ export class StaffMemberManageDialog implements OnInit {
     // Disable the following fields if the user is an StaffMember (roleTypeId 2)
     if (isEdit && roleTypeId === InstitutionRoleTypeId.StaffMember) {
       this.staffMemberForm.controls.officialEmail.disable();
-      this.staffMemberForm.controls.designationId.disable();
       this.staffMemberForm.controls.departmentId?.disable();
       this.staffMemberForm.controls.staffEmploymentTypeId.disable();
       this.staffMemberForm.controls.institutionStaffCategoryMasterId.disable();
+      this.staffMemberForm.controls.staffJobFamilyMasterId.disable();
+      this.staffMemberForm.controls.staffPositionMasterId.disable();
       this.staffMemberForm.controls.dateOfExit.disable();
       this.staffMemberForm.controls.hasPermanent.disable();
       this.staffMemberForm.controls.isEditAllowed.disable();
@@ -338,8 +313,6 @@ export class StaffMemberManageDialog implements OnInit {
       this.staffMemberForm.controls.roleId.updateValueAndValidity();
       this.staffMemberForm.controls.countryId.disable();
     }
-
-    await this.getDesignations(this.staffMemberBasic()?.departmentId);
 
     const role = this.roleOptions().find((r) => r.id === this.staffMemberBasic()?.roleId);
 
@@ -361,7 +334,6 @@ export class StaffMemberManageDialog implements OnInit {
       countryId: this.staffMemberBasic()?.countryId,
       officialEmail: this.staffMemberBasic()?.officialEmail,
       departmentId: this.staffMemberBasic()?.departmentId,
-      designationId: this.staffMemberBasic()?.designationId,
       staffEmploymentTypeId: this.staffMemberBasic()?.staffEmploymentTypeId,
       institutionStaffCategoryMasterId: this.staffMemberBasic()?.institutionStaffCategoryMasterId,
       staffJobFamilyMasterId: this.staffMemberBasic()?.professionalProfile?.staffJobFamilyMasterId,
@@ -388,9 +360,14 @@ export class StaffMemberManageDialog implements OnInit {
     return control?.invalid && control.touched;
   }
 
-  async onDepartmentChange(departmentId: string) {
-    this.staffMemberForm.controls.designationId.setValue(undefined);
-    await this.getDesignations(Number(departmentId));
+  onDepartmentChange(departmentId: string): void {
+    const selectedPosition = this.categoryPositionOptions().find(
+      (position) => position.id === this.staffMemberForm.controls.staffPositionMasterId.value,
+    );
+    if (selectedPosition?.departmentId && selectedPosition.departmentId !== Number(departmentId)) {
+      this.staffMemberForm.controls.staffPositionMasterId.setValue(undefined);
+    }
+    this.filterPositions(this.staffMemberForm.controls.staffJobFamilyMasterId.value);
   }
 
   onStaffCategoryChange(institutionStaffCategoryMasterId: number): void {
@@ -460,41 +437,13 @@ export class StaffMemberManageDialog implements OnInit {
     this.positionOptions.set(
       jobFamilyId
         ? this.categoryPositionOptions().filter(
-            (position) => position.staffJobFamilyMasterId === jobFamilyId,
+            (position) =>
+              position.staffJobFamilyMasterId === jobFamilyId &&
+              (!position.departmentId ||
+                position.departmentId === Number(this.staffMemberForm.controls.departmentId.value)),
           )
         : [],
     );
-  }
-
-  async getDesignations(departmentId?: number) {
-    if (!departmentId) return;
-
-    const body: GetDesignationOptionReq = {
-      UserStaffMemberId: this.loginInfo?.user?.staffMemberId ?? '',
-      DepartmentId: departmentId,
-      IsActive: true,
-    };
-
-    this.#designationsApi.setIsLoading(true);
-    this.#designationsApi.setDesignations([]);
-
-    this.#designationsApi
-      .getDesignationOptions(body)
-      .pipe(
-        finalize(() => this.#designationsApi.setIsLoading(false)),
-        takeUntilDestroyed(this.#destroyRef),
-      )
-      .subscribe({
-        next: (res) => {
-          this.#designationsApi.setDesignations(res.isSucceeded ? res.data : []);
-          if (!res.isSucceeded) {
-            this.#commonService.showMessage(res.message, 'error');
-          }
-        },
-        error: (err) => {
-          this.#commonService.showMessage(err.message, 'error');
-        },
-      });
   }
 
   async getRoles() {
@@ -555,7 +504,6 @@ export class StaffMemberManageDialog implements OnInit {
       dateOfOnBoarding: form.dateOfOnBoarding ? form.dateOfOnBoarding.toISOString() : '',
       officialEmail: form.officialEmail?.trim() || '',
       departmentId: Number(form.departmentId) || 0,
-      designationId: Number(form.designationId) || 0,
       staffEmploymentTypeId: Number(form.staffEmploymentTypeId) || 0,
       institutionStaffCategoryMasterId: Number(form.institutionStaffCategoryMasterId) || 0,
       staffPositionMasterId: Number(form.staffPositionMasterId) || 0,
@@ -601,7 +549,6 @@ export class StaffMemberManageDialog implements OnInit {
       middleName: form.middleName?.trim() || '',
       lastName: form.lastName?.trim() || '',
       departmentId: form.departmentId || 0,
-      designationId: form.designationId || 0,
       staffEmploymentTypeId: form.staffEmploymentTypeId || 0,
       institutionStaffCategoryMasterId: form.institutionStaffCategoryMasterId || 0,
       staffPositionMasterId: form.staffPositionMasterId || 0,

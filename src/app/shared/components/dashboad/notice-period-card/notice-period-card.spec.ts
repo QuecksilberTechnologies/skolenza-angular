@@ -18,7 +18,7 @@ describe('NoticePeriodCard', () => {
         code: 'E1',
         staffMemberName: 'Ananya Rao',
         departmentName: 'HR',
-        designationName: 'Recruiter',
+        positionName: 'Recruiter',
         expectedLastWorkingDate: '2026-11-05',
         noticeDaysRemaining: 26,
         status: 'Serving',
@@ -32,13 +32,13 @@ describe('NoticePeriodCard', () => {
     expect(text()).toContain('5 Nov 2026');
   });
 
-  it('reads a missing designation as "No designation" to screen readers', async () => {
+  it('reads a missing position as "No position" to screen readers', async () => {
     fixture.componentRef.setInput('staffMembers', [
       {
         code: 'E2',
         staffMemberName: 'Neha Singh',
         departmentName: null,
-        designationName: null,
+        positionName: null,
         expectedLastWorkingDate: '2026-10-28',
         noticeDaysRemaining: 18,
         status: 'Serving',
@@ -46,9 +46,7 @@ describe('NoticePeriodCard', () => {
     ]);
     await fixture.whenStable();
 
-    expect(fixture.nativeElement.querySelector('.sr-only')?.textContent).toContain(
-      'No designation',
-    );
+    expect(fixture.nativeElement.querySelector('.sr-only')?.textContent).toContain('No position');
   });
 
   it.each([
@@ -62,7 +60,7 @@ describe('NoticePeriodCard', () => {
         code: 'E3',
         staffMemberName: 'Neha Singh',
         departmentName: null,
-        designationName: 'HR Executive',
+        positionName: 'HR Executive',
         expectedLastWorkingDate: '2026-10-28',
         noticeDaysRemaining: days,
         status: 'Serving',

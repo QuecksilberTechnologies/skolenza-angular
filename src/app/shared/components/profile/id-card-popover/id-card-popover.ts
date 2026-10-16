@@ -20,8 +20,8 @@ import { QRCodeComponent } from 'angularx-qrcode';
 import { filter, firstValueFrom, fromEvent } from 'rxjs';
 
 import { Common } from '@core/services/common';
-import { StaffMemberBasicAPI } from '@core/services/staff-member-basic-api';
 import { InstitutionsApi } from '@core/services/institutions-api';
+import { StaffMemberBasicAPI } from '@core/services/staff-member-basic-api';
 import { UserAvatar } from '@shared/components/user-avatar/user-avatar';
 import { SessionUser, IProfileSummary } from '@shared/interfaces';
 
@@ -67,7 +67,7 @@ export class IdCardPopover {
       'VERSION:3.0',
       summary?.fullName ? `FN:${summary.fullName}` : '',
       this.sessionUser()?.institutionName ? `ORG:${this.sessionUser()?.institutionName}` : '',
-      summary?.designationType ? `TITLE:${summary.designationType}` : '',
+      summary?.positionName ? `TITLE:${summary.positionName}` : '',
       summary?.offilcialEmail ? `EMAIL:${summary.offilcialEmail}` : '',
       summary?.mobileNumber ? `TEL:${summary.mobileNumber}` : '',
       summary?.staffMemberCode ? `NOTE:ID ${summary.staffMemberCode}` : '',

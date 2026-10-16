@@ -279,7 +279,7 @@ export class BulkImportFixDialog {
 
   /**
    * A dependent field is cleared when its parent moves, and its list is refetched for the new
-   * parent — a designation belonging to the department that was chosen before is not an option any
+   * parent — a Position belonging to the department that was chosen before is not an option any
    * more, and leaving it selected would send an id the server is about to reject again.
    */
   protected onFieldChange(field: BulkImportFieldConfig): void {

@@ -46,7 +46,7 @@ export const AdminDashboardStore = signalStore(
           data: (exited.data ?? []).map((staffMember) => ({
             code: staffMember.staffMemberId,
             title: staffMember.staffMemberName,
-            subtitle: [staffMember.designationName, staffMember.departmentName]
+            subtitle: [staffMember.positionName, staffMember.departmentName]
               .filter(Boolean)
               .join(' · '),
             status: null,

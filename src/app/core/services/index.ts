@@ -62,7 +62,6 @@ export { EmailTemplateApi } from './email-template-api';
 export { DepartmentsApi } from './departments-api';
 export { OkrApi } from './okr-api';
 export { PerformanceManagementApi } from './performance-management-api';
-export { DesignationsApi } from './designations-api';
 export { EnumApi } from './enum-api';
 export { HostApi } from './host-api';
 export { HostBillingApi } from './host-billing-api';

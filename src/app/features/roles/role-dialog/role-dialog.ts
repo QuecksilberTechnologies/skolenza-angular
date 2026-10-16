@@ -128,11 +128,6 @@ export class RoleDialog implements OnInit {
         next: (res) => {
           this.#commonService.showMessage(res.message, res.isSucceeded ? 'success' : 'error');
           if (res.isSucceeded) {
-            if (roleId) {
-              this.#rolesApi.updateRoleSignal(req);
-            } else {
-              this.#rolesApi.addRoleSignal(req);
-            }
             this.#dialogRef.close(res.data);
           }
         },

@@ -40,7 +40,6 @@ export const ASIDE_MENU_MODULE_UI: Readonly<Record<string, AsideMenuModuleUi>> =
   INSTITUTION_PROFILE: { route: 'institution/profile', icon: 'pi pi-building-columns' },
   INSTITUTION_AUDIT_LOGS: { route: 'institution/audit-logs', icon: 'pi pi-history' },
   INSTITUTION_DEPARTMENTS: { route: 'departments', icon: 'pi pi-sitemap' },
-  INSTITUTION_STAFF_DESIGNATIONS: { route: 'designations', icon: 'pi pi-id-card' },
   INSTITUTION_STAFF_CODE: { route: 'staff-member-code-configuration', icon: 'pi pi-hashtag' },
   STAFF_EMPLOYMENT_TYPES: { route: 'staff-employment-types', icon: 'pi pi-tags' },
   INSTITUTION_CAMPUSES: { route: 'campuses', icon: 'pi pi-map-marker' },
@@ -61,13 +60,20 @@ export const ASIDE_MENU_MODULE_UI: Readonly<Record<string, AsideMenuModuleUi>> =
   // `INSTITUTION_DEVICE_CONFIGURATION` is deliberately not a leaf of its own - see
   // `aside-menu-unmapped-modules.ts`.
   INSTITUTION_DASHBOARD: { icon: 'pi pi-gauge' },
-  INSTITUTION_DASHBOARD_OVERVIEW: { route: 'admin-dashboard', icon: 'pi pi-gauge', label: 'Dashboard' },
+  INSTITUTION_DASHBOARD_OVERVIEW: {
+    route: 'admin-dashboard',
+    icon: 'pi pi-gauge',
+    label: 'Dashboard',
+  },
   // The Institution Policy tree (docs/specs/INSTITUTION_POLICY/). Policy Types and Policy Definitions ship
   // so far; the remaining siblings stay in `aside-menu-unmapped-modules.ts` until their screens exist.
   INSTITUTION_POLICIES: { icon: 'pi pi-book' },
   INSTITUTION_POLICY_DEFINITIONS: { route: 'institution-policies', icon: 'pi pi-file-edit' },
   INSTITUTION_POLICY_TYPES: { route: 'institution-policies/types', icon: 'pi pi-tags' },
-  INSTITUTION_POLICY_APPROVALS: { route: 'institution-policies/approval-stages', icon: 'pi pi-sitemap' },
+  INSTITUTION_POLICY_APPROVALS: {
+    route: 'institution-policies/approval-stages',
+    icon: 'pi pi-sitemap',
+  },
   // Read live 2026-09-22: `my-menu` publishes `/app/holidays` under the policy tree; the app's
   // existing `holidays` screen is that page. Renamed from `INSTITUTION_POLICY_HOLIDAY_CALENDAR` (read
   // live 2026-09-23).
@@ -133,5 +139,3 @@ export const ASIDE_MENU_MODULE_UI: Readonly<Record<string, AsideMenuModuleUi>> =
 
 /** The common-menu subtree lives in the header user menu, not the sidebar. */
 export const COMMON_MENU_MODULE_CODE = 'COMMON_MENU';
-
-

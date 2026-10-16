@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  effect,
   inject,
   input,
   OnInit,
@@ -16,15 +15,10 @@ import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { finalize } from 'rxjs';
 
 import { Common } from '@core/services/common';
-import { DesignationsApi } from '@core/services/designations-api';
+import { StaffProfessionalStructureApi } from '@core/services/staff-professional-structure-api';
 import { LookupStore } from '@core/stores';
 import { TrimInput } from '@shared/directives';
-import {
-  GetDesignationOptionReq,
-  IDesignation,
-  IStaffMemberFilter,
-  LoginInfo,
-} from '@shared/interfaces';
+import { StaffPositionMaster, IStaffMemberFilter, LoginInfo } from '@shared/interfaces';
 
 import { SelectField } from '../../select-field/select-field';
 
@@ -36,30 +30,25 @@ import { SelectField } from '../../select-field/select-field';
 })
 export default class StaffMemberFilter implements OnInit {
   readonly #lookupStore = inject(LookupStore);
-  readonly #designationsApi = inject(DesignationsApi);
+  readonly #professionalApi = inject(StaffProfessionalStructureApi);
   readonly #commonService = inject(Common);
   readonly #destroyRef = inject(DestroyRef);
   readonly #fb = inject(NonNullableFormBuilder);
   readonly appliedFilters = input<IStaffMemberFilter | null>();
   readonly applyFiltersEvent = output<IStaffMemberFilter | null>();
   readonly closePopup = output();
-  readonly designationOptions = signal<IDesignation[]>([]);
+  readonly positionOptions = signal<StaffPositionMaster[]>([]);
   readonly departmentOptions = this.#lookupStore.departmentOptions;
   readonly staffEmploymentTypeOptions = this.#lookupStore.staffEmploymentTypes;
   readonly isLoadingStaffEmploymentTypes = this.#lookupStore.isLoadingStaffEmploymentTypes;
   readonly isLoadingDepartments = this.#lookupStore.isLoadingDepartmentOptions;
-  readonly isLoadingDesignation = signal<boolean>(false);
+  readonly isLoadingPositions = signal<boolean>(false);
   readonly isSaving = signal<boolean>(false);
   protected staffMemberFilterForm!: FormGroup; // TODO: Add form interface
   protected loginInfo!: LoginInfo;
 
   constructor() {
     this.initForm();
-
-    effect(() => {
-      this.isLoadingDesignation.set(this.#designationsApi.isLoading());
-      this.designationOptions.set(this.#designationsApi.designations());
-    });
   }
 
   async ngOnInit() {
@@ -75,7 +64,7 @@ export default class StaffMemberFilter implements OnInit {
       staffMemberId: [''],
       staffMemberName: [''],
       staffEmploymentType: [null],
-      designation: [null],
+      position: [null],
       department: [null],
       documentStatus: [null],
       staffMemberStatus: [null],
@@ -87,7 +76,7 @@ export default class StaffMemberFilter implements OnInit {
       staffMemberId: this.appliedFilters()?.staffMemberId,
       staffMemberName: this.appliedFilters()?.staffMemberName,
       staffEmploymentType: this.appliedFilters()?.staffEmploymentType,
-      designation: this.appliedFilters()?.designation,
+      position: this.appliedFilters()?.position,
       department: this.appliedFilters()?.department,
       documentStatus: this.appliedFilters()?.documentStatus,
       staffMemberStatus: this.appliedFilters()?.staffMemberStatus,
@@ -95,30 +84,30 @@ export default class StaffMemberFilter implements OnInit {
   }
 
   async onDepartmentChange(departmentId: string) {
-    await this.getDesignations(Number(departmentId));
+    await this.getPositions(Number(departmentId));
   }
 
-  async getDesignations(departmentId?: number) {
+  async getPositions(departmentId?: number) {
     if (!departmentId) return;
 
-    const body: GetDesignationOptionReq = {
-      UserStaffMemberId: this.loginInfo?.user?.staffMemberId ?? '',
-      DepartmentId: departmentId,
-      IsActive: true,
-    };
-
-    this.#designationsApi.setIsLoading(true);
-    this.#designationsApi.setDesignations([]);
-
-    this.#designationsApi
-      .getDesignationOptions(body)
+    this.isLoadingPositions.set(true);
+    this.positionOptions.set([]);
+    this.staffMemberFilterForm.controls['position'].setValue(null);
+    this.#professionalApi
+      .getPositions()
       .pipe(
-        finalize(() => this.#designationsApi.setIsLoading(false)),
+        finalize(() => this.isLoadingPositions.set(false)),
         takeUntilDestroyed(this.#destroyRef),
       )
       .subscribe({
         next: async (res) => {
-          this.#designationsApi.setDesignations(res.isSucceeded ? res.data : []);
+          this.positionOptions.set(
+            res.isSucceeded
+              ? res.data.filter(
+                  (position) => !position.departmentId || position.departmentId === departmentId,
+                )
+              : [],
+          );
           if (!res.isSucceeded) {
             this.#commonService.showMessage(res.message, 'error');
           }

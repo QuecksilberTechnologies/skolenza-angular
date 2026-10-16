@@ -14,7 +14,7 @@ export interface SalaryStructure {
   staffMemberId: string;
   staffMemberFullName: string;
   departmentName: string;
-  designationName: string;
+  positionName: string;
   effectiveFrom: string;
   components: {
     earnings: SalaryComponent[];
@@ -31,7 +31,7 @@ export interface PayrollRecord {
   staffMemberId: string;
   staffMemberFullName: string;
   departmentName: string;
-  designationName: string;
+  positionName: string;
   month: number;
   year: number;
   workingDays: number;
@@ -65,7 +65,7 @@ export interface Payslip {
   staffMemberId: string;
   staffMemberFullName: string;
   departmentName: string;
-  designationName: string;
+  positionName: string;
   month: number;
   year: number;
   generatedDate: string;

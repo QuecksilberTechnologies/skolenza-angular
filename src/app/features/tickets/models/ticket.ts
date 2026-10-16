@@ -40,7 +40,7 @@ export interface ISupportAgent {
   agentName: string;
   email: string;
   department: string;
-  designation: string;
+  positionName: string;
 }
 
 export interface ITicketAgentSummary {

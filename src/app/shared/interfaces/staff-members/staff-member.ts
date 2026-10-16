@@ -6,7 +6,6 @@ export interface CreateStaffMemberReq {
   dateOfOnBoarding: string;
   officialEmail: string;
   departmentId: number;
-  designationId: number;
   staffEmploymentTypeId: number;
   institutionStaffCategoryMasterId: number;
   staffPositionMasterId: number;
@@ -58,7 +57,7 @@ export interface GetAllStaffMembersReq {
   GenderId?: number;
   IsMarried?: boolean;
   DepartmentId?: number;
-  DesignationId?: number;
+  StaffPositionMasterId?: number;
   StaffEmploymentTypeId?: number;
   EmailId?: string;
   PageNumber?: number;
@@ -92,8 +91,8 @@ export interface IStaffMember {
   dateOfOnBoarding: string;
   departmentId: number;
   departmentName: string;
-  designationId: number;
-  designationName: string;
+  staffPositionMasterId?: number;
+  positionName?: string;
   staffEmploymentTypeId: number;
   staffEmploymentTypeName: string;
   officialEmail: string;
@@ -131,8 +130,8 @@ export interface SummaryStaffMemberInfo {
   currentSalaryStatusRemark: string;
   roleId: number;
   roleType: string;
-  designationId: number;
-  designation: string;
+  staffPositionMasterId: number;
+  positionName: string;
   departmentId: number;
   department: string;
   profileImage?: string;
@@ -145,7 +144,7 @@ export interface SummaryStaffMemberInfo {
 
 export interface AppliedStaffMemberFilter {
   departmentId: string;
-  designationId: string;
+  staffPositionMasterId: string;
   staffEmploymentTypeId?: string;
 }
 
@@ -248,10 +247,11 @@ export interface ResetStaffMemberPasswordRes {
 }
 
 export interface IStaffMemberFilter {
+  position?: number;
   staffMemberId?: string;
   staffMemberName?: string;
   staffEmploymentType?: number;
-  designation?: number;
+  staffPositionMasterId?: number;
   department?: number;
   documentStatus?: number;
   staffMemberStatus?: number;

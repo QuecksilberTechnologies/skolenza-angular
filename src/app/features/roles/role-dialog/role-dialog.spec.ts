@@ -4,6 +4,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MessageService } from '@openng/optimus-ui/api';
 import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { vi } from 'vitest';
+
+import { RolesApi } from '@core/services';
 
 import { RoleDialog } from './role-dialog';
 
@@ -84,5 +87,29 @@ describe('RoleDialog', () => {
     component.patchForm();
 
     expect(component['roleForm'].controls.roleType.value).toBe(4);
+  });
+
+  it('returns the saved server identity without inserting a guessed role into the list', () => {
+    const api = TestBed.inject(RolesApi);
+    const close = vi.spyOn(TestBed.inject(DynamicDialogRef), 'close');
+    component['roleForm'].patchValue({ roleName: 'Teaching Staff', roleType: 2 });
+    component.onSubmit();
+    const savedRole = {
+      id: 501,
+      roleName: 'Teaching Staff',
+      roleType: 2,
+      roleTypeName: 'Staff Member',
+      isActive: true,
+    };
+    httpMock
+      .expectOne((req) => req.method === 'POST' && req.url.includes('/Role/'))
+      .flush({
+        isSucceeded: true,
+        message: 'Role created successfully.',
+        data: [savedRole],
+      });
+    expect(close).toHaveBeenCalledWith([savedRole]);
+    expect(api.roles()).toEqual([]);
+    expect(api.totalRecords()).toBe(0);
   });
 });

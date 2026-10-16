@@ -33,7 +33,7 @@ import { RowStatus, RowStatusChip } from '../row-status/row-status';
         >
           @if (loading() && !staffMembers()?.length) {
             @for (row of skeletonRows(); track row) {
-              <!-- same line heights as a loaded name/designation row, so nothing moves when data lands -->
+              <!-- same line heights as a loaded name/position row, so nothing moves when data lands -->
               <li class="flex items-center gap-3 py-3" aria-hidden="true">
                 <span
                   class="size-9 shrink-0 animate-pulse rounded-full bg-zinc-100 motion-reduce:animate-none dark:bg-zinc-800"
@@ -70,11 +70,11 @@ import { RowStatus, RowStatusChip } from '../row-status/row-status';
                       {{ staffMember.staffMemberName }}
                     </p>
                     <p class="m-0 truncate text-sm text-zinc-500 dark:text-zinc-400">
-                      @if (staffMember.designationName || staffMember.departmentName; as role) {
+                      @if (staffMember.positionName || staffMember.departmentName; as role) {
                         {{ role }}
                       } @else {
                         <span aria-hidden="true">—</span>
-                        <span class="sr-only">No designation</span>
+                        <span class="sr-only">No position</span>
                       }
                     </p>
                   </div>

@@ -177,14 +177,6 @@
         "moduleKey": "Departments"
       },
       {
-        "id": "designations",
-        "label": "Designations",
-        "icon": "pi pi-id-card",
-        "route": "designations",
-        "tooltip": "Manage designations",
-        "moduleKey": "Designations"
-      },
-      {
         "id": "institution-locations",
         "label": "Locations",
         "icon": "pi pi-map-marker",
