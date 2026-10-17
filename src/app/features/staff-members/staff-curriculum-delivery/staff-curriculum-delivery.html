@@ -1,72 +1,192 @@
-<div class="min-h-[calc(100vh-4.6rem)] overflow-y-auto">
-  <p-card class="m-3 p-3! sm:m-4 sm:p-4!">
-    <nav class="flex flex-wrap gap-2 border-b border-gray-200 pb-3 dark:border-zinc-700" aria-label="Curriculum and lesson delivery sections">
-      @for (tab of tabs; track tab) { <p-button [label]="tab" [outlined]="selectedTab() !== tab" (onClick)="selectTab(tab)" /> }
-    </nav>
+<div class="h-[calc(100vh-4.6rem)] overflow-y-auto">
+<p-card class="m-3 p-3! sm:m-4 sm:p-4!">
+<div class="space-y-5">
 
-    @if (selectedTab() === 'Units & Topics' || selectedTab() === 'Lesson Plans') {
-      <label for="curriculum-selectedFramework" class="mt-5 block max-w-xl"><span id="curriculum-selectedFramework-label">Curriculum framework</span><p-select inputId="curriculum-selectedFramework" ariaLabelledBy="curriculum-selectedFramework-label" class="mt-1 w-full" [ngModel]="selectedFrameworkId()" (ngModelChange)="selectFramework($event)" name="selectedFramework" [options]="frameworks()" optionLabel="name" optionValue="id" appendTo="body" /></label>
+  <app-tab-bar ariaLabel="Curriculum and lesson delivery sections" [tabs]="tabs" [selected]="selectedTab()" (tabChange)="openTab($event)">
+    @if (selectedTab() === 'units-topics' || selectedTab() === 'lesson-plans') {
+    <p-select
+      class="min-w-56"
+      name="selectedFramework"
+      ariaLabel="Curriculum framework"
+      placeholder="Select framework"
+      [ngModel]="selectedFrameworkId() || null"
+      (ngModelChange)="selectFramework($event)"
+      [options]="frameworks()"
+      optionLabel="name"
+      optionValue="id"
+      appendTo="body" />
     }
-
-    @if (selectedTab() === 'Frameworks') {
-      <section class="mt-5 grid gap-5 lg:grid-cols-[1fr_25rem]">
-        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-          @if (loading.frameworks() && !frameworks().length) { <app-list-skeleton label="Loading curriculum frameworks..." [actions]="3" /> } @else { @for (item of frameworks(); track item.id) {
-            <article class="flex items-center justify-between gap-4 border-b border-gray-200 p-4 last:border-b-0 dark:border-zinc-700">
-              <div><strong>{{ item.name }}</strong><div class="text-sm text-gray-500 dark:text-zinc-400">{{ item.code }} · {{ item.authorityName }} · {{ item.version }} · {{ item.workflowStatusName }}</div></div>
-              <div class="flex flex-wrap gap-2">
-                @if (statusCode(item.workflowStatusId) === 'DRAFT' || statusCode(item.workflowStatusId) === 'REJECTED') { <p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editFramework(item)" /> }
-                @if (statusCode(item.workflowStatusId) === 'DRAFT' || statusCode(item.workflowStatusId) === 'REJECTED') { <p-button label="Submit" size="small" (onClick)="reviewFramework(item, 'SUBMITTED')" /> }
-                @if (statusCode(item.workflowStatusId) === 'DRAFT' || statusCode(item.workflowStatusId) === 'REJECTED') { <p-button label="Remove" icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="confirmDelete('frameworks', item.id, item.name)" /> }
-                @if (statusCode(item.workflowStatusId) === 'SUBMITTED') { <p-button label="Approve" severity="success" size="small" (onClick)="reviewFramework(item, 'APPROVED')" /><p-button label="Reject" severity="danger" [outlined]="true" size="small" (onClick)="reviewFramework(item, 'REJECTED')" /> }
-              </div>
-            </article>
-          } @empty { <p class="p-5 text-gray-500 dark:text-zinc-400">No curriculum framework configured.</p> } }
-        </div>
-        <form class="space-y-3 rounded-xl border border-gray-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900" (ngSubmit)="saveFramework()">
-          <h2 class="font-semibold">{{ frameworkForm.id ? 'Edit' : 'Add' }} curriculum framework</h2>
-          <label for="curriculum-frameworkSession" class="block"><span id="curriculum-frameworkSession-label">Academic session</span><p-select inputId="curriculum-frameworkSession" ariaLabelledBy="curriculum-frameworkSession-label" class="mt-1 w-full" name="frameworkSession" [(ngModel)]="frameworkForm.academicSessionId" [options]="sessions()" optionLabel="name" optionValue="id" appendTo="body" /></label>
-          <label class="block">Code<input pInputText class="mt-1 w-full" name="frameworkCode" [(ngModel)]="frameworkForm.code" required /></label>
-          <label class="block">Name<input pInputText class="mt-1 w-full" name="frameworkName" [(ngModel)]="frameworkForm.name" required /></label>
-          <label class="block">Board / university / authority<input pInputText class="mt-1 w-full" name="authority" [(ngModel)]="frameworkForm.authorityName" required /></label>
-          <label class="block">Version<input pInputText class="mt-1 w-full" name="version" [(ngModel)]="frameworkForm.version" required /></label>
-          <div class="grid gap-3 sm:grid-cols-2"><label>Effective from<input pInputText type="date" class="mt-1 w-full" name="frameworkFrom" [(ngModel)]="frameworkForm.effectiveFrom" required /></label><label>Effective to<input pInputText type="date" class="mt-1 w-full" name="frameworkTo" [(ngModel)]="frameworkForm.effectiveTo" /></label></div>
-          <label for="curriculum-frameworkActive" class="flex items-center gap-2"><p-checkbox inputId="curriculum-frameworkActive" name="frameworkActive" [(ngModel)]="frameworkForm.isActive" [binary]="true" />Active</label>
-          <div class="flex justify-end gap-2"><p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="frameworkForm = emptyFramework()" /><p-button type="submit" [loading]="saving()" label="Save framework" icon="pi pi-check" /></div>
-        </form>
-      </section>
+    @if (canAdd()) {
+      @switch (selectedTab()) {
+        @case ('frameworks') {
+        <p-button label="Add Curriculum Framework" icon="pi pi-plus" (onClick)="openFrameworkDialog()" />
+        }
+        @case ('units-topics') {
+          @if (selectedFrameworkId()) {
+          <p-button label="Add Unit" icon="pi pi-plus" (onClick)="openUnitDialog()" />
+          }
+          @if (units().length) {
+          <p-button label="Add Topic" icon="pi pi-plus" [outlined]="true" (onClick)="openTopicDialog()" />
+          }
+        }
+        @case ('lesson-plans') {
+        <p-button label="Add Lesson Plan" icon="pi pi-plus" (onClick)="openPlanDialog()" />
+        }
+        @case ('delivery-logs') {
+        <p-button label="Record Lesson Delivery" icon="pi pi-plus" (onClick)="openDeliveryDialog()" />
+        }
+      }
     }
+  </app-tab-bar>
 
-    @if (selectedTab() === 'Units & Topics') {
-      <section class="mt-5 space-y-5">
-        <div class="grid gap-5 xl:grid-cols-[1fr_24rem]">
-          <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">@if (loading.units() && !units().length) { <app-list-skeleton label="Loading units..." /> } @else { @for (unit of units(); track unit.id) {<article class="border-b border-gray-200 p-4 last:border-b-0 dark:border-zinc-700"><div class="flex justify-between gap-3"><div><strong>{{ unit.sequence }}. {{ unit.name }}</strong><div class="text-sm text-gray-500 dark:text-zinc-400">{{ unit.courseOfferingName }} · {{ unit.plannedPeriods }} periods</div></div><div class="flex gap-2"><p-button label="Edit unit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editUnit(unit)" /><p-button label="Remove" icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="confirmDelete('units', unit.id, unit.name)" /></div></div><div class="mt-3 space-y-2">@for (topic of unit.topics; track topic.id) {<div class="flex items-center gap-2 rounded-lg border border-gray-200 p-3 dark:border-zinc-700"><button type="button" class="flex-1 text-left" (click)="editTopic(topic)"><strong>{{ topic.sequence }}. {{ topic.name }}</strong><span class="ml-2 text-sm text-gray-500 dark:text-zinc-400">{{ topic.plannedPeriods }} periods</span></button><p-button icon="pi pi-trash" severity="danger" [outlined]="true" size="small" ariaLabel="Remove topic" (onClick)="confirmDelete('topics', topic.id, topic.name)" /></div>}</div></article>} @empty {<p class="p-5 text-gray-500 dark:text-zinc-400">No units configured for this framework.</p>} }</div>
-          <div class="space-y-5">
-            <form class="space-y-3 rounded-xl border border-gray-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900" (ngSubmit)="saveUnit()"><h2 class="font-semibold">{{ unitForm.id ? 'Edit' : 'Add' }} curriculum unit</h2><label for="curriculum-unitOffering" class="block"><span id="curriculum-unitOffering-label">Course offering</span><p-select inputId="curriculum-unitOffering" ariaLabelledBy="curriculum-unitOffering-label" class="mt-1 w-full" name="unitOffering" [(ngModel)]="unitForm.courseOfferingId" [options]="offerings()" optionLabel="name" optionValue="id" appendTo="body" /></label><label class="block">Code<input pInputText class="mt-1 w-full" name="unitCode" [(ngModel)]="unitForm.code" required /></label><label class="block">Name<input pInputText class="mt-1 w-full" name="unitName" [(ngModel)]="unitForm.name" required /></label><div class="grid gap-3 sm:grid-cols-2"><label>Sequence<input pInputText type="number" min="1" class="mt-1 w-full" name="unitSequence" [(ngModel)]="unitForm.sequence" /></label><label>Planned periods<input pInputText type="number" min="1" class="mt-1 w-full" name="unitPeriods" [(ngModel)]="unitForm.plannedPeriods" /></label></div><label class="block">Learning outcome<textarea pTextarea class="mt-1 w-full" name="unitOutcome" [(ngModel)]="unitForm.learningOutcome"></textarea></label><p-button type="submit" [loading]="saving()" label="Save unit" icon="pi pi-check" /></form>
-            <form class="space-y-3 rounded-xl border border-gray-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900" (ngSubmit)="saveTopic()"><h2 class="font-semibold">{{ topicForm.id ? 'Edit' : 'Add' }} curriculum topic</h2><label for="curriculum-topicUnit" class="block"><span id="curriculum-topicUnit-label">Unit</span><p-select inputId="curriculum-topicUnit" ariaLabelledBy="curriculum-topicUnit-label" class="mt-1 w-full" name="topicUnit" [(ngModel)]="topicForm.curriculumUnitId" [options]="units()" optionLabel="name" optionValue="id" appendTo="body" /></label><label class="block">Code<input pInputText class="mt-1 w-full" name="topicCode" [(ngModel)]="topicForm.code" required /></label><label class="block">Name<input pInputText class="mt-1 w-full" name="topicName" [(ngModel)]="topicForm.name" required /></label><div class="grid gap-3 sm:grid-cols-2"><label>Sequence<input pInputText type="number" min="1" class="mt-1 w-full" name="topicSequence" [(ngModel)]="topicForm.sequence" /></label><label>Planned periods<input pInputText type="number" min="1" class="mt-1 w-full" name="topicPeriods" [(ngModel)]="topicForm.plannedPeriods" /></label></div><label class="block">Learning outcome<textarea pTextarea class="mt-1 w-full" name="topicOutcome" [(ngModel)]="topicForm.learningOutcome"></textarea></label><p-button type="submit" [loading]="saving()" label="Save topic" icon="pi pi-check" /></form>
+  <div class="overflow-hidden rounded-card border border-zinc-200 dark:border-zinc-800">
+    @switch (selectedTab()) {
+      @case ('frameworks') {
+        @if (loading.frameworks() && !frameworks().length) {
+        <app-list-skeleton label="Loading Curriculum Frameworks..." />
+        } @else {
+        @for (item of frameworks(); track item.id) {
+        <article class="flex items-center justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.name }}</strong>
+              <app-status-badge [label]="item.workflowStatusName" [tone]="workflowBadge(item.workflowStatusId).tone" [icon]="workflowBadge(item.workflowStatusId).icon" />
+              @if (!item.isActive) {
+              <app-status-badge label="Inactive" icon="pi-ban" />
+              }
+            </div>
+            <div class="truncate text-sm text-zinc-500 dark:text-zinc-400">{{ item.code }} · {{ item.authorityName }} · Version {{ item.version }}</div>
           </div>
-        </div>
-      </section>
-    }
+          @if (hasActions(frameworkActions(item))) {
+          <app-table-action-button [ariaLabel]="'Actions for ' + item.name" [text]="true" (action)="openRowMenu(rowMenu, $event, frameworkActions(item))" />
+          }
+        </article>
+        } @empty {
+        <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('curriculum frameworks', 'Add Curriculum Framework') }}</p>
+        }
+        }
+      }
 
-    @if (selectedTab() === 'Lesson Plans') {
-      <section class="mt-5 grid gap-5 xl:grid-cols-[1fr_28rem]">
-        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">@if (loading.plans() && !plans().length) { <app-list-skeleton label="Loading lesson plans..." /> } @else { @for (item of plans(); track item.id) {<article class="border-b border-gray-200 p-4 last:border-b-0 dark:border-zinc-700"><div class="flex flex-wrap items-start justify-between gap-3"><div><strong>{{ item.courseOfferingName }}</strong><div class="text-sm text-gray-500 dark:text-zinc-400">{{ item.staffMemberName }} · {{ item.plannedDate }} · {{ item.workflowStatusName }}</div><p class="mt-2">{{ item.objectives }}</p></div><div class="flex flex-wrap gap-2">@if (statusCode(item.workflowStatusId) === 'DRAFT' || statusCode(item.workflowStatusId) === 'REJECTED') {<p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editPlan(item)" />}@if (statusCode(item.workflowStatusId) === 'DRAFT' || statusCode(item.workflowStatusId) === 'REJECTED') {<p-button label="Submit" size="small" (onClick)="reviewPlan(item, 'SUBMITTED')" /><p-button label="Remove" icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="confirmDelete('lesson-plans', item.id, 'lesson plan')" />}@if (statusCode(item.workflowStatusId) === 'SUBMITTED') {<p-button label="Approve" severity="success" size="small" (onClick)="reviewPlan(item, 'APPROVED')" /><p-button label="Reject" severity="danger" [outlined]="true" size="small" (onClick)="reviewPlan(item, 'REJECTED')" />}@if (statusCode(item.workflowStatusId) === 'APPROVED') {<p-button label="Record delivery" icon="pi pi-check-circle" size="small" (onClick)="usePlanForDelivery(item)" />}</div></div></article>} @empty {<p class="p-5 text-gray-500 dark:text-zinc-400">No lesson plans available.</p>} }</div>
-        <form class="space-y-3 rounded-xl border border-gray-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900" (ngSubmit)="savePlan()"><h2 class="font-semibold">{{ planForm.id ? 'Edit' : 'Create' }} lesson plan</h2><label for="curriculum-planAssignment" class="block"><span id="curriculum-planAssignment-label">Teaching assignment</span><p-select inputId="curriculum-planAssignment" ariaLabelledBy="curriculum-planAssignment-label" class="mt-1 w-full" name="planAssignment" [(ngModel)]="planForm.staffTeachingAssignmentId" (ngModelChange)="onPlanAssignmentChange()" [options]="assignments()" optionValue="id" appendTo="body"><ng-template #selectedItem let-item>{{ assignmentLabel(item) }}</ng-template><ng-template #item let-item>{{ assignmentLabel(item) }}</ng-template></p-select></label><label for="curriculum-planTopics" class="block"><span id="curriculum-planTopics-label">Curriculum topics</span><p-multiselect inputId="curriculum-planTopics" ariaLabelledBy="curriculum-planTopics-label" class="mt-1 w-full" name="planTopics" [(ngModel)]="planForm.curriculumTopicIds" [options]="availablePlanTopics()" optionLabel="name" optionValue="id" appendTo="body" [disabled]="!planForm.staffTeachingAssignmentId" /></label><div class="grid gap-3 sm:grid-cols-2"><label>Planned date<input pInputText type="date" class="mt-1 w-full" name="plannedDate" [(ngModel)]="planForm.plannedDate" required /></label><label>Period reference<input pInputText class="mt-1 w-full" name="periodReference" [(ngModel)]="planForm.periodReference" /></label></div><label class="block">Objectives<textarea pTextarea class="mt-1 w-full" name="objectives" [(ngModel)]="planForm.objectives" required></textarea></label><label class="block">Teaching method<textarea pTextarea class="mt-1 w-full" name="method" [(ngModel)]="planForm.teachingMethod"></textarea></label><label class="block">Resources<textarea pTextarea class="mt-1 w-full" name="resources" [(ngModel)]="planForm.resources"></textarea></label><label class="block">Activities<textarea pTextarea class="mt-1 w-full" name="activities" [(ngModel)]="planForm.activities"></textarea></label><label class="block">Assessment<textarea pTextarea class="mt-1 w-full" name="assessment" [(ngModel)]="planForm.assessment"></textarea></label><label class="block">Homework<textarea pTextarea class="mt-1 w-full" name="planHomework" [(ngModel)]="planForm.homework"></textarea></label><p-button type="submit" [loading]="saving()" label="Save draft" icon="pi pi-check" /></form>
-      </section>
-    }
+      @case ('units-topics') {
+        @if (!selectedFrameworkId()) {
+        <p class="p-5 text-zinc-500 dark:text-zinc-400">Pick a curriculum framework to see its units and topics.</p>
+        } @else if (loading.units() && !units().length) {
+        <app-list-skeleton label="Loading Units..." />
+        } @else {
+        @for (unit of units(); track unit.id) {
+        <article class="border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+          <div class="flex items-center justify-between gap-4">
+            <div class="min-w-0 flex-1">
+              <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ unit.sequence }}. {{ unit.name }}</strong>
+              <div class="text-sm text-zinc-500 dark:text-zinc-400">{{ unit.courseOfferingName }} · {{ unit.plannedPeriods }} periods</div>
+            </div>
+            @if (hasActions(unitActions(unit))) {
+            <app-table-action-button [ariaLabel]="'Actions for unit ' + unit.name" [text]="true" (action)="openRowMenu(rowMenu, $event, unitActions(unit))" />
+            }
+          </div>
+          @if (unit.topics.length) {
+          <ul class="mt-3 space-y-2" [attr.aria-label]="'Topics in ' + unit.name">
+            @for (topic of unit.topics; track topic.id) {
+            <li class="flex items-center justify-between gap-4 rounded-card border border-zinc-200 px-3 py-2 dark:border-zinc-800">
+              <div class="min-w-0 flex-1">
+                <span class="font-medium text-zinc-900 dark:text-zinc-50">{{ topic.sequence }}. {{ topic.name }}</span>
+                <span class="ml-2 text-sm text-zinc-500 dark:text-zinc-400">{{ topic.plannedPeriods }} periods</span>
+              </div>
+              @if (hasActions(topicActions(topic))) {
+              <app-table-action-button [ariaLabel]="'Actions for topic ' + topic.name" [text]="true" (action)="openRowMenu(rowMenu, $event, topicActions(topic))" />
+              }
+            </li>
+            }
+          </ul>
+          }
+        </article>
+        } @empty {
+        <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('units in this framework', 'Add Unit') }}</p>
+        }
+        }
+      }
 
-    @if (selectedTab() === 'Delivery Logs') {
-      <section class="mt-5 grid gap-5 xl:grid-cols-[1fr_28rem]">
-        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">@if (loading.deliveries() && !deliveries().length) { <app-list-skeleton label="Loading lesson deliveries..." /> } @else { @for (item of deliveries(); track item.id) {<article class="border-b border-gray-200 p-4 last:border-b-0 dark:border-zinc-700"><div class="flex flex-wrap justify-between gap-3"><div><strong>{{ planLabel(plans().find(plan => plan.id === item.lessonPlanId)) }}</strong><div class="text-sm text-gray-500 dark:text-zinc-400">{{ item.deliveredDate }} · {{ item.workflowStatusName }}</div><p class="mt-2">{{ item.coverageNotes }}</p></div><div class="flex gap-2">@if (statusCode(item.workflowStatusId) === 'DRAFT' || statusCode(item.workflowStatusId) === 'REJECTED') {<p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editDelivery(item)" /><p-button label="Submit" size="small" (onClick)="reviewDelivery(item, 'SUBMITTED')" /><p-button label="Remove" icon="pi pi-trash" severity="danger" [outlined]="true" size="small" (onClick)="confirmDelete('lesson-deliveries', item.id, 'lesson delivery')" />}@if (statusCode(item.workflowStatusId) === 'SUBMITTED') {<p-button label="Approve" severity="success" size="small" (onClick)="reviewDelivery(item, 'APPROVED')" /><p-button label="Reject" severity="danger" [outlined]="true" size="small" (onClick)="reviewDelivery(item, 'REJECTED')" />}</div></div></article>} @empty {<p class="p-5 text-gray-500 dark:text-zinc-400">No lesson delivery recorded.</p>} }</div>
-        <form class="space-y-3 rounded-xl border border-gray-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900" (ngSubmit)="saveDelivery()"><h2 class="font-semibold">{{ deliveryForm.id ? 'Edit lesson delivery' : 'Record actual lesson delivery' }}</h2><label for="curriculum-deliveryPlan" class="block"><span id="curriculum-deliveryPlan-label">Approved lesson plan</span><p-select inputId="curriculum-deliveryPlan" ariaLabelledBy="curriculum-deliveryPlan-label" class="mt-1 w-full" name="deliveryPlan" [(ngModel)]="deliveryForm.lessonPlanId" (ngModelChange)="onDeliveryPlanChange()" [options]="approvedPlans()" optionLabel="courseOfferingName" optionValue="id" appendTo="body" /></label><label class="block">Delivered date<input pInputText type="date" class="mt-1 w-full" name="deliveredDate" [(ngModel)]="deliveryForm.deliveredDate" required /></label><label class="block">Coverage notes<textarea pTextarea class="mt-1 w-full" name="coverageNotes" [(ngModel)]="deliveryForm.coverageNotes" required></textarea></label>@for (coverage of deliveryForm.coverage; track coverage.curriculumTopicId) {<label class="block">{{ deliveryTopicName(coverage.curriculumTopicId) }} completion %<input pInputText type="number" min="0" max="100" class="mt-1 w-full" [name]="'coverage' + coverage.curriculumTopicId" [(ngModel)]="coverage.completionPercent" /></label>}<label class="block">Homework<textarea pTextarea class="mt-1 w-full" name="deliveryHomework" [(ngModel)]="deliveryForm.homework"></textarea></label><label class="block">Evidence reference<input pInputText class="mt-1 w-full" name="evidence" [(ngModel)]="deliveryForm.evidenceReference" /></label><label class="block">Exception / incomplete reason<textarea pTextarea class="mt-1 w-full" name="exceptionReason" [(ngModel)]="deliveryForm.exceptionReason"></textarea></label><label class="block">Replan action<textarea pTextarea class="mt-1 w-full" name="replanAction" [(ngModel)]="deliveryForm.replanAction"></textarea></label><p-button type="submit" [loading]="saving()" label="Save delivery draft" icon="pi pi-check" /><p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="resetDelivery()" /></form>
-      </section>
-    }
+      @case ('lesson-plans') {
+        @if (loading.plans() && !plans().length) {
+        <app-list-skeleton label="Loading Lesson Plans..." />
+        } @else {
+        @for (item of plans(); track item.id) {
+        <article class="flex items-start justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.courseOfferingName }}</strong>
+              <app-status-badge [label]="item.workflowStatusName" [tone]="workflowBadge(item.workflowStatusId).tone" [icon]="workflowBadge(item.workflowStatusId).icon" />
+            </div>
+            <div class="text-sm text-zinc-500 dark:text-zinc-400">{{ item.staffMemberName }} · {{ item.plannedDate }}</div>
+            <p class="mt-2 line-clamp-2 text-gray-700 dark:text-zinc-100">{{ item.objectives }}</p>
+          </div>
+          @if (hasActions(planActions(item))) {
+          <app-table-action-button [ariaLabel]="'Actions for ' + item.courseOfferingName + ' lesson plan on ' + item.plannedDate" [text]="true" (action)="openRowMenu(rowMenu, $event, planActions(item))" />
+          }
+        </article>
+        } @empty {
+        <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('lesson plans', 'Add Lesson Plan') }}</p>
+        }
+        }
+      }
 
-    @if (selectedTab() === 'Syllabus Progress') {
-      <section class="mt-5 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">@if (loading.progress() && !progress().length) { <app-list-skeleton label="Loading syllabus progress..." [actions]="0" /> } @else { @for (item of progress(); track item.curriculumUnitId) {<article class="border-b border-gray-200 p-4 last:border-b-0 dark:border-zinc-700"><div class="flex justify-between gap-4"><div><strong>{{ item.curriculumUnitName }}</strong><div class="text-sm text-gray-500 dark:text-zinc-400">{{ item.curriculumFrameworkName }} · {{ item.courseOfferingName }} · {{ item.topicCount }} topics</div></div><strong>{{ item.completionPercent }}%</strong></div><div class="mt-3 h-2 overflow-hidden rounded bg-gray-100 dark:bg-zinc-800"><div class="h-full bg-primary" [style.width.%]="item.completionPercent"></div></div></article>} @empty {<p class="p-5 text-gray-500 dark:text-zinc-400">Approved lesson delivery is required before progress can be calculated.</p>} }</section>
+      @case ('delivery-logs') {
+        @if (loading.deliveries() && !deliveries().length) {
+        <app-list-skeleton label="Loading Lesson Deliveries..." />
+        } @else {
+        @for (item of deliveries(); track item.id) {
+        <article class="flex items-start justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ planTitle(item.lessonPlanId) }}</strong>
+              <app-status-badge [label]="item.workflowStatusName" [tone]="workflowBadge(item.workflowStatusId).tone" [icon]="workflowBadge(item.workflowStatusId).icon" />
+            </div>
+            <div class="text-sm text-zinc-500 dark:text-zinc-400">Delivered {{ item.deliveredDate }}</div>
+            <p class="mt-2 line-clamp-2 text-gray-700 dark:text-zinc-100">{{ item.coverageNotes }}</p>
+          </div>
+          @if (hasActions(deliveryActions(item))) {
+          <app-table-action-button [ariaLabel]="'Actions for delivery on ' + item.deliveredDate" [text]="true" (action)="openRowMenu(rowMenu, $event, deliveryActions(item))" />
+          }
+        </article>
+        } @empty {
+        <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('lesson deliveries', 'Record Lesson Delivery') }}</p>
+        }
+        }
+      }
+
+      @case ('syllabus-progress') {
+        @if (loading.progress() && !progress().length) {
+        <app-list-skeleton label="Loading Syllabus Progress..." [actions]="0" />
+        } @else {
+        @for (item of progress(); track item.curriculumUnitId) {
+        <article class="border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+          <div class="flex justify-between gap-4">
+            <div class="min-w-0 flex-1">
+              <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.curriculumUnitName }}</strong>
+              <div class="text-sm text-zinc-500 dark:text-zinc-400">{{ item.curriculumFrameworkName }} · {{ item.courseOfferingName }} · {{ item.topicCount }} topics</div>
+            </div>
+            <strong class="text-zinc-900 dark:text-zinc-50">{{ item.completionPercent }}%</strong>
+          </div>
+          <div
+            class="mt-3 h-2 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-valuenow]="item.completionPercent"
+            [attr.aria-label]="item.curriculumUnitName + ' completion'">
+            <div class="h-full bg-primary" [style.width.%]="item.completionPercent"></div>
+          </div>
+        </article>
+        } @empty {
+        <p class="p-5 text-zinc-500 dark:text-zinc-400">No syllabus progress yet. Progress appears once a lesson delivery is approved.</p>
+        }
+        }
+      }
     }
-  </p-card>
+  </div>
 </div>
-<p-confirmDialog />
+</p-card>
 
+<p-tieredmenu #rowMenu [model]="rowMenuItems()" [popup]="true" appendTo="body" />
+<p-confirmDialog />
+</div>

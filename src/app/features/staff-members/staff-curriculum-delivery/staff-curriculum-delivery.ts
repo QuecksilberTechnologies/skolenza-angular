@@ -1,79 +1,104 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   OnInit,
   signal,
+  Type,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ConfirmationService } from '@openng/optimus-ui/api';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ConfirmationService, MenuItem } from '@openng/optimus-ui/api';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { CardModule } from '@openng/optimus-ui/card';
-import { CheckboxModule } from '@openng/optimus-ui/checkbox';
 import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
-import { InputTextModule } from '@openng/optimus-ui/inputtext';
-import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { SelectModule } from '@openng/optimus-ui/select';
-import { TextareaModule } from '@openng/optimus-ui/textarea';
-import { Subscription } from 'rxjs';
+import { TieredMenu, TieredMenuModule } from '@openng/optimus-ui/tieredmenu';
+import { Observable, Subscription } from 'rxjs';
 
 import { Common, StaffAcademicStructureApi, StaffCurriculumDeliveryApi } from '@core/services';
-import { ListSkeleton } from '@shared/components';
+import { FeaturePageStore } from '@core/stores';
+import {
+  ListSkeleton,
+  StatusBadge,
+  type StatusTone,
+  TabBar,
+  type TabBarItem,
+  TableActionButton,
+} from '@shared/components';
 import {
   AcademicMaster,
   AcademicMasterType,
   AcademicWorkflowStatusOption,
   CurriculumFramework,
+  CurriculumTopic,
   CurriculumUnit,
   LessonDelivery,
   LessonPlan,
-  SaveCurriculumFramework,
-  SaveCurriculumTopic,
-  SaveCurriculumUnit,
-  SaveLessonDelivery,
-  SaveLessonPlan,
   StaffTeachingAssignment,
   SyllabusProgress,
 } from '@shared/interfaces';
-import { localDateKey } from '@shared/utilities/date-key';
 import { escapeHtml } from '@shared/utilities/escape-html';
+import { openManageDialog } from '@shared/utilities/manage-dialog';
 import { pendingCounter } from '@shared/utilities/pending-counter';
 
-type CurriculumTab =
-  | 'Frameworks'
-  | 'Units & Topics'
-  | 'Lesson Plans'
-  | 'Delivery Logs'
-  | 'Syllabus Progress';
+import {
+  CurriculumFrameworkDialog,
+  CurriculumFrameworkDialogData,
+} from './curriculum-framework-dialog/curriculum-framework-dialog';
+import {
+  CurriculumUnitDialog,
+  CurriculumUnitDialogData,
+} from './curriculum-unit-dialog/curriculum-unit-dialog';
+import { WORKFLOW_BADGE, WorkflowCode } from './curriculum-workflow';
+import {
+  LessonDeliveryDialog,
+  LessonDeliveryDialogData,
+  planLabel,
+} from './lesson-delivery-dialog/lesson-delivery-dialog';
+import { LessonPlanDialog, LessonPlanDialogData } from './lesson-plan-dialog/lesson-plan-dialog';
 
-export function topicsForTeachingAssignment(
-  units: CurriculumUnit[],
-  assignments: StaffTeachingAssignment[],
-  assignmentId: number,
-): CurriculumUnit['topics'] {
-  const courseOfferingId = assignments.find((item) => item.id === assignmentId)?.courseOfferingId;
-  return courseOfferingId
-    ? units
-        .filter((unit) => unit.courseOfferingId === courseOfferingId)
-        .flatMap((unit) => unit.topics)
-    : [];
-}
+export { topicsForTeachingAssignment } from './curriculum-workflow';
+
+/** Each tab id is also its URL segment under `/app/staff/curriculum-delivery/`. */
+export type CurriculumTab =
+  | 'frameworks'
+  | 'units-topics'
+  | 'lesson-plans'
+  | 'delivery-logs'
+  | 'syllabus-progress';
+
+export const CURRICULUM_TABS: readonly TabBarItem<CurriculumTab>[] = [
+  { id: 'frameworks', label: 'Frameworks' },
+  { id: 'units-topics', label: 'Units & Topics' },
+  { id: 'lesson-plans', label: 'Lesson Plans' },
+  { id: 'delivery-logs', label: 'Delivery Logs' },
+  { id: 'syllabus-progress', label: 'Syllabus Progress' },
+];
+
+/** Curriculum endpoints sit under the Staff Directory permission boundary (see module-operation-routes.ts). */
+const MODULE_CODE = 'STAFF_DIRECTORY';
+
+type DeletePath = 'frameworks' | 'units' | 'topics' | 'lesson-plans' | 'lesson-deliveries';
+type ReviewCode = Exclude<WorkflowCode, 'DRAFT'>;
 
 @Component({
   selector: 'app-staff-curriculum-delivery',
   imports: [
     ButtonModule,
     CardModule,
-    CheckboxModule,
     ConfirmDialogModule,
     FormsModule,
-    InputTextModule,
     ListSkeleton,
-    MultiSelectModule,
     SelectModule,
-    TextareaModule,
+    StatusBadge,
+    TabBar,
+    TableActionButton,
+    TieredMenuModule,
   ],
   templateUrl: './staff-curriculum-delivery.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,8 +107,12 @@ export default class StaffCurriculumDelivery implements OnInit {
   readonly #api = inject(StaffCurriculumDeliveryApi);
   readonly #academicApi = inject(StaffAcademicStructureApi);
   readonly #common = inject(Common);
-  readonly #destroyRef = inject(DestroyRef);
   readonly #confirmationService = inject(ConfirmationService);
+  readonly #destroyRef = inject(DestroyRef);
+  readonly #dialogService = inject(DialogService);
+  readonly #featurePageStore = inject(FeaturePageStore);
+  readonly #route = inject(ActivatedRoute);
+  readonly #router = inject(Router);
   // One counter per list, so an unrelated lookup never holds a list's skeleton.
   readonly #listLoads = {
     frameworks: pendingCounter(),
@@ -93,7 +122,6 @@ export default class StaffCurriculumDelivery implements OnInit {
     progress: pendingCounter(),
   };
   #unitsLoad?: Subscription;
-  readonly #save = pendingCounter();
   readonly loading = {
     frameworks: this.#listLoads.frameworks.active,
     units: this.#listLoads.units.active,
@@ -101,15 +129,8 @@ export default class StaffCurriculumDelivery implements OnInit {
     deliveries: this.#listLoads.deliveries.active,
     progress: this.#listLoads.progress.active,
   };
-  readonly saving = this.#save.active;
-  readonly tabs: CurriculumTab[] = [
-    'Frameworks',
-    'Units & Topics',
-    'Lesson Plans',
-    'Delivery Logs',
-    'Syllabus Progress',
-  ];
-  readonly selectedTab = signal<CurriculumTab>('Frameworks');
+  readonly tabs = CURRICULUM_TABS;
+  readonly selectedTab = signal<CurriculumTab>('frameworks');
   readonly statuses = signal<AcademicWorkflowStatusOption[]>([]);
   readonly sessions = signal<AcademicMaster[]>([]);
   readonly offerings = signal<AcademicMaster[]>([]);
@@ -120,11 +141,19 @@ export default class StaffCurriculumDelivery implements OnInit {
   readonly plans = signal<LessonPlan[]>([]);
   readonly deliveries = signal<LessonDelivery[]>([]);
   readonly progress = signal<SyllabusProgress[]>([]);
-  frameworkForm = this.emptyFramework();
-  unitForm = this.emptyUnit();
-  topicForm = this.emptyTopic();
-  planForm = this.emptyPlan();
-  deliveryForm = this.emptyDelivery();
+  readonly rowMenuItems = signal<MenuItem[]>([]);
+
+  readonly canAdd = computed(() => this.#featurePageStore.canPerformOrUnknown(MODULE_CODE, 'Add'));
+  /** Edit, and every workflow review (submit, approve, reject), is a PUT, so an `Update`. */
+  readonly canUpdate = computed(() =>
+    this.#featurePageStore.canPerformOrUnknown(MODULE_CODE, 'Update'),
+  );
+  readonly canDelete = computed(() =>
+    this.#featurePageStore.canPerformOrUnknown(MODULE_CODE, 'Delete'),
+  );
+  readonly approvedPlans = computed(() =>
+    this.plans().filter((plan) => this.statusCode(plan.workflowStatusId) === 'APPROVED'),
+  );
 
   ngOnInit(): void {
     this.#common.setPageHeaderInfo({
@@ -139,245 +168,222 @@ export default class StaffCurriculumDelivery implements OnInit {
       { label: 'Curriculum & Lesson Delivery' },
     ]);
     this.loadAll();
+    this.#route.paramMap.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((params) => {
+      const tab = CURRICULUM_TABS.find((item) => item.id === params.get('tab'))?.id;
+      if (!tab) {
+        void this.#router.navigate(['..', CURRICULUM_TABS[0].id], {
+          relativeTo: this.#route,
+          replaceUrl: true,
+        });
+        return;
+      }
+      this.selectTab(tab);
+    });
+  }
+
+  openTab(tab: CurriculumTab): void {
+    if (tab === this.selectedTab()) return;
+    void this.#router.navigate(['..', tab], { relativeTo: this.#route });
   }
 
   selectTab(tab: CurriculumTab): void {
     this.selectedTab.set(tab);
-    if (tab === 'Syllabus Progress') this.loadProgress();
+    if (tab === 'syllabus-progress') this.loadProgress();
   }
-  selectFramework(id: number): void {
+
+  selectFramework(id: number | null): void {
+    // The picker emits null when cleared or when its value drops out of the list; keep the
+    // current framework rather than leaving Units & Topics empty.
+    if (!id) return;
     this.selectedFrameworkId.set(id);
-    this.unitForm = this.emptyUnit(id);
-    this.topicForm = this.emptyTopic();
-    this.planForm.curriculumTopicIds = [];
     this.units.set([]);
     this.loadUnits();
   }
-  saveFramework(): void {
-    this.#api
-      .saveFramework(this.frameworkForm)
-      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.notify(response);
-          if (response.isSucceeded) {
-            this.frameworkForm = this.emptyFramework();
-            this.loadFrameworks();
-          }
-        },
-        error: (error) => this.error(error),
-      });
-  }
-  editFramework(item: CurriculumFramework): void {
-    this.frameworkForm = {
-      id: item.id,
-      academicSessionId: item.academicSessionId,
-      code: item.code,
-      name: item.name,
-      authorityName: item.authorityName,
-      version: item.version,
-      effectiveFrom: item.effectiveFrom,
-      effectiveTo: item.effectiveTo,
-      isActive: item.isActive,
-    };
-  }
-  reviewFramework(item: CurriculumFramework, code: 'SUBMITTED' | 'APPROVED' | 'REJECTED'): void {
-    const status = this.statuses().find((option) => option.code === code);
-    if (!status) return;
-    this.#api
-      .reviewFramework(item.id, { workflowStatusId: status.id })
-      .pipe(takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.notify(response);
-          this.loadFrameworks();
-        },
-        error: (error) => this.error(error),
-      });
-  }
-  saveUnit(): void {
-    this.#api
-      .saveUnit(this.unitForm)
-      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.notify(response);
-          if (response.isSucceeded) {
-            this.unitForm = this.emptyUnit(this.selectedFrameworkId());
-            this.loadUnits();
-          }
-        },
-        error: (error) => this.error(error),
-      });
-  }
-  editUnit(item: CurriculumUnit): void {
-    this.unitForm = {
-      id: item.id,
-      curriculumFrameworkId: item.curriculumFrameworkId,
-      courseOfferingId: item.courseOfferingId,
-      parentCurriculumUnitId: item.parentCurriculumUnitId,
-      code: item.code,
-      name: item.name,
-      description: item.description,
-      sequence: item.sequence,
-      plannedPeriods: item.plannedPeriods,
-      learningOutcome: item.learningOutcome,
-      isActive: item.isActive,
-    };
-  }
-  saveTopic(): void {
-    this.#api
-      .saveTopic(this.topicForm)
-      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.notify(response);
-          if (response.isSucceeded) {
-            this.topicForm = this.emptyTopic();
-            this.loadUnits();
-          }
-        },
-        error: (error) => this.error(error),
-      });
-  }
-  editTopic(item: CurriculumUnit['topics'][number]): void {
-    this.topicForm = { ...item };
-  }
-  savePlan(): void {
-    this.#api
-      .saveLessonPlan(this.planForm)
-      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.notify(response);
-          if (response.isSucceeded) {
-            this.planForm = this.emptyPlan();
-            this.loadPlans();
-          }
-        },
-        error: (error) => this.error(error),
-      });
-  }
-  editPlan(item: LessonPlan): void {
-    this.planForm = {
-      id: item.id,
-      staffTeachingAssignmentId: item.staffTeachingAssignmentId,
-      plannedDate: item.plannedDate,
-      periodReference: item.periodReference,
-      objectives: item.objectives,
-      teachingMethod: item.teachingMethod,
-      resources: item.resources,
-      activities: item.activities,
-      assessment: item.assessment,
-      homework: item.homework,
-      isActive: item.isActive,
-      curriculumTopicIds: item.topics.map((topic) => topic.id),
-    };
-  }
-  onPlanAssignmentChange(): void {
-    const validTopicIds = new Set(this.availablePlanTopics().map((topic) => topic.id));
-    this.planForm.curriculumTopicIds = this.planForm.curriculumTopicIds.filter((id) =>
-      validTopicIds.has(id),
+
+  openFrameworkDialog(framework?: CurriculumFramework): void {
+    const data: CurriculumFrameworkDialogData = { framework, sessions: this.sessions() };
+    this.#openDialog(
+      CurriculumFrameworkDialog,
+      data,
+      `${framework ? 'Edit' : 'Add'} Curriculum Framework`,
+      '44rem',
+      () => this.loadFrameworks(),
     );
   }
-  reviewPlan(item: LessonPlan, code: 'SUBMITTED' | 'APPROVED' | 'REJECTED'): void {
-    const status = this.statuses().find((option) => option.code === code);
-    if (!status) return;
-    this.#api
-      .reviewLessonPlan(item.id, { workflowStatusId: status.id })
-      .pipe(takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.notify(response);
-          this.loadPlans();
-        },
-        error: (error) => this.error(error),
-      });
-  }
-  saveDelivery(): void {
-    this.#api
-      .saveDelivery(this.deliveryForm)
-      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.notify(response);
-          if (response.isSucceeded) {
-            this.deliveryForm = this.emptyDelivery();
-            this.loadDeliveries();
-          }
-        },
-        error: (error) => this.error(error),
-      });
-  }
-  usePlanForDelivery(plan: LessonPlan): void {
-    this.deliveryForm = {
-      id: undefined,
-      lessonPlanId: plan.id,
-      deliveredDate: localDateKey(),
-      coverageNotes: '',
-      isActive: true,
-      coverage: plan.topics.map((topic) => ({
-        curriculumTopicId: topic.id,
-        completionPercent: 100,
-      })),
+
+  openUnitDialog(unit?: CurriculumUnit): void {
+    const data: CurriculumUnitDialogData = {
+      kind: 'unit',
+      unit,
+      frameworkId: this.selectedFrameworkId(),
+      offerings: this.offerings(),
     };
-    this.selectTab('Delivery Logs');
-  }
-
-  onDeliveryPlanChange(): void {
-    const plan = this.approvedPlans().find((item) => item.id === this.deliveryForm.lessonPlanId);
-    this.deliveryForm.coverage = (plan?.topics ?? []).map((topic) => ({
-      curriculumTopicId: topic.id,
-      completionPercent: 100,
-    }));
-  }
-
-  editDelivery(item: LessonDelivery): void {
-    this.deliveryForm = {
-      id: item.id,
-      lessonPlanId: item.lessonPlanId,
-      deliveredDate: item.deliveredDate,
-      coverageNotes: item.coverageNotes,
-      homework: item.homework,
-      evidenceReference: item.evidenceReference,
-      exceptionReason: item.exceptionReason,
-      replanAction: item.replanAction,
-      isActive: item.isActive,
-      coverage: item.coverage.map((coverage) => ({ ...coverage })),
-    };
-  }
-
-  resetDelivery(): void {
-    this.deliveryForm = this.emptyDelivery();
-  }
-
-  deliveryTopicName(topicId: number): string {
-    return (
-      this.plans()
-        .find((plan) => plan.id === this.deliveryForm.lessonPlanId)
-        ?.topics.find((topic) => topic.id === topicId)?.name ?? 'Curriculum topic'
+    this.#openDialog(CurriculumUnitDialog, data, `${unit ? 'Edit' : 'Add'} Unit`, '40rem', () =>
+      this.loadUnits(),
     );
   }
-  reviewDelivery(item: LessonDelivery, code: 'SUBMITTED' | 'APPROVED' | 'REJECTED'): void {
-    const status = this.statuses().find((option) => option.code === code);
-    if (!status) return;
-    this.#api
-      .reviewDelivery(item.id, { workflowStatusId: status.id })
-      .pipe(takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.notify(response);
+
+  openTopicDialog(topic?: CurriculumTopic, unitId?: number): void {
+    const data: CurriculumUnitDialogData = { kind: 'topic', topic, unitId, units: this.units() };
+    this.#openDialog(CurriculumUnitDialog, data, `${topic ? 'Edit' : 'Add'} Topic`, '40rem', () =>
+      this.loadUnits(),
+    );
+  }
+
+  openPlanDialog(plan?: LessonPlan): void {
+    const data: LessonPlanDialogData = {
+      plan,
+      assignments: this.assignments(),
+      units: this.units(),
+    };
+    this.#openDialog(LessonPlanDialog, data, `${plan ? 'Edit' : 'Add'} Lesson Plan`, '48rem', () =>
+      this.loadPlans(),
+    );
+  }
+
+  openDeliveryDialog(delivery?: LessonDelivery, lessonPlanId?: number): void {
+    const data: LessonDeliveryDialogData = {
+      delivery,
+      lessonPlanId,
+      approvedPlans: this.approvedPlans(),
+      plans: this.plans(),
+    };
+    this.#openDialog(
+      LessonDeliveryDialog,
+      data,
+      delivery ? 'Edit Lesson Delivery' : 'Record Lesson Delivery',
+      '48rem',
+      () => {
+        this.loadDeliveries();
+        this.loadProgress();
+        // Recorded from a lesson plan: show the new row where it lands.
+        if (!delivery && lessonPlanId) this.openTab('delivery-logs');
+      },
+    );
+  }
+
+  /** A row shows its action menu only when at least one action in it is permitted. */
+  hasActions(items: MenuItem[]): boolean {
+    return items.some((item) => item.visible !== false);
+  }
+
+  openRowMenu(menu: TieredMenu, event: Event, items: MenuItem[]): void {
+    this.rowMenuItems.set(items);
+    menu.toggle(event);
+  }
+
+  frameworkActions(item: CurriculumFramework): MenuItem[] {
+    return this.#workflowActions(
+      item.workflowStatusId,
+      () => this.openFrameworkDialog(item),
+      (code) =>
+        this.#review(this.#api.reviewFramework.bind(this.#api), item.id, code, () =>
+          this.loadFrameworks(),
+        ),
+      () => this.confirmDelete('frameworks', item.id, item.name),
+    );
+  }
+
+  unitActions(unit: CurriculumUnit): MenuItem[] {
+    return [
+      {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        visible: this.canUpdate(),
+        command: () => this.openUnitDialog(unit),
+      },
+      {
+        label: 'Add Topic',
+        icon: 'pi pi-plus',
+        visible: this.canAdd(),
+        command: () => this.openTopicDialog(undefined, unit.id),
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        visible: this.canDelete(),
+        command: () => this.confirmDelete('units', unit.id, unit.name),
+      },
+    ];
+  }
+
+  topicActions(topic: CurriculumTopic): MenuItem[] {
+    return [
+      {
+        label: 'Edit',
+        icon: 'pi pi-pencil',
+        visible: this.canUpdate(),
+        command: () => this.openTopicDialog(topic),
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        visible: this.canDelete(),
+        command: () => this.confirmDelete('topics', topic.id, topic.name),
+      },
+    ];
+  }
+
+  planActions(item: LessonPlan): MenuItem[] {
+    if (this.statusCode(item.workflowStatusId) === 'APPROVED') {
+      return [
+        {
+          label: 'Record Delivery',
+          icon: 'pi pi-check-square',
+          visible: this.canAdd(),
+          command: () => this.openDeliveryDialog(undefined, item.id),
+        },
+      ];
+    }
+    return this.#workflowActions(
+      item.workflowStatusId,
+      () => this.openPlanDialog(item),
+      (code) =>
+        this.#review(this.#api.reviewLessonPlan.bind(this.#api), item.id, code, () =>
+          this.loadPlans(),
+        ),
+      () => this.confirmDelete('lesson-plans', item.id, `${item.courseOfferingName} lesson plan`),
+    );
+  }
+
+  deliveryActions(item: LessonDelivery): MenuItem[] {
+    return this.#workflowActions(
+      item.workflowStatusId,
+      () => this.openDeliveryDialog(item),
+      (code) =>
+        this.#review(this.#api.reviewDelivery.bind(this.#api), item.id, code, () => {
           this.loadDeliveries();
           this.loadProgress();
-        },
-        error: (error) => this.error(error),
-      });
+        }),
+      () => this.confirmDelete('lesson-deliveries', item.id, 'lesson delivery'),
+    );
   }
-  confirmDelete(
-    path: 'frameworks' | 'units' | 'topics' | 'lesson-plans' | 'lesson-deliveries',
-    id: number,
-    label: string,
-  ): void {
+
+  /** Tone and icon for a workflow status; the label is the status name on the record. */
+  workflowBadge(statusId: number): { tone: StatusTone; icon: string } {
+    return (
+      WORKFLOW_BADGE[this.statusCode(statusId) as WorkflowCode] ?? {
+        tone: 'neutral',
+        icon: 'pi-circle',
+      }
+    );
+  }
+
+  statusCode(id: number): string {
+    return this.statuses().find((status) => status.id === id)?.code ?? '';
+  }
+
+  planTitle(lessonPlanId: number): string {
+    const plan = this.plans().find((item) => item.id === lessonPlanId);
+    return plan ? planLabel(plan) : 'Lesson plan';
+  }
+
+  /** "No <things> yet." plus, for users who can add, the button that creates one. */
+  emptyMessage(things: string, addLabel: string): string {
+    return this.canAdd() ? `No ${things} yet. Use ${addLabel} to create one.` : `No ${things} yet.`;
+  }
+
+  confirmDelete(path: DeletePath, id: number, label: string): void {
     this.#confirmationService.confirm({
       header: `Delete ${label}`,
       // The dialog renders `message` via [innerHTML], so the label is escaped before use.
@@ -389,31 +395,6 @@ export default class StaffCurriculumDelivery implements OnInit {
       rejectButtonStyleClass: 'p-button-secondary',
       accept: () => this.deleteRecord(path, id),
     });
-  }
-  allTopics(): CurriculumUnit['topics'] {
-    return this.units().flatMap((unit) => unit.topics);
-  }
-  availablePlanTopics(): CurriculumUnit['topics'] {
-    return topicsForTeachingAssignment(
-      this.units(),
-      this.assignments(),
-      this.planForm.staffTeachingAssignmentId,
-    );
-  }
-  approvedPlans(): LessonPlan[] {
-    return this.plans().filter(
-      (plan) =>
-        this.statuses().find((status) => status.id === plan.workflowStatusId)?.code === 'APPROVED',
-    );
-  }
-  assignmentLabel(item: StaffTeachingAssignment): string {
-    return `${item.staffMemberName} · ${item.subjectName} · ${item.academicGroupName} / ${item.classSectionName}`;
-  }
-  planLabel(item: LessonPlan | undefined): string {
-    return item ? `${item.courseOfferingName} · ${item.plannedDate}` : 'Lesson plan';
-  }
-  statusCode(id: number): string {
-    return this.statuses().find((status) => status.id === id)?.code ?? '';
   }
 
   private loadAll(): void {
@@ -479,10 +460,7 @@ export default class StaffCurriculumDelivery implements OnInit {
       .pipe(this.#listLoads.progress.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => this.progress.set(response.data ?? []));
   }
-  private deleteRecord(
-    path: 'frameworks' | 'units' | 'topics' | 'lesson-plans' | 'lesson-deliveries',
-    id: number,
-  ): void {
+  private deleteRecord(path: DeletePath, id: number): void {
     this.#api
       .deleteRecord(path, id)
       .pipe(takeUntilDestroyed(this.#destroyRef))
@@ -507,65 +485,85 @@ export default class StaffCurriculumDelivery implements OnInit {
   private error(error: { message: string }): void {
     this.#common.showMessage(error.message, 'error');
   }
-  private emptyFramework(): SaveCurriculumFramework {
-    return {
-      id: undefined,
-      academicSessionId: 0,
-      code: '',
-      name: '',
-      authorityName: '',
-      version: '',
-      effectiveFrom: '',
-      effectiveTo: undefined,
-      isActive: true,
-    };
+
+  /**
+   * Menu items for a record in the approval workflow. Draft and rejected records can be edited,
+   * submitted or deleted; submitted ones approved or rejected. Approved records have no workflow
+   * action left; the API offers no deactivate or new-version call for them.
+   */
+  #workflowActions(
+    statusId: number,
+    edit: () => void,
+    review: (code: ReviewCode) => void,
+    remove: () => void,
+  ): MenuItem[] {
+    const code = this.statusCode(statusId);
+    if (code === 'DRAFT' || code === 'REJECTED') {
+      return [
+        { label: 'Edit', icon: 'pi pi-pencil', visible: this.canUpdate(), command: edit },
+        {
+          label: 'Submit',
+          icon: 'pi pi-send',
+          visible: this.canUpdate(),
+          command: () => review('SUBMITTED'),
+        },
+        { label: 'Delete', icon: 'pi pi-trash', visible: this.canDelete(), command: remove },
+      ];
+    }
+    if (code === 'SUBMITTED') {
+      return [
+        {
+          label: 'Approve',
+          icon: 'pi pi-check-circle',
+          visible: this.canUpdate(),
+          command: () => review('APPROVED'),
+        },
+        {
+          label: 'Reject',
+          icon: 'pi pi-times-circle',
+          visible: this.canUpdate(),
+          command: () => review('REJECTED'),
+        },
+      ];
+    }
+    return [];
   }
-  private emptyUnit(frameworkId = 0): SaveCurriculumUnit {
-    return {
-      id: undefined,
-      curriculumFrameworkId: frameworkId,
-      courseOfferingId: 0,
-      parentCurriculumUnitId: undefined,
-      code: '',
-      name: '',
-      description: '',
-      sequence: 1,
-      plannedPeriods: 1,
-      learningOutcome: '',
-      isActive: true,
-    };
+
+  #review(
+    call: (
+      id: number,
+      value: { workflowStatusId: number },
+    ) => Observable<{ isSucceeded: boolean; message: string }>,
+    id: number,
+    code: ReviewCode,
+    reload: () => void,
+  ): void {
+    const status = this.statuses().find((option) => option.code === code);
+    if (!status) return;
+    call(id, { workflowStatusId: status.id })
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.notify(response);
+          reload();
+        },
+        error: (error) => this.error(error),
+      });
   }
-  private emptyTopic(): SaveCurriculumTopic {
-    return {
-      id: undefined,
-      curriculumUnitId: 0,
-      code: '',
-      name: '',
-      description: '',
-      sequence: 1,
-      plannedPeriods: 1,
-      learningOutcome: '',
-      isActive: true,
-    };
-  }
-  private emptyPlan(): SaveLessonPlan {
-    return {
-      id: undefined,
-      staffTeachingAssignmentId: 0,
-      plannedDate: '',
-      objectives: '',
-      isActive: true,
-      curriculumTopicIds: [],
-    };
-  }
-  private emptyDelivery(): SaveLessonDelivery {
-    return {
-      id: undefined,
-      lessonPlanId: 0,
-      deliveredDate: '',
-      coverageNotes: '',
-      isActive: true,
-      coverage: [],
-    };
+
+  /** Opens a dialog and runs `onSaved` when it closes after a successful save. */
+  #openDialog(
+    component: Type<unknown>,
+    data: unknown,
+    header: string,
+    maxWidth: string,
+    onSaved: () => void,
+  ): void {
+    openManageDialog(
+      this.#dialogService,
+      this.#destroyRef,
+      { component, header, maxWidth, data },
+      onSaved,
+    );
   }
 }
