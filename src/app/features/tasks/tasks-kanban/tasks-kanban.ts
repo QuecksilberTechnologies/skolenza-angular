@@ -13,7 +13,7 @@ import { TaskCardShimmer } from '../ui/task-card-shimmer';
 
 @Component({
   selector: 'app-tasks-kanban',
-  host: { class: 'block overflow-hidden overflow-y-auto h-[calc(100vh-4.6rem)] p-4' },
+  host: { class: 'block overflow-hidden overflow-y-auto h-page p-4' },
   imports: [DragDropModule, SkeletonModule, TaskCard, TaskCardShimmer],
   providers: [TasksStore],
   templateUrl: './tasks-kanban.html',

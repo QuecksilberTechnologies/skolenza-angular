@@ -42,7 +42,7 @@ const SCOPE_META: Record<TaskScope, ScopeMeta> = {
 
 @Component({
   selector: 'app-tasks-list',
-  host: { class: 'block overflow-hidden overflow-y-auto h-[calc(100vh-4.6rem)] p-4' },
+  host: { class: 'block overflow-hidden overflow-y-auto h-page p-4' },
   imports: [
     DatePipe,
     TableModule,

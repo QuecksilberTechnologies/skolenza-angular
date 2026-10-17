@@ -29,7 +29,7 @@ const PRIORITY_COLOR: Record<string, string> = {
 
 @Component({
   selector: 'app-tasks-calendar',
-  host: { class: 'block overflow-hidden overflow-y-auto h-[calc(100vh-4.6rem)] p-4' },
+  host: { class: 'block overflow-hidden overflow-y-auto h-page p-4' },
   imports: [FullCalendarModule],
   providers: [TasksStore],
   template: `

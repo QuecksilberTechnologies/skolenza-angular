@@ -1,3 +1,3 @@
 .aside-menu {
-  max-height: calc(100vh - 55px);
+  max-height: calc(100dvh - 55px);
 }

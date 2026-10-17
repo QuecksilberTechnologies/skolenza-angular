@@ -46,7 +46,7 @@ export interface ModulePlaceholderData {
       rather than clips on a short window. The message is the page's h1: the app header shows the
       title but is not a heading, so without this the page has no heading at all.
     -->
-    <div class="flex min-h-[calc(100vh-4.6rem)] items-center justify-center px-5 py-8">
+    <div class="flex min-h-page items-center justify-center px-5 py-8">
       <app-status-message
         [icon]="icon"
         [headingLevel]="1"

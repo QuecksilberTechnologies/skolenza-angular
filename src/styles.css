@@ -77,6 +77,16 @@
   max-width: 90vw;
 }
 
+/* === Page height ===
+   A routed page's own scroll box: the dynamic viewport minus the app header. `dvh` tracks the
+   mobile browser toolbar, so the bottom of the page never hides behind it. */
+@utility h-page {
+  height: calc(100dvh - 4.6rem);
+}
+@utility min-h-page {
+  min-height: calc(100dvh - 4.6rem);
+}
+
 /* === Dashboard card design tokens === */
 @utility dash-card-shell {
   @apply h-full bg-white dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none;

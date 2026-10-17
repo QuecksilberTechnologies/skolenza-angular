@@ -1,4 +1,4 @@
-<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+<div class="h-page overflow-hidden overflow-y-auto">
   <p-card class="m-3 sm:m-4 dark:border-zinc-800 dark:bg-zinc-900">
     <div class="flex flex-col gap-5">
       <!-- The summary row below is fetched by policy, so it always describes the policy's current
@@ -178,7 +178,7 @@
         <p-tabpanels class="px-0! pt-4! pb-0!">
           <!-- Documents -->
           <p-tabpanel value="documents">
-            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+            <div class="min-h-[max(26rem,calc(100dvh-24rem))]">
               <p-table
                 class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
                 [value]="store.documents()"
@@ -274,7 +274,7 @@
                   <tr>
                     <td
                       colspan="5"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-loader />
                     </td>
                   </tr>
@@ -283,7 +283,7 @@
                   <tr>
                     <td
                       colspan="5"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-empty-message
                         icon="pi pi-file"
                         message="No documents yet"
@@ -297,7 +297,7 @@
 
           <!-- Assignments -->
           <p-tabpanel value="assignments">
-            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+            <div class="min-h-[max(26rem,calc(100dvh-24rem))]">
               <p-table
                 class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
                 [value]="store.assignments()"
@@ -405,7 +405,7 @@
                   <tr>
                     <td
                       colspan="5"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-loader />
                     </td>
                   </tr>
@@ -414,7 +414,7 @@
                   <tr>
                     <td
                       colspan="5"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-empty-message
                         icon="pi pi-users"
                         message="No manual assignments"
@@ -428,7 +428,7 @@
 
           <!-- Exceptions -->
           <p-tabpanel value="exceptions">
-            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+            <div class="min-h-[max(26rem,calc(100dvh-24rem))]">
               <p-table
                 class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
                 [value]="store.exceptions()"
@@ -519,7 +519,7 @@
                   <tr>
                     <td
                       colspan="5"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-loader />
                     </td>
                   </tr>
@@ -528,7 +528,7 @@
                   <tr>
                     <td
                       colspan="5"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-empty-message
                         icon="pi pi-flag"
                         message="No exceptions"
@@ -542,7 +542,7 @@
 
           <!-- Acknowledgements -->
           <p-tabpanel value="acknowledgements">
-            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+            <div class="min-h-[max(26rem,calc(100dvh-24rem))]">
               <p-table
                 class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
                 [value]="store.acknowledgements()"
@@ -620,7 +620,7 @@
                   <tr>
                     <td
                       colspan="5"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-loader />
                     </td>
                   </tr>
@@ -629,7 +629,7 @@
                   <tr>
                     <td
                       colspan="5"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-empty-message
                         icon="pi pi-check-square"
                         message="No acknowledgement evidence"
@@ -643,7 +643,7 @@
 
           <!-- Approval progress -->
           <p-tabpanel value="approvals">
-            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+            <div class="min-h-[max(26rem,calc(100dvh-24rem))]">
               <p-table
                 class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
                 [value]="store.approvalProgress()"
@@ -701,7 +701,7 @@
                   <tr>
                     <td
                       colspan="4"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-loader />
                     </td>
                   </tr>
@@ -710,7 +710,7 @@
                   <tr>
                     <td
                       colspan="4"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-empty-message
                         icon="pi pi-sitemap"
                         message="No approval stages"
@@ -724,7 +724,7 @@
 
           <!-- Audit -->
           <p-tabpanel value="audit">
-            <div class="min-h-[max(26rem,calc(100vh-24rem))]">
+            <div class="min-h-[max(26rem,calc(100dvh-24rem))]">
               <p-table
                 class="block overflow-hidden rounded-md border border-zinc-200 [--p-datatable-header-border-width:0_0_1px_0] [--p-datatable-header-padding:0] dark:border-zinc-800"
                 [value]="store.audit()"
@@ -797,7 +797,7 @@
                   <tr>
                     <td
                       colspan="5"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-loader />
                     </td>
                   </tr>
@@ -806,7 +806,7 @@
                   <tr>
                     <td
                       colspan="5"
-                      class="h-[max(18rem,calc(100vh-32rem))] align-middle">
+                      class="h-[max(18rem,calc(100dvh-32rem))] align-middle">
                       <app-table-empty-message
                         icon="pi pi-history"
                         message="No audit evidence"

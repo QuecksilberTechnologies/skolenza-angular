@@ -1,4 +1,4 @@
-<div class="min-h-[calc(100vh-4.6rem)] overflow-y-auto">
+<div class="min-h-page overflow-y-auto">
   <p-card class="m-4 p-4!">
     <nav class="flex flex-wrap gap-2 border-b pb-3">
       @for (tab of tabs; track tab) { <p-button [label]="tab" [outlined]="selectedTab() !== tab" (onClick)="selectTab(tab)" /> }
