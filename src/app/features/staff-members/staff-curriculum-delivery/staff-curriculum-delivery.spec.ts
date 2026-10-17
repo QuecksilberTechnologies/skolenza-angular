@@ -14,6 +14,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Common, StaffAcademicStructureApi, StaffCurriculumDeliveryApi } from '@core/services';
 import { FeaturePageStore } from '@core/stores';
 import {
+  AcademicMasterType,
   CurriculumFramework,
   CurriculumUnit,
   LessonPlan,
@@ -217,6 +218,90 @@ describe('StaffCurriculumDelivery', () => {
     expect((confirm.mock.calls[0][0] as Confirmation).message).toBe(
       'Delete "&lt;img src=x onerror=alert(1)&gt;"? Records already in use must be removed first.',
     );
+  });
+});
+
+describe('StaffCurriculumDelivery tab requests', () => {
+  const ok = (data: unknown[] = []) => of({ isSucceeded: true, message: '', data });
+  let api: Record<string, ReturnType<typeof vi.fn>>;
+  let academicApi: { getMasters: ReturnType<typeof vi.fn> };
+  let paramMap: BehaviorSubject<ParamMap>;
+  let component: StaffCurriculumDelivery;
+
+  beforeEach(() => {
+    const methods = [
+      'getStatuses',
+      'getFrameworks',
+      'getUnits',
+      'getLessonPlans',
+      'getDeliveries',
+      'getProgress',
+      'getTeachingAssignments',
+    ];
+    api = Object.fromEntries(methods.map((name) => [name, vi.fn(() => ok())]));
+    api['getFrameworks'] = vi.fn(() => ok([{ id: 9, name: 'Framework 2026' }]));
+    academicApi = { getMasters: vi.fn(() => ok()) };
+    paramMap = new BehaviorSubject(convertToParamMap({ tab: 'frameworks' }));
+    TestBed.configureTestingModule({
+      providers: [
+        ConfirmationService,
+        DialogService,
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { paramMap } },
+        { provide: FeaturePageStore, useValue: { canPerformOrUnknown: () => true } },
+        {
+          provide: Common,
+          useValue: {
+            setPageHeaderInfo: vi.fn(),
+            setBreadcrumbItems: vi.fn(),
+            showMessage: vi.fn(),
+          },
+        },
+        { provide: StaffCurriculumDeliveryApi, useValue: api },
+        { provide: StaffAcademicStructureApi, useValue: academicApi },
+      ],
+    });
+    component = TestBed.runInInjectionContext(() => new StaffCurriculumDelivery());
+  });
+
+  const called = () => Object.keys(api).filter((name) => api[name].mock.calls.length);
+
+  it('fetches only the frameworks list and statuses on the Frameworks tab', () => {
+    component.ngOnInit();
+
+    expect(called()).toEqual(['getStatuses', 'getFrameworks']);
+    expect(academicApi.getMasters).not.toHaveBeenCalled();
+  });
+
+  it('fetches only syllabus progress on the Syllabus Progress tab', () => {
+    paramMap.next(convertToParamMap({ tab: 'syllabus-progress' }));
+    component.ngOnInit();
+
+    expect(called()).toEqual(['getProgress']);
+  });
+
+  it('fetches the picked framework units on the Units & Topics tab', () => {
+    paramMap.next(convertToParamMap({ tab: 'units-topics' }));
+    component.ngOnInit();
+
+    expect(called()).toEqual(['getFrameworks', 'getUnits']);
+    expect(api['getUnits']).toHaveBeenCalledWith(9);
+  });
+
+  it('gives a unit without topics an empty topic list', () => {
+    api['getUnits'] = vi.fn(() => ok([{ id: 1, name: 'Digital Foundations' }]));
+    paramMap.next(convertToParamMap({ tab: 'units-topics' }));
+    component.ngOnInit();
+
+    expect(component.units()[0].topics).toEqual([]);
+  });
+
+  it('fetches sessions only when the framework dialog opens', () => {
+    vi.spyOn(TestBed.inject(DialogService), 'open').mockReturnValue(null);
+
+    component.openFrameworkDialog();
+
+    expect(academicApi.getMasters.mock.calls).toEqual([[AcademicMasterType.Session]]);
   });
 });
 

@@ -18,7 +18,7 @@ import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
 import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TieredMenu, TieredMenuModule } from '@openng/optimus-ui/tieredmenu';
-import { Observable, Subscription } from 'rxjs';
+import { map, Observable, Subscription } from 'rxjs';
 
 import { Common, StaffAcademicStructureApi, StaffCurriculumDeliveryApi } from '@core/services';
 import { FeaturePageStore } from '@core/stores';
@@ -39,7 +39,6 @@ import {
   CurriculumUnit,
   LessonDelivery,
   LessonPlan,
-  StaffTeachingAssignment,
   SyllabusProgress,
 } from '@shared/interfaces';
 import { escapeHtml } from '@shared/utilities/escape-html';
@@ -135,12 +134,9 @@ export default class StaffCurriculumDelivery implements OnInit {
   readonly tabs = CURRICULUM_TABS;
   readonly selectedTab = signal<CurriculumTab>('frameworks');
   readonly statuses = signal<AcademicWorkflowStatusOption[]>([]);
-  readonly sessions = signal<AcademicMaster[]>([]);
-  readonly offerings = signal<AcademicMaster[]>([]);
   readonly frameworks = signal<CurriculumFramework[]>([]);
   readonly selectedFrameworkId = signal(0);
   readonly units = signal<CurriculumUnit[]>([]);
-  readonly assignments = signal<StaffTeachingAssignment[]>([]);
   readonly plans = signal<LessonPlan[]>([]);
   readonly deliveries = signal<LessonDelivery[]>([]);
   readonly progress = signal<SyllabusProgress[]>([]);
@@ -170,7 +166,6 @@ export default class StaffCurriculumDelivery implements OnInit {
       { label: 'Staff Directory', routerLink: '/app/staff' },
       { label: 'Curriculum & Lesson Delivery' },
     ]);
-    this.loadAll();
     this.#route.paramMap.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((params) => {
       const tab = params.get('tab');
       if (!isCurriculumTab(tab)) {
@@ -191,7 +186,7 @@ export default class StaffCurriculumDelivery implements OnInit {
 
   selectTab(tab: CurriculumTab): void {
     this.selectedTab.set(tab);
-    if (tab === 'syllabus-progress') this.loadProgress();
+    this.#loadTab(tab);
   }
 
   selectFramework(id: number | null): void {
@@ -204,26 +199,30 @@ export default class StaffCurriculumDelivery implements OnInit {
   }
 
   openFrameworkDialog(framework?: CurriculumFramework): void {
-    const data: CurriculumFrameworkDialogData = { framework, sessions: this.sessions() };
-    this.#openDialog(
-      CurriculumFrameworkDialog,
-      data,
-      `${framework ? 'Edit' : 'Add'} Curriculum Framework`,
-      '44rem',
-      () => this.loadFrameworks(),
-    );
+    this.#withReference(this.#loadMasters(AcademicMasterType.Session), (sessions) => {
+      const data: CurriculumFrameworkDialogData = { framework, sessions };
+      this.#openDialog(
+        CurriculumFrameworkDialog,
+        data,
+        `${framework ? 'Edit' : 'Add'} Curriculum Framework`,
+        '44rem',
+        () => this.loadFrameworks(),
+      );
+    });
   }
 
   openUnitDialog(unit?: CurriculumUnit): void {
-    const data: CurriculumUnitDialogData = {
-      kind: 'unit',
-      unit,
-      frameworkId: this.selectedFrameworkId(),
-      offerings: this.offerings(),
-    };
-    this.#openDialog(CurriculumUnitDialog, data, `${unit ? 'Edit' : 'Add'} Unit`, '40rem', () =>
-      this.loadUnits(),
-    );
+    this.#withReference(this.#loadMasters(AcademicMasterType.CourseOffering), (offerings) => {
+      const data: CurriculumUnitDialogData = {
+        kind: 'unit',
+        unit,
+        frameworkId: this.selectedFrameworkId(),
+        offerings,
+      };
+      this.#openDialog(CurriculumUnitDialog, data, `${unit ? 'Edit' : 'Add'} Unit`, '40rem', () =>
+        this.loadUnits(),
+      );
+    });
   }
 
   openTopicDialog(topic?: CurriculumTopic, unitId?: number): void {
@@ -234,14 +233,19 @@ export default class StaffCurriculumDelivery implements OnInit {
   }
 
   openPlanDialog(plan?: LessonPlan): void {
-    const data: LessonPlanDialogData = {
-      plan,
-      assignments: this.assignments(),
-      units: this.units(),
-    };
-    this.#openDialog(LessonPlanDialog, data, `${plan ? 'Edit' : 'Add'} Lesson Plan`, '48rem', () =>
-      this.loadPlans(),
-    );
+    const assignments = this.#api
+      .getTeachingAssignments()
+      .pipe(map((response) => response.data ?? []));
+    this.#withReference(assignments, (assignments) => {
+      const data: LessonPlanDialogData = { plan, assignments, units: this.units() };
+      this.#openDialog(
+        LessonPlanDialog,
+        data,
+        `${plan ? 'Edit' : 'Add'} Lesson Plan`,
+        '48rem',
+        () => this.loadPlans(),
+      );
+    });
   }
 
   openDeliveryDialog(delivery?: LessonDelivery, lessonPlanId?: number): void {
@@ -257,10 +261,9 @@ export default class StaffCurriculumDelivery implements OnInit {
       delivery ? 'Edit Lesson Delivery' : 'Record Lesson Delivery',
       '48rem',
       () => {
-        this.loadDeliveries();
-        this.loadProgress();
-        // Recorded from a lesson plan: show the new row where it lands.
+        // Recorded from a lesson plan: show the new row where it lands (the tab loads it).
         if (!delivery && lessonPlanId) this.openTab('delivery-logs');
+        else this.loadDeliveries();
       },
     );
   }
@@ -354,10 +357,9 @@ export default class StaffCurriculumDelivery implements OnInit {
       item.workflowStatusId,
       () => this.openDeliveryDialog(item),
       (code) =>
-        this.#review(this.#api.reviewDelivery.bind(this.#api), item.id, code, () => {
-          this.loadDeliveries();
-          this.loadProgress();
-        }),
+        this.#review(this.#api.reviewDelivery.bind(this.#api), item.id, code, () =>
+          this.loadDeliveries(),
+        ),
       () => this.confirmDelete('lesson-deliveries', item.id, 'lesson delivery'),
     );
   }
@@ -400,27 +402,49 @@ export default class StaffCurriculumDelivery implements OnInit {
     });
   }
 
-  private loadAll(): void {
-    this.loadFrameworks();
-    this.loadPlans();
-    this.loadDeliveries();
-    this.loadProgress();
+  /** Fetches only what the tab shows; dialog pickers load when their dialog opens. */
+  #loadTab(tab: CurriculumTab): void {
+    // Workflow badges and row actions need the status codes.
+    if (tab !== 'units-topics' && tab !== 'syllabus-progress') this.#loadStatuses();
+    switch (tab) {
+      case 'frameworks':
+        this.loadFrameworks();
+        break;
+      case 'units-topics':
+        this.loadFrameworks();
+        break;
+      case 'lesson-plans':
+        // The framework picker sits here too: its units feed the lesson plan dialog.
+        this.loadFrameworks();
+        this.loadPlans();
+        break;
+      case 'delivery-logs':
+        // Delivery rows are titled by their lesson plan.
+        this.loadPlans();
+        this.loadDeliveries();
+        break;
+      case 'syllabus-progress':
+        this.loadProgress();
+        break;
+    }
+  }
+  /** The status lookup is fixed, so it is fetched once. */
+  #loadStatuses(): void {
+    if (this.statuses().length) return;
     this.#api
       .getStatuses()
       .pipe(takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => this.statuses.set(response.data ?? []));
-    this.#api
-      .getTeachingAssignments()
-      .pipe(takeUntilDestroyed(this.#destroyRef))
-      .subscribe((response) => this.assignments.set(response.data ?? []));
-    this.#academicApi
-      .getMasters(AcademicMasterType.Session)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
-      .subscribe((response) => this.sessions.set(response.data ?? []));
-    this.#academicApi
-      .getMasters(AcademicMasterType.CourseOffering)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
-      .subscribe((response) => this.offerings.set(response.data ?? []));
+  }
+  #loadMasters(type: AcademicMasterType): Observable<AcademicMaster[]> {
+    return this.#academicApi.getMasters(type).pipe(map((response) => response.data ?? []));
+  }
+  /** Waits for a dialog's picker list, then opens it; a failed fetch shows the error instead. */
+  #withReference<T>(reference: Observable<T>, open: (value: T) => void): void {
+    reference.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe({
+      next: open,
+      error: (error) => this.error(error),
+    });
   }
   private loadFrameworks(): void {
     this.#api
@@ -429,7 +453,10 @@ export default class StaffCurriculumDelivery implements OnInit {
       .subscribe((response) => {
         this.frameworks.set(response.data ?? []);
         if (!this.selectedFrameworkId() && response.data?.length)
-          this.selectFramework(response.data[0].id);
+          this.selectedFrameworkId.set(response.data[0].id);
+        // Only the tabs with the framework picker show units.
+        const tab = this.selectedTab();
+        if (tab === 'units-topics' || tab === 'lesson-plans') this.loadUnits();
       });
   }
   private loadUnits(): void {
@@ -443,7 +470,12 @@ export default class StaffCurriculumDelivery implements OnInit {
     this.#unitsLoad = this.#api
       .getUnits(id)
       .pipe(this.#listLoads.units.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe((response) => this.units.set(response.data ?? []));
+      // The API leaves `topics` out for a unit that has none.
+      .subscribe((response) =>
+        this.units.set(
+          (response.data ?? []).map((unit) => ({ ...unit, topics: unit.topics ?? [] })),
+        ),
+      );
   }
   private loadPlans(): void {
     this.#api
@@ -474,10 +506,7 @@ export default class StaffCurriculumDelivery implements OnInit {
           if (path === 'frameworks') this.loadFrameworks();
           if (path === 'units' || path === 'topics') this.loadUnits();
           if (path === 'lesson-plans') this.loadPlans();
-          if (path === 'lesson-deliveries') {
-            this.loadDeliveries();
-            this.loadProgress();
-          }
+          if (path === 'lesson-deliveries') this.loadDeliveries();
         },
         error: (error) => this.error(error),
       });
