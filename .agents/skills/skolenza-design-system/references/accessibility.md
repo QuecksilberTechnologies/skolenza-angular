@@ -108,9 +108,10 @@ time.
 threshold. Today the host institution form (`institution-form.ts`, `themeColorHint`) **warns**
 below 3:1 but still allows saving.
 
-The default `#4287f5` sits at **3.49:1** against white — acceptable for ≥ 18.66px bold button labels
-and UI boundaries, **not** for small white text on a primary fill. For small labels on a primary
-fill, use `primary-600` (4.63:1) or `primary-700` (6.34:1).
+The default `#4287f5` sits at **3.49:1** against white at `500`. `app.ts` therefore sets the light
+`primary.color` to the first stop from 500 to 800 that clears 4.5:1 with white
+(`accessiblePrimaryStop`, `shared/utilities/color.ts`): `600` (4.63:1) for the default. Anything
+bound to `primary.color` passes automatically; a hard-coded `primary-500` fill does not.
 
 ---
 

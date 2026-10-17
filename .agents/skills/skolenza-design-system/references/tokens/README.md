@@ -54,7 +54,7 @@ Light neutrals are **zinc**; dark neutrals are **slate** — the preset's dark `
 | Token | Light value | Dark value | Emitted as |
 | --- | --- | --- | --- |
 | `color-primary-{50..950}` | `palette(brandHex)` | same ramp | `--p-primary-{n}`, `bg-primary-*` |
-| `color-primary-default` | `{primary.500}` | `{primary.400}` | `--p-primary-color` |
+| `color-primary-default` | first of `{primary.500…800}` with ≥ 4.5:1 white text | `{primary.400}` | `--p-primary-color` |
 | `color-primary-hover` | `{primary.600}` | `{primary.300}` | `--p-primary-hover-color` |
 | `color-primary-active` | `{primary.700}` | `{primary.200}` | `--p-primary-active-color` |
 | `color-primary-contrast` | `#ffffff` | `{surface.900}` | `--p-primary-contrast-color` |
@@ -121,7 +121,7 @@ not exactly the 55px header).
 | `border-width-none` / `-hairline` / `-thick` | `0` / `1px` / `2px` | `border-*` |
 | `border-style-solid` / `-dashed` | `solid` / `dashed` | — |
 | `radius-none` / `-xs` / `-sm` / `-md` / `-lg` / `-xl` | 0 / 2px / 4px / 6px / 8px / 12px | `--p-border-radius-*` |
-| `radius-card` | `0.8rem` | `--p-card-border-radius` |
+| `radius-card` | `0.8rem` | `--radius-card` → `rounded-card`; `--p-card-border-radius` reads it |
 | `radius-full` | `9999px` | `rounded-full` |
 | `focus-ring-width` | `1px` → **should be `2px`** ([DS-04](../open-items.md)) | `--p-inputtext-focus-ring-width` |
 | `focus-ring-style` | `solid` | `--p-inputtext-focus-ring-style` |

@@ -102,7 +102,8 @@ Most work needs nothing beyond this section. Full ramps live in `references/`.
 
 A `-500` as text on white is the most common mistake: `#22c55e` on white is 2.28:1 and fails AA.
 White text on a `-500` fill fails the same way. The preset already darkens light-theme `success` /
-`danger` buttons to `green.700` / `red.600` for this reason.
+`danger` buttons to `green.700` / `red.600` for this reason, and `app.ts` picks a light-theme
+`primary.color` stop that white text passes on (see *Theming an institution*).
 
 ### Which colour?
 
@@ -114,7 +115,7 @@ White text on a `-500` fill fails the same way. The preset already darkens light
 | "We need a second brand colour" | You don't. Use a neutral, a semantic colour, or a different *shape* (outline vs filled, dashed vs solid) |
 | Avatar without a photo | `[appAvatarColor]="firstName"`: 16-hue deterministic palette, contrast handled |
 | Progress / score tone | `shared/utilities/progress-tone.ts` (`-700` / red `-600` light, `-400` dark) |
-| Small white text on a primary fill | Don't. `primary-500` may be only 3.49:1. Use `primary-600`/`700`, or make the label ≥ 18.66px bold |
+| Small white text on a primary fill | Use `primary` / `--p-primary-color`: in light theme it is already the first stop from 500 to 800 that clears 4.5:1 with white. Never hard-code `primary-500` as a fill under white text |
 
 ### Scales
 
@@ -122,7 +123,7 @@ White text on a `-500` fill fails the same way. The preset already darkens light
 | --- | --- |
 | Spacing (only these) | `0 1 1.5 2 2.5 3 4 5 6 8 10 12 16`. No `gap-7`, no `p-[13px]` |
 | Type (px at 13px root) | `text-xs` 9.75 · `text-sm` **11.38 (body/table default)** · `text-base` 13 · `text-lg` 14.63 · `text-xl` 16.25 · `text-2xl` **19.5 (target h1)** · `text-3xl` 24.38 |
-| Radius | Optimus input/select/button/popover: keep the Optimus default (6px), not `rounded-md` (≈4.9px) · card `rounded-[0.8rem]` · modal `rounded-xl` · menu item `rounded-sm` · chip/tag/avatar/progress `rounded-full` · inline code `rounded-xs` · table cell none |
+| Radius | Optimus input/select/button/popover: keep the Optimus default (6px), not `rounded-md` (≈4.9px) · card `rounded-card` (`--radius-card`, 0.8rem; conditional: `[class.rounded-card]`) · modal `rounded-xl` · menu item `rounded-sm` · chip/tag/avatar/progress `rounded-full` · inline code `rounded-xs` · table cell none |
 | Elevation | form field `shadow-xs` · card `shadow-sm` · select/popover/menu `shadow-md` · drawer `shadow-lg` · modal `shadow-xl`. Bare `shadow` is the v3 name: use `shadow-sm` |
 | Duration | hover/colour `transition-colors duration-200` · layout shift, overlay entry, `@defer` placeholder floor `300ms` · spinner `500ms` linear |
 | Easing | entering `ease-out` · leaving `ease-in` (~30% shorter) · moving within viewport `ease-in-out` |
@@ -181,13 +182,18 @@ Full anatomy, skeleton, and per-element token contract:
 
 ```ts
 const brandColor = (await this.#institutionsApi.getBrandColor()) ?? '#4287f5';
-updatePreset({ semantic: { primary: palette(brandColor) } });
+const ramp = palette(brandColor);
+const stop = accessiblePrimaryStop(ramp); // shared/utilities/color.ts
+updatePreset({ semantic: { primary: ramp, colorScheme: { light: { primary: {
+  color: `{primary.${stop}}`, hoverColor: `{primary.${stop + 100}}`, activeColor: `{primary.${stop + 200}}`,
+} } } } });
 ```
 
 `palette()` mixes with white below 500 and black above: `50`=tint 95%, `100`=76%, `200`=57%,
 `300`=38%, `400`=19%, `500`=the hex, `600`=shade 15%, `700`=30%, `800`=45%, `900`=60%, `950`=75%.
 
-- Light theme uses `primary.500`; **dark theme uses `primary.400`**.
+- Light theme uses the **first stop from 500 to 800 where white text reaches 4.5:1** (`accessiblePrimaryStop`), with hover/active one and two stops darker. `#4287f5` lands on `600` (4.63:1). **Dark theme uses `primary.400`**.
+- Every `{primary.color}` consumer follows: filled, outlined and text buttons, links, checked controls, focus rings.
 - Never add a static `primary` to `skolenza-preset.ts`; it would fight the runtime injection.
 - **Gate:** warn on any brand hex with `contrast(brand, #ffffff) < 3.0`. The host institution form
   (`institution-form.ts`) shows this as an advisory warning.

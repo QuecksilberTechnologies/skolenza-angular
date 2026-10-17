@@ -22,13 +22,18 @@ The Aura primitive scale, plus the one app-level override (`radius-card`) and `r
 | `radius-md` | `6px` | `rounded-md` | 4.9 | **Default for controls** — inputs, selects, buttons, popovers (`--p-form-field-border-radius`, `--p-content-border-radius`) |
 | `radius-lg` | `8px` | `rounded-lg` | 6.5 | Dashboard list items (`dash-list-item`), tiles, nested panels |
 | `radius-xl` | `12px` | `rounded-xl` | 9.75 | Modals (`--p-overlay-modal-border-radius`), stat-card icon tiles, image thumbnails |
-| `radius-card` | `0.8rem` | `rounded-[0.8rem]` | **10.4** | **Cards** — `--p-card-border-radius`, set in `src/styles.css` |
+| `radius-card` | `0.8rem` | `rounded-card` | **10.4** | **Cards** — `--radius-card` in `@theme` (`src/styles.css`); `--p-card-border-radius` reads it |
 | `radius-full` | `9999px` | `rounded-full` | — | Chips, avatars, badges, pills, progress bar and its track, icon-only round buttons |
 
 > The root font size is 13px (`html { font-size: 0.8125rem }`). Aura primitives are declared in `px`
 > and do not scale; Tailwind v4 `rounded-*` utilities are declared in `rem` and do. So
 > `rounded-md` (4.9px) is *not* the same as an Optimus control's 6px. `radius-card` (10.4px) sits
 > between Aura `lg` and `xl`, and just above Tailwind `rounded-xl`.
+
+> **Use `rounded-card`, never `rounded-[0.8rem]`.** Besides being a literal, an arbitrary value with
+> a dot cannot be bound: Angular cuts a bound class name at its first `.`, so
+> `[class.rounded-[0.8rem]]="cond"` adds `rounded-[0` and the corners render square. Write
+> `[class.rounded-card]="cond"`. Reference: `staff-member-manage-dialog.html`.
 
 ---
 

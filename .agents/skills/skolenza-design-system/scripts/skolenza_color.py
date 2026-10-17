@@ -138,7 +138,12 @@ def cmd_ramp(args: argparse.Namespace) -> int:
         )
 
     print("\nRole mapping")
-    print(f"  light  primary.color   = 500 {ramp[500]}   hover 600 {ramp[600]}   active 700 {ramp[700]}")
+    # Mirrors accessiblePrimaryStop() in src/app/shared/utilities/color.ts.
+    stop = next((s for s in (500, 600, 700, 800) if contrast_ratio(WHITE, ramp[s]) >= 4.5), 800)
+    print(
+        f"  light  primary.color   = {stop} {ramp[stop]}   hover {stop + 100} {ramp[stop + 100]}"
+        f"   active {stop + 200} {ramp[stop + 200]}"
+    )
     print(f"  dark   primary.color   = 400 {ramp[400]}   hover 300 {ramp[300]}   active 200 {ramp[200]}")
 
     print("\nChecks")
@@ -146,7 +151,9 @@ def cmd_ramp(args: argparse.Namespace) -> int:
     chip = contrast_ratio(ramp[700], ramp[50])
     dark_primary = contrast_ratio(ramp[400], SLATE_900)
     print(f"  {mark(gate, ui=True)}brand gate        brand vs white      {gate:5.2f}  (must be >= 3.00)")
+    white_on_primary = contrast_ratio(WHITE, ramp[stop])
     print(f"  {mark(white_on_500)}white on primary-500                  {white_on_500:5.2f}  (small text needs 4.50)")
+    print(f"  {mark(white_on_primary)}white on primary.color ({stop})        {white_on_primary:5.2f}  (what the app renders)")
     print(f"  {mark(chip)}chip  primary-700 on primary-50        {chip:5.2f}")
     print(f"  {mark(dark_primary)}dark  primary-400 on slate-900        {dark_primary:5.2f}")
 
@@ -156,12 +163,10 @@ def cmd_ramp(args: argparse.Namespace) -> int:
             "\n        buttons fail even the large-text threshold. Ask the institution for a darker hex."
         )
         return 1
-    if white_on_500 < 4.5:
+    if stop != 500:
         print(
-            f"\nNOTE: white on primary-500 is {white_on_500:.2f}:1 — fine for >= 18.66px bold labels"
-            f"\n      and UI boundaries, not for small white text. Use primary-600 ({ramp[600]},"
-            f" {contrast_ratio(WHITE, ramp[600]):.2f}:1)"
-            f"\n      or primary-700 ({ramp[700]}, {contrast_ratio(WHITE, ramp[700]):.2f}:1) for those."
+            f"\nNOTE: white on primary-500 is {white_on_500:.2f}:1, so the app's light primary.color"
+            f"\n      steps to {stop} ({ramp[stop]}). Never hard-code primary-500 under white text."
         )
     print()
     return 0

@@ -84,10 +84,10 @@ Theme mapping (from the Aura base preset, unchanged by `SkolenzaPreset`):
 
 | Semantic token | Light | Dark |
 | --- | --- | --- |
-| `--p-primary-color` | `{primary.500}` | `{primary.400}` |
+| `--p-primary-color` | first of `{primary.500…800}` with ≥ 4.5:1 white text (`600` for `#4287f5`) | `{primary.400}` |
 | `--p-primary-contrast-color` | `#ffffff` | `{surface.900}` |
-| `--p-primary-hover-color` | `{primary.600}` | `{primary.300}` |
-| `--p-primary-active-color` | `{primary.700}` | `{primary.200}` |
+| `--p-primary-hover-color` | one stop darker than `primary.color` | `{primary.300}` |
+| `--p-primary-active-color` | two stops darker than `primary.color` | `{primary.200}` |
 | `--p-highlight-background` | `{primary.50}` | `color-mix(in srgb, {primary.400}, transparent 84%)` |
 | `--p-highlight-color` | `{primary.700}` | `rgba(255,255,255,.87)` |
 
@@ -274,11 +274,11 @@ value in light and the right value under `.dark`.
 | `text.body` | `{surface.700}` | `#3f3f46` | `rgb(63, 63, 70)` | Table cells, paragraph text |
 | `text.muted` | `--color-text-secondary-light` | `#71717a` | `rgb(113, 113, 122)` | Labels, captions, secondary email line |
 | `text.placeholder` | `{surface.500}` | `#71717a` | `rgb(113, 113, 122)` | Input placeholders |
-| `primary.color` | `{primary.500}` | `#4287f5`* | `rgb(66, 135, 245)` | Buttons, focus ring, active nav, stat icons |
+| `primary.color` | `{primary.600}`† | `#3873d0`* | `rgb(56, 115, 208)` | Buttons, focus ring, active nav, stat icons |
 | `primary.contrast` | `#ffffff` | `#ffffff` | `rgb(255, 255, 255)` | Text on primary fill |
 | `mask.background` | `rgba(0,0,0,0.4)` | — | — | Modal and drawer scrim |
 
-\* institution-dependent.
+\* institution-dependent. † Runtime pick: first stop from 500 to 800 with ≥ 4.5:1 white text (`accessiblePrimaryStop`).
 
 ---
 
