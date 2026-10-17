@@ -127,7 +127,7 @@ export default class StaffProfessionalStructure implements OnInit {
   readonly referencesLoading = this.#referenceLoad.active;
   readonly #referencesLoading$ = toObservable(this.referencesLoading);
   readonly statusOptions = [
-    { label: 'All', value: 'all' },
+    { label: 'All statuses', value: 'all' },
     { label: 'Active', value: 'active' },
     { label: 'Inactive', value: 'inactive' },
   ];

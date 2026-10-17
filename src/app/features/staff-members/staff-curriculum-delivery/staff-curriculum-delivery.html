@@ -1,10 +1,10 @@
 <div class="h-page overflow-y-auto">
-<p-card class="m-3 p-3! sm:m-4 sm:p-4!">
+<p-card class="m-2 p-2! sm:m-4 sm:p-4!">
 <app-route-tabs ariaLabel="Curriculum and lesson delivery sections" [tabs]="tabs" [selected]="selectedTab()">
   <div toolbar class="contents">
     @if (selectedTab() === 'units-topics' || selectedTab() === 'lesson-plans') {
     <p-select
-      class="min-w-56"
+      class="min-w-56 flex-1 lg:flex-none"
       name="selectedFramework"
       ariaLabel="Curriculum framework"
       placeholder="Select framework"
@@ -44,7 +44,7 @@
         <app-list-skeleton label="Loading Curriculum Frameworks..." />
         } @else {
         @for (item of frameworks(); track item.id) {
-        <article class="flex items-center justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+        <article class="flex items-center justify-between gap-2 border-b border-zinc-200 p-3 last:border-b-0 sm:gap-4 sm:p-4 dark:border-zinc-800">
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
               <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.name }}</strong>
@@ -53,7 +53,7 @@
               <app-status-badge label="Inactive" icon="pi-ban" />
               }
             </div>
-            <div class="truncate text-sm text-zinc-500 dark:text-zinc-400">{{ item.code }} · {{ item.authorityName }} · Version {{ item.version }}</div>
+            <div class="text-sm wrap-break-word text-zinc-500 sm:truncate dark:text-zinc-400">{{ item.code }} · {{ item.authorityName }} · Version {{ item.version }}</div>
           </div>
           @if (hasActions(frameworkActions(item))) {
           <app-table-action-button [ariaLabel]="'Actions for ' + item.name" [text]="true" (action)="openRowMenu(rowMenu, $event, frameworkActions(item))" />
@@ -72,7 +72,7 @@
         <app-list-skeleton label="Loading Units..." />
         } @else {
         @for (unit of units(); track unit.id) {
-        <article class="border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+        <article class="border-b border-zinc-200 p-3 last:border-b-0 sm:p-4 dark:border-zinc-800">
           <div class="flex items-center justify-between gap-4">
             <div class="min-w-0 flex-1">
               <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ unit.sequence }}. {{ unit.name }}</strong>
@@ -109,7 +109,7 @@
         <app-list-skeleton label="Loading Lesson Plans..." />
         } @else {
         @for (item of plans(); track item.id) {
-        <article class="flex items-start justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+        <article class="flex items-start justify-between gap-2 border-b border-zinc-200 p-3 last:border-b-0 sm:gap-4 sm:p-4 dark:border-zinc-800">
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
               <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.courseOfferingName }}</strong>
@@ -133,7 +133,7 @@
         <app-list-skeleton label="Loading Lesson Deliveries..." />
         } @else {
         @for (item of deliveries(); track item.id) {
-        <article class="flex items-start justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+        <article class="flex items-start justify-between gap-2 border-b border-zinc-200 p-3 last:border-b-0 sm:gap-4 sm:p-4 dark:border-zinc-800">
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
               <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ planTitle(item.lessonPlanId) }}</strong>
@@ -157,7 +157,7 @@
         <app-list-skeleton label="Loading Syllabus Progress..." [actions]="0" />
         } @else {
         @for (item of progress(); track item.curriculumUnitId) {
-        <article class="border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+        <article class="border-b border-zinc-200 p-3 last:border-b-0 sm:p-4 dark:border-zinc-800">
           <div class="flex justify-between gap-4">
             <div class="min-w-0 flex-1">
               <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.curriculumUnitName }}</strong>

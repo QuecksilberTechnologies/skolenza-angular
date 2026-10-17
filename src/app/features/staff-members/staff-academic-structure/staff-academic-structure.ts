@@ -132,7 +132,7 @@ export default class StaffAcademicStructure implements OnInit {
   #selectedLoad?: Subscription;
   readonly loading = this.#listLoad.active;
   readonly statusOptions = [
-    { label: 'All', value: 'all' },
+    { label: 'All statuses', value: 'all' },
     { label: 'Active', value: 'active' },
     { label: 'Inactive', value: 'inactive' },
   ];

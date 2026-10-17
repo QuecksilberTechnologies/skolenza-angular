@@ -1,8 +1,8 @@
 <div class="h-page overflow-y-auto">
-<p-card class="m-3 p-3! sm:m-4 sm:p-4!">
+<p-card class="m-2 p-2! sm:m-4 sm:p-4!">
 <app-route-tabs ariaLabel="Professional structure sections" [tabs]="tabs" [selected]="selectedTab()">
   <div toolbar class="contents">
-    <p-select class="min-w-36" name="statusFilter" ariaLabel="Filter by status" [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value" appendTo="body" />
+    <p-select class="min-w-36 flex-1 lg:flex-none" name="statusFilter" ariaLabel="Filter by status" [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value" appendTo="body" />
     @if (canAdd()) {
     <p-button [label]="'Add ' + noun().singular" icon="pi pi-plus" [loading]="(selectedTab() === 'categories' || selectedTab() === 'positions') && referencesLoading()" (onClick)="openAdd()" />
     }
@@ -13,7 +13,7 @@
       <app-list-skeleton [label]="'Loading ' + noun().plural + '...'" />
       } @else {
       @for (item of visibleCategories(); track item.id) {
-      <article class="flex items-center justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+      <article class="flex items-center justify-between gap-2 border-b border-zinc-200 p-3 last:border-b-0 sm:gap-4 sm:p-4 dark:border-zinc-800">
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2">
             <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.name }}</strong>
@@ -34,7 +34,7 @@
       <app-list-skeleton [label]="'Loading ' + noun().plural + '...'" />
       } @else {
       @for (item of visiblePositions(); track item.id) {
-      <article class="flex items-center justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+      <article class="flex items-center justify-between gap-2 border-b border-zinc-200 p-3 last:border-b-0 sm:gap-4 sm:p-4 dark:border-zinc-800">
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2">
             <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.name }}</strong>
@@ -55,13 +55,13 @@
       <app-list-skeleton [label]="'Loading ' + noun().plural + '...'" />
       } @else {
       @for (item of visibleMasters(); track item.id) {
-      <article class="flex items-center justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+      <article class="flex items-center justify-between gap-2 border-b border-zinc-200 p-3 last:border-b-0 sm:gap-4 sm:p-4 dark:border-zinc-800">
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2">
             <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.name }}</strong>
             <app-status-badge [label]="item.isActive ? 'Active' : 'Inactive'" [tone]="item.isActive ? 'success' : 'neutral'" [icon]="item.isActive ? 'pi-check-circle' : 'pi-ban'" />
           </div>
-          <div class="truncate text-sm text-zinc-500 dark:text-zinc-400" [pTooltip]="item.description || undefined" tooltipPosition="top" [showDelay]="300">
+          <div class="text-sm wrap-break-word text-zinc-500 sm:truncate dark:text-zinc-400" [pTooltip]="item.description || undefined" tooltipPosition="top" [showDelay]="300">
             {{ item.code }}@if (item.description) { · {{ item.description }}}
           </div>
         </div>
