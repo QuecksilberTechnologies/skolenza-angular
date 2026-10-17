@@ -377,19 +377,3 @@ html {
 .form-invalid-visible .p-select.p-invalid.show-invalid-managed:not(.show-invalid) {
   border-color: var(--p-select-border-color);
 }
-
-/**
- * Auth pages sit on a lighter ground (`slate-900`) than the app shell (`slate-950`), so Aura's dark
- * form-field background - `surface.950` - reads as a hole punched through the card. Lift fields one
- * step, and put the disabled state *below* the enabled one: Aura's dark scale maps disabled to
- * `surface.700`, which renders an inert control brighter than a live one.
- * Component tokens resolve `var(--p-form-field-*)` at `:root`, so they are re-declared here too.
- */
-.dark .auth-surface {
-  --p-form-field-background: var(--p-surface-900);
-  --p-form-field-disabled-background: var(--p-surface-950);
-  --p-inputtext-background: var(--p-surface-900);
-  --p-inputtext-disabled-background: var(--p-surface-950);
-  --p-select-background: var(--p-surface-900);
-  --p-select-disabled-background: var(--p-surface-950);
-}

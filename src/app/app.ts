@@ -106,6 +106,8 @@ export class App implements OnInit {
     const ramp = palette(brandColor) as Record<number, string>;
     // Light theme: back every primary fill with a stop white text can sit on (dark keeps 400).
     const stop = accessiblePrimaryStop(ramp);
+    // A light brand falls back to stop 800, where `stop + 200` would name a stop the ramp lacks.
+    const activeStop = Math.min(stop + 200, 950);
     updatePreset({
       semantic: {
         primary: ramp,
@@ -114,7 +116,7 @@ export class App implements OnInit {
             primary: {
               color: `{primary.${stop}}`,
               hoverColor: `{primary.${stop + 100}}`,
-              activeColor: `{primary.${stop + 200}}`,
+              activeColor: `{primary.${activeStop}}`,
             },
           },
         },

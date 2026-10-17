@@ -35,6 +35,16 @@ export const SkolenzaPreset = definePreset(Aura, {
           900: '{slate.900}',
           950: '{slate.950}',
         },
+        // Aura's dark field sits on `surface.950` (a hole in the slate-900 card) with a
+        // `surface.600` border (2.36:1, below the 3:1 WCAG 1.4.11 floor). Level the field with
+        // the card, draw the boundary at `surface.500` (3.75:1), and keep disabled *below* enabled:
+        // Aura's `surface.700` renders an inert control brighter than a live one.
+        formField: {
+          background: '{surface.900}',
+          disabledBackground: '{surface.950}',
+          borderColor: '{surface.500}',
+          hoverBorderColor: '{surface.400}',
+        },
       },
     },
   },
@@ -64,6 +74,16 @@ export const SkolenzaPreset = definePreset(Aura, {
               activeBorderColor: '{red.800}',
               focusRing: { color: '{red.600}', shadow: 'none' },
             },
+          },
+          // Outlined and text variants colour the label itself at -500 (2.28:1 / 3.76:1 on white).
+          // green.700 / red.700 clear 4.5:1 on white and on the -50 / -100 hover and active tints.
+          outlined: {
+            success: { color: '{green.700}' },
+            danger: { color: '{red.700}' },
+          },
+          text: {
+            success: { color: '{green.700}' },
+            danger: { color: '{red.700}' },
           },
         },
       },

@@ -140,9 +140,10 @@ def cmd_ramp(args: argparse.Namespace) -> int:
     print("\nRole mapping")
     # Mirrors accessiblePrimaryStop() in src/app/shared/utilities/color.ts.
     stop = next((s for s in (500, 600, 700, 800) if contrast_ratio(WHITE, ramp[s]) >= 4.5), 800)
+    active = min(stop + 200, 950)  # mirrors the cap in src/app/app.ts
     print(
         f"  light  primary.color   = {stop} {ramp[stop]}   hover {stop + 100} {ramp[stop + 100]}"
-        f"   active {stop + 200} {ramp[stop + 200]}"
+        f"   active {active} {ramp[active]}"
     )
     print(f"  dark   primary.color   = 400 {ramp[400]}   hover 300 {ramp[300]}   active 200 {ramp[200]}")
 

@@ -293,9 +293,9 @@ Activated by `.dark` on `<html>`. `ThemeApi.setTheme()` sets the `<html>` class 
 | `surface.ground` | `--color-surface-ground-dark` | `#020617` | `rgb(2, 6, 23)` | App canvas |
 | `surface.default` | `--color-surface-dark` | `#0f172a` | `rgb(15, 23, 42)` | Cards, sidebar, drawers, table body |
 | `surface.raised` | `{surface.800}` | `#1e293b` | `rgb(30, 41, 59)` | Hover fill, table header band, neutral chips |
-| `surface.field` | `{surface.950}` | `#020617` | `rgb(2, 6, 23)` | Form field background |
+| `surface.field` | `{surface.900}` | `#0f172a` | `rgb(15, 23, 42)` | Form field background, level with the card (`SkolenzaPreset` dark `formField`). Disabled drops to `{surface.950}` |
 | `border.default` | `--color-border-dark` | `#1e293b` | `rgb(30, 41, 59)` | Card and sidebar dividers — **carries the elevation that shadows carry in light theme** |
-| `border.strong` | `{surface.600}` | `#475569` | `rgb(71, 85, 105)` | Form field resting border |
+| `border.strong` | `{surface.500}` | `#64748b` | `rgb(100, 116, 139)` | Form field resting border: 3.75:1 on `#0f172a` ✅ (Aura default `surface.600` was 2.36:1). Hover `{surface.400}` |
 | `text.primary` | `--color-text-primary-dark` | `#f8fafc` | `rgb(248, 250, 252)` | Headings, stat numerals — 17.06:1 ✅ |
 | `text.body` | `{zinc.100}` → slate-100 | `#f1f5f9` | `rgb(241, 245, 249)` | Table cells (`dark:text-zinc-100`) — 16.30:1 ✅ |
 | `text.muted` | `--color-text-secondary-dark` | `#94a3b8` | `rgb(148, 163, 184)` | Secondary lines — 6.96:1 ✅ |
