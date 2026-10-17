@@ -1,39 +1,57 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   OnInit,
   signal,
+  Type,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ConfirmationService } from '@openng/optimus-ui/api';
+import { ConfirmationService, MenuItem } from '@openng/optimus-ui/api';
 import { ButtonModule } from '@openng/optimus-ui/button';
 import { CardModule } from '@openng/optimus-ui/card';
-import { CheckboxModule } from '@openng/optimus-ui/checkbox';
 import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
-import { InputTextModule } from '@openng/optimus-ui/inputtext';
-import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { SelectModule } from '@openng/optimus-ui/select';
-import { TextareaModule } from '@openng/optimus-ui/textarea';
-import { Subscription } from 'rxjs';
+import { TieredMenu, TieredMenuModule } from '@openng/optimus-ui/tieredmenu';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
+import { filter, Subscription, take } from 'rxjs';
 
 import { Common, StaffProfessionalStructureApi } from '@core/services';
-import { LookupStore } from '@core/stores';
-import { ListSkeleton } from '@shared/components';
+import { FeaturePageStore, LookupStore } from '@core/stores';
 import {
-  SaveStaffPositionMaster,
-  SaveInstitutionStaffCategory,
+  ListSkeleton,
+  StatusBadge,
+  TabBar,
+  type TabBarItem,
+  TableActionButton,
+} from '@shared/components';
+import {
   InstitutionStaffCategory,
-  SaveStaffProfessionalMaster,
   StaffPositionMaster,
   StaffProfessionalMaster,
   StaffProfessionalMasterType,
 } from '@shared/interfaces';
-import { escapeHtml } from '@shared/utilities/escape-html';
+import { openManageDialog } from '@shared/utilities/manage-dialog';
 import { pendingCounter } from '@shared/utilities/pending-counter';
+import { confirmStatusChange, statusRowActions } from '@shared/utilities/status-change';
+
+import {
+  ProfessionalMasterDialog,
+  ProfessionalMasterDialogData,
+} from './professional-master-dialog/professional-master-dialog';
+import {
+  StaffCategoryDialog,
+  StaffCategoryDialogData,
+} from './staff-category-dialog/staff-category-dialog';
+import {
+  StaffPositionDialog,
+  StaffPositionDialogData,
+} from './staff-position-dialog/staff-position-dialog';
 
 type StructureTab = StaffProfessionalMasterType | 'categories' | 'positions';
 
@@ -46,30 +64,32 @@ export const STRUCTURE_TAB_ROUTES: readonly { route: string; tab: StructureTab }
   { route: 'positions', tab: 'positions' },
 ];
 
-export type DependencyOption<T> = T & { disabled: boolean };
+/** Singular and plural record names per tab, for headings, tab labels and empty states. */
+const TAB_NOUNS: Record<StructureTab, { singular: string; plural: string }> = {
+  [StaffProfessionalMasterType.JobFamily]: { singular: 'Job Family', plural: 'Job Families' },
+  categories: { singular: 'Staff Category', plural: 'Staff Categories' },
+  [StaffProfessionalMasterType.Capability]: { singular: 'Capability', plural: 'Capabilities' },
+  [StaffProfessionalMasterType.DutyDefinition]: { singular: 'Duty', plural: 'Duties' },
+  positions: { singular: 'Position', plural: 'Positions' },
+};
 
-export function buildDependencyOptions<T extends { id: number; isActive: boolean }>(
-  values: T[],
-  selectedIds: ReadonlySet<number>,
-): DependencyOption<T>[] {
-  return values
-    .filter((item) => item.isActive || selectedIds.has(item.id))
-    .map((item) => ({ ...item, disabled: !item.isActive }));
-}
+/** Professional-structure endpoints sit under the Staff Directory permission boundary (see module-operation-routes.ts). */
+const MODULE_CODE = 'STAFF_DIRECTORY';
 
 @Component({
   selector: 'app-staff-professional-structure',
   imports: [
     ButtonModule,
     CardModule,
-    CheckboxModule,
     ConfirmDialogModule,
     FormsModule,
-    InputTextModule,
     ListSkeleton,
     SelectModule,
-    MultiSelectModule,
-    TextareaModule,
+    StatusBadge,
+    TabBar,
+    TableActionButton,
+    TieredMenuModule,
+    TooltipModule,
   ],
   templateUrl: './staff-professional-structure.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,11 +99,17 @@ export default class StaffProfessionalStructure implements OnInit {
   readonly #common = inject(Common);
   readonly #confirmationService = inject(ConfirmationService);
   readonly #destroyRef = inject(DestroyRef);
+  readonly #dialogService = inject(DialogService);
+  readonly #featurePageStore = inject(FeaturePageStore);
   readonly #lookups = inject(LookupStore);
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
 
   readonly masterTypes = StaffProfessionalMasterType;
+  readonly tabs: TabBarItem<StructureTab>[] = STRUCTURE_TAB_ROUTES.map((item) => ({
+    id: item.tab,
+    label: TAB_NOUNS[item.tab].plural,
+  }));
   readonly selectedTab = signal<StructureTab>(StaffProfessionalMasterType.JobFamily);
   readonly masters = signal<StaffProfessionalMaster[]>([]);
   readonly positions = signal<StaffPositionMaster[]>([]);
@@ -91,22 +117,29 @@ export default class StaffProfessionalStructure implements OnInit {
   readonly capabilities = signal<StaffProfessionalMaster[]>([]);
   readonly duties = signal<StaffProfessionalMaster[]>([]);
   readonly categories = signal<InstitutionStaffCategory[]>([]);
-  readonly canonicalCategories = this.#lookups.staffCategories;
   readonly #listLoad = pendingCounter();
-  readonly #save = pendingCounter();
   #selectedLoad?: Subscription;
   readonly loading = this.#listLoad.active;
-  readonly saving = this.#save.active;
+  readonly #referenceLoad = pendingCounter();
+  /** Categories, job families, capabilities and duties the category and position dialogs pick from. */
+  readonly referencesLoading = this.#referenceLoad.active;
+  readonly #referencesLoading$ = toObservable(this.referencesLoading);
   readonly statusOptions = [
     { label: 'All', value: 'all' },
     { label: 'Active', value: 'active' },
     { label: 'Inactive', value: 'inactive' },
   ];
   statusFilter: 'all' | 'active' | 'inactive' = 'all';
-
-  masterForm: SaveStaffProfessionalMaster = this.emptyMaster();
-  categoryForm: SaveInstitutionStaffCategory = this.emptyCategory();
-  positionForm: SaveStaffPositionMaster = this.emptyPosition();
+  readonly noun = computed(() => TAB_NOUNS[this.selectedTab()]);
+  readonly canAdd = computed(() => this.#featurePageStore.canPerformOrUnknown(MODULE_CODE, 'Add'));
+  readonly canUpdate = computed(() =>
+    this.#featurePageStore.canPerformOrUnknown(MODULE_CODE, 'Update'),
+  );
+  /** Deactivating a master or position calls its DELETE endpoint (a soft deactivate). */
+  readonly canDelete = computed(() =>
+    this.#featurePageStore.canPerformOrUnknown(MODULE_CODE, 'Delete'),
+  );
+  readonly rowMenuItems = signal<MenuItem[]>([]);
 
   ngOnInit(): void {
     this.#lookups.reloadStaffCategories();
@@ -146,8 +179,44 @@ export default class StaffProfessionalStructure implements OnInit {
     // Job Families, Capabilities and Duties share `masters`; clear it so the next tab shows a
     // loading state instead of the previous tab's rows.
     this.masters.set([]);
-    this.resetForm();
     this.loadSelected();
+  }
+
+  /** Opens the add dialog for the current tab. */
+  openAdd(): void {
+    const tab = this.selectedTab();
+    if (tab === 'categories') this.openCategoryDialog();
+    else if (tab === 'positions') this.openPositionDialog();
+    else this.openMasterDialog(tab);
+  }
+
+  openMasterDialog(type: StaffProfessionalMasterType, master?: StaffProfessionalMaster): void {
+    const data: ProfessionalMasterDialogData = { type, master };
+    this.#openDialog(ProfessionalMasterDialog, data, !!master, '36rem', () => {
+      // Job Families, Capabilities and Duties feed the other tabs' pickers.
+      this.loadReferenceData();
+      this.loadSelected();
+    });
+  }
+
+  openCategoryDialog(category?: InstitutionStaffCategory): void {
+    this.#afterReferences(() => {
+      const data: StaffCategoryDialogData = { category, jobFamilies: this.jobFamilies() };
+      this.#openDialog(StaffCategoryDialog, data, !!category, '40rem', () => this.loadSelected());
+    });
+  }
+
+  openPositionDialog(position?: StaffPositionMaster): void {
+    this.#afterReferences(() => {
+      const data: StaffPositionDialogData = {
+        position,
+        categories: this.categories(),
+        jobFamilies: this.jobFamilies(),
+        capabilities: this.capabilities(),
+        duties: this.duties(),
+      };
+      this.#openDialog(StaffPositionDialog, data, !!position, '48rem', () => this.loadSelected());
+    });
   }
 
   loadSelected(): void {
@@ -183,51 +252,6 @@ export default class StaffProfessionalStructure implements OnInit {
       });
   }
 
-  editMaster(item: StaffProfessionalMaster): void {
-    this.masterForm = { ...item };
-  }
-
-  editCategory(item: InstitutionStaffCategory): void {
-    this.categoryForm = { ...item, staffJobFamilyMasterIds: [...item.staffJobFamilyMasterIds] };
-  }
-
-  saveCategory(): void {
-    if (
-      !this.categoryForm.staffCategoryTypeId ||
-      !this.categoryForm.code.trim() ||
-      !this.categoryForm.name.trim()
-    )
-      return;
-    this.#api
-      .saveCategory(this.categoryForm)
-      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (!response.isSucceeded) {
-            this.#common.showMessage(response.message, 'error');
-            return;
-          }
-          this.#api
-            .setCategoryJobFamilies(response.data.id, this.categoryForm.staffJobFamilyMasterIds)
-            .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
-            .subscribe({
-              next: (mappingResponse) => {
-                this.#common.showMessage(
-                  mappingResponse.message,
-                  mappingResponse.isSucceeded ? 'success' : 'error',
-                );
-                if (mappingResponse.isSucceeded) {
-                  this.resetForm();
-                  this.loadSelected();
-                }
-              },
-              error: (error) => this.#common.showMessage(error.message, 'error'),
-            });
-        },
-        error: (error) => this.#common.showMessage(error.message, 'error'),
-      });
-  }
-
   setCategoryActive(item: InstitutionStaffCategory): void {
     this.#api
       .setCategoryActive(item.id, !item.isActive)
@@ -243,26 +267,6 @@ export default class StaffProfessionalStructure implements OnInit {
 
   confirmCategoryActive(item: InstitutionStaffCategory): void {
     this.confirmStatusChange(item.name, item.isActive, () => this.setCategoryActive(item));
-  }
-
-  saveMaster(): void {
-    const tab = this.selectedTab();
-    if (typeof tab === 'string' || !this.masterForm.code.trim() || !this.masterForm.name.trim())
-      return;
-    this.#api
-      .saveMaster(tab, this.masterForm)
-      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
-          if (response.isSucceeded) {
-            this.resetForm();
-            this.loadReferenceData();
-            this.loadSelected();
-          }
-        },
-        error: (error) => this.#common.showMessage(error.message, 'error'),
-      });
   }
 
   deleteMaster(item: StaffProfessionalMaster): void {
@@ -302,56 +306,6 @@ export default class StaffProfessionalStructure implements OnInit {
     this.confirmStatusChange(item.name, item.isActive, () =>
       item.isActive ? this.deleteMaster(item) : this.activateMaster(item),
     );
-  }
-
-  editPosition(item: StaffPositionMaster): void {
-    this.positionForm = {
-      ...item,
-      institutionStaffCategoryMasterId: item.institutionStaffCategoryMasterId ?? 0,
-      capabilities: item.capabilities.map((value, index) => ({
-        id: value.id,
-        isMandatory: value.isMandatory,
-        displayOrder: (index + 1) * 10,
-      })),
-      duties: item.duties.map((value, index) => ({
-        id: value.id,
-        isMandatory: value.isMandatory,
-        displayOrder: (index + 1) * 10,
-      })),
-    };
-  }
-
-  savePosition(): void {
-    if (
-      !this.positionForm.staffJobFamilyMasterId ||
-      !this.positionForm.institutionStaffCategoryMasterId ||
-      !this.positionForm.code.trim() ||
-      !this.positionForm.name.trim()
-    )
-      return;
-    this.#api
-      .savePosition(this.positionForm)
-      .pipe(this.#save.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
-          if (response.isSucceeded) {
-            this.resetForm();
-            this.loadSelected();
-          }
-        },
-        error: (error) => this.#common.showMessage(error.message, 'error'),
-      });
-  }
-
-  onPositionCategoryChange(): void {
-    if (
-      !this.mappedJobFamilies().some(
-        (family) => family.id === this.positionForm.staffJobFamilyMasterId,
-      )
-    ) {
-      this.positionForm.staffJobFamilyMasterId = 0;
-    }
   }
 
   deletePosition(item: StaffPositionMaster): void {
@@ -400,28 +354,10 @@ export default class StaffProfessionalStructure implements OnInit {
     );
   }
 
-  toggleCapability(id: number, checked: boolean): void {
-    this.positionForm.capabilities = this.toggleRequirement(
-      this.positionForm.capabilities,
-      id,
-      checked,
-    );
-  }
-
-  toggleDuty(id: number, checked: boolean): void {
-    this.positionForm.duties = this.toggleRequirement(this.positionForm.duties, id, checked);
-  }
-
-  resetForm(): void {
-    this.masterForm = this.emptyMaster();
-    this.categoryForm = this.emptyCategory();
-    this.positionForm = this.emptyPosition();
-  }
-
   private loadReferenceData(): void {
     this.#api
       .getCategories(false)
-      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .pipe(this.#referenceLoad.track, takeUntilDestroyed(this.#destroyRef))
       .subscribe((response) => {
         this.categories.set(response.isSucceeded ? response.data : []);
       });
@@ -432,7 +368,7 @@ export default class StaffProfessionalStructure implements OnInit {
     ]) {
       this.#api
         .getMasters(type, false)
-        .pipe(takeUntilDestroyed(this.#destroyRef))
+        .pipe(this.#referenceLoad.track, takeUntilDestroyed(this.#destroyRef))
         .subscribe((response) => {
           const values = response.isSucceeded ? response.data : [];
           if (type === StaffProfessionalMasterType.JobFamily) this.jobFamilies.set(values);
@@ -442,88 +378,66 @@ export default class StaffProfessionalStructure implements OnInit {
     }
   }
 
-  private emptyMaster(): SaveStaffProfessionalMaster {
-    return {
-      code: '',
-      name: '',
-      description: '',
-      displayOrder: 10,
-      isActive: true,
-      requiresCertification: false,
-      certificationValidityRequired: false,
-      defaultFrequency: '',
-      requiresEvidence: false,
-    };
+  /**
+   * Runs `open` once reference data has loaded. The dialogs copy those lists when they open, so
+   * opening early (straight after landing on the page) would leave their pickers empty.
+   */
+  #afterReferences(open: () => void): void {
+    this.#referencesLoading$
+      .pipe(
+        filter((loading) => !loading),
+        take(1),
+        takeUntilDestroyed(this.#destroyRef),
+      )
+      .subscribe(open);
   }
 
-  private emptyPosition(): SaveStaffPositionMaster {
-    return {
-      staffJobFamilyMasterId: 0,
-      institutionStaffCategoryMasterId: 0,
-      code: '',
-      name: '',
-      description: '',
-      displayOrder: 10,
-      isActive: true,
-      capabilities: [],
-      duties: [],
-    };
+  /** A row shows its action menu only when at least one action in it is permitted. */
+  hasRowActions(isActive: boolean, canDeactivate: boolean): boolean {
+    return this.canUpdate() || (isActive && canDeactivate);
   }
 
-  private emptyCategory(): SaveInstitutionStaffCategory {
-    return {
-      staffCategoryTypeId: 0,
-      code: '',
-      name: '',
-      description: '',
-      displayOrder: 10,
-      isActive: true,
-      staffJobFamilyMasterIds: [],
-    };
+  openRowMenu(menu: TieredMenu, event: Event, items: MenuItem[]): void {
+    this.rowMenuItems.set(items);
+    menu.toggle(event);
   }
 
-  mappedJobFamilies(): StaffProfessionalMaster[] {
-    const category = this.categories().find(
-      (item) => item.id === this.positionForm.institutionStaffCategoryMasterId,
-    );
-    return category
-      ? this.jobFamilies().filter((family) => category.staffJobFamilyMasterIds.includes(family.id))
-      : [];
-  }
-
-  categoryJobFamilyOptions(): DependencyOption<StaffProfessionalMaster>[] {
-    return this.dependencyOptions(
-      this.jobFamilies(),
-      new Set(this.categoryForm.staffJobFamilyMasterIds),
+  categoryActions(item: InstitutionStaffCategory): MenuItem[] {
+    return this.rowActions(
+      item.isActive,
+      this.canUpdate(),
+      () => this.openCategoryDialog(item),
+      () => this.confirmCategoryActive(item),
     );
   }
 
-  positionCategoryOptions(): DependencyOption<InstitutionStaffCategory>[] {
-    return this.dependencyOptions(
-      this.categories(),
-      new Set([this.positionForm.institutionStaffCategoryMasterId]),
+  masterActions(item: StaffProfessionalMaster): MenuItem[] {
+    return this.rowActions(
+      item.isActive,
+      this.canDelete(),
+      () => {
+        const tab = this.selectedTab();
+        if (typeof tab !== 'string') this.openMasterDialog(tab, item);
+      },
+      () => this.confirmMasterActive(item),
     );
   }
 
-  positionJobFamilyOptions(): DependencyOption<StaffProfessionalMaster>[] {
-    return this.dependencyOptions(
-      this.mappedJobFamilies(),
-      new Set([this.positionForm.staffJobFamilyMasterId]),
+  positionActions(item: StaffPositionMaster): MenuItem[] {
+    return this.rowActions(
+      item.isActive,
+      this.canDelete(),
+      () => this.openPositionDialog(item),
+      () => this.confirmPositionActive(item),
     );
   }
 
-  capabilityOptions(): DependencyOption<StaffProfessionalMaster>[] {
-    return this.dependencyOptions(
-      this.capabilities(),
-      new Set(this.positionForm.capabilities.map((item) => item.id)),
-    );
-  }
-
-  dutyOptions(): DependencyOption<StaffProfessionalMaster>[] {
-    return this.dependencyOptions(
-      this.duties(),
-      new Set(this.positionForm.duties.map((item) => item.id)),
-    );
+  emptyMessage(total: number): string {
+    const plural = this.noun().plural.toLowerCase();
+    if (total) return `No ${this.statusFilter} ${plural}.`;
+    return this.canAdd()
+      ? `No ${plural} yet. Use Add ${this.noun().singular} to create one.`
+      : `No ${plural} yet.`;
   }
 
   visibleCategories(): InstitutionStaffCategory[] {
@@ -536,60 +450,51 @@ export default class StaffProfessionalStructure implements OnInit {
     return this.filterByStatus(this.positions());
   }
 
-  requirementSelected(values: { id: number }[], id: number): boolean {
-    return values.some((value) => value.id === id);
-  }
-
-  requirementMandatory(values: { id: number; isMandatory: boolean }[], id: number): boolean {
-    return values.find((value) => value.id === id)?.isMandatory ?? true;
-  }
-
-  setRequirementMandatory(
-    values: { id: number; isMandatory: boolean; displayOrder: number }[],
-    id: number,
-    isMandatory: boolean,
-  ): void {
-    const item = values.find((value) => value.id === id);
-    if (item) item.isMandatory = isMandatory;
-  }
-
-  private toggleRequirement(
-    values: { id: number; isMandatory: boolean; displayOrder: number }[],
-    id: number,
-    checked: boolean,
-  ) {
-    return checked
-      ? [...values, { id, isMandatory: true, displayOrder: (values.length + 1) * 10 }]
-      : values.filter((value) => value.id !== id);
-  }
-
   private filterByStatus<T extends { isActive: boolean }>(values: T[]): T[] {
     return this.statusFilter === 'all'
       ? values
       : values.filter((item) => item.isActive === (this.statusFilter === 'active'));
   }
 
-  private dependencyOptions<T extends { id: number; isActive: boolean }>(
-    values: T[],
-    selectedIds: ReadonlySet<number>,
-  ): DependencyOption<T>[] {
-    return buildDependencyOptions(values, selectedIds);
+  private rowActions(
+    isActive: boolean,
+    canDeactivate: boolean,
+    edit: () => void,
+    toggleActive: () => void,
+  ): MenuItem[] {
+    return statusRowActions({
+      isActive,
+      canEdit: this.canUpdate(),
+      canDeactivate,
+      canActivate: this.canUpdate(),
+      edit,
+      toggleActive,
+    });
+  }
+
+  /** Opens a manage dialog and runs `onSaved` when it closes after a successful save. */
+  #openDialog(
+    component: Type<unknown>,
+    data: unknown,
+    isEdit: boolean,
+    maxWidth: string,
+    onSaved: () => void,
+  ): void {
+    openManageDialog(
+      this.#dialogService,
+      this.#destroyRef,
+      { component, header: `${isEdit ? 'Edit' : 'Add'} ${this.noun().singular}`, maxWidth, data },
+      onSaved,
+    );
   }
 
   private confirmStatusChange(name: string, isActive: boolean, accept: () => void): void {
-    const action = isActive ? 'Deactivate' : 'Activate';
-    this.#confirmationService.confirm({
-      // The dialog renders `message` via [innerHTML], so the record name is escaped before use.
-      message: `${action} <strong>${escapeHtml(name)}</strong>?${
-        isActive ? ' It will no longer be available for new dependent selections.' : ''
-      }`,
-      header: `${action} this record`,
-      icon: 'pi pi-exclamation-circle text-amber-500! text-2xl!',
-      acceptLabel: action,
-      rejectLabel: 'Cancel',
-      acceptButtonStyleClass: isActive ? 'p-button-danger' : 'p-button-primary',
-      rejectButtonStyleClass: 'p-button-secondary',
+    confirmStatusChange(
+      this.#confirmationService,
+      name,
+      isActive,
       accept,
-    });
+      'It will no longer be available for new dependent selections.',
+    );
   }
 }

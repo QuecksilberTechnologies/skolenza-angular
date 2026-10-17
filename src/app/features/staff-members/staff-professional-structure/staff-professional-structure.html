@@ -1,240 +1,85 @@
-<div class="min-h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+<div class="h-[calc(100vh-4.6rem)] overflow-y-auto">
 <p-card class="m-3 p-3! sm:m-4 sm:p-4!">
-<main class="space-y-5">
+<div class="space-y-5">
 
-  <nav
-    class="flex flex-wrap gap-2 border-b border-gray-200 pb-3 dark:border-zinc-700"
-    aria-label="Professional structure sections"
-  >
-    <p-button label="Job Families" [outlined]="selectedTab() !== masterTypes.JobFamily" (onClick)="openTab(masterTypes.JobFamily)" />
-    <p-button label="Staff Categories" [outlined]="selectedTab() !== 'categories'" (onClick)="openTab('categories')" />
-    <p-button label="Capabilities" [outlined]="selectedTab() !== masterTypes.Capability" (onClick)="openTab(masterTypes.Capability)" />
-    <p-button label="Duties" [outlined]="selectedTab() !== masterTypes.DutyDefinition" (onClick)="openTab(masterTypes.DutyDefinition)" />
-    <p-button label="Positions" [outlined]="selectedTab() !== 'positions'" (onClick)="openTab('positions')" />
-    <p-select class="ml-auto min-w-36" name="statusFilter" ariaLabel="Filter by status" [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value" />
-  </nav>
+  <app-tab-bar ariaLabel="Professional structure sections" [tabs]="tabs" [selected]="selectedTab()" (tabChange)="openTab($event)">
+    <p-select class="min-w-36" name="statusFilter" ariaLabel="Filter by status" [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value" appendTo="body" />
+    @if (canAdd()) {
+    <p-button [label]="'Add ' + noun().singular" icon="pi pi-plus" [loading]="(selectedTab() === 'categories' || selectedTab() === 'positions') && referencesLoading()" (onClick)="openAdd()" />
+    }
+  </app-tab-bar>
 
-  @if (selectedTab() === 'categories') {
-  <section class="grid gap-5 lg:grid-cols-[1fr_24rem]">
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+  <div class="overflow-hidden rounded-card border border-zinc-200 dark:border-zinc-800">
+    @if (selectedTab() === 'categories') {
       @if (loading() && !categories().length) {
-      <app-list-skeleton label="Loading Staff Categories..." />
+      <app-list-skeleton [label]="'Loading ' + noun().plural + '...'" />
       } @else {
       @for (item of visibleCategories(); track item.id) {
-      <article class="flex items-center justify-between gap-4 border-b border-gray-200 p-4 last:border-b-0 dark:border-zinc-700">
-        <div><strong>{{ item.name }}</strong> <span class="rounded-full px-2 py-0.5 text-xs" [class.bg-green-50]="item.isActive" [class.text-green-700]="item.isActive" [class.dark:bg-green-950]="item.isActive" [class.dark:text-green-300]="item.isActive" [class.bg-gray-100]="!item.isActive" [class.text-gray-600]="!item.isActive" [class.dark:bg-zinc-800]="!item.isActive" [class.dark:text-zinc-300]="!item.isActive">{{ item.isActive ? 'Active' : 'Inactive' }}</span><div class="text-sm text-gray-500 dark:text-zinc-400">{{ item.code }} · {{ item.staffCategoryTypeName }} · {{ item.activeJobFamilyCount }} job families · {{ item.activePositionCount }} positions · {{ item.activeStaffCount }} staff</div></div>
-        <div class="flex gap-2">
-          <p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editCategory(item)" />
-          <p-button [label]="item.isActive ? 'Deactivate' : 'Activate'" [icon]="item.isActive ? 'pi pi-ban' : 'pi pi-check-circle'" [severity]="item.isActive ? 'danger' : 'success'" [text]="true" size="small" (onClick)="confirmCategoryActive(item)" />
-        </div>
-      </article>
-      } @empty { <p class="p-5 text-gray-500 dark:text-zinc-400">No Staff Categories configured.</p> }
-      }
-    </div>
-    <form class="space-y-3 rounded-xl border border-gray-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900" (ngSubmit)="saveCategory()">
-      <h2 class="font-semibold">{{ categoryForm.id ? 'Edit' : 'Add' }} Staff Category</h2>
-      <label for="professional-categoryType" class="block"><span id="professional-categoryType-label">Category type</span><p-select inputId="professional-categoryType" ariaLabelledBy="professional-categoryType-label" class="mt-1 w-full" name="categoryType" [(ngModel)]="categoryForm.staffCategoryTypeId" [options]="canonicalCategories()" optionLabel="label" optionValue="id" placeholder="Select category type" appendTo="body" required /></label>
-      <label class="block">Code<input pInputText class="mt-1 w-full" name="categoryCode" [(ngModel)]="categoryForm.code" required /></label>
-      <label class="block">Name<input pInputText class="mt-1 w-full" name="categoryName" [(ngModel)]="categoryForm.name" required /></label>
-      <label class="block">Description<textarea pTextarea class="mt-1 w-full" name="categoryDescription" [(ngModel)]="categoryForm.description"></textarea></label>
-      <label for="professional-categoryJobFamilies" class="block"><span id="professional-categoryJobFamilies-label">Allowed job families</span><p-multiselect inputId="professional-categoryJobFamilies" ariaLabelledBy="professional-categoryJobFamilies-label" class="mt-1 w-full" name="categoryJobFamilies" [(ngModel)]="categoryForm.staffJobFamilyMasterIds" [options]="categoryJobFamilyOptions()" optionLabel="name" optionValue="id" optionDisabled="disabled" appendTo="body" /></label>
-      <label for="professional-categoryActive" class="flex items-center gap-2"><p-checkbox inputId="professional-categoryActive" name="categoryActive" [(ngModel)]="categoryForm.isActive" [binary]="true" />Active</label>
-      <div class="flex justify-end gap-2"><p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="resetForm()" /><p-button type="submit" label="Save" icon="pi pi-check" [loading]="saving()" /></div>
-    </form>
-  </section>
-  } @else if (selectedTab() !== 'positions') {
-  <section class="grid gap-5 lg:grid-cols-[1fr_24rem]">
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-      @if (loading() && !masters().length) {
-      <app-list-skeleton label="Loading records..." />
-      } @else {
-      @for (item of visibleMasters(); track item.id) {
-      <article class="flex items-center justify-between gap-4 border-b border-gray-200 p-4 last:border-b-0 dark:border-zinc-700">
-        <div>
-          <strong>{{ item.name }}</strong>
-          <div class="text-sm text-gray-500 dark:text-zinc-400">
-            {{ item.code }} · {{ item.description }}
+      <article class="flex items-center justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.name }}</strong>
+            <app-status-badge [label]="item.isActive ? 'Active' : 'Inactive'" [tone]="item.isActive ? 'success' : 'neutral'" [icon]="item.isActive ? 'pi-check-circle' : 'pi-ban'" />
           </div>
+          <div class="text-sm text-zinc-500 dark:text-zinc-400">{{ item.code }} · {{ item.staffCategoryTypeName }} · {{ item.activeJobFamilyCount }} job families · {{ item.activePositionCount }} positions · {{ item.activeStaffCount }} staff</div>
         </div>
-        <div class="flex gap-2">
-          <p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editMaster(item)" />
-          <p-button [label]="item.isActive ? 'Deactivate' : 'Activate'" [icon]="item.isActive ? 'pi pi-ban' : 'pi pi-check-circle'" [severity]="item.isActive ? 'danger' : 'success'" [text]="true" size="small" (onClick)="confirmMasterActive(item)" />
-        </div>
+        @if (hasRowActions(item.isActive, canUpdate())) {
+        <app-table-action-button [ariaLabel]="'Actions for ' + item.name" [text]="true" (action)="openRowMenu(rowMenu, $event, categoryActions(item))" />
+        }
       </article>
       } @empty {
-      <p class="p-5 text-gray-500 dark:text-zinc-400">No records configured.</p>
+      <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage(categories().length) }}</p>
       }
       }
-    </div>
-    <form
-      class="space-y-3 rounded-xl border border-gray-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900"
-      (ngSubmit)="saveMaster()"
-    >
-      <h2 class="font-semibold">
-        {{ masterForm.id ? 'Edit' : 'Add' }} master record
-      </h2>
-      <label class="block"
-        >Code<input
-          pInputText
-          class="mt-1 w-full"
-          name="code"
-          [(ngModel)]="masterForm.code"
-          required
-      /></label>
-      <label class="block"
-        >Name<input
-          pInputText
-          class="mt-1 w-full"
-          name="name"
-          [(ngModel)]="masterForm.name"
-          required
-      /></label>
-      <label class="block"
-        >Description<textarea
-          pTextarea
-          class="mt-1 w-full"
-          name="description"
-          [(ngModel)]="masterForm.description"
-        ></textarea>
-      </label>
-      @if (selectedTab() === masterTypes.DutyDefinition) {
-      <label class="block"
-        >Default frequency<input
-          pInputText
-          class="mt-1 w-full"
-          name="frequency"
-          [(ngModel)]="masterForm.defaultFrequency"
-      /></label>
-      }
-      <label for="professional-active" class="flex items-center gap-2">
-        <p-checkbox inputId="professional-active" name="active" [(ngModel)]="masterForm.isActive" [binary]="true" />
-        Active
-      </label>
-      <div class="flex justify-end gap-2">
-        <p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="resetForm()" />
-        <p-button type="submit" label="Save" icon="pi pi-check" [loading]="saving()" />
-      </div>
-    </form>
-  </section>
-  } @else {
-  <section class="grid gap-5 lg:grid-cols-[1fr_28rem]">
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+    } @else if (selectedTab() === 'positions') {
       @if (loading() && !positions().length) {
-      <app-list-skeleton label="Loading positions..." />
+      <app-list-skeleton [label]="'Loading ' + noun().plural + '...'" />
       } @else {
       @for (item of visiblePositions(); track item.id) {
-      <article class="flex items-center justify-between gap-4 border-b border-gray-200 p-4 last:border-b-0 dark:border-zinc-700">
-        <div>
-          <strong>{{ item.name }}</strong>
-          <div class="text-sm text-gray-500 dark:text-zinc-400">
-            {{ item.jobFamilyName }} · {{ item.staffCategoryName }}
+      <article class="flex items-center justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.name }}</strong>
+            <app-status-badge [label]="item.isActive ? 'Active' : 'Inactive'" [tone]="item.isActive ? 'success' : 'neutral'" [icon]="item.isActive ? 'pi-check-circle' : 'pi-ban'" />
           </div>
+          <div class="text-sm text-zinc-500 dark:text-zinc-400">{{ item.jobFamilyName }} · {{ item.staffCategoryName }}</div>
         </div>
-        <div class="flex gap-2">
-          <p-button label="Edit" icon="pi pi-pencil" severity="secondary" [outlined]="true" size="small" (onClick)="editPosition(item)" />
-          <p-button [label]="item.isActive ? 'Deactivate' : 'Activate'" [icon]="item.isActive ? 'pi pi-ban' : 'pi pi-check-circle'" [severity]="item.isActive ? 'danger' : 'success'" [text]="true" size="small" (onClick)="confirmPositionActive(item)" />
-        </div>
+        @if (hasRowActions(item.isActive, canDelete())) {
+        <app-table-action-button [ariaLabel]="'Actions for ' + item.name" [text]="true" (action)="openRowMenu(rowMenu, $event, positionActions(item))" />
+        }
       </article>
       } @empty {
-      <p class="p-5 text-gray-500 dark:text-zinc-400">No positions configured.</p>
+      <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage(positions().length) }}</p>
       }
       }
-    </div>
-    <form
-      class="space-y-3 rounded-xl border border-gray-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900"
-      (ngSubmit)="savePosition()"
-    >
-      <h2 class="font-semibold">
-        {{ positionForm.id ? 'Edit' : 'Add' }} position
-      </h2>
-      <label for="professional-category" class="block"
-        ><span id="professional-category-label">Category</span><p-select inputId="professional-category" ariaLabelledBy="professional-category-label"
-          class="mt-1 w-full"
-          name="category"
-          [(ngModel)]="positionForm.institutionStaffCategoryMasterId"
-          (ngModelChange)="onPositionCategoryChange()"
-          [options]="positionCategoryOptions()"
-          optionLabel="name"
-          optionValue="id"
-          optionDisabled="disabled"
-          placeholder="Select category"
-          appendTo="body"
-          required
-        /></label
-      >
-      <label for="professional-family" class="block"
-        ><span id="professional-family-label">Job family</span><p-select inputId="professional-family" ariaLabelledBy="professional-family-label"
-          class="mt-1 w-full"
-          name="family"
-          [(ngModel)]="positionForm.staffJobFamilyMasterId"
-          [options]="positionJobFamilyOptions()"
-          optionLabel="name"
-          optionValue="id"
-          optionDisabled="disabled"
-          placeholder="Select family"
-          appendTo="body"
-          required
-        /></label
-      >
-      <label class="block"
-        >Code<input
-          pInputText
-          class="mt-1 w-full"
-          name="positionCode"
-          [(ngModel)]="positionForm.code"
-          required
-      /></label>
-      <label class="block"
-        >Name<input
-          pInputText
-          class="mt-1 w-full"
-          name="positionName"
-          [(ngModel)]="positionForm.name"
-          required
-      /></label>
-      <fieldset>
-        <legend class="font-medium">Required capabilities</legend>
-        @for (item of capabilityOptions(); track item.id) {<label [for]="'professional-capability-' + item.id"
-          class="mr-3 inline-flex gap-2"
-          ><p-checkbox [inputId]="'professional-capability-' + item.id"
-            [ngModel]="requirementSelected(positionForm.capabilities, item.id)"
-            [ngModelOptions]="{ standalone: true }"
-            [binary]="true"
-            [disabled]="item.disabled"
-            (ngModelChange)="toggleCapability(item.id, $event)"
-          />{{ item.name }}
-          @if (requirementSelected(positionForm.capabilities, item.id)) {
-            <p-checkbox [ngModel]="requirementMandatory(positionForm.capabilities, item.id)" [ngModelOptions]="{ standalone: true }" [binary]="true" (ngModelChange)="setRequirementMandatory(positionForm.capabilities, item.id, $event)" /> Required
-          }
-          </label
-        >}
-      </fieldset>
-      <label for="professional-positionActive" class="flex items-center gap-2"><p-checkbox inputId="professional-positionActive" name="positionActive" [(ngModel)]="positionForm.isActive" [binary]="true" />Active</label>
-      <fieldset>
-        <legend class="font-medium">Default duties</legend>
-        @for (item of dutyOptions(); track item.id) {<label [for]="'professional-duty-' + item.id"
-          class="mr-3 inline-flex gap-2"
-          ><p-checkbox [inputId]="'professional-duty-' + item.id"
-            [ngModel]="requirementSelected(positionForm.duties, item.id)"
-            [ngModelOptions]="{ standalone: true }"
-            [binary]="true"
-            [disabled]="item.disabled"
-            (ngModelChange)="toggleDuty(item.id, $event)"
-          />{{ item.name }}
-          @if (requirementSelected(positionForm.duties, item.id)) {
-            <p-checkbox [ngModel]="requirementMandatory(positionForm.duties, item.id)" [ngModelOptions]="{ standalone: true }" [binary]="true" (ngModelChange)="setRequirementMandatory(positionForm.duties, item.id, $event)" /> Required
-          }
-          </label
-        >}
-      </fieldset>
-      <div class="flex justify-end gap-2">
-        <p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="resetForm()" />
-        <p-button type="submit" label="Save" icon="pi pi-check" [loading]="saving()" />
-      </div>
-    </form>
-  </section>
-  }
-</main>
+    } @else {
+      @if (loading() && !masters().length) {
+      <app-list-skeleton [label]="'Loading ' + noun().plural + '...'" />
+      } @else {
+      @for (item of visibleMasters(); track item.id) {
+      <article class="flex items-center justify-between gap-4 border-b border-zinc-200 p-4 last:border-b-0 dark:border-zinc-800">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ item.name }}</strong>
+            <app-status-badge [label]="item.isActive ? 'Active' : 'Inactive'" [tone]="item.isActive ? 'success' : 'neutral'" [icon]="item.isActive ? 'pi-check-circle' : 'pi-ban'" />
+          </div>
+          <div class="truncate text-sm text-zinc-500 dark:text-zinc-400" [pTooltip]="item.description || undefined" tooltipPosition="top">
+            {{ item.code }}@if (item.description) { · {{ item.description }}}
+          </div>
+        </div>
+        @if (hasRowActions(item.isActive, canDelete())) {
+        <app-table-action-button [ariaLabel]="'Actions for ' + item.name" [text]="true" (action)="openRowMenu(rowMenu, $event, masterActions(item))" />
+        }
+      </article>
+      } @empty {
+      <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage(masters().length) }}</p>
+      }
+      }
+    }
+  </div>
+</div>
 </p-card>
+
+<p-tieredmenu #rowMenu [model]="rowMenuItems()" [popup]="true" appendTo="body" />
 <p-confirmDialog />
 </div>

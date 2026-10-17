@@ -2,18 +2,21 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { Confirmation, ConfirmationService } from '@openng/optimus-ui/api';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { of, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Common, StaffProfessionalStructureApi } from '@core/services';
-import { LookupStore } from '@core/stores';
+import { FeaturePageStore, LookupStore } from '@core/stores';
 import {
   ApiDataResponse,
   StaffProfessionalMaster,
   StaffProfessionalMasterType,
 } from '@shared/interfaces';
+import { buildDependencyOptions } from '@shared/utilities/dependency-options';
 
-import StaffProfessionalStructure, { buildDependencyOptions } from './staff-professional-structure';
+import { ProfessionalMasterDialog } from './professional-master-dialog/professional-master-dialog';
+import StaffProfessionalStructure from './staff-professional-structure';
 
 describe('StaffProfessionalStructure dependency options', () => {
   const values = [
@@ -58,13 +61,22 @@ describe('StaffProfessionalStructure status confirmation', () => {
   } as StaffProfessionalMaster;
 
   let component: StaffProfessionalStructure;
+  let denied: Set<string>;
   let confirmSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     const empty = of({ isSucceeded: true, message: '', data: [] });
+    denied = new Set();
     TestBed.configureTestingModule({
       providers: [
         ConfirmationService,
+        DialogService,
+        {
+          provide: FeaturePageStore,
+          useValue: {
+            canPerformOrUnknown: (_module: string, operation: string) => !denied.has(operation),
+          },
+        },
         provideRouter([]),
         {
           provide: Common,
@@ -102,6 +114,47 @@ describe('StaffProfessionalStructure status confirmation', () => {
     );
   });
 
+  it('opens the add dialog for the current tab', () => {
+    const open = vi.spyOn(TestBed.inject(DialogService), 'open').mockReturnValue(null);
+
+    component.openAdd();
+
+    expect(open).toHaveBeenCalledWith(
+      ProfessionalMasterDialog,
+      expect.objectContaining({
+        header: 'Add Job Family',
+        data: { type: StaffProfessionalMasterType.JobFamily, master: undefined },
+      }),
+    );
+  });
+
+  it('keeps Deactivate out of the row menu without Delete permission', () => {
+    denied.add('Delete');
+
+    const items = component.masterActions(master);
+
+    expect(items.find((item) => item.label === 'Edit')?.visible).toBe(true);
+    expect(items.find((item) => item.label === 'Deactivate')?.visible).toBe(false);
+  });
+
+  it('hides the row menu when no action in it is permitted', () => {
+    denied.add('Update');
+    denied.add('Delete');
+
+    expect(component.hasRowActions(true, component.canDelete())).toBe(false);
+  });
+
+  it('names the tab and the next step in the empty state', () => {
+    expect(component.emptyMessage(0)).toBe(
+      'No job families yet. Use Add Job Family to create one.',
+    );
+  });
+
+  it('drops the add hint from the empty state without Add permission', () => {
+    denied.add('Add');
+    expect(component.emptyMessage(0)).toBe('No job families yet.');
+  });
+
   it('uses a primary accept button when activating', () => {
     component.confirmMasterActive({ ...master, isActive: false });
 
@@ -119,6 +172,7 @@ describe('StaffProfessionalStructure busy state', () => {
       imports: [StaffProfessionalStructure],
       providers: [
         ConfirmationService,
+        DialogService,
         provideRouter([]),
         {
           provide: ActivatedRoute,
@@ -183,6 +237,7 @@ describe('StaffProfessionalStructure tab loading', () => {
     TestBed.configureTestingModule({
       providers: [
         ConfirmationService,
+        DialogService,
         provideRouter([]),
         {
           provide: Common,
@@ -244,6 +299,7 @@ describe('StaffProfessionalStructure tab routing', () => {
     TestBed.configureTestingModule({
       providers: [
         ConfirmationService,
+        DialogService,
         provideRouter([]),
         { provide: ActivatedRoute, useValue: route },
         {
