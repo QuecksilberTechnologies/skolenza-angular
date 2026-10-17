@@ -25,9 +25,9 @@ import { Common, StaffAcademicStructureApi } from '@core/services';
 import { FeaturePageStore } from '@core/stores';
 import {
   ListSkeleton,
+  type RouteTab,
+  RouteTabs,
   StatusBadge,
-  TabBar,
-  type TabBarItem,
   TableActionButton,
 } from '@shared/components';
 import {
@@ -92,9 +92,9 @@ const EMPTY_PROFILE: StaffAcademicProfile = {
     ConfirmDialogModule,
     FormsModule,
     ListSkeleton,
+    RouteTabs,
     SelectModule,
     StatusBadge,
-    TabBar,
     TableActionButton,
     TieredMenuModule,
     TooltipModule,
@@ -112,8 +112,9 @@ export default class StaffAcademicStructure implements OnInit {
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
 
-  readonly tabs: TabBarItem<AcademicMasterType>[] = ACADEMIC_TAB_ROUTES.map((item) => ({
+  readonly tabs: RouteTab<AcademicMasterType>[] = ACADEMIC_TAB_ROUTES.map((item) => ({
     id: item.tab,
+    route: item.route,
     label: TAB_NOUNS[item.tab].plural,
   }));
   readonly selectedTab = signal(AcademicMasterType.Session);
@@ -178,12 +179,6 @@ export default class StaffAcademicStructure implements OnInit {
       }
       this.selectTab(match.tab);
     });
-  }
-
-  openTab(tab: AcademicMasterType): void {
-    if (tab === this.selectedTab()) return;
-    const route = ACADEMIC_TAB_ROUTES.find((item) => item.tab === tab)?.route;
-    void this.#router.navigate(['..', route], { relativeTo: this.#route });
   }
 
   selectTab(type: AcademicMasterType): void {

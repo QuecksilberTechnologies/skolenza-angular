@@ -25,9 +25,9 @@ import { Common, StaffProfessionalStructureApi } from '@core/services';
 import { FeaturePageStore, LookupStore } from '@core/stores';
 import {
   ListSkeleton,
+  type RouteTab,
+  RouteTabs,
   StatusBadge,
-  TabBar,
-  type TabBarItem,
   TableActionButton,
 } from '@shared/components';
 import {
@@ -85,9 +85,9 @@ const MODULE_CODE = 'STAFF_DIRECTORY';
     ConfirmDialogModule,
     FormsModule,
     ListSkeleton,
+    RouteTabs,
     SelectModule,
     StatusBadge,
-    TabBar,
     TableActionButton,
     TieredMenuModule,
     TooltipModule,
@@ -107,8 +107,9 @@ export default class StaffProfessionalStructure implements OnInit {
   readonly #router = inject(Router);
 
   readonly masterTypes = StaffProfessionalMasterType;
-  readonly tabs: TabBarItem<StructureTab>[] = STRUCTURE_TAB_ROUTES.map((item) => ({
+  readonly tabs: RouteTab<StructureTab>[] = STRUCTURE_TAB_ROUTES.map((item) => ({
     id: item.tab,
+    route: item.route,
     label: TAB_NOUNS[item.tab].plural,
   }));
   readonly selectedTab = signal<StructureTab>(StaffProfessionalMasterType.JobFamily);
@@ -167,12 +168,6 @@ export default class StaffProfessionalStructure implements OnInit {
       }
       this.selectTab(match.tab);
     });
-  }
-
-  openTab(tab: StructureTab): void {
-    if (tab === this.selectedTab()) return;
-    const route = STRUCTURE_TAB_ROUTES.find((item) => item.tab === tab)?.route;
-    void this.#router.navigate(['..', route], { relativeTo: this.#route });
   }
 
   selectTab(tab: StructureTab): void {

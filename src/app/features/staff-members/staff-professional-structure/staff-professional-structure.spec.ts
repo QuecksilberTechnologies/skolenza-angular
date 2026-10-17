@@ -284,61 +284,64 @@ describe('StaffProfessionalStructure tab loading', () => {
   });
 });
 
-describe('StaffProfessionalStructure tab routing', () => {
+/** Routing tests drive `paramMap` by hand and spy on `navigate`. */
+function setupRouting() {
   const empty = of({ isSucceeded: true, message: '', errors: [], data: [] });
-  let route: { paramMap: Subject<ReturnType<typeof convertToParamMap>> };
-  let getMasters: ReturnType<typeof vi.fn>;
-  let getPositions: ReturnType<typeof vi.fn>;
+  const route = { paramMap: new Subject<ReturnType<typeof convertToParamMap>>() };
+  const api = {
+    getCategories: vi.fn(() => empty),
+    getPositions: vi.fn(() => empty),
+    getMasters: vi.fn(() => empty),
+  };
+  TestBed.configureTestingModule({
+    imports: [StaffProfessionalStructure],
+    providers: [
+      ConfirmationService,
+      DialogService,
+      provideRouter([]),
+      { provide: ActivatedRoute, useValue: route },
+      {
+        provide: Common,
+        useValue: {
+          setPageHeaderInfo: vi.fn(),
+          setBreadcrumbItems: vi.fn(),
+          showMessage: vi.fn(),
+        },
+      },
+      {
+        provide: LookupStore,
+        useValue: { staffCategories: signal([]), reloadStaffCategories: vi.fn() },
+      },
+      { provide: StaffProfessionalStructureApi, useValue: api },
+    ],
+  });
+  const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+  return { api, navigate, route };
+}
+
+describe('StaffProfessionalStructure tab routing', () => {
+  let ctx: ReturnType<typeof setupRouting>;
   let component: StaffProfessionalStructure;
-  let navigate: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    route = { paramMap: new Subject() };
-    getMasters = vi.fn(() => empty);
-    getPositions = vi.fn(() => empty);
-    TestBed.configureTestingModule({
-      providers: [
-        ConfirmationService,
-        DialogService,
-        provideRouter([]),
-        { provide: ActivatedRoute, useValue: route },
-        {
-          provide: Common,
-          useValue: {
-            setPageHeaderInfo: vi.fn(),
-            setBreadcrumbItems: vi.fn(),
-            showMessage: vi.fn(),
-          },
-        },
-        {
-          provide: LookupStore,
-          useValue: { staffCategories: signal([]), reloadStaffCategories: vi.fn() },
-        },
-        {
-          provide: StaffProfessionalStructureApi,
-          useValue: {
-            getCategories: vi.fn(() => empty),
-            getPositions,
-            getMasters,
-          },
-        },
-      ],
-    });
-    navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    ctx = setupRouting();
     component = TestBed.runInInjectionContext(() => new StaffProfessionalStructure());
     component.ngOnInit();
   });
 
   it('selects and loads the tab named in the URL', () => {
-    route.paramMap.next(convertToParamMap({ tab: 'positions' }));
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'positions' }));
 
     expect(component.selectedTab()).toBe('positions');
-    expect(getPositions).toHaveBeenCalledWith(undefined, false);
+    expect(ctx.api.getPositions).toHaveBeenCalledWith(undefined, false);
 
-    route.paramMap.next(convertToParamMap({ tab: 'duties' }));
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'duties' }));
 
     expect(component.selectedTab()).toBe(StaffProfessionalMasterType.DutyDefinition);
-    expect(getMasters).toHaveBeenLastCalledWith(StaffProfessionalMasterType.DutyDefinition, false);
+    expect(ctx.api.getMasters).toHaveBeenLastCalledWith(
+      StaffProfessionalMasterType.DutyDefinition,
+      false,
+    );
   });
 
   it('refreshes the central categories when entering the workspace after Host changes', () => {
@@ -346,21 +349,62 @@ describe('StaffProfessionalStructure tab routing', () => {
   });
 
   it('replaces an unknown tab segment with job-families', () => {
-    route.paramMap.next(convertToParamMap({ tab: 'nope' }));
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'nope' }));
 
-    expect(navigate).toHaveBeenCalledWith(['..', 'job-families'], {
-      relativeTo: route,
+    expect(ctx.navigate).toHaveBeenCalledWith(['..', 'job-families'], {
+      relativeTo: ctx.route,
       replaceUrl: true,
     });
   });
+});
 
-  it('navigates to the clicked tab instead of switching in place', () => {
-    route.paramMap.next(convertToParamMap({ tab: 'job-families' }));
-    component.openTab('categories');
+describe('StaffProfessionalStructure tab bar', () => {
+  async function render() {
+    const ctx = setupRouting();
+    const fixture = TestBed.createComponent(StaffProfessionalStructure);
+    const root = fixture.nativeElement as HTMLElement;
+    await fixture.whenStable();
+    const show = async (tab: string) => {
+      ctx.route.paramMap.next(convertToParamMap({ tab }));
+      await fixture.whenStable();
+    };
+    const tab = (label: string) =>
+      [...root.querySelectorAll<HTMLElement>('[role="tab"]')].find(
+        (item) => item.textContent?.trim() === label,
+      );
+    const selectedTabs = () =>
+      [...root.querySelectorAll('[role="tab"][aria-selected="true"]')].map((item) =>
+        item.textContent?.trim(),
+      );
+    return { ...ctx, fixture, root, show, tab, selectedTabs };
+  }
 
-    expect(navigate).toHaveBeenCalledWith(['..', 'staff-categories'], {
-      relativeTo: route,
-    });
-    expect(component.selectedTab()).toBe(StaffProfessionalMasterType.JobFamily);
+  it('moves the selected tab with the route and labels the panel with it', async () => {
+    const { root, show, selectedTabs } = await render();
+
+    await show('positions');
+    expect(selectedTabs()).toEqual(['Positions']);
+
+    await show('staff-categories');
+    expect(selectedTabs()).toEqual(['Staff Categories']);
+
+    const panel = root.querySelector('[role="tabpanel"]');
+    const selected = root.querySelector('[role="tab"][aria-selected="true"]');
+    expect(panel?.getAttribute('aria-labelledby')).toBe(selected?.id);
+    expect(selected?.getAttribute('aria-controls')).toBe(panel?.id);
+    expect(root.querySelector('[role="tablist"]')?.getAttribute('aria-label')).toBe(
+      'Professional structure sections',
+    );
+  });
+
+  it('navigates to the clicked tab and keeps the panel visible meanwhile', async () => {
+    const { fixture, navigate, route, root, show, tab } = await render();
+    await show('job-families');
+
+    tab('Staff Categories')?.click();
+    await fixture.whenStable();
+
+    expect(navigate).toHaveBeenCalledWith(['..', 'staff-categories'], { relativeTo: route });
+    expect(root.querySelector<HTMLElement>('[role="tabpanel"]')?.hidden).toBe(false);
   });
 });

@@ -115,14 +115,10 @@ describe('StaffAcademicStructure', () => {
       });
     });
 
-    it('navigates to the clicked tab instead of switching in place', () => {
-      component.ngOnInit();
-      component.openTab(AcademicMasterType.Subject);
-
-      expect(navigate).toHaveBeenCalledWith(['..', 'subjects'], {
-        relativeTo: TestBed.inject(ActivatedRoute),
-      });
-      expect(component.selectedTab()).toBe(AcademicMasterType.Session);
+    it('gives each tab the URL segment that selects it', () => {
+      expect(component.tabs.find((tab) => tab.id === AcademicMasterType.Subject)?.route).toBe(
+        'subjects',
+      );
     });
 
     it('asks before deactivating, escapes the name, and calls the API only on accept', () => {

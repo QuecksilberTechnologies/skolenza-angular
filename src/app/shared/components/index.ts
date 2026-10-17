@@ -8,8 +8,8 @@ export { IconTile } from './icon-tile/icon-tile';
 export { PageInfo } from './navbar/page-info/page-info';
 export { Popup } from './popup/popup';
 export { ProBadge } from './pro-badge/pro-badge';
+export { RouteTabs, type RouteTab } from './route-tabs/route-tabs';
 export { StatusBadge, type StatusTone } from './status-badge/status-badge';
-export { TabBar, type TabBarItem } from './tab-bar/tab-bar';
 export { SubHeader } from './sub-header/sub-header';
 export { UserAvatar, type UserAvatarSize } from './user-avatar/user-avatar';
 

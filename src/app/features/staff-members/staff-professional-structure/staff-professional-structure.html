@@ -1,15 +1,13 @@
 <div class="h-[calc(100vh-4.6rem)] overflow-y-auto">
 <p-card class="m-3 p-3! sm:m-4 sm:p-4!">
-<div class="space-y-5">
-
-  <app-tab-bar ariaLabel="Professional structure sections" [tabs]="tabs" [selected]="selectedTab()" (tabChange)="openTab($event)">
+<app-route-tabs ariaLabel="Professional structure sections" [tabs]="tabs" [selected]="selectedTab()">
+  <div toolbar class="contents">
     <p-select class="min-w-36" name="statusFilter" ariaLabel="Filter by status" [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value" appendTo="body" />
     @if (canAdd()) {
     <p-button [label]="'Add ' + noun().singular" icon="pi pi-plus" [loading]="(selectedTab() === 'categories' || selectedTab() === 'positions') && referencesLoading()" (onClick)="openAdd()" />
     }
-  </app-tab-bar>
+    </div>
 
-  <div class="overflow-hidden rounded-card border border-zinc-200 dark:border-zinc-800">
     @if (selectedTab() === 'categories') {
       @if (loading() && !categories().length) {
       <app-list-skeleton [label]="'Loading ' + noun().plural + '...'" />
@@ -76,8 +74,7 @@
       }
       }
     }
-  </div>
-</div>
+</app-route-tabs>
 </p-card>
 
 <p-tieredmenu #rowMenu [model]="rowMenuItems()" [popup]="true" appendTo="body" />

@@ -24,10 +24,10 @@ import { Common, StaffAcademicStructureApi, StaffCurriculumDeliveryApi } from '@
 import { FeaturePageStore } from '@core/stores';
 import {
   ListSkeleton,
+  type RouteTab,
+  RouteTabs,
   StatusBadge,
   type StatusTone,
-  TabBar,
-  type TabBarItem,
   TableActionButton,
 } from '@shared/components';
 import {
@@ -72,13 +72,16 @@ export type CurriculumTab =
   | 'delivery-logs'
   | 'syllabus-progress';
 
-export const CURRICULUM_TABS: readonly TabBarItem<CurriculumTab>[] = [
-  { id: 'frameworks', label: 'Frameworks' },
-  { id: 'units-topics', label: 'Units & Topics' },
-  { id: 'lesson-plans', label: 'Lesson Plans' },
-  { id: 'delivery-logs', label: 'Delivery Logs' },
-  { id: 'syllabus-progress', label: 'Syllabus Progress' },
+export const CURRICULUM_TABS: readonly RouteTab<CurriculumTab>[] = [
+  { id: 'frameworks', label: 'Frameworks', route: 'frameworks' },
+  { id: 'units-topics', label: 'Units & Topics', route: 'units-topics' },
+  { id: 'lesson-plans', label: 'Lesson Plans', route: 'lesson-plans' },
+  { id: 'delivery-logs', label: 'Delivery Logs', route: 'delivery-logs' },
+  { id: 'syllabus-progress', label: 'Syllabus Progress', route: 'syllabus-progress' },
 ];
+
+const isCurriculumTab = (value: string | null): value is CurriculumTab =>
+  CURRICULUM_TABS.some((item) => item.id === value);
 
 /** Curriculum endpoints sit under the Staff Directory permission boundary (see module-operation-routes.ts). */
 const MODULE_CODE = 'STAFF_DIRECTORY';
@@ -94,9 +97,9 @@ type ReviewCode = Exclude<WorkflowCode, 'DRAFT'>;
     ConfirmDialogModule,
     FormsModule,
     ListSkeleton,
+    RouteTabs,
     SelectModule,
     StatusBadge,
-    TabBar,
     TableActionButton,
     TieredMenuModule,
   ],
@@ -169,8 +172,8 @@ export default class StaffCurriculumDelivery implements OnInit {
     ]);
     this.loadAll();
     this.#route.paramMap.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe((params) => {
-      const tab = CURRICULUM_TABS.find((item) => item.id === params.get('tab'))?.id;
-      if (!tab) {
+      const tab = params.get('tab');
+      if (!isCurriculumTab(tab)) {
         void this.#router.navigate(['..', CURRICULUM_TABS[0].id], {
           relativeTo: this.#route,
           replaceUrl: true,
