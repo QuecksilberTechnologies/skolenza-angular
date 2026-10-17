@@ -1,4 +1,5 @@
 import {
+  accessiblePrimaryStop,
   contrastRatio,
   contrastTextColor,
   hexToRgb,
@@ -133,5 +134,20 @@ describe('color utilities', () => {
     it('falls back to white for invalid hex', () => {
       expect(contrastTextColor('nope')).toBe('#ffffff');
     });
+  });
+});
+
+describe('accessiblePrimaryStop', () => {
+  it('should keep 500 when white text already passes on it', () => {
+    expect(accessiblePrimaryStop({ 500: '#1d4ed8', 600: '#1e40af' })).toBe(500);
+  });
+
+  it('should step down to the first stop that carries white text at 4.5:1', () => {
+    // palette('#4287f5'): 500 is 3.49:1, 600 is 4.63:1.
+    expect(accessiblePrimaryStop({ 500: '#4287f5', 600: '#3873d0', 700: '#2e5eac' })).toBe(600);
+  });
+
+  it('should fall back to 800 when no stop passes', () => {
+    expect(accessiblePrimaryStop({ 500: '#ffff00', 600: '#eeee00' })).toBe(800);
   });
 });

@@ -10,10 +10,11 @@ import { ProgressBarModule } from '@openng/optimus-ui/progressbar';
 import { ToastModule } from '@openng/optimus-ui/toast';
 
 import { FaviconApi } from '@core/services/favicon-api';
+import { InstitutionsApi } from '@core/services/institutions-api';
 import { LoadingStore } from '@core/services/loading-store';
 import { StorageApi } from '@core/services/storage-api';
-import { InstitutionsApi } from '@core/services/institutions-api';
 import { ThemeApi } from '@core/services/theme-api';
+import { accessiblePrimaryStop } from '@shared/utilities/color';
 
 @Component({
   selector: 'app-root',
@@ -102,6 +103,22 @@ export class App implements OnInit {
 
   async #applyBrandColor() {
     const brandColor = (await this.#institutionsApi.getBrandColor()) ?? '#4287f5';
-    updatePreset({ semantic: { primary: palette(brandColor) } });
+    const ramp = palette(brandColor) as Record<number, string>;
+    // Light theme: back every primary fill with a stop white text can sit on (dark keeps 400).
+    const stop = accessiblePrimaryStop(ramp);
+    updatePreset({
+      semantic: {
+        primary: ramp,
+        colorScheme: {
+          light: {
+            primary: {
+              color: `{primary.${stop}}`,
+              hoverColor: `{primary.${stop + 100}}`,
+              activeColor: `{primary.${stop + 200}}`,
+            },
+          },
+        },
+      },
+    });
   }
 }

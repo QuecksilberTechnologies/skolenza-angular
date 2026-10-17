@@ -28,7 +28,7 @@ import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { MessageModule } from '@openng/optimus-ui/message';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { Droplet, LucideAngularModule } from 'lucide-angular';
-import { finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 
 import { Common } from '@core/services/common';
 import { RolesApi } from '@core/services/roles-api';
@@ -94,6 +94,7 @@ export class StaffMemberManageDialog implements OnInit {
   readonly #professionalApi = inject(StaffProfessionalStructureApi);
   readonly #commonService = inject(Common);
   readonly #destroyRef = inject(DestroyRef);
+  #positionsSubscription?: Subscription;
   readonly #route = inject(ActivatedRoute);
   readonly #lookupStore = inject(LookupStore);
   readonly #authStore = inject(AuthStore);
@@ -394,6 +395,8 @@ export class StaffMemberManageDialog implements OnInit {
   onStaffCategoryChange(institutionStaffCategoryMasterId: number): void {
     this.staffMemberForm.controls.staffJobFamilyMasterId.setValue(undefined);
     this.staffMemberForm.controls.staffPositionMasterId.setValue(undefined);
+    // Drop the previous category's families so none can be picked before the response lands.
+    this.jobFamilyOptions.set([]);
     this.loadPositions(institutionStaffCategoryMasterId);
   }
 
@@ -427,12 +430,19 @@ export class StaffMemberManageDialog implements OnInit {
             this.staffMemberForm.controls.staffJobFamilyMasterId.value,
           );
         },
-        error: (error) => this.#commonService.showMessage(error.message, 'error'),
+        error: (error) => {
+          // loadPositions() owns the reset on success; on failure it never runs.
+          this.isLoadingProfessionalStructure.set(false);
+          this.#commonService.showMessage(error.message, 'error');
+        },
       });
   }
 
   private loadPositions(institutionStaffCategoryMasterId?: number, jobFamilyId?: number): void {
-    this.#professionalApi
+    // Latest request wins: a slower response for an earlier category must not overwrite it.
+    this.#positionsSubscription?.unsubscribe();
+    this.isLoadingProfessionalStructure.set(true);
+    this.#positionsSubscription = this.#professionalApi
       .getPositions(institutionStaffCategoryMasterId)
       .pipe(
         finalize(() => this.isLoadingProfessionalStructure.set(false)),

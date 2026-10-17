@@ -17,14 +17,14 @@
       <section
         [class.max-h-[calc(100vh-18rem)]]="!isPageMode"
         [class.overflow-y-auto]="!isPageMode"
-        [class.rounded-xl]="isPageMode"
-        [class.border]="isPageMode"
-        [class.border-gray-200]="isPageMode"
+        [class.rounded-card]="isPageMode"
+        [class.dark:border]="isPageMode"
         [class.bg-white]="isPageMode"
         [class.p-4]="isPageMode"
         [class.shadow-sm]="isPageMode"
         [class.sm:p-5]="isPageMode"
-        [class.dark:border-zinc-700]="isPageMode"
+        [class.dark:shadow-none]="isPageMode"
+        [class.dark:border-zinc-800]="isPageMode"
         [class.dark:bg-zinc-900]="isPageMode"
       >
         @if (isPageMode) {
@@ -36,14 +36,14 @@
               staff details' }}
             </h2>
           </div>
-          <p class="mt-1 text-sm text-gray-500 dark:text-zinc-400">
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             Personal, employment and professional assignment information for
             this staff account.
           </p>
         </div>
         }
         <div class="grid grid-cols-1 gap-4">
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <!-- First Name -->
             <div class="space-y-1">
               <label for="firstName" class="block font-medium">
@@ -560,7 +560,10 @@
                 [options]="jobFamilyOptions()"
                 optionLabel="name"
                 optionValue="id"
-                [loading]="isLoadingProfessionalStructure()"
+                [loading]="
+                  isLoadingProfessionalStructure() &&
+                  !!staffMemberForm.controls.institutionStaffCategoryMasterId.value
+                "
                 [disabled]="!staffMemberForm.controls.institutionStaffCategoryMasterId.value"
                 placeholder="Select a job family"
                 [ariaLabelledBy]="
@@ -576,7 +579,7 @@
               @if (showJobFamilyHint()) {
               <small
                 id="staffJobFamilyMasterId-hint"
-                class="block text-sm text-gray-500 dark:text-zinc-400"
+                class="block text-sm text-zinc-500 dark:text-zinc-400"
               >
                 Select a staff category first.
               </small>
@@ -601,7 +604,10 @@
                 [options]="positionOptions()"
                 optionLabel="name"
                 optionValue="id"
-                [loading]="isLoadingProfessionalStructure()"
+                [loading]="
+                  isLoadingProfessionalStructure() &&
+                  !!staffMemberForm.controls.staffJobFamilyMasterId.value
+                "
                 [disabled]="
                   !staffMemberForm.controls.staffJobFamilyMasterId.value
                 "
@@ -618,7 +624,7 @@
               @if (showPositionHint()) {
               <small
                 id="staffPositionMasterId-hint"
-                class="block text-sm text-gray-500 dark:text-zinc-400"
+                class="block text-sm text-zinc-500 dark:text-zinc-400"
               >
                 Select a job family first.
               </small>
@@ -667,10 +673,10 @@
       [class.bottom-0]="isPageMode"
       [class.z-10]="isPageMode"
       [class.border-t]="isPageMode"
-      [class.border-gray-200]="isPageMode"
+      [class.border-zinc-200]="isPageMode"
       [class.bg-white]="isPageMode"
       [class.py-3]="isPageMode"
-      [class.dark:border-zinc-700]="isPageMode"
+      [class.dark:border-zinc-800]="isPageMode"
       [class.dark:bg-zinc-900]="isPageMode"
     >
       <!-- Aligns the actions with the card edge above -->

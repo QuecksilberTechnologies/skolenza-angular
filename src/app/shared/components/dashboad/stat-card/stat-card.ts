@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { RouterLink } from '@angular/router';
 
 const CARD_CLASSES =
-  'flex h-full items-center gap-3 rounded-[0.8rem] bg-white p-5 shadow-sm sm:gap-4 dark:border dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none';
+  'flex h-full items-center gap-3 rounded-card bg-white p-5 shadow-sm sm:gap-4 dark:border dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none';
 
 /** One KPI on a dashboard's top row: tinted icon, big number, label. A `link` makes it a link. */
 @Component({
