@@ -50,12 +50,22 @@ export const STAFF_MEMBERS_ROUTES: Routes = [
   },
   {
     path: 'academic-structure',
+    pathMatch: 'full',
+    redirectTo: 'academic-structure/sessions',
+  },
+  {
+    path: 'academic-structure/:tab',
     loadComponent: () => import('./staff-academic-structure/staff-academic-structure'),
     title: `Academic Structure | ${titleSuffix}`,
     canActivate: adminManager,
   },
   {
     path: 'curriculum-delivery',
+    pathMatch: 'full',
+    redirectTo: 'curriculum-delivery/frameworks',
+  },
+  {
+    path: 'curriculum-delivery/:tab',
     loadComponent: () => import('./staff-curriculum-delivery/staff-curriculum-delivery'),
     title: `Curriculum & Lesson Delivery | ${titleSuffix}`,
     canActivate: adminManager,
