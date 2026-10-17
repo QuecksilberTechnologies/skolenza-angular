@@ -55,7 +55,7 @@ export default class PayrollOverview {
   protected searchText = '';
 
   readonly statusOptions = [
-    { label: 'All', value: null },
+    { label: 'All statuses', value: null },
     { label: 'Processed', value: 'processed' },
     { label: 'Pending', value: 'pending' },
   ];
@@ -110,7 +110,9 @@ export default class PayrollOverview {
       .payslips()
       .find(
         (p) =>
-          p.staffMemberId === record.staffMemberId && p.month === record.month && p.year === record.year,
+          p.staffMemberId === record.staffMemberId &&
+          p.month === record.month &&
+          p.year === record.year,
       );
     if (slip) {
       this.#openPayslipDialog(slip);
