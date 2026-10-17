@@ -19,7 +19,7 @@ import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TieredMenu, TieredMenuModule } from '@openng/optimus-ui/tieredmenu';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
-import { Observable, Subscription } from 'rxjs';
+import { forkJoin, map, Observable, of, Subscription } from 'rxjs';
 
 import { Common, StaffAcademicStructureApi } from '@core/services';
 import { FeaturePageStore } from '@core/stores';
@@ -37,7 +37,6 @@ import {
   ClassTeacherAssignment,
   StaffAcademicProfile,
   StaffTeachingAssignment,
-  TeachingAssignmentTypeOption,
 } from '@shared/interfaces';
 import { openManageDialog } from '@shared/utilities/manage-dialog';
 import { pendingCounter } from '@shared/utilities/pending-counter';
@@ -75,6 +74,22 @@ const TAB_NOUNS: Record<AcademicMasterType, { singular: string; plural: string }
   [AcademicMasterType.Subject]: { singular: 'Subject', plural: 'Subjects' },
   [AcademicMasterType.CourseOffering]: { singular: 'Course Offering', plural: 'Course Offerings' },
 };
+
+/** Master lists each tab's add/edit dialog needs for its pickers, fetched when it opens. */
+const MASTER_DIALOG_REFERENCES: Record<AcademicMasterType, AcademicMasterType[]> = {
+  [AcademicMasterType.Session]: [],
+  [AcademicMasterType.Programme]: [],
+  [AcademicMasterType.Group]: [AcademicMasterType.Session, AcademicMasterType.Programme],
+  [AcademicMasterType.Section]: [AcademicMasterType.Group],
+  [AcademicMasterType.Subject]: [],
+  [AcademicMasterType.CourseOffering]: [
+    AcademicMasterType.Session,
+    AcademicMasterType.Group,
+    AcademicMasterType.Subject,
+  ],
+};
+
+type MasterLists = Partial<Record<AcademicMasterType, AcademicMaster[]>>;
 
 /** Academic-structure endpoints sit under the Staff Directory permission boundary (see module-operation-routes.ts). */
 const MODULE_CODE = 'STAFF_DIRECTORY';
@@ -119,14 +134,7 @@ export default class StaffAcademicStructure implements OnInit {
   }));
   readonly selectedTab = signal(AcademicMasterType.Session);
   readonly records = signal<AcademicMaster[]>([]);
-  readonly sessions = signal<AcademicMaster[]>([]);
-  readonly programmes = signal<AcademicMaster[]>([]);
-  readonly groups = signal<AcademicMaster[]>([]);
-  readonly sections = signal<AcademicMaster[]>([]);
-  readonly subjects = signal<AcademicMaster[]>([]);
-  readonly offerings = signal<AcademicMaster[]>([]);
   readonly academicProfile = signal<StaffAcademicProfile>(EMPTY_PROFILE);
-  readonly assignmentTypes = signal<TeachingAssignmentTypeOption[]>([]);
   readonly staffMemberId = signal<string | null>(null);
   readonly #listLoad = pendingCounter();
   #selectedLoad?: Subscription;
@@ -163,7 +171,6 @@ export default class StaffAcademicStructure implements OnInit {
       { label: 'Staff Directory', routerLink: '/app/staff' },
       { label: staffMemberId ? 'Academic Assignments' : 'Academic Structure' },
     ]);
-    this.loadReferences();
     if (staffMemberId) {
       this.loadProfile();
       return;
@@ -189,57 +196,61 @@ export default class StaffAcademicStructure implements OnInit {
   }
 
   openMasterDialog(master?: AcademicMaster): void {
-    const data: AcademicMasterDialogData = {
-      type: this.selectedTab(),
-      master,
-      sessions: this.sessions(),
-      programmes: this.programmes(),
-      groups: this.groups(),
-      subjects: this.subjects(),
-    };
-    this.#openDialog(
-      AcademicMasterDialog,
-      data,
-      `${master ? 'Edit' : 'Add'} ${this.noun().singular}`,
-      '40rem',
-      () => {
-        // Every master type feeds another tab's pickers.
-        this.loadReferences();
-        this.loadSelected();
-      },
-    );
+    const type = this.selectedTab();
+    const header = `${master ? 'Edit' : 'Add'} ${this.noun().singular}`;
+    this.#withReferences(this.#loadMasters(MASTER_DIALOG_REFERENCES[type]), (lists) => {
+      const data: AcademicMasterDialogData = {
+        type,
+        master,
+        sessions: lists[AcademicMasterType.Session] ?? [],
+        programmes: lists[AcademicMasterType.Programme] ?? [],
+        groups: lists[AcademicMasterType.Group] ?? [],
+        subjects: lists[AcademicMasterType.Subject] ?? [],
+      };
+      this.#openDialog(AcademicMasterDialog, data, header, '40rem', () => this.loadSelected());
+    });
   }
 
   openTeachingDialog(assignment?: StaffTeachingAssignment): void {
-    const data: TeachingAssignmentDialogData = {
-      staffMemberId: this.staffMemberId() ?? '',
-      assignment,
-      offerings: this.offerings(),
-      sections: this.sections(),
-      assignmentTypes: this.assignmentTypes(),
-    };
-    this.#openDialog(
-      TeachingAssignmentDialog,
-      data,
-      `${assignment ? 'Edit' : 'Add'} Teaching Assignment`,
-      '44rem',
-      () => this.loadProfile(),
-    );
+    const references = forkJoin({
+      lists: this.#loadMasters([AcademicMasterType.CourseOffering, AcademicMasterType.Section]),
+      assignmentTypes: this.#api
+        .getTeachingAssignmentTypes()
+        .pipe(map((response) => (response.isSucceeded ? response.data : []))),
+    });
+    this.#withReferences(references, ({ lists, assignmentTypes }) => {
+      const data: TeachingAssignmentDialogData = {
+        staffMemberId: this.staffMemberId() ?? '',
+        assignment,
+        offerings: lists[AcademicMasterType.CourseOffering] ?? [],
+        sections: lists[AcademicMasterType.Section] ?? [],
+        assignmentTypes,
+      };
+      this.#openDialog(
+        TeachingAssignmentDialog,
+        data,
+        `${assignment ? 'Edit' : 'Add'} Teaching Assignment`,
+        '44rem',
+        () => this.loadProfile(),
+      );
+    });
   }
 
   openClassTeacherDialog(assignment?: ClassTeacherAssignment): void {
-    const data: ClassTeacherDialogData = {
-      staffMemberId: this.staffMemberId() ?? '',
-      assignment,
-      sections: this.sections(),
-    };
-    this.#openDialog(
-      ClassTeacherDialog,
-      data,
-      `${assignment ? 'Edit' : 'Add'} Class Teacher Responsibility`,
-      '36rem',
-      () => this.loadProfile(),
-    );
+    this.#withReferences(this.#loadMasters([AcademicMasterType.Section]), (lists) => {
+      const data: ClassTeacherDialogData = {
+        staffMemberId: this.staffMemberId() ?? '',
+        assignment,
+        sections: lists[AcademicMasterType.Section] ?? [],
+      };
+      this.#openDialog(
+        ClassTeacherDialog,
+        data,
+        `${assignment ? 'Edit' : 'Add'} Class Teacher Responsibility`,
+        '36rem',
+        () => this.loadProfile(),
+      );
+    });
   }
 
   // The backend DELETE endpoints soft-deactivate (isActive = false); nothing is hard-deleted.
@@ -358,26 +369,27 @@ export default class StaffAcademicStructure implements OnInit {
       });
   }
 
-  private loadReferences(): void {
-    this.#api
-      .getTeachingAssignmentTypes()
-      .pipe(takeUntilDestroyed(this.#destroyRef))
-      .subscribe((response) => this.assignmentTypes.set(response.isSucceeded ? response.data : []));
-    const targets: [AcademicMasterType, (rows: AcademicMaster[]) => void][] = [
-      [AcademicMasterType.Session, (rows) => this.sessions.set(rows)],
-      [AcademicMasterType.Programme, (rows) => this.programmes.set(rows)],
-      [AcademicMasterType.Group, (rows) => this.groups.set(rows)],
-      [AcademicMasterType.Section, (rows) => this.sections.set(rows)],
-      [AcademicMasterType.Subject, (rows) => this.subjects.set(rows)],
-      [AcademicMasterType.CourseOffering, (rows) => this.offerings.set(rows)],
-    ];
-    for (const [type, assign] of targets) {
-      this.#api
-        // Inactive rows too: a dialog keeps an already linked inactive parent visible but locked.
-        .getMasters(type, false)
-        .pipe(takeUntilDestroyed(this.#destroyRef))
-        .subscribe((response) => assign(response.isSucceeded ? response.data : []));
-    }
+  /** Fetches only the given master lists, keyed by type. */
+  #loadMasters(types: AcademicMasterType[]): Observable<MasterLists> {
+    if (!types.length) return of({});
+    const requests = Object.fromEntries(
+      types.map((type) => [
+        type,
+        this.#api
+          // Inactive rows too: a dialog keeps an already linked inactive parent visible but locked.
+          .getMasters(type, false)
+          .pipe(map((response) => (response.isSucceeded ? response.data : []))),
+      ]),
+    );
+    return forkJoin(requests) as Observable<MasterLists>;
+  }
+
+  /** Waits for a dialog's picker lists, then opens it; a failed fetch shows the error instead. */
+  #withReferences<T>(references: Observable<T>, open: (value: T) => void): void {
+    references.pipe(takeUntilDestroyed(this.#destroyRef)).subscribe({
+      next: open,
+      error: (error) => this.#common.showMessage(error.message, 'error'),
+    });
   }
 
   private loadProfile(): void {
@@ -409,7 +421,6 @@ export default class StaffAcademicStructure implements OnInit {
         this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
         if (!response.isSucceeded) return;
         if (isMaster) {
-          this.loadReferences();
           this.loadSelected();
         } else {
           this.loadProfile();

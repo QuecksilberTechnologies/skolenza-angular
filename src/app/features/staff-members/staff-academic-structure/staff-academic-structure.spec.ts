@@ -105,6 +105,23 @@ describe('StaffAcademicStructure', () => {
       expect(component.tabs.map((tab) => tab.label)).toContain('Course Offerings');
     });
 
+    it('fetches only the selected tab list on visit', () => {
+      component.ngOnInit();
+
+      expect(api['getMasters']).toHaveBeenCalledOnce();
+      expect(api['getMasters']).toHaveBeenCalledWith(AcademicMasterType.Session, false);
+      expect(api['getTeachingAssignmentTypes']).not.toHaveBeenCalled();
+    });
+
+    it('fetches only the picker lists the opened dialog needs', () => {
+      vi.spyOn(TestBed.inject(DialogService), 'open').mockReturnValue(null);
+      component.selectedTab.set(AcademicMasterType.Section);
+
+      component.openMasterDialog();
+
+      expect(api['getMasters'].mock.calls).toEqual([[AcademicMasterType.Group, false]]);
+    });
+
     it('replaces an unknown tab segment with sessions', () => {
       component.ngOnInit();
       paramMap.next(convertToParamMap({ tab: 'nope' }));
@@ -196,9 +213,21 @@ describe('StaffAcademicStructure', () => {
       component.ngOnInit();
 
       expect(api['getStaffProfile']).toHaveBeenCalledWith('S-1');
-      // Only the six reference lists load; no master tab list.
-      expect(api['getMasters']).toHaveBeenCalledTimes(6);
+      // Picker lists load only when a dialog opens.
+      expect(api['getMasters']).not.toHaveBeenCalled();
       expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('fetches offerings, sections and assignment types when the teaching dialog opens', () => {
+      vi.spyOn(TestBed.inject(DialogService), 'open').mockReturnValue(null);
+
+      component.openTeachingDialog();
+
+      expect(api['getMasters'].mock.calls).toEqual([
+        [AcademicMasterType.CourseOffering, false],
+        [AcademicMasterType.Section, false],
+      ]);
+      expect(api['getTeachingAssignmentTypes']).toHaveBeenCalledOnce();
     });
   });
 });
