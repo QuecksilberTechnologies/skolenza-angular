@@ -107,6 +107,7 @@
                   class="min-w-0 flex-1 cursor-pointer truncate py-1 text-gray-700 dark:text-zinc-100"
                   tooltipPosition="top"
                   [pTooltip]="item.name"
+                  [showDelay]="500"
                   [for]="inputId">
                   {{ item.name }}
                   @if (item.inactive) {
@@ -124,6 +125,7 @@
                     "
                     [pTooltip]="item.isMandatory ? 'Make optional' : 'Make required'"
                     tooltipPosition="top"
+                    [showDelay]="500"
                     (click)="toggleMandatory(row)">
                     <span class="sr-only">{{ item.name }}:</span>
                     {{ item.isMandatory ? 'Required' : 'Optional' }}
