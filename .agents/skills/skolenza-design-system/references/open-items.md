@@ -2,7 +2,7 @@
 
 # Open items
 
-> Ported from AxionPro `open-items_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 > **Status:** Backlog · **Related:** [Accessibility](./accessibility.md) · [Governance](./governance.md)
 
@@ -16,8 +16,7 @@ item means changing the code, not the document.
 
 | ID | Finding | Fix | Detail |
 | --- | --- | --- | --- |
-| **A11Y-01…08** | Measured contrast and focus failures | Per-row fixes | [Accessibility → Contrast audit](./accessibility.md#4-contrast-audit) is the live list; re-check each row there |
-| **A11Y-09** | `get-new-joiner-badge-pipe.ts` paints white text on `-500` fills: `#ffffff` on `#22c55e` 2.28:1, on `#3b82f6` 3.68:1, on `#f59e0b` 2.15:1 (10px text, needs 4.5:1) | Use `-700` fills (or tinted `-50` bg + `-700` text) via classes, not inline hex | Rendered in `features/staff-members/staff-members.html` |
+| **A11Y-03…05, 07, 08** | Measured contrast and focus failures | Per-row fixes | [Accessibility → Contrast audit](./accessibility.md#4-contrast-audit) is the live list; re-check each row there |
 | **A11Y-10** | Status / priority tags in `features/projects/list-view/list-view.component.html` force `dark:text-white!` over the pastel inline backgrounds: 1.14–1.35:1 in dark mode | Fold into DS-02 | — |
 
 These block the next release. `.claude/docs/accessibility.md` requires AXE-clean and WCAG AA
@@ -55,7 +54,7 @@ minimums, so these are bugs rather than enhancements.
 
 | Priority | Items | Rationale |
 | --- | --- | --- |
-| **P0 — before release** | A11Y-01 … A11Y-10, DS-03, DS-04 | WCAG AA failures; the project's own accessibility policy requires them closed |
+| **P0 — before release** | A11Y-03…05, 07, 08, 10, DS-03, DS-04 | WCAG AA failures; the project's own accessibility policy requires them closed |
 | **P1 — next sprint** | DS-01, DS-02, DS-15 | Colour correctness and tokenisation; visible copy defect on the reference page |
 | **P2 — opportunistic** | DS-07, DS-08, DS-09, DS-11, DS-12, DS-14 | Consistency debt. Fix when touching the file, per [Governance §2](./governance.md#2-change-process) |
 | **P3 — performance** | DS-06 | Real, but measure the render-block cost before scheduling |

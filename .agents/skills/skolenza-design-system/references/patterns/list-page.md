@@ -2,7 +2,7 @@
 
 # Pattern — List page
 
-> Ported from AxionPro `list-page_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 > **Ownership:** T1 — Shared components · **Status:** Normative
 > **Reference implementation:** `src/app/features/staff-members/` (`staff-members.html`)
@@ -124,7 +124,7 @@ Where the reference page itself lags a rule (R12, R20, copy), the rule wins; see
       <ng-template #header>
         <tr class="bg-gray-50 dark:bg-zinc-800">
           <th pSortableColumn="name"
-              class="max-w-52 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
+              class="max-w-52 px-3! py-3! align-middle text-gray-700 dark:text-zinc-100">
             <div class="flex items-center gap-2">Name <p-sortIcon field="name" /></div>
           </th>
           <!-- … -->
@@ -133,7 +133,7 @@ Where the reference page itself lags a rule (R12, R20, copy), the rule wins; see
 
       <ng-template #body let-row>
         <tr [pContextMenuRow]="row">
-          <td class="max-w-52 !px-3 !py-3 align-middle text-gray-700 dark:text-zinc-100">
+          <td class="max-w-52 px-3! py-3! align-middle text-gray-700 dark:text-zinc-100">
             <div class="truncate" [pTooltip]="row.name" tooltipPosition="bottom">{{ row.name }}</div>
           </td>
           <!-- … -->

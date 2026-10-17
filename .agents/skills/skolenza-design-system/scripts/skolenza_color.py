@@ -200,7 +200,7 @@ AUDIT_PAIRS: List[Tuple[str, str, str, bool]] = [
     ("         muted text, light", "#71717a", "#fafafa", False),
     ("         muted text, dark", "#94a3b8", SLATE_900, False),
     ("         table cell text, dark", "#f1f5f9", SLATE_900, False),
-        ("         proposed info text", WHITE, "#2563eb", False),
+    ("         proposed info text", WHITE, "#2563eb", False),
 ]
 
 

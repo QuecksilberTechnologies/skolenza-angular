@@ -1,8 +1,8 @@
-[← Index](../README.md) · [← Color](./color.md)
+[← Index](../README.md) · [← Colour](./color.md)
 
 # Typography
 
-> Ported from AxionPro `typography_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Source of truth:** `src/styles.css` (`html { font-size }`, the Inter `@import`)
 > **Related:** [Accessibility](../accessibility.md) · [Spacing](./spacing.md) · [Tokens](../tokens/README.md)
@@ -60,7 +60,7 @@ still **640px** — which is exactly why `styles.css` can hand-write `@media (ma
 for the paginator and have it line up with `sm:`. See [Grid](./grid.md).
 
 **3. What counts as "large text" changes.** `text-2xl` (19.5px) is still *normal* text for WCAG
-unless bold. Only `text-3xl` and above qualify as large — so the stat-card numerals need 4.5:1, not
+unless bold. Only `text-3xl` and above qualify as large — so the stat-card numerals below `sm:` need 4.5:1, not
 3:1. See [Accessibility](../accessibility.md#1-contrast-thresholds).
 
 ---
@@ -128,13 +128,13 @@ Letter-spacing is expressed in `em` so it tracks the size. `line-height` is unit
 
 - **One `<h1>` per route.** `app-sub-header` should own it (today an `<h4>`). Feature cards start at
   `<h2>` (`app-section-card [heading]`), so the outline never skips a level.
-- **Never set a size below `text-xs`.** `text-[10px]` is for `aria-hidden` chip glyphs (drift: the
+- **Never render visible text smaller than `text-xs`.** `text-[10px]` is only for `aria-hidden` chip glyphs (drift: the
   `staff-members` new-joiner and role-count badges use it for visible text).
 - **Weight before size for emphasis.** Line-height loosens at small sizes (1.5–1.6) and tightens at
   display sizes (1.1–1.2); a size bump disturbs dense table rhythm, `font-semibold` does not.
 - **Truncate, don't wrap, in table cells:** `truncate` + `max-w-*` + `pTooltip` carrying the full
   value.
-- **Negative tracking above 16px, positive below 11px**, as corrections on Inter's optical sizing.
+- **Negative tracking on headings and display sizes, slight positive tracking on captions and small labels**, as corrections on Inter's optical sizing.
 - **Numbers align.** Any column of numerals gets `tabular-nums`.
 
 ---

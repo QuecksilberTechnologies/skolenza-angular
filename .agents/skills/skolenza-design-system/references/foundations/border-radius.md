@@ -2,7 +2,7 @@
 
 # Border Radius
 
-> Ported from AxionPro `border-radius_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Source of truth:** Aura `borderRadius` primitives, `--p-card-border-radius` in `src/styles.css`
@@ -44,7 +44,7 @@ badge makes it look broken; applying `radius-sm` to a modal makes it look unfini
 **Inner radius = outer radius − padding.**
 
 A `radius-card` (10.4px) card with `p-4` (13px) holding a full-width child → the child is
-`radius-none` or `radius-sm`, never `radius-card` again. Concentric radii read as sloppy.
+`radius-none` or `radius-sm`, never `radius-card` again. Repeating the outer radius on the inner element reads as sloppy.
 
 ### `radius-full` has a meaning
 

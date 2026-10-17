@@ -2,11 +2,11 @@
 
 # Elevation & Shadows
 
-> Ported from AxionPro `elevation_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Source of truth:** Aura preset overlay tokens (`@openng/optimus-ui-themes`), Tailwind v4 `--shadow-*`, `src/styles.css`
-> **Related:** [Color → Dark theme](./color.md#9-dark-theme) · [Border radius](./border-radius.md) · [Tokens](../tokens/README.md)
+> **Related:** [Colour → Dark theme](./color.md#9-dark-theme) · [Border radius](./border-radius.md) · [Tokens](../tokens/README.md)
 
 ---
 
@@ -48,7 +48,7 @@ a dialog inside a drawer is a design failure, not a shadow problem.
 
 ## 3. Use cases
 
-Dark-column classes are written `zinc` and render slate (see [Color §1](./color.md#1-architecture)).
+Dark-column classes are written `zinc` and render slate (see [Colour §1](./color.md#1-architecture)).
 
 | Surface | Light | Dark |
 | --- | --- | --- |

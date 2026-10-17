@@ -2,7 +2,7 @@
 
 # Governance
 
-> Ported from AxionPro `governance_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Related:** [Introduction](./introduction.md) · [Tokens](./tokens/README.md) · [Open items](./open-items.md)
@@ -120,8 +120,8 @@ Every UI PR must satisfy all of the following before review.
 **One rule, one place.** If a rule already lives in `.claude/docs/`, this folder links to it rather
 than restating it.
 
-The AxionPro `*_old.md` originals were removed on 2026-10-15; recover them from git history
-(commit `0c786d5`) if needed. Record new decisions only in the current files.
+Earlier source versions of these documents are in git history (commit `0c786d5`). Record new
+decisions only in the current files.
 
 ---
 

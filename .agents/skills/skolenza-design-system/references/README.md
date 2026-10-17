@@ -1,6 +1,6 @@
 # Skolenza Design System
 
-> Ported from AxionPro `README_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 **Codename:** Skolenza DS · **Version:** 1.0 — Foundations & Tokens · **Status:** Normative
 **Applies to:** `skolenza-angular` (Skolenza school / institution management frontend)
@@ -91,10 +91,10 @@ TYPE        root 13px · Inter · body-md = text-sm (11.4px) · h1 = text-2xl (1
 SPACE       step 3.25px · inline gap-2 · block gap-4 · cell px-3 py-3 · page m-3/sm:m-4
 GRID        sm 640 · md 768 · lg 1024 (layout pivot) · xl 1280 · 2xl 1536
             table min 60rem · form max 40rem · drawer 40rem · header 55px
-RADIUS      controls md 6px · cards 0.8rem · chips/avatars full
+RADIUS      Optimus controls 6px · Tailwind rounded-md 4.9px · cards 0.8rem · chips/avatars full
 SHADOW      cards sm · overlays md · drawer lg · modal xl · dark = none + border
 MOTION      hover 200ms · layout 300ms · ease-in-out · reduce-motion: local only (gap)
-Z-INDEX     sticky 10 · scrim 14 · drawer 15 · overlay 1000 · modal 1100 · toast 1200
+Z-INDEX     sticky 10 · scrim 14 · drawer 15 · overlay 1000 · modal/tooltip 1100 · toast = Optimus default (unverified)
 ```
 
 ## The three rules that catch most mistakes

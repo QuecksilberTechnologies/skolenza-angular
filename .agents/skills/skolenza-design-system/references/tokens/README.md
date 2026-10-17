@@ -2,11 +2,11 @@
 
 # Design Tokens
 
-> Ported from AxionPro `README_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Machine-readable source:** [`tokens.json`](./tokens.json)
-> **Related:** [Color](../foundations/color.md) · [Typography](../foundations/typography.md) · [Governance](../governance.md)
+> **Related:** [Colour](../foundations/color.md) · [Typography](../foundations/typography.md) · [Governance](../governance.md)
 
 ---
 
@@ -45,9 +45,9 @@ z-modal                        category-concept
 
 ## 2. Token categories
 
-### 2.1 Color
+### 2.1 Colour
 
-Full tables with HEX, RGB and usage live in [Foundations → Color](../foundations/color.md).
+Full tables with HEX, RGB and usage live in [Foundations → Colour](../foundations/color.md).
 Light neutrals are **zinc**; dark neutrals are **slate** — the preset's dark `surface` maps to
 `{slate.*}`, and `src/styles.css` remaps `--color-zinc-*` to `--color-slate-*` under `.dark`.
 
@@ -68,10 +68,10 @@ Light neutrals are **zinc**; dark neutrals are **slate** — the preset's dark `
 | `color-text-body` | `#3f3f46` | `#f1f5f9` | `--p-text-color` |
 | `color-text-muted` | `#71717a` | `#94a3b8` | `--color-text-secondary-light/-dark` |
 | `color-text-placeholder` | `#71717a` | `#94a3b8` | `--p-form-field-placeholder-color` |
-| `color-success-{50,400,500,600,700}` | see Color | shift up one stop | app tokens |
-| `color-warning-{50,400,500,600,700}` | see Color | shift up one stop | app tokens |
-| `color-error-{50,300,400,500,600}` | see Color | shift up one stop | `--p-red-400` inside `.form-invalid-visible` (invalid borders are neutralised app-wide otherwise) |
-| `color-info-{50,400,500,600}` | see Color | shift up one stop | app tokens |
+| `color-success-{50,400,500,600,700}` | see Colour | shift up one stop | app tokens |
+| `color-warning-{50,400,500,600,700}` | see Colour | shift up one stop | app tokens |
+| `color-error-{50,300,400,500,600}` | see Colour | shift up one stop | `--p-red-400` inside `.form-invalid-visible` (invalid borders are neutralised app-wide otherwise) |
+| `color-info-{50,400,500,600}` | see Colour | shift up one stop | app tokens |
 | `color-accent-avatar-{01..16}` | fixed | fixed | `shared/directives/avatar-color.ts` |
 | `color-accent-progress` | `#ca1922` | `#ca1922` | `--ng-progress-color` |
 | `color-mask` | `rgba(0,0,0,0.4)` | `rgba(0,0,0,0.6)` | `--p-mask-background` |
@@ -80,8 +80,8 @@ Light neutrals are **zinc**; dark neutrals are **slate** — the preset's dark `
 
 | Token | Value | Emitted as |
 | --- | --- | --- |
-| `font-family-sans` | `'Inter', ui-sans-serif, system-ui, sans-serif` | `body { font-family }` (code: `'Inter', sans-serif`) |
-| `font-family-mono` | `ui-monospace, SFMono-Regular, Menlo, monospace` | `--font-mono` |
+| `font-family-sans` | `'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` | `body { font-family }` (code: `'Inter', sans-serif`) |
+| `font-family-mono` | `ui-monospace, SFMono-Regular, Menlo, Consolas, monospace` | `--font-mono` |
 | `font-size-root` | `0.8125rem` (13px) | `html { font-size }` |
 | `font-size-{xs..5xl}` | 0.75 – 3 rem | `text-*` |
 | `font-weight-regular` / `-medium` / `-semibold` / `-bold` | 400 / 500 / 600 / 700 | `font-*` |
@@ -169,14 +169,14 @@ A single ordered scale. **No `z-index` literal may appear outside this table.**
 | `z-sticky` | `10` | Sticky in-page chrome | App header wrapper (`sticky top-0 z-10`, `layout.html`), sticky table header |
 | `z-scrim` | `14` | Mobile sidebar scrim | `.mobile-overlay` (`layout.css`) |
 | `z-drawer` | `15` | Off-canvas sidebar | `.app-aside-menu` below 1024px (`layout.css`) |
+| `z-progress` | `50` | Route progress bar | `fixed! top-0! z-50!` wrapper in `src/app/app.html`. Sits below the `1000+` overlay band, so an open overlay can cover it |
 | `z-overlay` | `1000` | Anchored overlays | Optimus select panels, popovers, tiered / context menus (`appendTo="body"`) |
 | `z-modal` | `1100` | Blocking dialogs | `p-dialog`, `p-confirmDialog`, `p-drawer` |
 | `z-tooltip` | `1100` | Tooltips | `pTooltip` — sits with modals so it works *inside* one |
 | `z-toast` | Optimus default (unverified) | Transient messages | `p-toast`; not in `tokens.json` |
-| `z-progress` | `50` | Route progress bar | `fixed! top-0! z-50!` wrapper in `src/app/app.html`. Sits below the `1000+` overlay band, so an open overlay can cover it |
 
 > The `1000+` band is the Optimus `zIndex` config (`overlay: 1000`, `menu: 1000`, `modal: 1100`,
-> `tooltip: 1100`). The `0–15` band is app-owned. **Keep a gap between the two** so a future
+> `tooltip: 1100`). The `0–50` band is app-owned. **Keep a gap between the two** so a future
 > app-level layer never collides with a library overlay.
 
 ---
@@ -190,7 +190,7 @@ Its top-level shape:
 
 ```json
 {
-  "color":      { "primary": {}, "neutral": {}, "semantic": {}, "surface": {}, "text": {}, "border": {}, "mask": {}, "accent": {} },
+  "color":      { "primary": {}, "neutral": {}, "neutral-dark": {}, "semantic": {}, "surface": {}, "text": {}, "border": {}, "mask": {}, "accent": {} },
   "spacing":    { "base": {}, "0": {}, "…": {}, "layout": {} },
   "typography": { "fontFamily": {}, "rootFontSize": {}, "fontSize": {}, "fontWeight": {}, "lineHeight": {}, "letterSpacing": {}, "style": {} },
   "border":     { "width": {}, "style": {}, "radius": {}, "focusRing": {}, "anchorGutter": "" },

@@ -2,10 +2,10 @@
 
 # Accessibility
 
-> Ported from AxionPro `accessibility_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 > **Ownership:** T0 — Foundations · **Status:** Normative
-> **Related:** [Color](./foundations/color.md) · [Typography](./foundations/typography.md) · [Motion](./foundations/motion.md) · [Iconography](./foundations/iconography.md) · [Open items](./open-items.md)
+> **Related:** [Colour](./foundations/color.md) · [Typography](./foundations/typography.md) · [Motion](./foundations/motion.md) · [Iconography](./foundations/iconography.md) · [Open items](./open-items.md)
 
 Accessibility is a **build-time property** here, not a review-time opinion. `angular-eslint`'s
 `templateAccessibility` config runs on every `.html` (`eslint.config.js`), AXE checks gate the UI,
@@ -31,7 +31,7 @@ At a 13px root (`html { font-size: 0.8125rem }` in `src/styles.css`), `text-2xl`
 **19.5px**. That is still *normal text* for WCAG purposes unless it is bold. Only `text-3xl`
 (24.38px) and above qualify as large.
 
-**Consequence:** a `text-2xl font-medium` numeral (stat cards) needs **4.5:1**, not 3:1.
+**Consequence:** a `text-2xl font-medium` numeral (stat cards below `sm:`) needs **4.5:1**, not 3:1.
 See [Typography → the 13px root](./foundations/typography.md#2-the-13px-root).
 
 ---
@@ -122,8 +122,8 @@ fill, use `primary-600` (4.63:1) or `primary-700` (6.34:1).
 - Never for values a user must read to do their job
 - `text-[10px]` is reserved for `aria-hidden` decorative glyphs inside chips
 
-Tracked as [DS-11](./open-items.md) where this is currently violated (e.g. the new-joiner badge
-label is `text-[10px]` text).
+Current violations: `text-xs` content ([DS-11](./open-items.md)) and the new-joiner badge label,
+which renders visible text at `text-[10px]`.
 
 ---
 
@@ -179,7 +179,7 @@ must still be operable. Test with the stylesheet blocked.
 | Check | How |
 | --- | --- |
 | Automated | AXE on every page; `angular-eslint` `templateAccessibility` in CI |
-| Contrast | Both themes, every new colour pair, against the thresholds in §1 (`py scripts/skolenza_color.py check FG BG`) |
+| Contrast | Both themes, every new colour pair, against the thresholds in §1 (`py ${CLAUDE_SKILL_DIR}/scripts/skolenza_color.py check FG BG`) |
 | Keyboard | Tab through the whole page; every interactive element reachable and visibly focused; overlays trap and restore focus |
 | Reduced motion | macOS *Reduce motion*; Windows *Show animations* off; DevTools → Rendering → *Emulate `prefers-reduced-motion`* |
 | Zoom | 200% browser zoom without horizontal scroll or clipped content |
@@ -187,4 +187,4 @@ must still be operable. Test with the stylesheet blocked.
 
 ---
 
-**Next:** [Foundations → Color →](./foundations/color.md)
+**Next:** [Foundations → Colour →](./foundations/color.md)

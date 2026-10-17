@@ -1,8 +1,8 @@
 [← Index](../README.md) · [Foundations](./color.md)
 
-# Color
+# Colour
 
-> Ported from AxionPro `color_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Source of truth:** `src/styles.css` (`@theme`, `.dark` zinc→slate remap), `src/app/core/skolenza-preset.ts`, `src/app/app.ts` (`#applyBrandColor`)
@@ -78,7 +78,7 @@ the *fallback* palette, and the shape every institution palette takes.
 | `primary-700` | `#2e5eac` | `rgb(46, 94, 172)` | Button active (light), **chip text on `primary-50`** (6.01:1 ✅), highlight text |
 | `primary-800` | `#244a87` | `rgb(36, 74, 135)` | Highlight focus text, pressed states on tinted surfaces |
 | `primary-900` | `#1a3662` | `rgb(26, 54, 98)` | Dark-theme chip background at 30% alpha (`dark:bg-primary-900/30`) |
-| `primary-950` | `#10223d` | `rgb(16, 34, 61)` | Deepest tint; reserved — avoid as a text colour |
+| `primary-950` | `#10223d` | `rgb(16, 34, 61)` | Deepest shade; reserved — avoid as a text colour |
 
 Theme mapping (from the Aura base preset, unchanged by `SkolenzaPreset`):
 
