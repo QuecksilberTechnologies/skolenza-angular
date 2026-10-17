@@ -26,7 +26,8 @@ Reference implementation: `src/app/features/staff-members/`. Token sources: `src
 
 1. **No literals.** Never write a hex, radius, shadow, duration or `z-index` in a component. Use a
    Tailwind utility backed by `@theme`, or a `--p-*` token. Missing token → add it to
-   `src/styles.css` / `core/skolenza-preset.ts` first.
+   `src/styles.css` / `core/skolenza-preset.ts` first. Only exception: the hand-written z-index
+   `14` / `15` in `layout/layout.css` (DS-09). Do not copy them.
 2. **The brand colour is data.** `primary-500` is whatever hex the institution chose. Never assume
    it is blue, never assume white text on it is readable, never use `primary-*` to mean success or
    error.
@@ -121,11 +122,11 @@ White text on a `-500` fill fails the same way. The preset already darkens light
 | --- | --- |
 | Spacing (only these) | `0 1 1.5 2 2.5 3 4 5 6 8 10 12 16`. No `gap-7`, no `p-[13px]` |
 | Type (px at 13px root) | `text-xs` 9.75 · `text-sm` **11.38 (body/table default)** · `text-base` 13 · `text-lg` 14.63 · `text-xl` 16.25 · `text-2xl` **19.5 (target h1)** · `text-3xl` 24.38 |
-| Radius | input/select/button/popover `rounded-md` · card `rounded-[0.8rem]` · modal `rounded-xl` · menu item `rounded-sm` · chip/tag/avatar/progress `rounded-full` · inline code `rounded-xs` · table cell none |
+| Radius | Optimus input/select/button/popover: keep the Optimus default (6px), not `rounded-md` (≈4.9px) · card `rounded-[0.8rem]` · modal `rounded-xl` · menu item `rounded-sm` · chip/tag/avatar/progress `rounded-full` · inline code `rounded-xs` · table cell none |
 | Elevation | form field `shadow-xs` · card `shadow-sm` · select/popover/menu `shadow-md` · drawer `shadow-lg` · modal `shadow-xl`. Bare `shadow` is the v3 name: use `shadow-sm` |
 | Duration | hover/colour `transition-colors duration-200` · layout shift, overlay entry, `@defer` placeholder floor `300ms` · spinner `500ms` linear |
 | Easing | entering `ease-out` · leaving `ease-in` (~30% shorter) · moving within viewport `ease-in-out` |
-| Z-index | sticky header `z-10` · mobile scrim `14` · mobile aside drawer `15` · route progress bar `z-50!` · Optimus overlay / menu `1000` · modal / tooltip `1100` |
+| Z-index | sticky header `z-10` · mobile scrim `14` / aside drawer `15` (layout only, DS-09) · route progress bar `z-50!` · Optimus overlay / menu `1000` · modal / tooltip `1100` |
 
 **Radius nesting:** inner radius = outer radius − padding. A rounded container with a fill or image
 child needs `overflow-hidden`.
@@ -137,8 +138,8 @@ one `<h1>` per route.
 
 ## Building a list page
 
-Copy `src/app/features/staff-members/staff-members.html`, except its `styleClass` bindings and
-rename-artifact copy ("No staffMembers found", "Add StaffMember"; open items DS-14, DS-15).
+Copy `src/app/features/staff-members/staff-members.html`, except its `styleClass` bindings (open item
+DS-14).
 
 ```
 h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto
@@ -226,7 +227,7 @@ Run `ramp` for "what will institution X's palette look like", and `check` before
 | `src/styles.css` | `--p-inputtext/select/textarea-focus-ring-width: 1px` contradicts its own WCAG 2.4.11 comment; should be `2px` |
 | `src/styles.css` | No global `prefers-reduced-motion` block, while `scroll-behavior: smooth` is global |
 | `layout/layout.css` | `z-index: 14` / `15` hand-written instead of tokenised |
-| `features/staff-members/staff-members.html` | Deprecated `styleClass` on menus and drawer; "No staffMembers found" / "Add StaffMember" copy |
+| `features/staff-members/staff-members.html` | Deprecated `styleClass` on menus and drawer |
 
 Not a defect: `dark.surface.0 = #ffffff` in the preset (Aura uses it as dark-theme text colour).
 Full list with fixes: [references/open-items.md](references/open-items.md).

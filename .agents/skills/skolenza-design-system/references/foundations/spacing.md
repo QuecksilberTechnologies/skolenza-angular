@@ -15,7 +15,8 @@
 ```
 
 Tailwind v4's spacing step is `0.25rem`, which at the [13px root](./typography.md#2-the-13px-root) is
-**3.25px**. Spacing is a multiple of this (including the half steps `1.5` and `2.5`); the px `.p-datatable` padding and `p-[4.8rem]` loader are legacy.
+**3.25px**. Spacing uses whole steps of this unit, plus the half steps `1.5` (4.875px) and
+`2.5` (8.125px); the px `.p-datatable` padding and `p-[4.8rem]` loader are legacy.
 
 ---
 

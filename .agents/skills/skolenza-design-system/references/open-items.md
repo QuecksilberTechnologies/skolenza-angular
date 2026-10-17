@@ -39,7 +39,6 @@ minimums, so these are bugs rather than enhancements.
 | **DS-11** | Typography | `text-xs` (9.75px) used for content a user must read, not just chips | Audit; promote to `text-sm` where the string carries meaning |
 | **DS-12** | Layout | Global `.p-datatable` cell padding (`6px 5px`) is overridden per-page with `!px-3 !py-3` | Move list-page padding into a `@utility data-table-dense` and drop the `!` overrides |
 | **DS-14** | API | 161 deprecated `styleClass` bindings across 73 templates (row menus, drawers, avatars, badges), including the reference page's `p-tieredmenu`, `p-contextMenu` and `p-drawer` | Plain host → `class`. Panel moved to `body` → `[pt]="{ root: { class: '…' } }"` (see list-page R20). Fix when touching the file |
-| **DS-15** | Copy | Reference page copy carries a rename artifact: "No staffMembers found", "Add StaffMember", "StaffMember Code" in `features/staff-members/staff-members.html` | Use "No staff members found", "Add Staff Member", "Staff Member Code" |
 
 ### Closed
 
@@ -47,6 +46,7 @@ minimums, so these are bugs rather than enhancements.
 | --- | --- | --- |
 | **DS-10** | `dark.surface.0` is `#ffffff` in the preset | **Not a defect.** Aura's dark scheme uses `{surface.0}` as the *text* colour (`text.color`, `formField.color`), not a background, so white is correct. Keep it. Note `SkolenzaPreset` uses a zinc surface ramp in light and slate in dark |
 | **DS-01 (progress pipe)** | Progress pipe returned `-500` text colours | Fixed via `shared/utilities/progress-tone.ts` |
+| **DS-15** | Rename-artifact copy ("No staffMembers found", "Add StaffMember", "StaffMember Code") in `features/staff-members/staff-members.html` | Fixed. The page reads "No staff members found" and "Add Staff Member"; verified 2026-10-17 |
 
 ---
 
@@ -55,7 +55,7 @@ minimums, so these are bugs rather than enhancements.
 | Priority | Items | Rationale |
 | --- | --- | --- |
 | **P0 — before release** | A11Y-03…05, 07, 08, 10, DS-03, DS-04 | WCAG AA failures; the project's own accessibility policy requires them closed |
-| **P1 — next sprint** | DS-01, DS-02, DS-15 | Colour correctness and tokenisation; visible copy defect on the reference page |
+| **P1 — next sprint** | DS-01, DS-02 | Colour correctness and tokenisation |
 | **P2 — opportunistic** | DS-07, DS-08, DS-09, DS-11, DS-12, DS-14 | Consistency debt. Fix when touching the file, per [Governance §2](./governance.md#2-change-process) |
 | **P3 — performance** | DS-06 | Real, but measure the render-block cost before scheduling |
 
