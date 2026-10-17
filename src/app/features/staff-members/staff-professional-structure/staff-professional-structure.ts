@@ -49,6 +49,7 @@ import {
   StaffCategoryDialogData,
 } from './staff-category-dialog/staff-category-dialog';
 import {
+  STAFF_POSITION_TITLE_ID,
   StaffPositionDialog,
   StaffPositionDialogData,
 } from './staff-position-dialog/staff-position-dialog';
@@ -215,7 +216,14 @@ export default class StaffProfessionalStructure implements OnInit {
         capabilities: this.capabilities(),
         duties: this.duties(),
       };
-      this.#openDialog(StaffPositionDialog, data, !!position, '48rem', () => this.loadSelected());
+      this.#openDialog(
+        StaffPositionDialog,
+        data,
+        !!position,
+        '56rem',
+        () => this.loadSelected(),
+        STAFF_POSITION_TITLE_ID,
+      );
     });
   }
 
@@ -479,11 +487,18 @@ export default class StaffProfessionalStructure implements OnInit {
     isEdit: boolean,
     maxWidth: string,
     onSaved: () => void,
+    titleId?: string,
   ): void {
     openManageDialog(
       this.#dialogService,
       this.#destroyRef,
-      { component, header: `${isEdit ? 'Edit' : 'Add'} ${this.noun().singular}`, maxWidth, data },
+      {
+        component,
+        header: `${isEdit ? 'Edit' : 'Add'} ${this.noun().singular}`,
+        maxWidth,
+        data,
+        titleId,
+      },
       onSaved,
     );
   }

@@ -13,7 +13,7 @@ class FakeDestroyRef {
   }
 }
 
-function setup() {
+function setup(titleId?: string) {
   const onClose = new Subject<boolean | undefined>();
   const ref = { onClose, close: vi.fn(() => onClose.next(undefined)) };
   const dialogService = { open: vi.fn(() => ref) } as unknown as DialogService;
@@ -22,7 +22,7 @@ function setup() {
   openManageDialog(
     dialogService,
     destroyRef as unknown as DestroyRef,
-    { component: class {}, header: 'Add Thing', maxWidth: '36rem', data: { id: 1 } },
+    { component: class {}, header: 'Add Thing', maxWidth: '36rem', data: { id: 1 }, titleId },
     onSaved,
   );
   return { onClose, ref, dialogService, destroyRef, onSaved };
@@ -39,6 +39,19 @@ describe('openManageDialog', () => {
         style: { width: '90vw', maxWidth: '36rem' },
         modal: true,
         data: { id: 1 },
+      }),
+    );
+  });
+
+  it('hides the built-in header when the component titles itself', () => {
+    const { dialogService } = setup('thing-title');
+
+    expect(dialogService.open).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({
+        showHeader: false,
+        ariaLabelledBy: 'thing-title',
+        contentStyle: { overflow: 'hidden', display: 'flex', flexDirection: 'column' },
       }),
     );
   });

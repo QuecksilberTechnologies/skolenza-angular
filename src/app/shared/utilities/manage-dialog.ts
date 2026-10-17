@@ -7,6 +7,11 @@ export interface ManageDialogOptions {
   header: string;
   maxWidth: string;
   data: unknown;
+  /**
+   * Set when the component draws its own header, close button and scroll region: the built-in
+   * header is hidden and the dialog is labelled by this element id instead.
+   */
+  titleId?: string;
 }
 
 /**
@@ -17,7 +22,7 @@ export interface ManageDialogOptions {
 export function openManageDialog(
   dialogService: DialogService,
   destroyRef: DestroyRef,
-  { component, header, maxWidth, data }: ManageDialogOptions,
+  { component, header, maxWidth, data, titleId }: ManageDialogOptions,
   onSaved: () => void,
 ): void {
   const ref = dialogService.open(component, {
@@ -27,6 +32,12 @@ export function openManageDialog(
     closable: true,
     focusOnShow: false,
     data,
+    ...(titleId && {
+      showHeader: false,
+      ariaLabelledBy: titleId,
+      // A flex column, so the component's scroll region can shrink to the dialog's max height.
+      contentStyle: { overflow: 'hidden', display: 'flex', flexDirection: 'column' },
+    }),
   });
   if (!ref) return;
   const unregister = destroyRef.onDestroy(() => ref.close());

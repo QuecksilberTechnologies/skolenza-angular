@@ -10,17 +10,22 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   applyEach,
   disabled,
+  type FieldTree,
   form,
+  FormField,
   submit,
   validate,
   validateStandardSchema,
 } from '@angular/forms/signals';
 import { ButtonModule } from '@openng/optimus-ui/button';
+import { CheckboxModule } from '@openng/optimus-ui/checkbox';
 import { DynamicDialogConfig, DynamicDialogRef } from '@openng/optimus-ui/dynamicdialog';
+import { TooltipModule } from '@openng/optimus-ui/tooltip';
 import { finalize } from 'rxjs';
 
 import { Common, StaffProfessionalStructureApi } from '@core/services';
-import { FormCheckbox, FormSelect, FormText } from '@shared/components';
+import { FormSelect, FormText } from '@shared/components';
+import { FormActionBar } from '@shared/components/form-action-bar/form-action-bar';
 import {
   InstitutionStaffCategory,
   StaffPositionMaster,
@@ -34,6 +39,9 @@ import {
   StaffPositionFormModel,
   staffPositionSchema,
 } from './staff-position-dialog.schema';
+
+/** Id of the dialog's own title; the opener labels the dialog with it. */
+export const STAFF_POSITION_TITLE_ID = 'staff-position-dialog-title';
 
 export interface StaffPositionDialogData {
   position?: StaffPositionMaster;
@@ -76,8 +84,17 @@ function selectedRequirements(rows: RequirementRow[]) {
 /** Add or edit a Position with its capabilities and duties. Closes with `true` after saving. */
 @Component({
   selector: 'app-staff-position-dialog',
-  imports: [ButtonModule, FormCheckbox, FormSelect, FormText],
+  imports: [
+    ButtonModule,
+    CheckboxModule,
+    FormActionBar,
+    FormField,
+    FormSelect,
+    FormText,
+    TooltipModule,
+  ],
   templateUrl: './staff-position-dialog.html',
+  host: { class: 'flex min-h-0 flex-1 flex-col' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StaffPositionDialog {
@@ -87,6 +104,9 @@ export class StaffPositionDialog {
   readonly #dialogRef = inject(DynamicDialogRef);
   readonly #data: StaffPositionDialogData = inject(DynamicDialogConfig).data;
   readonly #position = this.#data.position;
+
+  protected readonly titleId = STAFF_POSITION_TITLE_ID;
+  protected readonly isEdit = !!this.#position;
 
   protected readonly isSaving = signal(false);
   /** Flipped by the first submit attempt, so every outstanding error surfaces at once. */
@@ -140,6 +160,30 @@ export class StaffPositionDialog {
       disabled(row.selected, { when: ({ valueOf }) => valueOf(row.inactive) }),
     );
   });
+
+  /** The two checklists, rendered by one template block. */
+  protected readonly sections = [
+    {
+      key: 'capability',
+      title: 'Required capabilities',
+      description: 'Select the capabilities required for this position.',
+      icon: 'pi pi-cog',
+      empty: 'No active capabilities configured.',
+      rows: this.f.capabilities,
+    },
+    {
+      key: 'duty',
+      title: 'Default duties',
+      description: 'Select the default duties for this position.',
+      icon: 'pi pi-file',
+      empty: 'No active duties configured.',
+      rows: this.f.duties,
+    },
+  ];
+
+  protected toggleMandatory(row: FieldTree<RequirementRow>): void {
+    row.isMandatory().value.update((isMandatory) => !isMandatory);
+  }
 
   protected save(): void {
     this.submitted.set(true);
