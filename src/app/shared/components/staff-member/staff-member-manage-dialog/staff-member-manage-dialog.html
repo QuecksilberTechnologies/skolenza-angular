@@ -1,7 +1,11 @@
 <div class="relative h-full overflow-y-auto">
-  <form [formGroup]="staffMemberForm" class="flex min-h-full w-full flex-col">
+  <form
+    [formGroup]="staffMemberForm"
+    class="form-invalid-visible flex min-h-full w-full flex-col"
+  >
     <div
       class="flex w-full flex-col"
+      [class.flex-1]="isPageMode"
       [class.mx-auto]="isPageMode"
       [class.max-w-5xl]="isPageMode"
       [class.px-3]="isPageMode"
@@ -26,7 +30,7 @@
         @if (isPageMode) {
         <div class="mb-5">
           <div class="flex items-center gap-2">
-            <i class="pi pi-user-plus text-primary"></i>
+            <i class="pi pi-user-plus text-xl! text-primary" aria-hidden="true"></i>
             <h2 class="text-lg font-semibold">
               {{ staffMemberBasic()?.id ? 'Staff employment details' : 'New
               staff details' }}
@@ -130,36 +134,35 @@
             </div>
           </div>
 
-          <!-- Official Email -->
-          <div class="space-y-1">
-            <label for="officialEmail" class="block font-medium">
-              Official Email
-              <span class="text-red-600 dark:text-red-400">*</span>
-            </label>
-            <input
-              formControlName="officialEmail"
-              appTrimInput
-              id="officialEmail"
-              type="email"
-              pInputText
-              class="w-full"
-              [invalid]="isInvalid('officialEmail')"
-              placeholder="e.g. jane.doe@company.com"
-            />
-            @if ( staffMemberForm.get('officialEmail')?.errors?.['required'] &&
-            staffMemberForm.get('officialEmail')?.touched ) {
-            <p-message severity="error" size="small" variant="simple">
-              Official email is required.
-            </p-message>
-            } @if ( staffMemberForm.get('officialEmail')?.errors?.['email'] &&
-            staffMemberForm.get('officialEmail')?.touched ) {
-            <p-message severity="error" size="small" variant="simple">
-              Please enter a valid email address.
-            </p-message>
-            }
-          </div>
-
-          <div class="grid gap-4 md:grid-cols-2">
+          <div class="grid items-start gap-4 md:grid-cols-2">
+            <!-- Official Email -->
+            <div class="space-y-1">
+              <label for="officialEmail" class="block font-medium">
+                Official Email
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <input
+                formControlName="officialEmail"
+                appTrimInput
+                id="officialEmail"
+                type="email"
+                pInputText
+                class="w-full"
+                [invalid]="isInvalid('officialEmail')"
+                placeholder="e.g. jane.doe@school.edu"
+              />
+              @if ( staffMemberForm.get('officialEmail')?.errors?.['required'] &&
+              staffMemberForm.get('officialEmail')?.touched ) {
+              <p-message severity="error" size="small" variant="simple">
+                Official email is required.
+              </p-message>
+              } @if ( staffMemberForm.get('officialEmail')?.errors?.['email'] &&
+              staffMemberForm.get('officialEmail')?.touched ) {
+              <p-message severity="error" size="small" variant="simple">
+                Please enter a valid email address.
+              </p-message>
+              }
+            </div>
             <!-- Date of Birth -->
             <div class="flex flex-col space-y-1">
               <label for="dateOfBirth" class="block font-medium">
@@ -170,6 +173,10 @@
                 formControlName="dateOfBirth"
                 inputId="dateOfBirth"
                 [maxDate]="maxDateOfBirth"
+                [defaultDate]="maxDateOfBirth"
+                dateFormat="dd/mm/yy"
+                [showIcon]="true"
+                iconDisplay="input"
                 [invalid]="isInvalid('dateOfBirth')"
                 [appendTo]="'body'"
                 class="w-full"
@@ -182,34 +189,6 @@
               </p-message>
               }
             </div>
-
-            <!-- Date of Onboarding -->
-            <div class="flex flex-col space-y-1">
-              <label for="dateOfOnBoarding" class="block font-medium">
-                Date of Onboarding
-                <span class="text-red-600 dark:text-red-400">*</span>
-              </label>
-              <p-datepicker
-                formControlName="dateOfOnBoarding"
-                inputId="dateOfOnBoarding"
-                [invalid]="isInvalid('dateOfOnBoarding')"
-                [appendTo]="'body'"
-                placeholder="Select date of onboarding"
-                class="w-full"
-                inputStyleClass="w-full"
-              />
-              @if (isInvalid('dateOfOnBoarding')) {
-              <p-message severity="error" size="small" variant="simple">
-                Date of onboarding is required.
-              </p-message>
-              }
-            </div>
-          </div>
-
-          <div
-            class="grid gap-4"
-            [class.md:grid-cols-2]="staffMemberForm.controls.bloodGroup.enabled"
-          >
             <!-- Gender -->
             <div class="space-y-1">
               <label for="genderId" class="block font-medium">
@@ -223,7 +202,7 @@
                 optionLabel="genderName"
                 optionValue="id"
                 [loading]="isLoadingGenders()"
-                placeholder="Select Gender"
+                placeholder="Select a gender"
                 [appendTo]="'body'"
                 class="w-full"
                 [invalid]="isInvalid('genderId')"
@@ -236,7 +215,6 @@
               </p-message>
               } }
             </div>
-
             <!-- Blood Group -->
             @if (staffMemberForm.controls.bloodGroup.enabled) {
             <div class="space-y-1">
@@ -249,7 +227,7 @@
                 [options]="bloodGroupOptions()"
                 optionLabel="name"
                 optionValue="code"
-                placeholder="Select Blood Group"
+                placeholder="Select a blood group"
                 [appendTo]="'body'"
                 class="w-full"
                 [invalid]="isInvalid('bloodGroup')"
@@ -281,12 +259,6 @@
               </p-select>
             </div>
             }
-          </div>
-
-          <div
-            class="grid gap-4"
-            [class.md:grid-cols-2]="staffMemberForm.controls.roleId.enabled"
-          >
             <!-- Country -->
             <div class="space-y-1">
               <label for="countryId" class="block font-medium">
@@ -311,44 +283,6 @@
               </p-message>
               } }
             </div>
-
-            <!-- Role -->
-            @if (staffMemberForm.controls.roleId.enabled) {
-            <div class="space-y-1">
-              <label for="roleId" class="block font-medium">
-                Role
-                <span class="text-red-600 dark:text-red-400">*</span>
-              </label>
-              <p-select
-                formControlName="roleId"
-                id="roleId"
-                [options]="roleOptions()"
-                optionLabel="roleName"
-                optionValue="id"
-                [loading]="isLoadingRoles()"
-                placeholder="Select Role"
-                [appendTo]="'body'"
-                [invalid]="isInvalid('roleId')"
-                class="w-full"
-                panelStyleClass="select-option-truncate"
-              />
-              @if (staffMemberForm.controls.roleId.invalid &&
-              staffMemberForm.controls.roleId.touched) {
-              <p-message severity="error" size="small" variant="simple">
-                @if (staffMemberForm.controls.roleId.hasError('required')) {
-                <span>Role is required.</span>
-                }
-              </p-message>
-              }
-            </div>
-            }
-          </div>
-
-          @if ( staffMemberForm.controls.mobileNumber.enabled ||
-          staffMemberForm.controls.emergencyContactPerson.enabled ||
-          staffMemberForm.controls.emergencyContactNumber.enabled ||
-          staffMemberForm.controls.relation.enabled ) {
-          <div class="grid gap-4 md:grid-cols-2">
             <!-- Mobile Number -->
             @if (staffMemberForm.controls.mobileNumber.enabled) {
             <div class="space-y-1">
@@ -389,7 +323,6 @@
               } }
             </div>
             }
-
             <!-- Emergency Contact Name -->
             @if (staffMemberForm.controls.emergencyContactPerson.enabled) {
             <div class="space-y-1">
@@ -420,7 +353,6 @@
               }
             </div>
             }
-
             <!-- Emergency Contact Number -->
             @if (staffMemberForm.controls.emergencyContactNumber.enabled) {
             <div class="space-y-1">
@@ -462,7 +394,6 @@
               } }
             </div>
             }
-
             <!-- Relation -->
             @if (staffMemberForm.controls.relation.enabled) {
             <div class="space-y-1">
@@ -476,17 +407,43 @@
                 optionLabel="label"
                 optionValue="id"
                 [loading]="isLoadingRelations()"
-                placeholder="Select Relation"
+                placeholder="Select a relation"
                 [appendTo]="'body'"
                 class="w-full"
                 [invalid]="isInvalid('relation')"
               />
             </div>
             }
-          </div>
-          }
-
-          <div class="grid gap-4 md:grid-cols-2">
+            <!-- Role -->
+            @if (staffMemberForm.controls.roleId.enabled) {
+            <div class="space-y-1">
+              <label for="roleId" class="block font-medium">
+                Role
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-select
+                formControlName="roleId"
+                id="roleId"
+                [options]="roleOptions()"
+                optionLabel="roleName"
+                optionValue="id"
+                [loading]="isLoadingRoles()"
+                placeholder="Select a role"
+                [appendTo]="'body'"
+                [invalid]="isInvalid('roleId')"
+                class="w-full"
+                panelStyleClass="select-option-truncate"
+              />
+              @if (staffMemberForm.controls.roleId.invalid &&
+              staffMemberForm.controls.roleId.touched) {
+              <p-message severity="error" size="small" variant="simple">
+                @if (staffMemberForm.controls.roleId.hasError('required')) {
+                <span>Role is required.</span>
+                }
+              </p-message>
+              }
+            </div>
+            }
             <!-- Department -->
             <div class="space-y-1">
               <label for="departmentId" class="block font-medium">
@@ -500,7 +457,7 @@
                 optionLabel="departmentName"
                 optionValue="id"
                 [loading]="isLoadingDepartments()"
-                placeholder="Select Department"
+                placeholder="Select a department"
                 [appendTo]="'body'"
                 class="w-full"
                 [invalid]="isInvalid('departmentId')"
@@ -513,13 +470,30 @@
               </p-message>
               }
             </div>
-
-          </div>
-
-          <div
-            class="grid gap-4"
-            [class.md:grid-cols-2]="staffMemberForm.controls.roleId.enabled"
-          >
+            <!-- Date of Onboarding -->
+            <div class="flex flex-col space-y-1">
+              <label for="dateOfOnBoarding" class="block font-medium">
+                Date of Onboarding
+                <span class="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <p-datepicker
+                formControlName="dateOfOnBoarding"
+                inputId="dateOfOnBoarding"
+                dateFormat="dd/mm/yy"
+                [showIcon]="true"
+                iconDisplay="input"
+                [invalid]="isInvalid('dateOfOnBoarding')"
+                [appendTo]="'body'"
+                placeholder="Select date of onboarding"
+                class="w-full"
+                inputStyleClass="w-full"
+              />
+              @if (isInvalid('dateOfOnBoarding')) {
+              <p-message severity="error" size="small" variant="simple">
+                Date of onboarding is required.
+              </p-message>
+              }
+            </div>
             <!-- Employment Type -->
             <div class="space-y-1">
               <label for="staffEmploymentTypeId" class="block font-medium">
@@ -533,7 +507,7 @@
                 optionLabel="typeName"
                 optionValue="id"
                 [loading]="isLoadingStaffEmploymentTypes()"
-                placeholder="Select Employment Type"
+                placeholder="Select an employment type"
                 [appendTo]="'body'"
                 [invalid]="isInvalid('staffEmploymentTypeId')"
                 class="w-full"
@@ -545,7 +519,6 @@
               </p-message>
               }
             </div>
-
             <!-- Staff Category -->
             <div class="space-y-1">
               <label for="institutionStaffCategoryMasterId" class="block font-medium">
@@ -559,7 +532,7 @@
                 optionLabel="name"
                 optionValue="id"
                 [loading]="isLoadingStaffCategories()"
-                placeholder="Select Staff Category"
+                placeholder="Select a staff category"
                 [appendTo]="'body'"
                 [invalid]="isInvalid('institutionStaffCategoryMasterId')"
                 (onChange)="onStaffCategoryChange($event.value)"
@@ -572,10 +545,13 @@
               </p-message>
               }
             </div>
-
             <!-- Job Family -->
             <div class="space-y-1">
-              <label for="staffJobFamilyMasterId" class="block font-medium">
+              <label
+                id="staffJobFamilyMasterId-label"
+                for="staffJobFamilyMasterId"
+                class="block font-medium"
+              >
                 Job Family <span class="text-red-600 dark:text-red-400">*</span>
               </label>
               <p-select
@@ -586,22 +562,37 @@
                 optionValue="id"
                 [loading]="isLoadingProfessionalStructure()"
                 [disabled]="!staffMemberForm.controls.institutionStaffCategoryMasterId.value"
-                placeholder="Select Job Family"
+                placeholder="Select a job family"
+                [ariaLabelledBy]="
+                  showJobFamilyHint()
+                    ? 'staffJobFamilyMasterId-label staffJobFamilyMasterId-hint'
+                    : 'staffJobFamilyMasterId-label'
+                "
                 [appendTo]="'body'"
                 (onChange)="onJobFamilyChange($event.value)"
                 [invalid]="isInvalid('staffJobFamilyMasterId')"
                 class="w-full"
               />
-              @if (isInvalid('staffJobFamilyMasterId')) {
+              @if (showJobFamilyHint()) {
+              <small
+                id="staffJobFamilyMasterId-hint"
+                class="block text-sm text-gray-500 dark:text-zinc-400"
+              >
+                Select a staff category first.
+              </small>
+              } @if (isInvalid('staffJobFamilyMasterId')) {
               <p-message severity="error" size="small" variant="simple"
                 >Job family is required.</p-message
               >
               }
             </div>
-
             <!-- Position -->
             <div class="space-y-1">
-              <label for="staffPositionMasterId" class="block font-medium">
+              <label
+                id="staffPositionMasterId-label"
+                for="staffPositionMasterId"
+                class="block font-medium"
+              >
                 Position <span class="text-red-600 dark:text-red-400">*</span>
               </label>
               <p-select
@@ -614,12 +605,24 @@
                 [disabled]="
                   !staffMemberForm.controls.staffJobFamilyMasterId.value
                 "
-                placeholder="Select Position"
+                placeholder="Select a position"
+                [ariaLabelledBy]="
+                  showPositionHint()
+                    ? 'staffPositionMasterId-label staffPositionMasterId-hint'
+                    : 'staffPositionMasterId-label'
+                "
                 [appendTo]="'body'"
                 [invalid]="isInvalid('staffPositionMasterId')"
                 class="w-full"
               />
-              @if (isInvalid('staffPositionMasterId')) {
+              @if (showPositionHint()) {
+              <small
+                id="staffPositionMasterId-hint"
+                class="block text-sm text-gray-500 dark:text-zinc-400"
+              >
+                Select a job family first.
+              </small>
+              } @if (isInvalid('staffPositionMasterId')) {
               <p-message severity="error" size="small" variant="simple"
                 >Position is required.</p-message
               >
@@ -659,7 +662,6 @@
     </div>
 
     <div
-      class="flex justify-end gap-2"
       [class.mt-6]="!isPageMode"
       [class.sticky]="isPageMode"
       [class.bottom-0]="isPageMode"
@@ -667,26 +669,37 @@
       [class.border-t]="isPageMode"
       [class.border-gray-200]="isPageMode"
       [class.bg-white]="isPageMode"
-      [class.px-3]="isPageMode"
       [class.py-3]="isPageMode"
-      [class.sm:px-4]="isPageMode"
       [class.dark:border-zinc-700]="isPageMode"
       [class.dark:bg-zinc-900]="isPageMode"
     >
-      <p-button [severity]="'secondary'" label="Cancel" (click)="onCancel()" />
-      <p-button
-        [severity]="'primary'"
-        [label]="
-          isSaving()
-            ? 'Saving...'
-            : staffMemberBasic()?.id
-              ? 'Save changes'
-              : 'Create staff member'
-        "
-        [loading]="isSaving()"
-        [disabled]="staffMemberForm.invalid || isSaving()"
-        (onClick)="onCreate()"
-      />
+      <!-- Aligns the actions with the card edge above -->
+      <div
+        class="flex w-full justify-end gap-2"
+        [class.mx-auto]="isPageMode"
+        [class.max-w-5xl]="isPageMode"
+        [class.px-3]="isPageMode"
+        [class.sm:px-4]="isPageMode"
+      >
+        <p-button
+          [severity]="'secondary'"
+          label="Cancel"
+          (click)="onCancel()"
+        />
+        <p-button
+          [severity]="'primary'"
+          [label]="
+            isSaving()
+              ? 'Saving...'
+              : staffMemberBasic()?.id
+                ? 'Save changes'
+                : 'Create staff member'
+          "
+          [loading]="isSaving()"
+          [disabled]="isSaving()"
+          (onClick)="onCreate()"
+        />
+      </div>
     </div>
   </form>
 </div>

@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   effect,
+  ElementRef,
   inject,
   OnInit,
   signal,
@@ -77,6 +78,8 @@ import { CountrySelect } from '../../country-select/country-select';
   ],
   templateUrl: './staff-member-manage-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Page mode fills the router outlet so the sticky action bar sits at the viewport bottom.
+  host: { class: 'block', '[class.h-full]': 'isPageMode' },
 })
 export class StaffMemberManageDialog implements OnInit {
   readonly #staffMemberApi = inject(StaffMembersApi);
@@ -94,6 +97,7 @@ export class StaffMemberManageDialog implements OnInit {
   readonly #route = inject(ActivatedRoute);
   readonly #lookupStore = inject(LookupStore);
   readonly #authStore = inject(AuthStore);
+  readonly #host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly isPageMode = !this.#dialogRef;
   readonly staffMemberBasic = signal<IStaffMemberBasicInfo | undefined>(undefined);
   readonly departmentOptions = this.#lookupStore.departmentOptions;
@@ -212,7 +216,10 @@ export class StaffMemberManageDialog implements OnInit {
       ],
       middleName: ['', [Validators.pattern(PERSON_NAME_PATTERN)]],
       lastName: ['', [Validators.required, Validators.pattern(PERSON_NAME_PATTERN)]],
-      dateOfBirth: [this.maxDateOfBirth, Validators.required],
+      dateOfBirth: new FormControl<Date | undefined>(undefined, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
       dateOfOnBoarding: [new Date(), Validators.required],
       dateOfExit: [new Date()],
       genderId: new FormControl<number | undefined>(undefined, {
@@ -326,7 +333,9 @@ export class StaffMemberManageDialog implements OnInit {
       firstName: this.staffMemberBasic()?.firstName,
       middleName: this.staffMemberBasic()?.middleName,
       lastName: this.staffMemberBasic()?.lastName,
-      dateOfBirth: new Date(this.staffMemberBasic()?.dateOfBirth ?? new Date()),
+      dateOfBirth: this.staffMemberBasic()?.dateOfBirth
+        ? new Date(String(this.staffMemberBasic()?.dateOfBirth))
+        : undefined,
       dateOfOnBoarding: this.staffMemberBasic()?.dateOfOnBoarding
         ? new Date(String(this.staffMemberBasic()?.dateOfOnBoarding))
         : new Date(),
@@ -359,6 +368,17 @@ export class StaffMemberManageDialog implements OnInit {
   isInvalid(controlName: string) {
     const control = this.staffMemberForm.get(controlName);
     return control?.invalid && control.touched;
+  }
+
+  /** Hints only when the user can act on them: the parent select must be editable and empty. */
+  showJobFamilyHint(): boolean {
+    const category = this.staffMemberForm.controls.institutionStaffCategoryMasterId;
+    return category.enabled && !category.value;
+  }
+
+  showPositionHint(): boolean {
+    const jobFamily = this.staffMemberForm.controls.staffJobFamilyMasterId;
+    return jobFamily.enabled && !jobFamily.value;
   }
 
   onDepartmentChange(departmentId: string): void {
@@ -476,7 +496,11 @@ export class StaffMemberManageDialog implements OnInit {
   }
 
   async onCreate() {
-    if (this.staffMemberForm.invalid) return;
+    if (this.staffMemberForm.invalid) {
+      this.staffMemberForm.markAllAsTouched();
+      this.#focusFirstInvalid();
+      return;
+    }
 
     const roleTypeId = this.loginInfo?.user?.primaryRole?.roleTypeId;
     if (!this.staffMemberBasic()?.id) {
@@ -673,6 +697,17 @@ export class StaffMemberManageDialog implements OnInit {
       // Best-effort: the save already succeeded, so a failed refresh only leaves the old name.
       error: () => undefined,
     });
+  }
+
+  /** Moves focus to the first invalid field in DOM order, so its error scrolls into view. */
+  #focusFirstInvalid() {
+    const field = this.#host.nativeElement.querySelector<HTMLElement>(
+      '.ng-invalid[formcontrolname]',
+    );
+    const focusable = field?.matches('input')
+      ? field
+      : field?.querySelector<HTMLElement>('input, [tabindex]:not([tabindex="-1"])');
+    focusable?.focus();
   }
 
   #updatePhoneValidators(countryCode: string) {

@@ -79,4 +79,27 @@ describe('StaffMemberManageDialog', () => {
 
     expect(categorySelect.getAttribute('optionlabel')).toBe('name');
   });
+
+  it('should start date of birth empty', () => {
+    // The datepicker normalises an empty value to null on init.
+    expect(component['staffMemberForm'].controls.dateOfBirth.value).toBeFalsy();
+  });
+
+  it('should show every error on an invalid submit and focus the first invalid field', async () => {
+    await component.onCreate();
+    fixture.detectChanges();
+
+    expect(component['staffMemberForm'].controls.officialEmail.touched).toBe(true);
+    expect(component['staffMemberForm'].controls.genderId.touched).toBe(true);
+    expect(document.activeElement?.id).toBe('firstName');
+  });
+
+  it('should hide the job family hint when the staff category is locked', () => {
+    const category = component['staffMemberForm'].controls.institutionStaffCategoryMasterId;
+    expect(component.showJobFamilyHint()).toBe(true);
+
+    category.disable();
+
+    expect(component.showJobFamilyHint()).toBe(false);
+  });
 });

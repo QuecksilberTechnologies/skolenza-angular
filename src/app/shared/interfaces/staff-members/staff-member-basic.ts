@@ -113,7 +113,7 @@ export interface BasicForm {
   firstName: FormControl<string>;
   middleName: FormControl<string>;
   lastName: FormControl<string>;
-  dateOfBirth: FormControl<Date>;
+  dateOfBirth: FormControl<Date | undefined>;
   dateOfOnBoarding: FormControl<Date>;
   dateOfExit: FormControl<Date>;
   genderId: FormControl<number | undefined>;

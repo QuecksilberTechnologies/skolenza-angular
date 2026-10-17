@@ -225,6 +225,14 @@ body {
   color: var(--p-primary-color) !important;
 }
 
+/* The last crumb is the current page: plain text, not a link look-alike. */
+.page-breadcrumb .p-breadcrumb-list > li:last-child .p-breadcrumb-item-link {
+  color: var(--p-text-color);
+  font-weight: 500;
+  cursor: default;
+  pointer-events: none;
+}
+
 /* Premium Subtle Scrollbar */
 * {
   scrollbar-width: thin;
