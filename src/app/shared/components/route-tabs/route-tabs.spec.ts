@@ -85,6 +85,88 @@ describe('RouteTabs', () => {
     expect(selected()).toEqual(['Beta']);
   });
 
+  describe('keeping the selected tab in view', () => {
+    const box = (left: number, right: number) => ({ left, right }) as DOMRect;
+
+    /** Lays the strip out at 0-100px, starting `scrolled` px in, with Alpha and Beta at the given boxes. */
+    async function renderStrip(scrolled: number, alpha: DOMRect, beta: DOMRect) {
+      const rendered = await render();
+      const strip = rendered.root.querySelector<HTMLElement>('.p-tablist-content')!;
+      const state = { scrollLeft: scrolled };
+      Object.defineProperty(strip, 'scrollLeft', {
+        get: () => state.scrollLeft,
+        set: (value: number) => (state.scrollLeft = value),
+      });
+      vi.spyOn(strip, 'getBoundingClientRect').mockReturnValue(box(0, 100));
+      vi.spyOn(rendered.tabs()[0], 'getBoundingClientRect').mockReturnValue(alpha);
+      vi.spyOn(rendered.tabs()[1], 'getBoundingClientRect').mockReturnValue(beta);
+      return { ...rendered, state };
+    }
+
+    it('scrolls the strip right to a tab past its right edge', async () => {
+      const { fixture, state } = await renderStrip(0, box(0, 50), box(150, 200));
+
+      fixture.componentInstance.selected.set('b');
+      await fixture.whenStable();
+
+      expect(state.scrollLeft).toBe(100);
+    });
+
+    it('scrolls the strip left to a tab past its left edge', async () => {
+      const { fixture, state } = await renderStrip(120, box(-80, -30), box(20, 70));
+      fixture.componentInstance.selected.set('b');
+      await fixture.whenStable();
+
+      fixture.componentInstance.selected.set('a');
+      await fixture.whenStable();
+
+      expect(state.scrollLeft).toBe(40);
+    });
+
+    it('leaves the strip alone when the tab is already in view', async () => {
+      const { fixture, state } = await renderStrip(10, box(0, 50), box(50, 100));
+
+      fixture.componentInstance.selected.set('b');
+      await fixture.whenStable();
+
+      expect(state.scrollLeft).toBe(10);
+    });
+  });
+
+  it('brings the selected tab back into view when the strip is resized', async () => {
+    const original = window.ResizeObserver;
+    let resize: ResizeObserverCallback | undefined;
+    window.ResizeObserver = class {
+      constructor(callback: ResizeObserverCallback) {
+        resize = callback;
+      }
+      observe = vi.fn();
+      unobserve = vi.fn();
+      disconnect = vi.fn();
+    };
+    try {
+      const { fixture, root, tabs } = await render();
+      const strip = root.querySelector<HTMLElement>('.p-tablist-content')!;
+      let scrollLeft = 0;
+      Object.defineProperty(strip, 'scrollLeft', {
+        get: () => scrollLeft,
+        set: (value: number) => (scrollLeft = value),
+      });
+      vi.spyOn(strip, 'getBoundingClientRect').mockReturnValue({ left: 0, right: 60 } as DOMRect);
+      vi.spyOn(tabs()[0], 'getBoundingClientRect').mockReturnValue({
+        left: 20,
+        right: 80,
+      } as DOMRect);
+
+      resize?.([{ contentRect: { width: 60 } } as ResizeObserverEntry], {} as ResizeObserver);
+      await fixture.whenStable();
+
+      expect(scrollLeft).toBe(20);
+    } finally {
+      window.ResizeObserver = original;
+    }
+  });
+
   it('does not navigate when the selected tab is clicked', async () => {
     const { fixture, tabs } = await render();
 
