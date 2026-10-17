@@ -36,6 +36,28 @@ const NEW_MASTER: SaveStaffProfessionalMaster = {
   requiresEvidence: false,
 };
 
+/** Example values shown as input placeholders, per master type. */
+const PLACEHOLDERS: Record<
+  StaffProfessionalMasterType,
+  { code: string; name: string; description: string }
+> = {
+  [StaffProfessionalMasterType.JobFamily]: {
+    code: 'e.g. TEACH',
+    name: 'e.g. Teaching',
+    description: 'Describe the roles this job family covers',
+  },
+  [StaffProfessionalMasterType.Capability]: {
+    code: 'e.g. FIRST-AID',
+    name: 'e.g. First Aid',
+    description: 'Describe what this capability qualifies staff to do',
+  },
+  [StaffProfessionalMasterType.DutyDefinition]: {
+    code: 'e.g. BUS-DUTY',
+    name: 'e.g. Bus Duty',
+    description: 'Describe what this duty involves',
+  },
+};
+
 /** Add or edit a Job Family, Capability or Duty. Closes with `true` after a successful save. */
 @Component({
   selector: 'app-professional-master-dialog',
@@ -51,6 +73,7 @@ export class ProfessionalMasterDialog {
   readonly #data: ProfessionalMasterDialogData = inject(DynamicDialogConfig).data;
 
   protected readonly isDuty = this.#data.type === StaffProfessionalMasterType.DutyDefinition;
+  protected readonly placeholders = PLACEHOLDERS[this.#data.type];
   protected readonly isSaving = signal(false);
   /** Flipped by the first submit attempt, so every outstanding error surfaces at once. */
   protected readonly submitted = signal(false);

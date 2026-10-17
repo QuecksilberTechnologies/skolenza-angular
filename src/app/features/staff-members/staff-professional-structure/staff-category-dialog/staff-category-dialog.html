@@ -13,13 +13,16 @@
     <app-form-text
       label="Code"
       inputId="staff-category-code"
+      placeholder="e.g. TEACH-STAFF"
       required
+      codeFormat
       [spellcheck]="false"
       [field]="f.code"
       [submitted]="submitted()" />
     <app-form-text
       label="Name"
       inputId="staff-category-name"
+      placeholder="e.g. Teaching Staff"
       required
       [field]="f.name"
       [submitted]="submitted()" />
@@ -27,6 +30,7 @@
   <app-form-textarea
     label="Description"
     inputId="staff-category-description"
+    placeholder="Describe who belongs to this category"
     [field]="f.description"
     [submitted]="submitted()" />
   <app-form-multiselect

@@ -39,6 +39,43 @@ export interface AcademicMasterDialogData {
 const fromApiDate = (value?: string): Date | null => (value ? fromDateKey(toDateKey(value)) : null);
 const orUndefined = <T>(value: T | null): T | undefined => value ?? undefined;
 
+/** Example values shown as input placeholders, per master type. */
+const PLACEHOLDERS: Record<
+  AcademicMasterType,
+  { code: string; name: string; description: string }
+> = {
+  [AcademicMasterType.Session]: {
+    code: 'e.g. AY-2026-27',
+    name: 'e.g. Academic Year 2026-27',
+    description: 'Describe the period this session covers',
+  },
+  [AcademicMasterType.Programme]: {
+    code: 'e.g. PRIMARY',
+    name: 'e.g. Primary School',
+    description: 'Describe the grades this programme covers',
+  },
+  [AcademicMasterType.Group]: {
+    code: 'e.g. GRADE-01',
+    name: 'e.g. Grade 1',
+    description: 'Describe this learning group',
+  },
+  [AcademicMasterType.Section]: {
+    code: 'e.g. GRADE-01-A',
+    name: 'e.g. Grade 1 - Section A',
+    description: 'Describe this section',
+  },
+  [AcademicMasterType.Subject]: {
+    code: 'e.g. MATH',
+    name: 'e.g. Mathematics',
+    description: 'Describe what this subject covers',
+  },
+  [AcademicMasterType.CourseOffering]: {
+    code: 'e.g. MATH-GRADE-01',
+    name: 'e.g. Mathematics - Grade 1',
+    description: 'Describe this course offering',
+  },
+};
+
 /** Add or edit any academic master type. Closes with `true` after a successful save. */
 @Component({
   selector: 'app-academic-master-dialog',
@@ -56,6 +93,7 @@ export class AcademicMasterDialog {
 
   protected readonly types = AcademicMasterType;
   protected readonly type = this.data.type;
+  protected readonly placeholders = PLACEHOLDERS[this.type];
   protected readonly isSaving = signal(false);
   /** Flipped by the first submit attempt, so every outstanding error surfaces at once. */
   protected readonly submitted = signal(false);

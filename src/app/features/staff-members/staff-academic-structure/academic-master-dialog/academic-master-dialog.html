@@ -3,14 +3,17 @@
     <app-form-text
       label="Code"
       inputId="academic-master-code"
+      [placeholder]="placeholders.code"
       required
       autofocus
+      codeFormat
       [spellcheck]="false"
       [field]="f.code"
       [submitted]="submitted()" />
     <app-form-text
       label="Name"
       inputId="academic-master-name"
+      [placeholder]="placeholders.name"
       required
       [field]="f.name"
       [submitted]="submitted()" />
@@ -18,6 +21,7 @@
   <app-form-textarea
     label="Description"
     inputId="academic-master-description"
+    [placeholder]="placeholders.description"
     [field]="f.description"
     [submitted]="submitted()" />
 
@@ -27,12 +31,14 @@
         <app-form-date
           label="Start date"
           inputId="academic-master-start"
+          placeholder="dd/mm/yyyy"
           required
           [field]="$any(f.startDate)"
           [submitted]="submitted()" />
         <app-form-date
           label="End date"
           inputId="academic-master-end"
+          placeholder="dd/mm/yyyy"
           required
           [minDate]="model().startDate ?? undefined"
           [field]="$any(f.endDate)"
@@ -89,6 +95,7 @@
         <app-form-number
           label="Capacity"
           inputId="academic-master-capacity"
+          placeholder="e.g. 40"
           [min]="0"
           [useGrouping]="false"
           [field]="$any(f.capacity)"
@@ -136,6 +143,7 @@
         <app-form-text
           label="Curriculum version"
           inputId="academic-master-curriculum-version"
+          placeholder="e.g. 2026"
           [field]="f.curriculumVersion"
           [submitted]="submitted()" />
       </div>
