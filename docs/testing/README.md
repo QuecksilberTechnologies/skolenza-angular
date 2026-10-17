@@ -17,3 +17,4 @@ Current Skolenza Angular verification is recorded here. Files ending in
 - [Staff structure screens busy indicators — 2026-10-16](staff/structure-busy-state/2026-10-16.md)
 - [Staff form control names, policy mapping route and self-edit name sync — 2026-10-16](staff/form-control-names/2026-10-16.md)
 - [Staff member profile Policies tab removal — 2026-10-16](staff/profile-policies-tab-removal/2026-10-16.md)
+- [Add Staff Member form UI review fixes — 2026-10-17](staff/add-staff-member-ui/2026-10-17.md)
