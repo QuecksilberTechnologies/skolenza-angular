@@ -1,0 +1,67 @@
+<form class="grid grid-cols-1 gap-4" novalidate (submit)="$event.preventDefault(); save()">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <app-form-select
+      label="Course offering"
+      inputId="teaching-offering"
+      placeholder="Select course offering"
+      required
+      optionLabel="name"
+      optionValue="id"
+      optionDisabled="disabled"
+      [options]="offeringOptions"
+      [field]="$any(f.courseOfferingId)"
+      [submitted]="submitted()" />
+    <app-form-select
+      label="Section"
+      inputId="teaching-section"
+      placeholder="Select section"
+      hint="Limited to sections of the offering's group"
+      required
+      optionLabel="name"
+      optionValue="id"
+      emptyTitle="No sections for this offering"
+      emptyDetail="Add a section to the offering's group first."
+      optionDisabled="disabled"
+      [options]="sectionOptions()"
+      [field]="$any(f.classSectionId)"
+      [submitted]="submitted()" />
+    <app-form-select
+      label="Assignment role"
+      inputId="teaching-role"
+      placeholder="Select role"
+      required
+      optionLabel="name"
+      optionValue="id"
+      [options]="data.assignmentTypes"
+      [field]="$any(f.assignmentType)"
+      [submitted]="submitted()" />
+    <app-form-number
+      label="Contribution %"
+      inputId="teaching-contribution"
+      required
+      [min]="1"
+      [max]="100"
+      [useGrouping]="false"
+      [field]="$any(f.contributionPercent)"
+      [submitted]="submitted()" />
+    <app-form-date
+      label="Effective from"
+      inputId="teaching-from"
+      required
+      [field]="$any(f.effectiveFrom)"
+      [submitted]="submitted()" />
+    <app-form-date
+      label="Effective to"
+      inputId="teaching-to"
+      [minDate]="model().effectiveFrom ?? undefined"
+      [field]="$any(f.effectiveTo)"
+      [submitted]="submitted()" />
+  </div>
+  <app-form-checkbox label="Primary responsibility" inputId="teaching-primary" [field]="f.isPrimary" />
+  <app-form-checkbox label="Active" inputId="teaching-active" [field]="f.isActive" />
+
+  <div class="flex justify-end gap-2">
+    <p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="cancel()" />
+    <p-button type="submit" label="Save" icon="pi pi-check" [loading]="isSaving()" />
+  </div>
+</form>
