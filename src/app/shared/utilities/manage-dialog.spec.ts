@@ -14,7 +14,7 @@ class FakeDestroyRef {
 }
 
 function setup(titleId?: string) {
-  const onClose = new Subject<boolean | undefined>();
+  const onClose = new Subject<unknown>();
   const ref = { onClose, close: vi.fn(() => onClose.next(undefined)) };
   const dialogService = { open: vi.fn(() => ref) } as unknown as DialogService;
   const destroyRef = new FakeDestroyRef();
@@ -64,6 +64,12 @@ describe('openManageDialog', () => {
     const cancelled = setup();
     cancelled.onClose.next(undefined);
     expect(cancelled.onSaved).not.toHaveBeenCalled();
+  });
+
+  it('hands onSaved what the dialog closed with', () => {
+    const saved = setup();
+    saved.onClose.next({ unitId: 4 });
+    expect(saved.onSaved).toHaveBeenCalledWith({ unitId: 4 });
   });
 
   it('removes its destroy hook once the dialog closes', () => {

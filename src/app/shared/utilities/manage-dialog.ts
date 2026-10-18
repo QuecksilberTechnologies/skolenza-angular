@@ -15,15 +15,16 @@ export interface ManageDialogOptions {
 }
 
 /**
- * Opens an add/edit dialog and runs `onSaved` when it closes with `true`. The dialog is closed if
+ * Opens an add/edit dialog and runs `onSaved` with the close value when it closes with a truthy
+ * one (`true`, or whatever the dialog reports about the save). The dialog is closed if
  * the host is destroyed first; that hook is removed again when the dialog closes, so repeated
  * opens do not pile up callbacks on the host.
  */
-export function openManageDialog(
+export function openManageDialog<R = true>(
   dialogService: DialogService,
   destroyRef: DestroyRef,
   { component, header, maxWidth, data, titleId }: ManageDialogOptions,
-  onSaved: () => void,
+  onSaved: (result: R) => void,
 ): void {
   const ref = dialogService.open(component, {
     header,
@@ -41,8 +42,8 @@ export function openManageDialog(
   });
   if (!ref) return;
   const unregister = destroyRef.onDestroy(() => ref.close());
-  ref.onClose.pipe(take(1)).subscribe((saved?: boolean) => {
+  ref.onClose.pipe(take(1)).subscribe((saved?: R) => {
     unregister();
-    if (saved) onSaved();
+    if (saved) onSaved(saved);
   });
 }
