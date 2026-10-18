@@ -20,3 +20,4 @@ Current Skolenza Angular verification is recorded here. Files ending in
 - [Add Staff Member form UI review fixes — 2026-10-17](staff/add-staff-member-ui/2026-10-17.md)
 - [Source recovery snapshots removal — 2026-10-17](reconstruction/recovery-snapshots-removal/2026-10-17.md)
 - [Staff Curriculum & Lesson Delivery server-side pagination — 2026-10-18](staff/curriculum-delivery-pagination/2026-10-18.md)
+- [Staff structure pages empty states — 2026-10-18](staff/empty-states/2026-10-18.md)
