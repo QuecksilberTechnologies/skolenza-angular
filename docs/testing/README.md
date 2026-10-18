@@ -22,3 +22,4 @@ Current Skolenza Angular verification is recorded here. Files ending in
 - [Staff Curriculum & Lesson Delivery server-side pagination — 2026-10-18](staff/curriculum-delivery-pagination/2026-10-18.md)
 - [Staff structure pages empty states — 2026-10-18](staff/empty-states/2026-10-18.md)
 - [Pricing page e2e spec realignment — 2026-10-18](auth/pricing-e2e-spec/2026-10-18.md)
+- [Login page e2e spec realignment — 2026-10-18](auth/login-e2e-spec/2026-10-18.md)
