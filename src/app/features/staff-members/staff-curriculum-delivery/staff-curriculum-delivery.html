@@ -61,7 +61,14 @@
         </article>
         } @empty {
         @if (!frameworks.failed()) {
-        <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('curriculum frameworks', 'Add Curriculum Framework') }}</p>
+        <app-table-empty-message
+          icon="pi pi-sitemap"
+          message="No curriculum frameworks yet"
+          subMessage="Frameworks hold the units and topics your lessons follow.">
+          @if (canAdd()) {
+          <p-button class="mt-4" label="Add Curriculum Framework" icon="pi pi-plus" (onClick)="openFrameworkDialog()" />
+          }
+        </app-table-empty-message>
         }
         }
         <app-load-more [list]="frameworks" what="curriculum frameworks" />
@@ -70,14 +77,24 @@
 
       @case ('units-topics') {
         @if (!selectedFrameworkId()) {
-        <p class="p-5 text-zinc-500 dark:text-zinc-400">Pick a curriculum framework to see its units and topics.</p>
+        <app-table-empty-message
+          icon="pi pi-filter"
+          message="Pick a curriculum framework"
+          subMessage="Choose one from Select framework to see its units and topics." />
         } @else if (units.loading() && !units.items().length) {
         <app-list-skeleton label="Loading Units..." />
         } @else {
         @if (units.failed() && !units.items().length) {
         <app-load-more [list]="units" what="units" />
         } @else if (!units.items().length) {
-        <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('units in this framework', 'Add Unit') }}</p>
+        <app-table-empty-message
+          icon="pi pi-list"
+          message="No units in this framework yet"
+          subMessage="Units group the topics taught under this framework.">
+          @if (canAdd()) {
+          <p-button class="mt-4" label="Add Unit" icon="pi pi-plus" (onClick)="openUnitDialog()" />
+          }
+        </app-table-empty-message>
         } @else {
         <!-- Virtual list: only the rows in view are rendered; reaching a "more" row loads its next page. -->
         <cdk-virtual-scroll-viewport
@@ -154,7 +171,14 @@
         </article>
         } @empty {
         @if (!plans.failed()) {
-        <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('lesson plans', 'Add Lesson Plan') }}</p>
+        <app-table-empty-message
+          icon="pi pi-file-edit"
+          message="No lesson plans yet"
+          subMessage="Plan a lesson's objectives, then record its delivery once approved.">
+          @if (canAdd()) {
+          <p-button class="mt-4" label="Add Lesson Plan" icon="pi pi-plus" (onClick)="openPlanDialog()" />
+          }
+        </app-table-empty-message>
         }
         }
         <app-load-more [list]="plans" what="lesson plans" />
@@ -181,7 +205,14 @@
         </article>
         } @empty {
         @if (!deliveries.failed()) {
-        <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('lesson deliveries', 'Record Lesson Delivery') }}</p>
+        <app-table-empty-message
+          icon="pi pi-book"
+          message="No lesson deliveries yet"
+          subMessage="Record a delivered lesson to track syllabus coverage.">
+          @if (canAdd()) {
+          <p-button class="mt-4" label="Record Lesson Delivery" icon="pi pi-plus" (onClick)="openDeliveryDialog()" />
+          }
+        </app-table-empty-message>
         }
         }
         <app-load-more [list]="deliveries" what="lesson deliveries" />
@@ -213,7 +244,10 @@
         </article>
         } @empty {
         @if (!progress.failed()) {
-        <p class="p-5 text-zinc-500 dark:text-zinc-400">No syllabus progress yet. Progress appears once a lesson delivery is approved.</p>
+        <app-table-empty-message
+          icon="pi pi-chart-line"
+          message="No syllabus progress yet"
+          subMessage="Progress appears once a lesson delivery is approved." />
         }
         }
         <app-load-more [list]="progress" what="syllabus progress" />

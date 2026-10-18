@@ -29,6 +29,7 @@ import {
   RouteTabs,
   StatusBadge,
   TableActionButton,
+  TableEmptyMessage,
 } from '@shared/components';
 import {
   AcademicMaster,
@@ -111,6 +112,7 @@ const EMPTY_PROFILE: StaffAcademicProfile = {
     SelectModule,
     StatusBadge,
     TableActionButton,
+    TableEmptyMessage,
     TieredMenuModule,
     TooltipModule,
   ],
@@ -343,12 +345,17 @@ export default class StaffAcademicStructure implements OnInit {
     );
   }
 
+  /** `total` is the tab's unfiltered row count; above zero means the status filter hid every row. */
   emptyMessage(total: number): string {
     const plural = this.noun().plural.toLowerCase();
-    if (total) return `No ${this.statusFilter} ${plural}.`;
-    return this.canAdd()
-      ? `No ${plural} yet. Use Add ${this.noun().singular} to create one.`
-      : `No ${plural} yet.`;
+    return total ? `No ${this.statusFilter} ${plural}` : `No ${plural} yet`;
+  }
+
+  emptyDetail(total: number): string {
+    const plural = this.noun().plural.toLowerCase();
+    return total
+      ? `Change the status filter to see all ${plural}.`
+      : `${plural[0].toUpperCase()}${plural.slice(1)} appear here once added.`;
   }
 
   visibleRecords(): AcademicMaster[] {

@@ -26,7 +26,7 @@
         }
       </article>
       } @empty {
-      <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage(categories().length) }}</p>
+      <ng-container *ngTemplateOutlet="emptyState; context: { $implicit: categories().length }" />
       }
       }
     } @else if (selectedTab() === 'positions') {
@@ -47,7 +47,7 @@
         }
       </article>
       } @empty {
-      <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage(positions().length) }}</p>
+      <ng-container *ngTemplateOutlet="emptyState; context: { $implicit: positions().length }" />
       }
       }
     } @else {
@@ -70,12 +70,26 @@
         }
       </article>
       } @empty {
-      <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage(masters().length) }}</p>
+      <ng-container *ngTemplateOutlet="emptyState; context: { $implicit: masters().length }" />
       }
       }
     }
 </app-route-tabs>
 </p-card>
+
+<!-- `total` is the tab's unfiltered row count: above zero means the status filter hid every row. -->
+<ng-template #emptyState let-total>
+<app-table-empty-message
+  [icon]="total ? 'pi pi-filter-slash' : 'pi pi-inbox'"
+  [message]="emptyMessage(total)"
+  [subMessage]="emptyDetail(total)">
+  @if (total) {
+  <p-button class="mt-4" label="Show all statuses" icon="pi pi-filter-slash" [outlined]="true" (onClick)="statusFilter = 'all'" />
+  } @else if (canAdd()) {
+  <p-button class="mt-4" [label]="'Add ' + noun().singular" icon="pi pi-plus" [loading]="(selectedTab() === 'categories' || selectedTab() === 'positions') && referencesLoading()" (onClick)="openAdd()" />
+  }
+</app-table-empty-message>
+</ng-template>
 
 <p-tieredmenu #rowMenu [model]="rowMenuItems()" [popup]="true" appendTo="body" />
 <p-confirmDialog />

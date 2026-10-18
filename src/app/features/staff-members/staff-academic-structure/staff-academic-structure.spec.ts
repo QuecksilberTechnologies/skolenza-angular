@@ -195,7 +195,11 @@ describe('StaffAcademicStructure', () => {
     });
 
     it('names the tab and the next step in the empty state', () => {
-      expect(component.emptyMessage(0)).toBe('No sessions yet. Use Add Session to create one.');
+      expect(component.emptyMessage(0)).toBe('No sessions yet');
+      expect(component.emptyDetail(0)).toBe('Sessions appear here once added.');
+      component.statusFilter = 'inactive';
+      expect(component.emptyMessage(1)).toBe('No inactive sessions');
+      expect(component.emptyDetail(1)).toBe('Change the status filter to see all sessions.');
     });
 
     it('filters rows by status', () => {

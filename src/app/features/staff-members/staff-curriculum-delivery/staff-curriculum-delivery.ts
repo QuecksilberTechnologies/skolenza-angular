@@ -35,6 +35,7 @@ import {
   StatusBadge,
   type StatusTone,
   TableActionButton,
+  TableEmptyMessage,
 } from '@shared/components';
 import {
   AcademicMaster,
@@ -130,6 +131,7 @@ type ReviewCode = Exclude<WorkflowCode, 'DRAFT'>;
     SelectModule,
     StatusBadge,
     TableActionButton,
+    TableEmptyMessage,
     TieredMenuModule,
   ],
   templateUrl: './staff-curriculum-delivery.html',
@@ -513,11 +515,6 @@ export default class StaffCurriculumDelivery implements OnInit {
   planTitle(lessonPlanId: number): string {
     const plan = this.planLookup().find((item) => item.id === lessonPlanId);
     return plan ? planLabel(plan) : 'Lesson plan';
-  }
-
-  /** "No <things> yet." plus, for users who can add, the button that creates one. */
-  emptyMessage(things: string, addLabel: string): string {
-    return this.canAdd() ? `No ${things} yet. Use ${addLabel} to create one.` : `No ${things} yet.`;
   }
 
   /** `refresh` updates the list the record sat in; by default the list for `path`. */

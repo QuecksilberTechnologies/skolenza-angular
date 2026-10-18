@@ -144,15 +144,16 @@ describe('StaffProfessionalStructure status confirmation', () => {
     expect(component.hasRowActions(true, component.canDelete())).toBe(false);
   });
 
-  it('names the tab and the next step in the empty state', () => {
-    expect(component.emptyMessage(0)).toBe(
-      'No job families yet. Use Add Job Family to create one.',
-    );
+  it('names the tab in the empty state', () => {
+    expect(component.emptyMessage(0)).toBe('No job families yet');
+    expect(component.emptyDetail(0)).toBe('Job families appear here once added.');
   });
 
-  it('drops the add hint from the empty state without Add permission', () => {
-    denied.add('Add');
-    expect(component.emptyMessage(0)).toBe('No job families yet.');
+  it('points at the status filter when it hides every row', () => {
+    component.statusFilter = 'inactive';
+
+    expect(component.emptyMessage(2)).toBe('No inactive job families');
+    expect(component.emptyDetail(2)).toBe('Change the status filter to see all job families.');
   });
 
   it('uses a primary accept button when activating', () => {

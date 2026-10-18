@@ -156,18 +156,6 @@ describe('StaffCurriculumDelivery', () => {
     expect(component.hasActions(component.frameworkActions(framework(2)))).toBe(false);
   });
 
-  it('names the next step in the empty state only for users who can add', () => {
-    expect(component.emptyMessage('lesson plans', 'Add Lesson Plan')).toBe(
-      'No lesson plans yet. Use Add Lesson Plan to create one.',
-    );
-  });
-
-  it('drops the add hint from the empty state without Add permission', () => {
-    denied.add('Add');
-
-    expect(component.emptyMessage('lesson plans', 'Add Lesson Plan')).toBe('No lesson plans yet.');
-  });
-
   it('opens the framework dialog with the matching header', () => {
     const open = vi.spyOn(TestBed.inject(DialogService), 'open').mockReturnValue(null);
 
