@@ -16,7 +16,12 @@ export type CurriculumUnitDialogData =
   | { kind: 'unit'; frameworkId: number; unit?: CurriculumUnit; offerings: AcademicMaster[] }
   | { kind: 'topic'; topic?: CurriculumTopic; unitId?: number; units: CurriculumUnit[] };
 
-/** Add or edit a curriculum unit or topic. Closes with `true` after a successful save. */
+/** What the dialog closes with after a successful save: the unit a topic was saved under. */
+export interface CurriculumUnitDialogResult {
+  unitId?: number;
+}
+
+/** Add or edit a curriculum unit or topic. Closes with a `CurriculumUnitDialogResult` after a save. */
 @Component({
   selector: 'app-curriculum-unit-dialog',
   imports: [ButtonModule, FormNumber, FormSelect, FormText, FormTextarea],
@@ -74,7 +79,7 @@ export class CurriculumUnitDialog {
         .subscribe({
           next: (response) => {
             this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
-            if (response.isSucceeded) this.#dialogRef.close(true);
+            if (response.isSucceeded) this.#dialogRef.close(this.#result());
           },
           error: (error) => this.#common.showMessage(error.message, 'error'),
         });
@@ -83,6 +88,10 @@ export class CurriculumUnitDialog {
 
   protected cancel(): void {
     this.#dialogRef.close();
+  }
+
+  #result(): CurriculumUnitDialogResult {
+    return this.#data.kind === 'topic' ? { unitId: this.model().parentId ?? undefined } : {};
   }
 
   #initialParentId(): number | undefined {

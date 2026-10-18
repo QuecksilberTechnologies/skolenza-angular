@@ -10,7 +10,7 @@
       placeholder="Select framework"
       [ngModel]="selectedFrameworkId() || null"
       (ngModelChange)="selectFramework($event)"
-      [options]="frameworks()"
+      [options]="frameworkOptions()"
       optionLabel="name"
       optionValue="id"
       appendTo="body" />
@@ -24,7 +24,7 @@
           @if (selectedFrameworkId()) {
           <p-button label="Add Unit" icon="pi pi-plus" (onClick)="openUnitDialog()" />
           }
-          @if (units().length) {
+          @if (units.items().length) {
           <p-button label="Add Topic" icon="pi pi-plus" [outlined]="true" (onClick)="openTopicDialog()" />
           }
         }
@@ -40,10 +40,10 @@
 
     @switch (selectedTab()) {
       @case ('frameworks') {
-        @if (loading.frameworks() && !frameworks().length) {
+        @if (frameworks.loading() && !frameworks.items().length) {
         <app-list-skeleton label="Loading Curriculum Frameworks..." />
         } @else {
-        @for (item of frameworks(); track item.id) {
+        @for (item of frameworks.items(); track item.id) {
         <article class="flex items-center justify-between gap-2 border-b border-zinc-200 p-3 last:border-b-0 sm:gap-4 sm:p-4 dark:border-zinc-800">
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
@@ -60,55 +60,85 @@
           }
         </article>
         } @empty {
+        @if (!frameworks.failed()) {
         <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('curriculum frameworks', 'Add Curriculum Framework') }}</p>
         }
+        }
+        <app-load-more [list]="frameworks" what="curriculum frameworks" />
         }
       }
 
       @case ('units-topics') {
         @if (!selectedFrameworkId()) {
         <p class="p-5 text-zinc-500 dark:text-zinc-400">Pick a curriculum framework to see its units and topics.</p>
-        } @else if (loading.units() && !units().length) {
+        } @else if (units.loading() && !units.items().length) {
         <app-list-skeleton label="Loading Units..." />
         } @else {
-        @for (unit of units(); track unit.id) {
-        <article class="border-b border-zinc-200 p-3 last:border-b-0 sm:p-4 dark:border-zinc-800">
-          <div class="flex items-center justify-between gap-4">
-            <div class="min-w-0 flex-1">
-              <strong class="font-semibold text-zinc-900 dark:text-zinc-50">{{ unit.sequence }}. {{ unit.name }}</strong>
-              <div class="text-sm text-zinc-500 dark:text-zinc-400">{{ unit.courseOfferingName }} · {{ unit.plannedPeriods }} periods</div>
-            </div>
-            @if (hasActions(unitActions(unit))) {
-            <app-table-action-button [ariaLabel]="'Actions for unit ' + unit.name" [text]="true" (action)="openRowMenu(rowMenu, $event, unitActions(unit))" />
+        @if (units.failed() && !units.items().length) {
+        <app-load-more [list]="units" what="units" />
+        } @else if (!units.items().length) {
+        <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('units in this framework', 'Add Unit') }}</p>
+        } @else {
+        <!-- Virtual list: only the rows in view are rendered; reaching a "more" row loads its next page. -->
+        <cdk-virtual-scroll-viewport
+          class="h-[calc(100dvh-16.5rem)] min-h-80"
+          role="region"
+          aria-label="Units and topics"
+          tabindex="0"
+          [itemSize]="unitRowHeight"
+          [minBufferPx]="unitRowHeight * 4"
+          [maxBufferPx]="unitRowHeight * 8">
+          <div *cdkVirtualFor="let row of unitRows(); trackBy: trackRow" [style.height.px]="unitRowHeight">
+            @switch (row.kind) {
+              @case ('unit') {
+              <div class="flex h-full items-center justify-between gap-4 border-t border-zinc-200 px-3 sm:px-4 dark:border-zinc-800">
+                <div class="min-w-0 flex-1">
+                  <strong class="block truncate font-semibold text-zinc-900 dark:text-zinc-50">{{ row.unit.sequence }}. {{ row.unit.name }}</strong>
+                  <div class="truncate text-sm text-zinc-500 dark:text-zinc-400">{{ row.unit.courseOfferingName }} · {{ row.unit.plannedPeriods }} periods</div>
+                </div>
+                @if (hasActions(unitActions(row.unit))) {
+                <app-table-action-button [ariaLabel]="'Actions for unit ' + row.unit.name" [text]="true" (action)="openRowMenu(rowMenu, $event, unitActions(row.unit))" />
+                }
+              </div>
+              }
+              @case ('topic') {
+              <div class="h-full py-1 pr-3 pl-6 sm:pr-4">
+                <div class="flex h-full items-center justify-between gap-4 rounded-card border border-zinc-200 px-3 dark:border-zinc-800">
+                  <div class="min-w-0 flex-1 truncate">
+                    <span class="sr-only">{{ row.unitName }}, topic </span>
+                    <span class="font-medium text-zinc-900 dark:text-zinc-50">{{ row.topic.sequence }}. {{ row.topic.name }}</span>
+                    <span class="ml-2 text-sm text-zinc-500 dark:text-zinc-400">{{ row.topic.plannedPeriods }} periods</span>
+                  </div>
+                  @if (hasActions(topicActions(row.topic))) {
+                  <app-table-action-button [ariaLabel]="'Actions for topic ' + row.topic.name" [text]="true" (action)="openRowMenu(rowMenu, $event, topicActions(row.topic))" />
+                  }
+                </div>
+              </div>
+              }
+              @case ('more') {
+              <div class="flex h-full items-center justify-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+                @if (row.list.failed()) {
+                <span>Couldn't load {{ row.what }}.</span>
+                <p-button label="Retry" icon="pi pi-refresh" size="small" [text]="true" [ariaLabel]="'Retry loading ' + row.what" [loading]="row.list.loading()" (onClick)="row.list.retry()" />
+                } @else {
+                <span class="flex items-center gap-2"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i>Loading {{ row.what }}...</span>
+                }
+              </div>
+              }
             }
           </div>
-          @if (unit.topics.length) {
-          <ul class="mt-3 space-y-2" [attr.aria-label]="'Topics in ' + unit.name">
-            @for (topic of unit.topics; track topic.id) {
-            <li class="flex items-center justify-between gap-4 rounded-card border border-zinc-200 px-3 py-2 dark:border-zinc-800">
-              <div class="min-w-0 flex-1">
-                <span class="font-medium text-zinc-900 dark:text-zinc-50">{{ topic.sequence }}. {{ topic.name }}</span>
-                <span class="ml-2 text-sm text-zinc-500 dark:text-zinc-400">{{ topic.plannedPeriods }} periods</span>
-              </div>
-              @if (hasActions(topicActions(topic))) {
-              <app-table-action-button [ariaLabel]="'Actions for topic ' + topic.name" [text]="true" (action)="openRowMenu(rowMenu, $event, topicActions(topic))" />
-              }
-            </li>
-            }
-          </ul>
-          }
-        </article>
-        } @empty {
-        <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('units in this framework', 'Add Unit') }}</p>
+        </cdk-virtual-scroll-viewport>
+        <!-- Rows scroll in and out of the DOM, so loading is announced from here, once. -->
+        <p class="sr-only" role="status">{{ unitsStatus() }}</p>
         }
         }
       }
 
       @case ('lesson-plans') {
-        @if (loading.plans() && !plans().length) {
+        @if (plans.loading() && !plans.items().length) {
         <app-list-skeleton label="Loading Lesson Plans..." />
         } @else {
-        @for (item of plans(); track item.id) {
+        @for (item of plans.items(); track item.id) {
         <article class="flex items-start justify-between gap-2 border-b border-zinc-200 p-3 last:border-b-0 sm:gap-4 sm:p-4 dark:border-zinc-800">
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
@@ -123,16 +153,19 @@
           }
         </article>
         } @empty {
+        @if (!plans.failed()) {
         <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('lesson plans', 'Add Lesson Plan') }}</p>
         }
+        }
+        <app-load-more [list]="plans" what="lesson plans" />
         }
       }
 
       @case ('delivery-logs') {
-        @if (loading.deliveries() && !deliveries().length) {
+        @if (deliveries.loading() && !deliveries.items().length) {
         <app-list-skeleton label="Loading Lesson Deliveries..." />
         } @else {
-        @for (item of deliveries(); track item.id) {
+        @for (item of deliveries.items(); track item.id) {
         <article class="flex items-start justify-between gap-2 border-b border-zinc-200 p-3 last:border-b-0 sm:gap-4 sm:p-4 dark:border-zinc-800">
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
@@ -147,16 +180,19 @@
           }
         </article>
         } @empty {
+        @if (!deliveries.failed()) {
         <p class="p-5 text-zinc-500 dark:text-zinc-400">{{ emptyMessage('lesson deliveries', 'Record Lesson Delivery') }}</p>
         }
+        }
+        <app-load-more [list]="deliveries" what="lesson deliveries" />
         }
       }
 
       @case ('syllabus-progress') {
-        @if (loading.progress() && !progress().length) {
+        @if (progress.loading() && !progress.items().length) {
         <app-list-skeleton label="Loading Syllabus Progress..." [actions]="0" />
         } @else {
-        @for (item of progress(); track item.curriculumUnitId) {
+        @for (item of progress.items(); track item.curriculumUnitId) {
         <article class="border-b border-zinc-200 p-3 last:border-b-0 sm:p-4 dark:border-zinc-800">
           <div class="flex justify-between gap-4">
             <div class="min-w-0 flex-1">
@@ -176,8 +212,11 @@
           </div>
         </article>
         } @empty {
+        @if (!progress.failed()) {
         <p class="p-5 text-zinc-500 dark:text-zinc-400">No syllabus progress yet. Progress appears once a lesson delivery is approved.</p>
         }
+        }
+        <app-load-more [list]="progress" what="syllabus progress" />
         }
       }
     }

@@ -12,17 +12,15 @@ export const WORKFLOW_BADGE: Record<WorkflowCode, { tone: StatusTone; icon: stri
   REJECTED: { tone: 'danger', icon: 'pi-times-circle' },
 };
 
-/** Topics from the units of the course offering the chosen teaching assignment teaches. */
-export function topicsForTeachingAssignment(
+/** Ids of the units of the course offering the chosen teaching assignment teaches. */
+export function unitIdsForTeachingAssignment(
   units: CurriculumUnit[],
   assignments: StaffTeachingAssignment[],
   assignmentId: number | null,
-): CurriculumUnit['topics'] {
+): number[] {
   const courseOfferingId = assignments.find((item) => item.id === assignmentId)?.courseOfferingId;
   return courseOfferingId
-    ? units
-        .filter((unit) => unit.courseOfferingId === courseOfferingId)
-        .flatMap((unit) => unit.topics)
+    ? units.filter((unit) => unit.courseOfferingId === courseOfferingId).map((unit) => unit.id)
     : [];
 }
 

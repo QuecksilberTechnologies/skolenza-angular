@@ -1,12 +1,17 @@
+import { ListRange } from '@angular/cdk/collections';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import {
+  afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   OnInit,
   signal,
   Type,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -18,12 +23,13 @@ import { ConfirmDialogModule } from '@openng/optimus-ui/confirmdialog';
 import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TieredMenu, TieredMenuModule } from '@openng/optimus-ui/tieredmenu';
-import { map, Observable, Subscription } from 'rxjs';
+import { forkJoin, map, Observable, of, Subscription, tap } from 'rxjs';
 
 import { Common, StaffAcademicStructureApi, StaffCurriculumDeliveryApi } from '@core/services';
 import { FeaturePageStore } from '@core/stores';
 import {
   ListSkeleton,
+  LoadMore,
   type RouteTab,
   RouteTabs,
   StatusBadge,
@@ -39,11 +45,11 @@ import {
   CurriculumUnit,
   LessonDelivery,
   LessonPlan,
-  SyllabusProgress,
 } from '@shared/interfaces';
 import { escapeHtml } from '@shared/utilities/escape-html';
 import { openManageDialog } from '@shared/utilities/manage-dialog';
-import { pendingCounter } from '@shared/utilities/pending-counter';
+import { allPages, pagedList, PagedList } from '@shared/utilities/paged-list';
+import { requestLimiter } from '@shared/utilities/request-limiter';
 
 import {
   CurriculumFrameworkDialog,
@@ -52,6 +58,7 @@ import {
 import {
   CurriculumUnitDialog,
   CurriculumUnitDialogData,
+  CurriculumUnitDialogResult,
 } from './curriculum-unit-dialog/curriculum-unit-dialog';
 import { WORKFLOW_BADGE, WorkflowCode } from './curriculum-workflow';
 import {
@@ -61,7 +68,7 @@ import {
 } from './lesson-delivery-dialog/lesson-delivery-dialog';
 import { LessonPlanDialog, LessonPlanDialogData } from './lesson-plan-dialog/lesson-plan-dialog';
 
-export { topicsForTeachingAssignment } from './curriculum-workflow';
+export { unitIdsForTeachingAssignment } from './curriculum-workflow';
 
 /** Each tab id is also its URL segment under `/app/staff/curriculum-delivery/`. */
 export type CurriculumTab =
@@ -86,6 +93,27 @@ const isCurriculumTab = (value: string | null): value is CurriculumTab =>
 const MODULE_CODE = 'STAFF_DIRECTORY';
 
 type DeletePath = 'frameworks' | 'units' | 'topics' | 'lesson-plans' | 'lesson-deliveries';
+
+/** The part of a paged list a `more` row drives. */
+interface MoreList {
+  loading(): boolean;
+  failed(): boolean;
+  loadMore(): void;
+  retry(): void;
+}
+
+/**
+ * One fixed-height row of the virtual Units & Topics list. A `more` row stands where a list has
+ * another page; rendering it loads that page (infinite scroll), and a failed load offers a retry.
+ * `what` names the page for the row's copy, e.g. "more units".
+ */
+export type UnitRow =
+  | { kind: 'unit'; key: string; unit: CurriculumUnit }
+  | { kind: 'topic'; key: string; topic: CurriculumTopic; unitName: string }
+  | { kind: 'more'; key: string; what: string; list: MoreList };
+
+/** Row height of the Units & Topics viewport, in px; the row template matches it. */
+export const UNIT_ROW_HEIGHT = 56;
 type ReviewCode = Exclude<WorkflowCode, 'DRAFT'>;
 
 @Component({
@@ -96,7 +124,9 @@ type ReviewCode = Exclude<WorkflowCode, 'DRAFT'>;
     ConfirmDialogModule,
     FormsModule,
     ListSkeleton,
+    LoadMore,
     RouteTabs,
+    ScrollingModule,
     SelectModule,
     StatusBadge,
     TableActionButton,
@@ -115,32 +145,101 @@ export default class StaffCurriculumDelivery implements OnInit {
   readonly #featurePageStore = inject(FeaturePageStore);
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
-  // One counter per list, so an unrelated lookup never holds a list's skeleton.
-  readonly #listLoads = {
-    frameworks: pendingCounter(),
-    units: pendingCounter(),
-    plans: pendingCounter(),
-    deliveries: pendingCounter(),
-    progress: pendingCounter(),
-  };
-  #unitsLoad?: Subscription;
-  readonly loading = {
-    frameworks: this.#listLoads.frameworks.active,
-    units: this.#listLoads.units.active,
-    plans: this.#listLoads.plans.active,
-    deliveries: this.#listLoads.deliveries.active,
-    progress: this.#listLoads.progress.active,
-  };
   readonly tabs = CURRICULUM_TABS;
   readonly selectedTab = signal<CurriculumTab>('frameworks');
   readonly statuses = signal<AcademicWorkflowStatusOption[]>([]);
-  readonly frameworks = signal<CurriculumFramework[]>([]);
   readonly selectedFrameworkId = signal(0);
-  readonly units = signal<CurriculumUnit[]>([]);
-  readonly plans = signal<LessonPlan[]>([]);
-  readonly deliveries = signal<LessonDelivery[]>([]);
-  readonly progress = signal<SyllabusProgress[]>([]);
+  /** Every framework, for the picker; the Frameworks tab pages its own list. */
+  readonly frameworkOptions = signal<CurriculumFramework[]>([]);
+  /** Every lesson plan, so each delivery row can name its plan. */
+  readonly planLookup = signal<LessonPlan[]>([]);
   readonly rowMenuItems = signal<MenuItem[]>([]);
+
+  /** A failed list request shows its error as a toast. */
+  readonly #toast = (error: unknown): void => this.error(error as { message: string });
+  // Each tab's list is server-paged and grows with "Load more".
+  readonly frameworks = pagedList((page) => this.#api.getFrameworks(page), this.#destroyRef, {
+    onError: this.#toast,
+  });
+  readonly units = pagedList(
+    (page) =>
+      this.#api
+        .getUnits(this.selectedFrameworkId(), page)
+        // Topics page on their own: each new unit on the page fetches its first page of topics.
+        .pipe(tap((response) => this.#syncTopics(response.data ?? [], page.pageNumber === 1))),
+    this.#destroyRef,
+    { onError: this.#toast },
+  );
+  readonly plans = pagedList((page) => this.#api.getLessonPlans(page), this.#destroyRef, {
+    onError: this.#toast,
+  });
+  readonly deliveries = pagedList((page) => this.#api.getDeliveries(page), this.#destroyRef, {
+    onError: this.#toast,
+  });
+  readonly progress = pagedList((page) => this.#api.getProgress(page), this.#destroyRef, {
+    onError: this.#toast,
+  });
+  /** Topic lists of the units in `units`, created as their units arrive; a new Map on change. */
+  readonly #topics = signal(new Map<number, PagedList<CurriculumTopic>>());
+  /** Topic requests in flight at once, across every unit on the tab. */
+  readonly #topicRequests = requestLimiter(4);
+  #frameworkOptionsLoad?: Subscription;
+  /** Every unit of one framework, for the dialog pickers; dropped when units change. */
+  #unitOptions?: { frameworkId: number; units: CurriculumUnit[] };
+
+  readonly unitRowHeight = UNIT_ROW_HEIGHT;
+  /** Units & Topics as flat rows: each unit, its loaded topics, then the rows that load more. */
+  readonly unitRows = computed<UnitRow[]>(() => {
+    const rows: UnitRow[] = [];
+    let topicsLoading = false;
+    for (const unit of this.units.items()) {
+      rows.push({ kind: 'unit', key: `unit-${unit.id}`, unit });
+      const topics = this.topicsOf(unit.id);
+      if (!topics) continue;
+      topicsLoading ||= topics.loading();
+      for (const topic of topics.items())
+        rows.push({ kind: 'topic', key: `topic-${topic.id}`, topic, unitName: unit.name });
+      // A failed list keeps its row too, so its Retry stays reachable on the last page.
+      if (topics.hasMore() || topics.failed())
+        rows.push({
+          kind: 'more',
+          key: `topics-${unit.id}`,
+          what: `more topics in ${unit.name}`,
+          list: topics,
+        });
+    }
+    // Until a page's topics arrive its units are one row each, so the next page would come into
+    // view at once and load too; wait for them so each scroll loads one page.
+    if ((this.units.hasMore() && !topicsLoading) || this.units.failed())
+      rows.push({ kind: 'more', key: 'units', what: 'more units', list: this.units });
+    return rows;
+  });
+  /** One polite announcement for the virtual list, instead of a status region per row. */
+  readonly unitsStatus = computed(() => {
+    const more = this.unitRows().filter((row) => row.kind === 'more');
+    if (more.some((row) => row.list.failed())) return "Some units or topics couldn't load.";
+    return more.some((row) => row.list.loading()) ? 'Loading more units and topics...' : '';
+  });
+  readonly trackRow = (_index: number, row: UnitRow): string => row.key;
+  private readonly unitViewport = viewChild(CdkVirtualScrollViewport);
+
+  constructor() {
+    // Infinite scroll: a scroll that renders a `more` row loads the next page behind it.
+    effect((onCleanup) => {
+      const viewport = this.unitViewport();
+      if (!viewport) return;
+      const subscription = viewport.renderedRangeStream.subscribe((range) =>
+        this.loadRendered(range),
+      );
+      onCleanup(() => subscription.unsubscribe());
+    });
+    // So do new rows that leave a `more` row in view. Read after rendering, so the range belongs
+    // to the rows on screen rather than to the previous ones.
+    afterRenderEffect(() => {
+      const viewport = this.unitViewport();
+      if (viewport) this.loadRendered(viewport.getRenderedRange());
+    });
+  }
 
   readonly canAdd = computed(() => this.#featurePageStore.canPerformOrUnknown(MODULE_CODE, 'Add'));
   /** Edit, and every workflow review (submit, approve, reject), is a PUT, so an `Update`. */
@@ -149,9 +248,6 @@ export default class StaffCurriculumDelivery implements OnInit {
   );
   readonly canDelete = computed(() =>
     this.#featurePageStore.canPerformOrUnknown(MODULE_CODE, 'Delete'),
-  );
-  readonly approvedPlans = computed(() =>
-    this.plans().filter((plan) => this.statusCode(plan.workflowStatusId) === 'APPROVED'),
   );
 
   ngOnInit(): void {
@@ -194,8 +290,21 @@ export default class StaffCurriculumDelivery implements OnInit {
     // current framework rather than leaving Units & Topics empty.
     if (!id) return;
     this.selectedFrameworkId.set(id);
-    this.units.set([]);
-    this.loadUnits();
+    this.#switchUnits();
+  }
+
+  /**
+   * Loads the next page behind every `more` row in the rendered range. A failed list waits for its
+   * Retry button, so a failing API is not asked again on every render.
+   */
+  loadRendered({ start, end }: ListRange): void {
+    for (const row of this.unitRows().slice(start, end))
+      if (row.kind === 'more' && !row.list.loading() && !row.list.failed()) row.list.loadMore();
+  }
+
+  /** The topics of a unit on the Units & Topics tab, paged on their own. */
+  topicsOf(unitId: number): PagedList<CurriculumTopic> | undefined {
+    return this.#topics().get(unitId);
   }
 
   openFrameworkDialog(framework?: CurriculumFramework): void {
@@ -206,7 +315,7 @@ export default class StaffCurriculumDelivery implements OnInit {
         data,
         `${framework ? 'Edit' : 'Add'} Curriculum Framework`,
         '44rem',
-        () => this.loadFrameworks(),
+        () => this.frameworks.refresh(),
       );
     });
   }
@@ -220,52 +329,72 @@ export default class StaffCurriculumDelivery implements OnInit {
         offerings,
       };
       this.#openDialog(CurriculumUnitDialog, data, `${unit ? 'Edit' : 'Add'} Unit`, '40rem', () =>
-        this.loadUnits(),
+        this.#refreshUnits(),
       );
     });
   }
 
   openTopicDialog(topic?: CurriculumTopic, unitId?: number): void {
-    const data: CurriculumUnitDialogData = { kind: 'topic', topic, unitId, units: this.units() };
-    this.#openDialog(CurriculumUnitDialog, data, `${topic ? 'Edit' : 'Add'} Topic`, '40rem', () =>
-      this.loadUnits(),
-    );
+    this.#withReference(this.#allUnits(), (units) => {
+      const data: CurriculumUnitDialogData = { kind: 'topic', topic, unitId, units };
+      this.#openDialog<CurriculumUnitDialogResult>(
+        CurriculumUnitDialog,
+        data,
+        `${topic ? 'Edit' : 'Add'} Topic`,
+        '40rem',
+        // Only the units the topic left and joined change; the rest keep their loaded topics.
+        (result) => {
+          const changed = new Set([topic?.curriculumUnitId, result.unitId]);
+          changed.forEach((id) => id && this.topicsOf(id)?.refresh());
+        },
+      );
+    });
   }
 
   openPlanDialog(plan?: LessonPlan): void {
-    const assignments = this.#api
-      .getTeachingAssignments()
-      .pipe(map((response) => response.data ?? []));
-    this.#withReference(assignments, (assignments) => {
-      const data: LessonPlanDialogData = { plan, assignments, units: this.units() };
+    const reference = forkJoin({
+      assignments: this.#api.getTeachingAssignments().pipe(map((response) => response.data ?? [])),
+      units: this.#allUnits(),
+    });
+    this.#withReference(reference, ({ assignments, units }) => {
+      const data: LessonPlanDialogData = { plan, assignments, units };
       this.#openDialog(
         LessonPlanDialog,
         data,
         `${plan ? 'Edit' : 'Add'} Lesson Plan`,
         '48rem',
-        () => this.loadPlans(),
+        () => this.plans.refresh(),
       );
     });
   }
 
   openDeliveryDialog(delivery?: LessonDelivery, lessonPlanId?: number): void {
-    const data: LessonDeliveryDialogData = {
-      delivery,
-      lessonPlanId,
-      approvedPlans: this.approvedPlans(),
-      plans: this.plans(),
-    };
-    this.#openDialog(
-      LessonDeliveryDialog,
-      data,
-      delivery ? 'Edit Lesson Delivery' : 'Record Lesson Delivery',
-      '48rem',
-      () => {
-        // Recorded from a lesson plan: show the new row where it lands (the tab loads it).
-        if (!delivery && lessonPlanId) this.openTab('delivery-logs');
-        else this.loadDeliveries();
-      },
-    );
+    // Delivery Logs already holds every plan; elsewhere they are fetched for the dialog.
+    const allPlans =
+      this.selectedTab() === 'delivery-logs' && this.planLookup().length
+        ? of(this.planLookup())
+        : this.#allPlans();
+    this.#withReference(allPlans, (plans) => {
+      const data: LessonDeliveryDialogData = {
+        delivery,
+        lessonPlanId,
+        approvedPlans: plans.filter(
+          (plan) => this.statusCode(plan.workflowStatusId) === 'APPROVED',
+        ),
+        plans,
+      };
+      this.#openDialog(
+        LessonDeliveryDialog,
+        data,
+        delivery ? 'Edit Lesson Delivery' : 'Record Lesson Delivery',
+        '48rem',
+        () => {
+          // Recorded from a lesson plan: show the new row where it lands (the tab loads it).
+          if (!delivery && lessonPlanId) this.openTab('delivery-logs');
+          else this.deliveries.refresh();
+        },
+      );
+    });
   }
 
   /** A row shows its action menu only when at least one action in it is permitted. */
@@ -284,7 +413,7 @@ export default class StaffCurriculumDelivery implements OnInit {
       () => this.openFrameworkDialog(item),
       (code) =>
         this.#review(this.#api.reviewFramework.bind(this.#api), item.id, code, () =>
-          this.loadFrameworks(),
+          this.frameworks.refresh(),
         ),
       () => this.confirmDelete('frameworks', item.id, item.name),
     );
@@ -325,7 +454,10 @@ export default class StaffCurriculumDelivery implements OnInit {
         label: 'Delete',
         icon: 'pi pi-trash',
         visible: this.canDelete(),
-        command: () => this.confirmDelete('topics', topic.id, topic.name),
+        command: () =>
+          this.confirmDelete('topics', topic.id, topic.name, () =>
+            this.topicsOf(topic.curriculumUnitId)?.refresh(),
+          ),
       },
     ];
   }
@@ -346,7 +478,7 @@ export default class StaffCurriculumDelivery implements OnInit {
       () => this.openPlanDialog(item),
       (code) =>
         this.#review(this.#api.reviewLessonPlan.bind(this.#api), item.id, code, () =>
-          this.loadPlans(),
+          this.plans.refresh(),
         ),
       () => this.confirmDelete('lesson-plans', item.id, `${item.courseOfferingName} lesson plan`),
     );
@@ -358,7 +490,7 @@ export default class StaffCurriculumDelivery implements OnInit {
       () => this.openDeliveryDialog(item),
       (code) =>
         this.#review(this.#api.reviewDelivery.bind(this.#api), item.id, code, () =>
-          this.loadDeliveries(),
+          this.deliveries.refresh(),
         ),
       () => this.confirmDelete('lesson-deliveries', item.id, 'lesson delivery'),
     );
@@ -379,7 +511,7 @@ export default class StaffCurriculumDelivery implements OnInit {
   }
 
   planTitle(lessonPlanId: number): string {
-    const plan = this.plans().find((item) => item.id === lessonPlanId);
+    const plan = this.planLookup().find((item) => item.id === lessonPlanId);
     return plan ? planLabel(plan) : 'Lesson plan';
   }
 
@@ -388,7 +520,13 @@ export default class StaffCurriculumDelivery implements OnInit {
     return this.canAdd() ? `No ${things} yet. Use ${addLabel} to create one.` : `No ${things} yet.`;
   }
 
-  confirmDelete(path: DeletePath, id: number, label: string): void {
+  /** `refresh` updates the list the record sat in; by default the list for `path`. */
+  confirmDelete(
+    path: DeletePath,
+    id: number,
+    label: string,
+    refresh: () => void = () => this.#refreshAfterDelete(path),
+  ): void {
     this.#confirmationService.confirm({
       header: `Delete ${label}`,
       // The dialog renders `message` via [innerHTML], so the label is escaped before use.
@@ -398,7 +536,7 @@ export default class StaffCurriculumDelivery implements OnInit {
       rejectLabel: 'Cancel',
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-secondary',
-      accept: () => this.deleteRecord(path, id),
+      accept: () => this.deleteRecord(path, id, refresh),
     });
   }
 
@@ -408,23 +546,23 @@ export default class StaffCurriculumDelivery implements OnInit {
     if (tab !== 'units-topics' && tab !== 'syllabus-progress') this.#loadStatuses();
     switch (tab) {
       case 'frameworks':
-        this.loadFrameworks();
+        this.frameworks.reload();
         break;
       case 'units-topics':
-        this.loadFrameworks();
+        this.#loadFrameworkOptions();
         break;
       case 'lesson-plans':
         // The framework picker sits here too: its units feed the lesson plan dialog.
-        this.loadFrameworks();
-        this.loadPlans();
+        this.#loadFrameworkOptions();
+        this.plans.reload();
         break;
       case 'delivery-logs':
         // Delivery rows are titled by their lesson plan.
-        this.loadPlans();
-        this.loadDeliveries();
+        this.#loadPlanLookup();
+        this.deliveries.reload();
         break;
       case 'syllabus-progress':
-        this.loadProgress();
+        this.progress.reload();
         break;
     }
   }
@@ -446,67 +584,97 @@ export default class StaffCurriculumDelivery implements OnInit {
       error: (error) => this.error(error),
     });
   }
-  private loadFrameworks(): void {
-    this.#api
-      .getFrameworks()
-      .pipe(this.#listLoads.frameworks.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe((response) => {
-        this.frameworks.set(response.data ?? []);
-        if (!this.selectedFrameworkId() && response.data?.length)
-          this.selectedFrameworkId.set(response.data[0].id);
-        // Only the tabs with the framework picker show units.
-        const tab = this.selectedTab();
-        if (tab === 'units-topics' || tab === 'lesson-plans') this.loadUnits();
+  /** A newer load cancels the one in flight, so a late answer cannot reset the units again. */
+  #loadFrameworkOptions(): void {
+    this.#frameworkOptionsLoad?.unsubscribe();
+    this.#frameworkOptionsLoad = allPages((page) => this.#api.getFrameworks(page))
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe({
+        next: (frameworks) => {
+          this.frameworkOptions.set(frameworks);
+          if (!this.selectedFrameworkId() && frameworks.length)
+            this.selectedFrameworkId.set(frameworks[0].id);
+          this.#switchUnits();
+        },
+        error: (error) => this.error(error),
       });
   }
-  private loadUnits(): void {
-    // Cancel the previous framework's request so a late response cannot fill this one.
-    this.#unitsLoad?.unsubscribe();
-    const id = this.selectedFrameworkId();
-    if (!id) {
-      this.units.set([]);
-      return;
+  #loadPlanLookup(): void {
+    this.#allPlans()
+      .pipe(takeUntilDestroyed(this.#destroyRef))
+      .subscribe((plans) => this.planLookup.set(plans));
+  }
+  /** Empties Units & Topics and, on that tab, fetches the picked framework's first page. */
+  #switchUnits(): void {
+    // Clearing cancels the previous framework's requests, so a late page cannot fill this one.
+    this.units.clear();
+    this.#syncTopics([], true);
+    if (this.selectedTab() === 'units-topics' && this.selectedFrameworkId()) this.units.reload();
+  }
+  /** After a unit save or delete: the loaded pages again, and the picker list is stale. */
+  #refreshUnits(): void {
+    this.#unitOptions = undefined;
+    this.units.refresh();
+  }
+  /**
+   * Gives each newly arrived unit a topic list and fetches its first page. When `units` holds the
+   * whole list (`replaced`), lists of units no longer in it are dropped, requests and all.
+   */
+  #syncTopics(units: CurriculumUnit[], replaced: boolean): void {
+    const lists = new Map(this.#topics());
+    if (replaced) {
+      const kept = new Set(units.map((unit) => unit.id));
+      for (const [unitId, topics] of lists)
+        if (!kept.has(unitId)) {
+          topics.clear();
+          lists.delete(unitId);
+        }
     }
-    this.#unitsLoad = this.#api
-      .getUnits(id)
-      .pipe(this.#listLoads.units.track, takeUntilDestroyed(this.#destroyRef))
-      // The API leaves `topics` out for a unit that has none.
-      .subscribe((response) =>
-        this.units.set(
-          (response.data ?? []).map((unit) => ({ ...unit, topics: unit.topics ?? [] })),
+    // One toast for the batch: when the topics endpoint is down, every unit's request fails.
+    let told = false;
+    const onError = (error: unknown): void => {
+      if (!told) this.#toast(error);
+      told = true;
+    };
+    const added = units.filter((unit) => !lists.has(unit.id));
+    for (const unit of added)
+      lists.set(
+        unit.id,
+        pagedList(
+          (page) => this.#api.getTopics(unit.id, page).pipe(this.#topicRequests),
+          this.#destroyRef,
+          { onError },
         ),
       );
+    this.#topics.set(lists);
+    for (const unit of added) lists.get(unit.id)?.reload();
   }
-  private loadPlans(): void {
-    this.#api
-      .getLessonPlans()
-      .pipe(this.#listLoads.plans.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe((response) => this.plans.set(response.data ?? []));
+  /** Every unit of the picked framework, for the dialog pickers; fetched once per framework. */
+  #allUnits(): Observable<CurriculumUnit[]> {
+    const frameworkId = this.selectedFrameworkId();
+    if (!frameworkId) return of([]);
+    if (this.#unitOptions?.frameworkId === frameworkId) return of(this.#unitOptions.units);
+    return allPages((page) => this.#api.getUnits(frameworkId, page)).pipe(
+      tap((units) => (this.#unitOptions = { frameworkId, units })),
+    );
   }
-  private loadDeliveries(): void {
-    this.#api
-      .getDeliveries()
-      .pipe(this.#listLoads.deliveries.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe((response) => this.deliveries.set(response.data ?? []));
+  #allPlans(): Observable<LessonPlan[]> {
+    return allPages((page) => this.#api.getLessonPlans(page));
   }
-  private loadProgress(): void {
-    this.#api
-      .getProgress()
-      .pipe(this.#listLoads.progress.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe((response) => this.progress.set(response.data ?? []));
+  #refreshAfterDelete(path: DeletePath): void {
+    if (path === 'frameworks') this.frameworks.refresh();
+    if (path === 'units') this.#refreshUnits();
+    if (path === 'lesson-plans') this.plans.refresh();
+    if (path === 'lesson-deliveries') this.deliveries.refresh();
   }
-  private deleteRecord(path: DeletePath, id: number): void {
+  private deleteRecord(path: DeletePath, id: number, refresh: () => void): void {
     this.#api
       .deleteRecord(path, id)
       .pipe(takeUntilDestroyed(this.#destroyRef))
       .subscribe({
         next: (response) => {
           this.notify(response);
-          if (!response.isSucceeded) return;
-          if (path === 'frameworks') this.loadFrameworks();
-          if (path === 'units' || path === 'topics') this.loadUnits();
-          if (path === 'lesson-plans') this.loadPlans();
-          if (path === 'lesson-deliveries') this.loadDeliveries();
+          if (response.isSucceeded) refresh();
         },
         error: (error) => this.error(error),
       });
@@ -583,15 +751,15 @@ export default class StaffCurriculumDelivery implements OnInit {
       });
   }
 
-  /** Opens a dialog and runs `onSaved` when it closes after a successful save. */
-  #openDialog(
+  /** Opens a dialog and runs `onSaved` with its close value after a successful save. */
+  #openDialog<R = true>(
     component: Type<unknown>,
     data: unknown,
     header: string,
     maxWidth: string,
-    onSaved: () => void,
+    onSaved: (result: R) => void,
   ): void {
-    openManageDialog(
+    openManageDialog<R>(
       this.#dialogService,
       this.#destroyRef,
       { component, header, maxWidth, data },

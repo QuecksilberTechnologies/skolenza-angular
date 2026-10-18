@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable } from 'rxjs';
 
@@ -7,9 +7,12 @@ import {
   AcademicWorkflowStatusOption,
   ApiDataResponse,
   CurriculumFramework,
+  CurriculumTopic,
   CurriculumUnit,
   LessonDelivery,
   LessonPlan,
+  PagedDataResponse,
+  PageRequest,
   SaveCurriculumFramework,
   SaveCurriculumTopic,
   SaveCurriculumUnit,
@@ -29,8 +32,8 @@ export class StaffCurriculumDeliveryApi extends BaseService {
   getStatuses(): Observable<ApiDataResponse<AcademicWorkflowStatusOption[]>> {
     return this.#get<AcademicWorkflowStatusOption[]>('workflow-statuses');
   }
-  getFrameworks(): Observable<ApiDataResponse<CurriculumFramework[]>> {
-    return this.#get<CurriculumFramework[]>('frameworks');
+  getFrameworks(page: PageRequest): Observable<PagedDataResponse<CurriculumFramework>> {
+    return this.#getPage<CurriculumFramework>('frameworks', page);
   }
   saveFramework(value: SaveCurriculumFramework): Observable<ApiDataResponse<CurriculumFramework>> {
     return this.#save<CurriculumFramework>('frameworks', value.id, value);
@@ -47,8 +50,11 @@ export class StaffCurriculumDeliveryApi extends BaseService {
         ),
       );
   }
-  getUnits(frameworkId: number): Observable<ApiDataResponse<CurriculumUnit[]>> {
-    return this.#get<CurriculumUnit[]>(`frameworks/${frameworkId}/units`);
+  getUnits(frameworkId: number, page: PageRequest): Observable<PagedDataResponse<CurriculumUnit>> {
+    return this.#getPage<CurriculumUnit>(`frameworks/${frameworkId}/units`, page);
+  }
+  getTopics(unitId: number, page: PageRequest): Observable<PagedDataResponse<CurriculumTopic>> {
+    return this.#getPage<CurriculumTopic>(`units/${unitId}/topics`, page);
   }
   saveUnit(value: SaveCurriculumUnit): Observable<ApiDataResponse<CurriculumUnit>> {
     return this.#save<CurriculumUnit>('units', value.id, value);
@@ -59,8 +65,8 @@ export class StaffCurriculumDeliveryApi extends BaseService {
   getTeachingAssignments(): Observable<ApiDataResponse<StaffTeachingAssignment[]>> {
     return this.#get<StaffTeachingAssignment[]>('teaching-assignments');
   }
-  getLessonPlans(): Observable<ApiDataResponse<LessonPlan[]>> {
-    return this.#get<LessonPlan[]>('lesson-plans');
+  getLessonPlans(page: PageRequest): Observable<PagedDataResponse<LessonPlan>> {
+    return this.#getPage<LessonPlan>('lesson-plans', page);
   }
   saveLessonPlan(value: SaveLessonPlan): Observable<ApiDataResponse<LessonPlan>> {
     return this.#save<LessonPlan>('lesson-plans', value.id, value);
@@ -70,8 +76,8 @@ export class StaffCurriculumDeliveryApi extends BaseService {
       .put<ApiDataResponse<LessonPlan>>(`${this.#url}/lesson-plans/${id}/review`, value)
       .pipe(catchError(this.handleError<ApiDataResponse<LessonPlan>>('reviewLessonPlan')));
   }
-  getDeliveries(): Observable<ApiDataResponse<LessonDelivery[]>> {
-    return this.#get<LessonDelivery[]>('lesson-deliveries');
+  getDeliveries(page: PageRequest): Observable<PagedDataResponse<LessonDelivery>> {
+    return this.#getPage<LessonDelivery>('lesson-deliveries', page);
   }
   saveDelivery(value: SaveLessonDelivery): Observable<ApiDataResponse<LessonDelivery>> {
     return this.#save<LessonDelivery>('lesson-deliveries', value.id, value);
@@ -89,20 +95,30 @@ export class StaffCurriculumDeliveryApi extends BaseService {
       .delete<ApiDataResponse<boolean>>(`${this.#url}/${path}/${id}`)
       .pipe(catchError(this.handleError<ApiDataResponse<boolean>>(`delete${path}`)));
   }
-  getProgress(courseOfferingId?: number): Observable<ApiDataResponse<SyllabusProgress[]>> {
-    const params = courseOfferingId
-      ? new HttpParams().set('courseOfferingId', courseOfferingId)
-      : undefined;
-    return this.#http
-      .get<ApiDataResponse<SyllabusProgress[]>>(`${this.#url}/syllabus-progress`, { params })
-      .pipe(
-        catchError(this.handleError<ApiDataResponse<SyllabusProgress[]>>('getSyllabusProgress')),
-      );
+  getProgress(
+    page: PageRequest,
+    courseOfferingId?: number,
+  ): Observable<PagedDataResponse<SyllabusProgress>> {
+    return this.#getPage<SyllabusProgress>('syllabus-progress', page, { courseOfferingId });
   }
   #get<T>(path: string): Observable<ApiDataResponse<T>> {
     return this.#http
       .get<ApiDataResponse<T>>(`${this.#url}/${path}`)
       .pipe(catchError(this.handleError<ApiDataResponse<T>>(`get${path}`)));
+  }
+  #getPage<T>(
+    path: string,
+    page: PageRequest,
+    filters: object = {},
+  ): Observable<PagedDataResponse<T>> {
+    const params = this.makeHttpParams({
+      ...filters,
+      PageNumber: page.pageNumber,
+      PageSize: page.pageSize,
+    });
+    return this.#http
+      .get<PagedDataResponse<T>>(`${this.#url}/${path}`, { params })
+      .pipe(catchError(this.handleError<PagedDataResponse<T>>(`get${path}`)));
   }
   #save<T>(path: string, id: number | undefined, value: object): Observable<ApiDataResponse<T>> {
     const request = id

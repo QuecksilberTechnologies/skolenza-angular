@@ -21,9 +21,14 @@
     hint="Topics from the selected framework that this assignment teaches"
     optionLabel="name"
     optionValue="id"
-    emptyTitle="No topics for this assignment"
-    emptyDetail="Pick a teaching assignment, or add topics on the Units & Topics tab."
+    [emptyTitle]="topicsFailed() ? 'Topics did not load' : 'No topics for this assignment'"
+    [emptyDetail]="
+      topicsFailed()
+        ? 'Select Save to try loading them again.'
+        : 'Pick a teaching assignment, or add topics on the Units & Topics tab.'
+    "
     [options]="topicOptions()"
+    [loading]="topicsLoading()"
     [field]="f.curriculumTopicIds"
     [submitted]="submitted()" />
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -79,6 +84,6 @@
 
   <div class="flex justify-end gap-2">
     <p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="cancel()" />
-    <p-button type="submit" label="Save" icon="pi pi-check" [loading]="isSaving()" />
+    <p-button type="submit" label="Save" icon="pi pi-check" [loading]="isSaving()" [disabled]="topicsLoading()" />
   </div>
 </form>
