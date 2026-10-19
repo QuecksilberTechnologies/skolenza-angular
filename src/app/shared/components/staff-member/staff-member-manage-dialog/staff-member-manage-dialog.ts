@@ -54,6 +54,7 @@ import {
 } from '@shared/interfaces';
 import { BLOOD_GROUPS } from '@shared/utilities/common-data';
 import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
+import { allPages } from '@shared/utilities/paged-list';
 import { PERSON_NAME_PATTERN } from '@shared/utilities/validation-regex';
 import { contactNumberValidator } from '@shared/validators/contact.validators';
 
@@ -408,23 +409,22 @@ export class StaffMemberManageDialog implements OnInit {
   private loadProfessionalStructure(): void {
     this.isLoadingProfessionalStructure.set(true);
     this.isLoadingStaffCategories.set(true);
-    this.#professionalApi
-      .getCategories()
+    allPages((page) => this.#professionalApi.getCategories(page))
       .pipe(
         finalize(() => this.isLoadingStaffCategories.set(false)),
         takeUntilDestroyed(this.#destroyRef),
       )
       .subscribe({
-        next: (response) =>
-          this.staffCategoryOptions.set(response.isSucceeded ? response.data : []),
+        next: (categories) => this.staffCategoryOptions.set(categories),
         error: (error) => this.#commonService.showMessage(error.message, 'error'),
       });
-    this.#professionalApi
-      .getMasters(StaffProfessionalMasterType.JobFamily)
+    allPages((page) =>
+      this.#professionalApi.getMasters(StaffProfessionalMasterType.JobFamily, page),
+    )
       .pipe(takeUntilDestroyed(this.#destroyRef))
       .subscribe({
-        next: (response) => {
-          this.allJobFamilyOptions.set(response.isSucceeded ? response.data : []);
+        next: (jobFamilies) => {
+          this.allJobFamilyOptions.set(jobFamilies);
           this.loadPositions(
             this.staffMemberForm.controls.institutionStaffCategoryMasterId.value,
             this.staffMemberForm.controls.staffJobFamilyMasterId.value,
@@ -442,15 +442,15 @@ export class StaffMemberManageDialog implements OnInit {
     // Latest request wins: a slower response for an earlier category must not overwrite it.
     this.#positionsSubscription?.unsubscribe();
     this.isLoadingProfessionalStructure.set(true);
-    this.#positionsSubscription = this.#professionalApi
-      .getPositions(institutionStaffCategoryMasterId)
+    this.#positionsSubscription = allPages((page) =>
+      this.#professionalApi.getPositions(page, institutionStaffCategoryMasterId),
+    )
       .pipe(
         finalize(() => this.isLoadingProfessionalStructure.set(false)),
         takeUntilDestroyed(this.#destroyRef),
       )
       .subscribe({
-        next: (response) => {
-          const positions = response.isSucceeded ? response.data : [];
+        next: (positions) => {
           this.categoryPositionOptions.set(positions);
           const availableFamilyIds = new Set(
             positions.map((position) => position.staffJobFamilyMasterId),

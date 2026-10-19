@@ -574,7 +574,9 @@ describe('StaffCurriculumDelivery tab requests', () => {
 
     component.openFrameworkDialog();
 
-    expect(academicApi.getMasters.mock.calls).toEqual([[AcademicMasterType.Session]]);
+    expect(academicApi.getMasters.mock.calls).toEqual([
+      [AcademicMasterType.Session, expect.objectContaining({ pageNumber: 1 })],
+    ]);
   });
 });
 

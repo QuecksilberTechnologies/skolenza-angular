@@ -2,6 +2,7 @@ import { HttpContext, HttpErrorResponse, HttpParams } from '@angular/common/http
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 
+import type { PageRequest } from '@shared/interfaces';
 import { SKIP_AUTH } from '@shared/utilities/skip-auth.token';
 
 /** Error thrown by every API wrapper; keeps the HTTP status alongside the unwrapped message. */
@@ -142,5 +143,14 @@ export abstract class BaseService {
     });
 
     return params;
+  }
+
+  /** Query params for a server-paged list: the filters plus `PageNumber` / `PageSize`. */
+  protected makePageParams(page: PageRequest, filters: object = {}) {
+    return this.makeHttpParams({
+      ...filters,
+      PageNumber: page.pageNumber,
+      PageSize: page.pageSize,
+    });
   }
 }

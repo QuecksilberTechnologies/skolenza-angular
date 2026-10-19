@@ -20,12 +20,13 @@ import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TieredMenu, TieredMenuModule } from '@openng/optimus-ui/tieredmenu';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
-import { filter, Subscription, take } from 'rxjs';
+import { filter, forkJoin, Subscription, take } from 'rxjs';
 
 import { Common, StaffProfessionalStructureApi } from '@core/services';
 import { FeaturePageStore, LookupStore } from '@core/stores';
 import {
   ListSkeleton,
+  LoadMore,
   type RouteTab,
   RouteTabs,
   StatusBadge,
@@ -38,7 +39,9 @@ import {
   StaffProfessionalMaster,
   StaffProfessionalMasterType,
 } from '@shared/interfaces';
+import { errorMessage } from '@shared/utilities/error-message';
 import { openManageDialog } from '@shared/utilities/manage-dialog';
+import { allPages, pagedList, PagedList } from '@shared/utilities/paged-list';
 import { pendingCounter } from '@shared/utilities/pending-counter';
 import { confirmStatusChange, statusRowActions } from '@shared/utilities/status-change';
 
@@ -57,6 +60,7 @@ import {
 } from './staff-position-dialog/staff-position-dialog';
 
 type StructureTab = StaffProfessionalMasterType | 'categories' | 'positions';
+type StatusFilter = 'all' | 'active' | 'inactive';
 
 /** URL segment under `/app/staff/professional-structure/` for each tab. */
 export const STRUCTURE_TAB_ROUTES: readonly { route: string; tab: StructureTab }[] = [
@@ -87,6 +91,7 @@ const MODULE_CODE = 'STAFF_DIRECTORY';
     ConfirmDialogModule,
     FormsModule,
     ListSkeleton,
+    LoadMore,
     NgTemplateOutlet,
     RouteTabs,
     SelectModule,
@@ -117,16 +122,41 @@ export default class StaffProfessionalStructure implements OnInit {
     label: TAB_NOUNS[item.tab].plural,
   }));
   readonly selectedTab = signal<StructureTab>(StaffProfessionalMasterType.JobFamily);
-  readonly masters = signal<StaffProfessionalMaster[]>([]);
-  readonly positions = signal<StaffPositionMaster[]>([]);
+  /** A failed request shows its error as a toast. */
+  readonly #toast = (error: unknown): void =>
+    this.#common.showMessage(errorMessage(error), 'error');
+  readonly statusFilter = signal<StatusFilter>('all');
+  /** "Active" is filtered by the server; "Inactive" only on the loaded rows (no API option). */
+  readonly #activeOnly = (): boolean => this.statusFilter() === 'active';
+  // Each tab's list is server-paged and grows with "Load more".
+  readonly categoryList = pagedList(
+    (page) => this.#api.getCategories(page, this.#activeOnly()),
+    this.#destroyRef,
+    { onError: this.#toast },
+  );
+  readonly positionList = pagedList(
+    (page) => this.#api.getPositions(page, undefined, this.#activeOnly()),
+    this.#destroyRef,
+    { onError: this.#toast },
+  );
+  /** Job Families, Capabilities and Duties share one list; it reads the selected tab's type. */
+  readonly masterList = pagedList(
+    (page) =>
+      this.#api.getMasters(
+        this.selectedTab() as StaffProfessionalMasterType,
+        page,
+        this.#activeOnly(),
+      ),
+    this.#destroyRef,
+    { onError: this.#toast },
+  );
+  /** Every row of each reference list, for the category and position dialog pickers. */
   readonly jobFamilies = signal<StaffProfessionalMaster[]>([]);
   readonly capabilities = signal<StaffProfessionalMaster[]>([]);
   readonly duties = signal<StaffProfessionalMaster[]>([]);
   readonly categories = signal<InstitutionStaffCategory[]>([]);
-  readonly #listLoad = pendingCounter();
-  #selectedLoad?: Subscription;
-  readonly loading = this.#listLoad.active;
   readonly #referenceLoad = pendingCounter();
+  #referenceRequest?: Subscription;
   /** Categories, job families, capabilities and duties the category and position dialogs pick from. */
   readonly referencesLoading = this.#referenceLoad.active;
   readonly #referencesLoading$ = toObservable(this.referencesLoading);
@@ -135,7 +165,6 @@ export default class StaffProfessionalStructure implements OnInit {
     { label: 'Active', value: 'active' },
     { label: 'Inactive', value: 'inactive' },
   ];
-  statusFilter: 'all' | 'active' | 'inactive' = 'all';
   readonly noun = computed(() => TAB_NOUNS[this.selectedTab()]);
   readonly canAdd = computed(() => this.#featurePageStore.canPerformOrUnknown(MODULE_CODE, 'Add'));
   readonly canUpdate = computed(() =>
@@ -176,10 +205,21 @@ export default class StaffProfessionalStructure implements OnInit {
 
   selectTab(tab: StructureTab): void {
     this.selectedTab.set(tab);
-    // Job Families, Capabilities and Duties share `masters`; clear it so the next tab shows a
-    // loading state instead of the previous tab's rows.
-    this.masters.set([]);
-    this.loadSelected();
+    this.#reloadSelected();
+  }
+
+  /** Server-side "Active" changes which rows come back, so leaving or entering it reloads. */
+  setStatusFilter(value: StatusFilter): void {
+    const wasActiveOnly = this.#activeOnly();
+    this.statusFilter.set(value);
+    if (this.#activeOnly() !== wasActiveOnly) this.#reloadSelected();
+  }
+
+  /** Clears the selected tab's list first, so it shows a loading state instead of stale rows. */
+  #reloadSelected(): void {
+    const list = this.#selectedList();
+    list.clear();
+    list.reload();
   }
 
   /** Opens the add dialog for the current tab. */
@@ -202,7 +242,11 @@ export default class StaffProfessionalStructure implements OnInit {
   openCategoryDialog(category?: InstitutionStaffCategory): void {
     this.#afterReferences(() => {
       const data: StaffCategoryDialogData = { category, jobFamilies: this.jobFamilies() };
-      this.#openDialog(StaffCategoryDialog, data, !!category, '40rem', () => this.loadSelected());
+      this.#openDialog(StaffCategoryDialog, data, !!category, '40rem', () => {
+        // Categories feed the position dialog's picker.
+        this.loadReferenceData();
+        this.loadSelected();
+      });
     });
   }
 
@@ -226,37 +270,17 @@ export default class StaffProfessionalStructure implements OnInit {
     });
   }
 
+  /** Fetches the selected tab's loaded pages again, so a save keeps the rows already shown. */
   loadSelected(): void {
+    this.#selectedList().refresh();
+  }
+
+  /** The list the selected tab shows. */
+  #selectedList(): Pick<PagedList<unknown>, 'reload' | 'refresh' | 'clear' | 'hasMore'> {
     const tab = this.selectedTab();
-    // Cancel the previous tab's request so a late response cannot fill this tab.
-    this.#selectedLoad?.unsubscribe();
-    if (tab === 'categories') {
-      this.#selectedLoad = this.#api
-        .getCategories(false)
-        .pipe(this.#listLoad.track, takeUntilDestroyed(this.#destroyRef))
-        .subscribe({
-          next: (response) => this.categories.set(response.isSucceeded ? response.data : []),
-          error: (error) => this.#common.showMessage(error.message, 'error'),
-        });
-      return;
-    }
-    if (tab === 'positions') {
-      this.#selectedLoad = this.#api
-        .getPositions(undefined, false)
-        .pipe(this.#listLoad.track, takeUntilDestroyed(this.#destroyRef))
-        .subscribe({
-          next: (response) => this.positions.set(response.isSucceeded ? response.data : []),
-          error: (error) => this.#common.showMessage(error.message, 'error'),
-        });
-      return;
-    }
-    this.#selectedLoad = this.#api
-      .getMasters(tab, false)
-      .pipe(this.#listLoad.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => this.masters.set(response.isSucceeded ? response.data : []),
-        error: (error) => this.#common.showMessage(error.message, 'error'),
-      });
+    if (tab === 'categories') return this.categoryList;
+    if (tab === 'positions') return this.positionList;
+    return this.masterList;
   }
 
   setCategoryActive(item: InstitutionStaffCategory): void {
@@ -266,6 +290,7 @@ export default class StaffProfessionalStructure implements OnInit {
       .subscribe({
         next: (response) => {
           this.#common.showMessage(response.message, response.isSucceeded ? 'success' : 'error');
+          this.loadReferenceData();
           this.loadSelected();
         },
         error: (error) => this.#common.showMessage(error.message, 'error'),
@@ -361,28 +386,30 @@ export default class StaffProfessionalStructure implements OnInit {
     );
   }
 
+  /**
+   * Every row of the four reference lists, inactive ones included. A newer load cancels the one in
+   * flight, so a late response cannot overwrite fresher lists; a failure shows one toast.
+   */
   private loadReferenceData(): void {
-    this.#api
-      .getCategories(false)
+    this.#referenceRequest?.unsubscribe();
+    const masters = (type: StaffProfessionalMasterType) =>
+      allPages((page) => this.#api.getMasters(type, page, false));
+    this.#referenceRequest = forkJoin({
+      categories: allPages((page) => this.#api.getCategories(page, false)),
+      jobFamilies: masters(StaffProfessionalMasterType.JobFamily),
+      capabilities: masters(StaffProfessionalMasterType.Capability),
+      duties: masters(StaffProfessionalMasterType.DutyDefinition),
+    })
       .pipe(this.#referenceLoad.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe((response) => {
-        this.categories.set(response.isSucceeded ? response.data : []);
+      .subscribe({
+        next: ({ categories, jobFamilies, capabilities, duties }) => {
+          this.categories.set(categories);
+          this.jobFamilies.set(jobFamilies);
+          this.capabilities.set(capabilities);
+          this.duties.set(duties);
+        },
+        error: this.#toast,
       });
-    for (const type of [
-      StaffProfessionalMasterType.JobFamily,
-      StaffProfessionalMasterType.Capability,
-      StaffProfessionalMasterType.DutyDefinition,
-    ]) {
-      this.#api
-        .getMasters(type, false)
-        .pipe(this.#referenceLoad.track, takeUntilDestroyed(this.#destroyRef))
-        .subscribe((response) => {
-          const values = response.isSucceeded ? response.data : [];
-          if (type === StaffProfessionalMasterType.JobFamily) this.jobFamilies.set(values);
-          if (type === StaffProfessionalMasterType.Capability) this.capabilities.set(values);
-          if (type === StaffProfessionalMasterType.DutyDefinition) this.duties.set(values);
-        });
-    }
   }
 
   /**
@@ -439,33 +466,48 @@ export default class StaffProfessionalStructure implements OnInit {
     );
   }
 
-  /** `total` is the tab's unfiltered row count; above zero means the status filter hid every row. */
+  /**
+   * Whether the status filter, not an empty tab, explains the empty list. `total` is the tab's
+   * loaded row count: above zero means the client-side filter hid every loaded row. "Active" is
+   * filtered by the server, so an empty answer there may still hide inactive rows.
+   */
+  filterHidRows(total: number): boolean {
+    return total > 0 || this.#activeOnly();
+  }
+
   emptyMessage(total: number): string {
     const plural = this.noun().plural.toLowerCase();
-    return total ? `No ${this.statusFilter} ${plural}` : `No ${plural} yet`;
+    if (!this.filterHidRows(total)) return `No ${plural} yet`;
+    // Pages still to load may hold matching rows.
+    return this.#selectedList().hasMore()
+      ? `No ${this.statusFilter()} ${plural} on the loaded pages`
+      : `No ${this.statusFilter()} ${plural}`;
   }
 
   emptyDetail(total: number): string {
     const plural = this.noun().plural.toLowerCase();
-    return total
-      ? `Change the status filter to see all ${plural}.`
-      : `${plural[0].toUpperCase()}${plural.slice(1)} appear here once added.`;
+    if (!this.filterHidRows(total))
+      return `${plural[0].toUpperCase()}${plural.slice(1)} appear here once added.`;
+    return this.#selectedList().hasMore()
+      ? 'Load more to check the rest, or change the status filter.'
+      : `Change the status filter to see all ${plural}.`;
   }
 
   visibleCategories(): InstitutionStaffCategory[] {
-    return this.filterByStatus(this.categories());
+    return this.filterByStatus(this.categoryList.items());
   }
   visibleMasters(): StaffProfessionalMaster[] {
-    return this.filterByStatus(this.masters());
+    return this.filterByStatus(this.masterList.items());
   }
   visiblePositions(): StaffPositionMaster[] {
-    return this.filterByStatus(this.positions());
+    return this.filterByStatus(this.positionList.items());
   }
 
   private filterByStatus<T extends { isActive: boolean }>(values: T[]): T[] {
-    return this.statusFilter === 'all'
+    const status = this.statusFilter();
+    return status === 'all'
       ? values
-      : values.filter((item) => item.isActive === (this.statusFilter === 'active'));
+      : values.filter((item) => item.isActive === (status === 'active'));
   }
 
   private rowActions(

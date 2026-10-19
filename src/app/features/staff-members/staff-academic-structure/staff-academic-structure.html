@@ -3,13 +3,13 @@
   @if (!staffMemberId()) {
   <app-route-tabs ariaLabel="Academic structure sections" [tabs]="tabs" [selected]="selectedTab()">
     <div toolbar class="contents">
-      <p-select class="min-w-36 flex-1 lg:flex-none" name="statusFilter" ariaLabel="Filter by status" [(ngModel)]="statusFilter" [options]="statusOptions" optionLabel="label" optionValue="value" appendTo="body" />
+      <p-select class="min-w-36 flex-1 lg:flex-none" name="statusFilter" ariaLabel="Filter by status" [ngModel]="statusFilter()" (ngModelChange)="setStatusFilter($event)" [options]="statusOptions" optionLabel="label" optionValue="value" appendTo="body" />
       @if (canAdd()) {
       <p-button [label]="'Add ' + noun().singular" icon="pi pi-plus" (onClick)="openMasterDialog()" />
       }
       </div>
 
-      @if (loading() && !records().length) {
+      @if (records.loading() && !records.items().length) {
       <app-list-skeleton [label]="'Loading ' + noun().plural + '...'" />
       } @else {
       @for (item of visibleRecords(); track item.id) {
@@ -28,17 +28,21 @@
         }
       </article>
       } @empty {
+      <!-- A failed load shows only the Retry footer below, never "No X yet". -->
+      @if (!records.failed()) {
       <app-table-empty-message
-        [icon]="records().length ? 'pi pi-filter-slash' : 'pi pi-inbox'"
-        [message]="emptyMessage(records().length)"
-        [subMessage]="emptyDetail(records().length)">
-        @if (records().length) {
-        <p-button class="mt-4" label="Show all statuses" icon="pi pi-filter-slash" [outlined]="true" (onClick)="statusFilter = 'all'" />
+        [icon]="filterHidRows(records.items().length) ? 'pi pi-filter-slash' : 'pi pi-inbox'"
+        [message]="emptyMessage(records.items().length)"
+        [subMessage]="emptyDetail(records.items().length)">
+        @if (filterHidRows(records.items().length)) {
+        <p-button class="mt-4" label="Show all statuses" icon="pi pi-filter-slash" [outlined]="true" (onClick)="setStatusFilter('all')" />
         } @else if (canAdd()) {
         <p-button class="mt-4" [label]="'Add ' + noun().singular" icon="pi pi-plus" (onClick)="openMasterDialog()" />
         }
       </app-table-empty-message>
       }
+      }
+      <app-load-more [list]="records" [what]="noun().plural.toLowerCase()" />
       }
   </app-route-tabs>
   } @else {

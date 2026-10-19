@@ -111,13 +111,10 @@ export class StaffCurriculumDeliveryApi extends BaseService {
     page: PageRequest,
     filters: object = {},
   ): Observable<PagedDataResponse<T>> {
-    const params = this.makeHttpParams({
-      ...filters,
-      PageNumber: page.pageNumber,
-      PageSize: page.pageSize,
-    });
     return this.#http
-      .get<PagedDataResponse<T>>(`${this.#url}/${path}`, { params })
+      .get<PagedDataResponse<T>>(`${this.#url}/${path}`, {
+        params: this.makePageParams(page, filters),
+      })
       .pipe(catchError(this.handleError<PagedDataResponse<T>>(`get${path}`)));
   }
   #save<T>(path: string, id: number | undefined, value: object): Observable<ApiDataResponse<T>> {

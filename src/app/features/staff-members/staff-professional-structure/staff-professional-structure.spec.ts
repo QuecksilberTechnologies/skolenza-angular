@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { Confirmation, ConfirmationService } from '@openng/optimus-ui/api';
 import { DialogService } from '@openng/optimus-ui/dynamicdialog';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Common, StaffProfessionalStructureApi } from '@core/services';
@@ -150,7 +150,7 @@ describe('StaffProfessionalStructure status confirmation', () => {
   });
 
   it('points at the status filter when it hides every row', () => {
-    component.statusFilter = 'inactive';
+    component.setStatusFilter('inactive');
 
     expect(component.emptyMessage(2)).toBe('No inactive job families');
     expect(component.emptyDetail(2)).toBe('Change the status filter to see all job families.');
@@ -278,9 +278,9 @@ describe('StaffProfessionalStructure tab loading', () => {
     capabilities.complete();
     jobFamilies.next(row('Library'));
 
-    expect(component.masters().map((item) => item.name)).toEqual(['Lesson planning']);
+    expect(component.masterList.items().map((item) => item.name)).toEqual(['Lesson planning']);
     // Reference lookups are still pending, but they do not count as the list loading.
-    expect(component.loading()).toBe(false);
+    expect(component.masterList.loading()).toBe(false);
     lookups.complete();
   });
 });
@@ -331,16 +331,18 @@ describe('StaffProfessionalStructure tab routing', () => {
   });
 
   it('selects and loads the tab named in the URL', () => {
+    const firstPage = { pageNumber: 1, pageSize: 10 };
     ctx.route.paramMap.next(convertToParamMap({ tab: 'positions' }));
 
     expect(component.selectedTab()).toBe('positions');
-    expect(ctx.api.getPositions).toHaveBeenCalledWith(undefined, false);
+    expect(ctx.api.getPositions).toHaveBeenCalledWith(firstPage, undefined, false);
 
     ctx.route.paramMap.next(convertToParamMap({ tab: 'duties' }));
 
     expect(component.selectedTab()).toBe(StaffProfessionalMasterType.DutyDefinition);
     expect(ctx.api.getMasters).toHaveBeenLastCalledWith(
       StaffProfessionalMasterType.DutyDefinition,
+      firstPage,
       false,
     );
   });
@@ -356,6 +358,78 @@ describe('StaffProfessionalStructure tab routing', () => {
       relativeTo: ctx.route,
       replaceUrl: true,
     });
+  });
+});
+
+describe('StaffProfessionalStructure list failures and reloads', () => {
+  const rejected = { isSucceeded: false, message: 'Institution not configured', data: null };
+
+  it('shows one toast when every reference list fails', () => {
+    const ctx = setupRouting();
+    const failing = vi.fn(() => throwError(() => new Error('Unable to reach the server.')));
+    ctx.api.getCategories = failing;
+    ctx.api.getMasters = failing;
+    const component = TestBed.runInInjectionContext(() => new StaffProfessionalStructure());
+
+    component.ngOnInit();
+
+    expect(TestBed.inject(Common).showMessage).toHaveBeenCalledOnce();
+    expect(TestBed.inject(Common).showMessage).toHaveBeenCalledWith(
+      'Unable to reach the server.',
+      'error',
+    );
+  });
+
+  it('shows a rejected first page as a failure with Retry, not as an empty tab', async () => {
+    const ctx = setupRouting();
+    ctx.api.getMasters.mockReturnValue(of(rejected) as never);
+    const fixture = TestBed.createComponent(StaffProfessionalStructure);
+    const root = fixture.nativeElement as HTMLElement;
+    await fixture.whenStable();
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'job-families' }));
+    await fixture.whenStable();
+
+    expect(root.textContent).toContain("Couldn't load the job families.");
+    expect(root.textContent).not.toContain('No job families yet');
+  });
+
+  it('clears a tab before reloading it, so stale rows never show', () => {
+    const ctx = setupRouting();
+    const component = TestBed.runInInjectionContext(() => new StaffProfessionalStructure());
+    component.ngOnInit();
+    ctx.api.getPositions.mockReturnValueOnce(
+      of({
+        isSucceeded: true,
+        message: '',
+        errors: [],
+        data: [{ id: 1, isActive: true }],
+      }) as never,
+    );
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'positions' }));
+    expect(component.positionList.items()).toHaveLength(1);
+
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'staff-categories' }));
+    ctx.api.getPositions.mockReturnValueOnce(new Subject() as never);
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'positions' }));
+
+    expect(component.positionList.items()).toEqual([]);
+    expect(component.positionList.loading()).toBe(true);
+  });
+
+  it('asks the server for active rows only when filtering by Active', () => {
+    const ctx = setupRouting();
+    const component = TestBed.runInInjectionContext(() => new StaffProfessionalStructure());
+    component.ngOnInit();
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'positions' }));
+
+    component.setStatusFilter('active');
+
+    expect(ctx.api.getPositions).toHaveBeenLastCalledWith(
+      { pageNumber: 1, pageSize: 10 },
+      undefined,
+      true,
+    );
+    expect(component.emptyMessage(0)).toBe('No active positions');
   });
 });
 

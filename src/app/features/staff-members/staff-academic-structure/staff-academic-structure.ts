@@ -19,12 +19,13 @@ import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TieredMenu, TieredMenuModule } from '@openng/optimus-ui/tieredmenu';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
-import { forkJoin, map, Observable, of, Subscription } from 'rxjs';
+import { forkJoin, map, Observable, of } from 'rxjs';
 
 import { Common, StaffAcademicStructureApi } from '@core/services';
 import { FeaturePageStore } from '@core/stores';
 import {
   ListSkeleton,
+  LoadMore,
   type RouteTab,
   RouteTabs,
   StatusBadge,
@@ -39,7 +40,9 @@ import {
   StaffAcademicProfile,
   StaffTeachingAssignment,
 } from '@shared/interfaces';
+import { errorMessage } from '@shared/utilities/error-message';
 import { openManageDialog } from '@shared/utilities/manage-dialog';
+import { allPages, pagedList } from '@shared/utilities/paged-list';
 import { pendingCounter } from '@shared/utilities/pending-counter';
 import { confirmStatusChange, statusRowActions } from '@shared/utilities/status-change';
 
@@ -91,6 +94,7 @@ const MASTER_DIALOG_REFERENCES: Record<AcademicMasterType, AcademicMasterType[]>
 };
 
 type MasterLists = Partial<Record<AcademicMasterType, AcademicMaster[]>>;
+type StatusFilter = 'all' | 'active' | 'inactive';
 
 /** Academic-structure endpoints sit under the Staff Directory permission boundary (see module-operation-routes.ts). */
 const MODULE_CODE = 'STAFF_DIRECTORY';
@@ -108,6 +112,7 @@ const EMPTY_PROFILE: StaffAcademicProfile = {
     ConfirmDialogModule,
     FormsModule,
     ListSkeleton,
+    LoadMore,
     RouteTabs,
     SelectModule,
     StatusBadge,
@@ -135,18 +140,24 @@ export default class StaffAcademicStructure implements OnInit {
     label: TAB_NOUNS[item.tab].plural,
   }));
   readonly selectedTab = signal(AcademicMasterType.Session);
-  readonly records = signal<AcademicMaster[]>([]);
+  readonly statusFilter = signal<StatusFilter>('all');
+  /** "Active" is filtered by the server; "Inactive" only on the loaded rows (no API option). */
+  readonly #activeOnly = (): boolean => this.statusFilter() === 'active';
+  /** The selected tab's masters, server-paged and grown with "Load more". */
+  readonly records = pagedList(
+    (page) => this.#api.getMasters(this.selectedTab(), page, this.#activeOnly()),
+    this.#destroyRef,
+    { onError: (error) => this.#common.showMessage(errorMessage(error), 'error') },
+  );
   readonly academicProfile = signal<StaffAcademicProfile>(EMPTY_PROFILE);
   readonly staffMemberId = signal<string | null>(null);
   readonly #listLoad = pendingCounter();
-  #selectedLoad?: Subscription;
   readonly loading = this.#listLoad.active;
   readonly statusOptions = [
     { label: 'All statuses', value: 'all' },
     { label: 'Active', value: 'active' },
     { label: 'Inactive', value: 'inactive' },
   ];
-  statusFilter: 'all' | 'active' | 'inactive' = 'all';
   readonly noun = computed(() => TAB_NOUNS[this.selectedTab()]);
   readonly canAdd = computed(() => this.#featurePageStore.canPerformOrUnknown(MODULE_CODE, 'Add'));
   readonly canUpdate = computed(() =>
@@ -192,9 +203,20 @@ export default class StaffAcademicStructure implements OnInit {
 
   selectTab(type: AcademicMasterType): void {
     this.selectedTab.set(type);
-    // Every tab shares `records`; clear it so the next tab shows a loading state, not stale rows.
-    this.records.set([]);
-    this.loadSelected();
+    this.#reloadRecords();
+  }
+
+  /** Server-side "Active" changes which rows come back, so leaving or entering it reloads. */
+  setStatusFilter(value: StatusFilter): void {
+    const wasActiveOnly = this.#activeOnly();
+    this.statusFilter.set(value);
+    if (this.#activeOnly() !== wasActiveOnly) this.#reloadRecords();
+  }
+
+  /** Every tab shares `records`; clear it so the list shows a loading state, not stale rows. */
+  #reloadRecords(): void {
+    this.records.clear();
+    this.records.reload();
   }
 
   openMasterDialog(master?: AcademicMaster): void {
@@ -345,35 +367,44 @@ export default class StaffAcademicStructure implements OnInit {
     );
   }
 
-  /** `total` is the tab's unfiltered row count; above zero means the status filter hid every row. */
+  /**
+   * Whether the status filter, not an empty tab, explains the empty list. `total` is the tab's
+   * loaded row count: above zero means the client-side filter hid every loaded row. "Active" is
+   * filtered by the server, so an empty answer there may still hide inactive rows.
+   */
+  filterHidRows(total: number): boolean {
+    return total > 0 || this.#activeOnly();
+  }
+
   emptyMessage(total: number): string {
     const plural = this.noun().plural.toLowerCase();
-    return total ? `No ${this.statusFilter} ${plural}` : `No ${plural} yet`;
+    if (!this.filterHidRows(total)) return `No ${plural} yet`;
+    // Pages still to load may hold matching rows.
+    return this.records.hasMore()
+      ? `No ${this.statusFilter()} ${plural} on the loaded pages`
+      : `No ${this.statusFilter()} ${plural}`;
   }
 
   emptyDetail(total: number): string {
     const plural = this.noun().plural.toLowerCase();
-    return total
-      ? `Change the status filter to see all ${plural}.`
-      : `${plural[0].toUpperCase()}${plural.slice(1)} appear here once added.`;
+    if (!this.filterHidRows(total))
+      return `${plural[0].toUpperCase()}${plural.slice(1)} appear here once added.`;
+    return this.records.hasMore()
+      ? 'Load more to check the rest, or change the status filter.'
+      : `Change the status filter to see all ${plural}.`;
   }
 
   visibleRecords(): AcademicMaster[] {
-    return this.statusFilter === 'all'
-      ? this.records()
-      : this.records().filter((item) => item.isActive === (this.statusFilter === 'active'));
+    const records = this.records.items();
+    const status = this.statusFilter();
+    return status === 'all'
+      ? records
+      : records.filter((item) => item.isActive === (status === 'active'));
   }
 
+  /** Fetches the loaded pages again, so a save keeps the rows already shown. */
   private loadSelected(): void {
-    // Cancel the previous tab's request so a late response cannot fill this tab.
-    this.#selectedLoad?.unsubscribe();
-    this.#selectedLoad = this.#api
-      .getMasters(this.selectedTab(), false)
-      .pipe(this.#listLoad.track, takeUntilDestroyed(this.#destroyRef))
-      .subscribe({
-        next: (response) => this.records.set(response.isSucceeded ? response.data : []),
-        error: (error) => this.#common.showMessage(error.message, 'error'),
-      });
+    this.records.refresh();
   }
 
   /** Fetches only the given master lists, keyed by type. */
@@ -382,10 +413,8 @@ export default class StaffAcademicStructure implements OnInit {
     const requests = Object.fromEntries(
       types.map((type) => [
         type,
-        this.#api
-          // Inactive rows too: a dialog keeps an already linked inactive parent visible but locked.
-          .getMasters(type, false)
-          .pipe(map((response) => (response.isSucceeded ? response.data : []))),
+        // Inactive rows too: a dialog keeps an already linked inactive parent visible but locked.
+        allPages((page) => this.#api.getMasters(type, page, false)),
       ]),
     );
     return forkJoin(requests) as Observable<MasterLists>;

@@ -572,7 +572,7 @@ export default class StaffCurriculumDelivery implements OnInit {
       .subscribe((response) => this.statuses.set(response.data ?? []));
   }
   #loadMasters(type: AcademicMasterType): Observable<AcademicMaster[]> {
-    return this.#academicApi.getMasters(type).pipe(map((response) => response.data ?? []));
+    return allPages((page) => this.#academicApi.getMasters(type, page));
   }
   /** Waits for a dialog's picker list, then opens it; a failed fetch shows the error instead. */
   #withReference<T>(reference: Observable<T>, open: (value: T) => void): void {

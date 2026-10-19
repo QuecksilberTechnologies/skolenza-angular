@@ -137,6 +137,21 @@ describe('pagedList', () => {
     expect(list.items()).toEqual([1]);
     expect(list.hasMore()).toBe(false);
   });
+
+  it('reports a page the API rejected with isSucceeded false as a failure', () => {
+    const onError = vi.fn();
+    const list = pagedList(
+      () => of({ isSucceeded: false, message: 'Not configured', data: null }),
+      destroyRef(),
+      { onError },
+    );
+
+    list.reload();
+
+    expect(list.failed()).toBe(true);
+    expect(list.items()).toEqual([]);
+    expect(onError).toHaveBeenCalledWith(new Error('Not configured'));
+  });
 });
 
 describe('allPages', () => {
@@ -162,5 +177,15 @@ describe('allPages', () => {
 
     expect(load).toHaveBeenCalledOnce();
     expect(rows).toEqual([1]);
+  });
+
+  it('fails when the API rejects a page with isSucceeded false', () => {
+    const error = vi.fn();
+
+    allPages(() => of({ isSucceeded: false, message: '', data: null })).subscribe({ error });
+
+    expect(error).toHaveBeenCalledWith(
+      new Error('The list could not be loaded. Please try again.'),
+    );
   });
 });

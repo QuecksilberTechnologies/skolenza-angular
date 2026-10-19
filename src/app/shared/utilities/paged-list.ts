@@ -8,12 +8,29 @@ import { pendingCounter } from './pending-counter';
 
 /** The paging fields a list page needs; `data` may be missing when the page is empty. */
 interface Page<T> {
+  isSucceeded?: boolean;
+  message?: string;
   data?: T[] | null;
   totalPages?: number;
   totalRecords?: number;
 }
 
 type LoadPage<T> = (page: PageRequest) => Observable<Page<T>>;
+
+/**
+ * `load`, but a page the API answered with `isSucceeded: false` fails like a transport error,
+ * so the list reports it instead of showing an empty page.
+ */
+const rejectingFailures =
+  <T>(load: LoadPage<T>): LoadPage<T> =>
+  (page) =>
+    load(page).pipe(
+      map((response) => {
+        if (response.isSucceeded === false)
+          throw new Error(response.message || 'The list could not be loaded. Please try again.');
+        return response;
+      }),
+    );
 
 /** The most rows one request may ask for; the API caps `PageSize` at 100. */
 export const MAX_PAGE_SIZE = 100;
@@ -37,10 +54,11 @@ interface Batch<T> {
  * A failed request leaves the rows as they were, sets `error` and calls `onError` (for a toast).
  */
 export function pagedList<T>(
-  load: LoadPage<T>,
+  loadPage: LoadPage<T>,
   destroyRef: DestroyRef,
   { pageSize = 10, onError }: { pageSize?: number; onError?: (error: unknown) => void } = {},
 ) {
+  const load = rejectingFailures(loadPage);
   const items = signal<T[]>([]);
   const loadedPages = signal(0);
   const totalPages = signal(0);
@@ -143,7 +161,8 @@ export function pagedList<T>(
 export type PagedList<T> = ReturnType<typeof pagedList<T>>;
 
 /** Every row of a server-paged list, fetched page by page; for pickers and lookups. */
-export function allPages<T>(load: LoadPage<T>, pageSize = MAX_PAGE_SIZE): Observable<T[]> {
+export function allPages<T>(loadPage: LoadPage<T>, pageSize = MAX_PAGE_SIZE): Observable<T[]> {
+  const load = rejectingFailures(loadPage);
   return load({ pageNumber: 1, pageSize }).pipe(
     // `index` counts the pages already received, so the next page is `index + 2`.
     expand((page, index) =>

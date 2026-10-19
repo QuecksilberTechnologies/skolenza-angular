@@ -122,7 +122,8 @@ describe('StaffMemberManageDialog professional structure loading', () => {
           useValue: {
             getCategories: () => ok([]),
             getMasters: () => mastersResponse,
-            getPositions: (categoryId: number) => (positions[categoryId ?? 0] ??= new Subject()),
+            getPositions: (_page: unknown, categoryId: number) =>
+              (positions[categoryId ?? 0] ??= new Subject()),
           },
         },
       ],

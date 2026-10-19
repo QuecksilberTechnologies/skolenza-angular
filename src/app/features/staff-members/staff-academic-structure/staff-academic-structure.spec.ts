@@ -14,6 +14,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Common, StaffAcademicStructureApi } from '@core/services';
 import { FeaturePageStore } from '@core/stores';
 import { AcademicMaster, AcademicMasterType } from '@shared/interfaces';
+import { MAX_PAGE_SIZE } from '@shared/utilities/paged-list';
 
 import { AcademicMasterDialog } from './academic-master-dialog/academic-master-dialog';
 import StaffAcademicStructure from './staff-academic-structure';
@@ -27,6 +28,9 @@ describe('StaffAcademicStructure', () => {
     isActive: true,
     type: 1,
   } as AcademicMaster;
+  /** The tab list asks for its first page; a dialog picker pages through every row. */
+  const firstPage = { pageNumber: 1, pageSize: 10 };
+  const everyRow = { pageNumber: 1, pageSize: MAX_PAGE_SIZE };
 
   let component: StaffAcademicStructure;
   let confirmSpy: ReturnType<typeof vi.spyOn>;
@@ -101,7 +105,11 @@ describe('StaffAcademicStructure', () => {
       paramMap.next(convertToParamMap({ tab: 'course-offerings' }));
 
       expect(component.selectedTab()).toBe(AcademicMasterType.CourseOffering);
-      expect(api['getMasters']).toHaveBeenLastCalledWith(AcademicMasterType.CourseOffering, false);
+      expect(api['getMasters']).toHaveBeenLastCalledWith(
+        AcademicMasterType.CourseOffering,
+        firstPage,
+        false,
+      );
       expect(component.tabs.map((tab) => tab.label)).toContain('Course Offerings');
     });
 
@@ -109,7 +117,7 @@ describe('StaffAcademicStructure', () => {
       component.ngOnInit();
 
       expect(api['getMasters']).toHaveBeenCalledOnce();
-      expect(api['getMasters']).toHaveBeenCalledWith(AcademicMasterType.Session, false);
+      expect(api['getMasters']).toHaveBeenCalledWith(AcademicMasterType.Session, firstPage, false);
       expect(api['getTeachingAssignmentTypes']).not.toHaveBeenCalled();
     });
 
@@ -119,7 +127,7 @@ describe('StaffAcademicStructure', () => {
 
       component.openMasterDialog();
 
-      expect(api['getMasters'].mock.calls).toEqual([[AcademicMasterType.Group, false]]);
+      expect(api['getMasters'].mock.calls).toEqual([[AcademicMasterType.Group, everyRow, false]]);
     });
 
     it('replaces an unknown tab segment with sessions', () => {
@@ -197,16 +205,71 @@ describe('StaffAcademicStructure', () => {
     it('names the tab and the next step in the empty state', () => {
       expect(component.emptyMessage(0)).toBe('No sessions yet');
       expect(component.emptyDetail(0)).toBe('Sessions appear here once added.');
-      component.statusFilter = 'inactive';
+      component.setStatusFilter('inactive');
       expect(component.emptyMessage(1)).toBe('No inactive sessions');
       expect(component.emptyDetail(1)).toBe('Change the status filter to see all sessions.');
     });
 
+    it('says only the loaded pages were checked while more pages remain', () => {
+      api['getMasters'].mockReturnValue(
+        of({ isSucceeded: true, message: '', data: [session], totalRecords: 30 }),
+      );
+      component.records.reload();
+      component.setStatusFilter('inactive');
+
+      expect(component.emptyMessage(1)).toBe('No inactive sessions on the loaded pages');
+      expect(component.emptyDetail(1)).toBe(
+        'Load more to check the rest, or change the status filter.',
+      );
+    });
+
     it('filters rows by status', () => {
-      component.records.set([session, { ...session, id: 4, isActive: false }]);
-      component.statusFilter = 'inactive';
+      api['getMasters'].mockReturnValue(
+        of({
+          isSucceeded: true,
+          message: '',
+          data: [session, { ...session, id: 4, isActive: false }],
+        }),
+      );
+      component.records.reload();
+      component.setStatusFilter('inactive');
 
       expect(component.visibleRecords().map((item) => item.id)).toEqual([4]);
+    });
+
+    it('asks the server for active rows only when filtering by Active', () => {
+      component.ngOnInit();
+      component.setStatusFilter('active');
+
+      expect(api['getMasters']).toHaveBeenLastCalledWith(
+        AcademicMasterType.Session,
+        firstPage,
+        true,
+      );
+      // "Active" came back filtered, so an empty list may still hide inactive rows.
+      expect(component.filterHidRows(0)).toBe(true);
+      expect(component.emptyMessage(0)).toBe('No active sessions');
+
+      component.setStatusFilter('inactive');
+
+      expect(api['getMasters']).toHaveBeenLastCalledWith(
+        AcademicMasterType.Session,
+        firstPage,
+        false,
+      );
+    });
+
+    it('shows a rejected page as a failure, not as an empty tab', () => {
+      api['getMasters'].mockReturnValue(
+        of({ isSucceeded: false, message: 'Institution not configured', data: null }),
+      );
+      component.records.reload();
+
+      expect(component.records.failed()).toBe(true);
+      expect(TestBed.inject(Common).showMessage).toHaveBeenCalledWith(
+        'Institution not configured',
+        'error',
+      );
     });
   });
 
@@ -228,8 +291,8 @@ describe('StaffAcademicStructure', () => {
       component.openTeachingDialog();
 
       expect(api['getMasters'].mock.calls).toEqual([
-        [AcademicMasterType.CourseOffering, false],
-        [AcademicMasterType.Section, false],
+        [AcademicMasterType.CourseOffering, everyRow, false],
+        [AcademicMasterType.Section, everyRow, false],
       ]);
       expect(api['getTeachingAssignmentTypes']).toHaveBeenCalledOnce();
     });

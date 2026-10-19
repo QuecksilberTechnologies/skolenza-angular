@@ -1,11 +1,12 @@
 import { computed, inject, Signal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 
 import { RolesApi } from '@core/services/roles-api';
 import { StaffProfessionalStructureApi } from '@core/services/staff-professional-structure-api';
 import { LookupStore } from '@core/stores/lookup.store';
 import { BulkImportFieldConfig, BulkImportFieldOption } from '@shared/interfaces';
+import { allPages } from '@shared/utilities/paged-list';
 
 const PERSONAL = 'Personal information';
 const ORGANIZATION = 'Organization details';
@@ -38,10 +39,9 @@ export function staffMemberImportFields(
   const categoriesWanted = signal(false);
   const categories = rxResource({
     params: () => (categoriesWanted() ? {} : undefined),
+    // A rejected lookup leaves the picker empty, as before, rather than erroring `value()`.
     stream: () =>
-      professionalApi
-        .getCategories()
-        .pipe(map((response) => (response.isSucceeded ? response.data : []))),
+      allPages((page) => professionalApi.getCategories(page)).pipe(catchError(() => of([]))),
     defaultValue: [],
   });
 
@@ -52,9 +52,9 @@ export function staffMemberImportFields(
       return id ? { id } : undefined;
     },
     stream: ({ params }) =>
-      professionalApi
-        .getPositions(params.id)
-        .pipe(map((response) => (response.isSucceeded ? response.data : []))),
+      allPages((page) => professionalApi.getPositions(page, params.id)).pipe(
+        catchError(() => of([])),
+      ),
     defaultValue: [],
   });
 

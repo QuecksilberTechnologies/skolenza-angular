@@ -15,6 +15,7 @@ import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TextareaModule } from '@openng/optimus-ui/textarea';
+import { forkJoin } from 'rxjs';
 
 import {
   Common,
@@ -40,6 +41,8 @@ import {
   TimetablePeriod,
   TimetableWorkflow,
 } from '@shared/interfaces';
+import { errorMessage } from '@shared/utilities/error-message';
+import { allPages } from '@shared/utilities/paged-list';
 
 type OperationsTab = 'Timetable' | 'Substitute workflow' | 'Staff communication';
 @Component({
@@ -168,15 +171,22 @@ export default class StaffOperations implements OnInit {
       .getConversations()
       .pipe(takeUntilDestroyed(this.#destroy))
       .subscribe((r) => this.conversations.set(r.data ?? []));
-    this.#academic
-      .getMasters(AcademicMasterType.Session)
-      .subscribe((r) => this.sessions.set(r.data ?? []));
-    this.#academic
-      .getMasters(AcademicMasterType.Section)
-      .subscribe((r) => this.sections.set(r.data ?? []));
-    this.#academic
-      .getMasters(AcademicMasterType.CourseOffering)
-      .subscribe((r) => this.offerings.set(r.data ?? []));
+    const masters = (type: AcademicMasterType) =>
+      allPages((page) => this.#academic.getMasters(type, page));
+    forkJoin({
+      sessions: masters(AcademicMasterType.Session),
+      sections: masters(AcademicMasterType.Section),
+      offerings: masters(AcademicMasterType.CourseOffering),
+    })
+      .pipe(takeUntilDestroyed(this.#destroy))
+      .subscribe({
+        next: ({ sessions, sections, offerings }) => {
+          this.sessions.set(sessions);
+          this.sections.set(sections);
+          this.offerings.set(offerings);
+        },
+        error: (error) => this.#common.showMessage(errorMessage(error), 'error'),
+      });
     this.#curriculum.getTeachingAssignments().subscribe((r) => this.assignments.set(r.data ?? []));
     this.#api
       .getQueryCategories()
