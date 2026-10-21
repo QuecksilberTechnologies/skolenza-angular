@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable } from 'rxjs';
 
@@ -6,6 +6,8 @@ import { environment } from '@env/environment';
 import {
   ApiDataResponse,
   InstitutionStaffCategory,
+  PagedDataResponse,
+  PageRequest,
   SaveInstitutionStaffCategory,
   SaveStaffPositionMaster,
   SaveStaffProfessionalMaster,
@@ -24,33 +26,27 @@ export class StaffProfessionalStructureApi extends BaseService {
 
   getMasters(
     type: StaffProfessionalMasterType,
+    page: PageRequest,
     activeOnly = true,
-  ): Observable<ApiDataResponse<StaffProfessionalMaster[]>> {
-    return this.#http
-      .get<ApiDataResponse<StaffProfessionalMaster[]>>(`${this.#url}/masters/${type}`, {
-        params: new HttpParams().set('activeOnly', activeOnly),
-      })
-      .pipe(
-        catchError(
-          this.handleError<ApiDataResponse<StaffProfessionalMaster[]>>(
-            'getStaffProfessionalMasters',
-          ),
-        ),
-      );
+  ): Observable<PagedDataResponse<StaffProfessionalMaster>> {
+    return this.#getPage<StaffProfessionalMaster>(
+      `masters/${type}`,
+      page,
+      { activeOnly },
+      'getStaffProfessionalMasters',
+    );
   }
 
-  getCategories(activeOnly = true): Observable<ApiDataResponse<InstitutionStaffCategory[]>> {
-    return this.#http
-      .get<ApiDataResponse<InstitutionStaffCategory[]>>(`${this.#url}/categories`, {
-        params: new HttpParams().set('activeOnly', activeOnly),
-      })
-      .pipe(
-        catchError(
-          this.handleError<ApiDataResponse<InstitutionStaffCategory[]>>(
-            'getInstitutionStaffCategories',
-          ),
-        ),
-      );
+  getCategories(
+    page: PageRequest,
+    activeOnly = true,
+  ): Observable<PagedDataResponse<InstitutionStaffCategory>> {
+    return this.#getPage<InstitutionStaffCategory>(
+      'categories',
+      page,
+      { activeOnly },
+      'getInstitutionStaffCategories',
+    );
   }
 
   saveCategory(
@@ -93,19 +89,19 @@ export class StaffProfessionalStructureApi extends BaseService {
   }
 
   getPositions(
+    page: PageRequest,
     institutionStaffCategoryMasterId?: number,
     activeOnly = true,
-  ): Observable<ApiDataResponse<StaffPositionMaster[]>> {
-    let params = new HttpParams().set('activeOnly', activeOnly);
-    if (institutionStaffCategoryMasterId)
-      params = params.set('institutionStaffCategoryMasterId', institutionStaffCategoryMasterId);
-    return this.#http
-      .get<ApiDataResponse<StaffPositionMaster[]>>(`${this.#url}/positions`, {
-        params,
-      })
-      .pipe(
-        catchError(this.handleError<ApiDataResponse<StaffPositionMaster[]>>('getStaffPositions')),
-      );
+  ): Observable<PagedDataResponse<StaffPositionMaster>> {
+    return this.#getPage<StaffPositionMaster>(
+      'positions',
+      page,
+      {
+        activeOnly,
+        institutionStaffCategoryMasterId: institutionStaffCategoryMasterId || undefined,
+      },
+      'getStaffPositions',
+    );
   }
 
   getProfile(staffMemberId: string): Observable<ApiDataResponse<StaffProfessionalProfile | null>> {
@@ -181,5 +177,18 @@ export class StaffProfessionalStructureApi extends BaseService {
     return this.#http
       .delete<ApiDataResponse<boolean>>(`${this.#url}/positions/${id}`)
       .pipe(catchError(this.handleError<ApiDataResponse<boolean>>('deleteStaffPosition')));
+  }
+
+  #getPage<T>(
+    path: string,
+    page: PageRequest,
+    filters: object,
+    operation: string,
+  ): Observable<PagedDataResponse<T>> {
+    return this.#http
+      .get<PagedDataResponse<T>>(`${this.#url}/${path}`, {
+        params: this.makePageParams(page, filters),
+      })
+      .pipe(catchError(this.handleError<PagedDataResponse<T>>(operation)));
   }
 }

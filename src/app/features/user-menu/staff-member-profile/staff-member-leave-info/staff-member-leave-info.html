@@ -1,4 +1,4 @@
-<p-card class="flex min-h-[calc(100vh-10.2rem)] w-full flex-col gap-8 md:p-2">
+<p-card class="flex min-h-[calc(100dvh-10.2rem)] w-full flex-col gap-8 md:p-2">
   @if (isLoading() && !hasData()) {
   <app-profile-loader />
   } @else if (hasData()) {
@@ -23,7 +23,7 @@
   <!-- Leave type tiles -->
   <ul class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
     @for (leaveType of leaveTypes(); track leaveType.id) {
-    <li class="flex flex-col gap-3 rounded-[0.8rem] border border-zinc-200 p-4 dark:border-zinc-800">
+    <li class="flex flex-col gap-3 rounded-card border border-zinc-200 p-4 dark:border-zinc-800">
       <div class="min-w-0">
         <h3 class="truncate text-base font-semibold text-zinc-900 dark:text-zinc-50">{{ leaveType.name }}</h3>
         @if (leaveType.description) {

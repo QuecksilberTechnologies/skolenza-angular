@@ -1,4 +1,4 @@
-<section class="flex h-[calc(100vh-4.6rem)] flex-col gap-4 overflow-hidden overflow-y-auto p-3 sm:p-4">
+<section class="flex h-page flex-col gap-4 overflow-hidden overflow-y-auto p-3 sm:p-4">
   <app-dashboard-greeting subtitle="Here's what's happening with your team today.">
     @if (store.allPlaceholder()) {
       <span
@@ -11,7 +11,7 @@
 
   @if (store.hasError() && !store.isLoading()) {
     <div
-      class="flex flex-col items-center rounded-[0.8rem] bg-white p-6 shadow-sm dark:border dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none"
+      class="flex flex-col items-center rounded-card bg-white p-6 shadow-sm dark:border dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none"
       role="alert">
       <app-table-empty-message
         icon="pi pi-exclamation-triangle"

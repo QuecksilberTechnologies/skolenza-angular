@@ -27,6 +27,7 @@ import {
   InstitutionPolicyRuleDefinition,
   InstitutionPolicyType,
 } from '@shared/interfaces';
+import { allPages } from '@shared/utilities/paged-list';
 
 import {
   DEFINITIONS_MODULE_CODE,
@@ -120,8 +121,9 @@ export const PolicyDefinitionFormStore = signalStore(
     const positionsResource = rxResource({
       stream: () =>
         from(featurePageStore.whenLoaded()).pipe(
-          switchMap(() => staffProfessionalStructureApi.getPositions(undefined, true)),
-          map((res) => (res.isSucceeded ? res.data : [])),
+          switchMap(() =>
+            allPages((page) => staffProfessionalStructureApi.getPositions(page, undefined, true)),
+          ),
           catchError(() => of([] as StaffPositionMaster[])),
         ),
     });

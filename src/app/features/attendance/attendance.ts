@@ -77,7 +77,7 @@ export default class Attendance implements OnInit {
   readonly staffMembersStatistics = signal<StaffMemberStatistic | null>(null);
 
   readonly statusOptions = [
-    { label: 'All', value: null },
+    { label: 'All statuses', value: null },
     { label: 'Present', value: AttendanceStatus.Present },
     { label: 'Absent', value: AttendanceStatus.Absent },
     { label: 'Half Day', value: AttendanceStatus.HalfDay },

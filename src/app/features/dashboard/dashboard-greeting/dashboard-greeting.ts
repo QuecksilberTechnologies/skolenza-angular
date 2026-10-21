@@ -18,7 +18,7 @@ const PERIODS = [
   imports: [LucideAngularModule],
   template: `
     <div
-      class="flex items-center justify-between gap-4 rounded-[0.8rem] bg-primary-50 px-6 py-5 shadow-sm dark:border dark:border-zinc-800 dark:bg-primary-900/30 dark:shadow-none"
+      class="flex items-center justify-between gap-4 rounded-card bg-primary-50 px-6 py-5 shadow-sm dark:border dark:border-zinc-800 dark:bg-primary-900/30 dark:shadow-none"
     >
       <div class="min-w-0">
         <h2 class="m-0 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
@@ -45,7 +45,9 @@ export class DashboardGreeting {
 
   readonly subtitle = input.required<string>();
 
-  protected readonly firstName = computed(() => this.#authStore.staffMemberFullName().split(' ')[0]);
+  protected readonly firstName = computed(
+    () => this.#authStore.staffMemberFullName().split(' ')[0],
+  );
   protected readonly period = computed(() => {
     const hour = new Date().getHours();
     return PERIODS.find((period) => hour < period.until) ?? PERIODS[0];

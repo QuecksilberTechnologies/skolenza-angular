@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   effect,
+  ElementRef,
   inject,
   OnInit,
   signal,
@@ -27,14 +28,14 @@ import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { MessageModule } from '@openng/optimus-ui/message';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { Droplet, LucideAngularModule } from 'lucide-angular';
-import { finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
 
 import { Common } from '@core/services/common';
 import { RolesApi } from '@core/services/roles-api';
 import { StaffMembersApi } from '@core/services/staff-member-api';
 import { StaffMemberBasicAPI } from '@core/services/staff-member-basic-api';
 import { StaffProfessionalStructureApi } from '@core/services/staff-professional-structure-api';
-import { LookupStore } from '@core/stores';
+import { AuthStore, LookupStore } from '@core/stores';
 import { TrimInput } from '@shared/directives';
 import {
   BasicForm,
@@ -53,6 +54,7 @@ import {
 } from '@shared/interfaces';
 import { BLOOD_GROUPS } from '@shared/utilities/common-data';
 import { InstitutionRoleTypeId } from '@shared/utilities/login-info';
+import { allPages } from '@shared/utilities/paged-list';
 import { PERSON_NAME_PATTERN } from '@shared/utilities/validation-regex';
 import { contactNumberValidator } from '@shared/validators/contact.validators';
 
@@ -77,6 +79,8 @@ import { CountrySelect } from '../../country-select/country-select';
   ],
   templateUrl: './staff-member-manage-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Page mode fills the router outlet so the sticky action bar sits at the viewport bottom.
+  host: { class: 'block', '[class.h-full]': 'isPageMode' },
 })
 export class StaffMemberManageDialog implements OnInit {
   readonly #staffMemberApi = inject(StaffMembersApi);
@@ -91,8 +95,11 @@ export class StaffMemberManageDialog implements OnInit {
   readonly #professionalApi = inject(StaffProfessionalStructureApi);
   readonly #commonService = inject(Common);
   readonly #destroyRef = inject(DestroyRef);
+  #positionsSubscription?: Subscription;
   readonly #route = inject(ActivatedRoute);
   readonly #lookupStore = inject(LookupStore);
+  readonly #authStore = inject(AuthStore);
+  readonly #host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly isPageMode = !this.#dialogRef;
   readonly staffMemberBasic = signal<IStaffMemberBasicInfo | undefined>(undefined);
   readonly departmentOptions = this.#lookupStore.departmentOptions;
@@ -211,7 +218,10 @@ export class StaffMemberManageDialog implements OnInit {
       ],
       middleName: ['', [Validators.pattern(PERSON_NAME_PATTERN)]],
       lastName: ['', [Validators.required, Validators.pattern(PERSON_NAME_PATTERN)]],
-      dateOfBirth: [this.maxDateOfBirth, Validators.required],
+      dateOfBirth: new FormControl<Date | undefined>(undefined, {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
       dateOfOnBoarding: [new Date(), Validators.required],
       dateOfExit: [new Date()],
       genderId: new FormControl<number | undefined>(undefined, {
@@ -325,7 +335,9 @@ export class StaffMemberManageDialog implements OnInit {
       firstName: this.staffMemberBasic()?.firstName,
       middleName: this.staffMemberBasic()?.middleName,
       lastName: this.staffMemberBasic()?.lastName,
-      dateOfBirth: new Date(this.staffMemberBasic()?.dateOfBirth ?? new Date()),
+      dateOfBirth: this.staffMemberBasic()?.dateOfBirth
+        ? new Date(String(this.staffMemberBasic()?.dateOfBirth))
+        : undefined,
       dateOfOnBoarding: this.staffMemberBasic()?.dateOfOnBoarding
         ? new Date(String(this.staffMemberBasic()?.dateOfOnBoarding))
         : new Date(),
@@ -360,6 +372,17 @@ export class StaffMemberManageDialog implements OnInit {
     return control?.invalid && control.touched;
   }
 
+  /** Hints only when the user can act on them: the parent select must be editable and empty. */
+  showJobFamilyHint(): boolean {
+    const category = this.staffMemberForm.controls.institutionStaffCategoryMasterId;
+    return category.enabled && !category.value;
+  }
+
+  showPositionHint(): boolean {
+    const jobFamily = this.staffMemberForm.controls.staffJobFamilyMasterId;
+    return jobFamily.enabled && !jobFamily.value;
+  }
+
   onDepartmentChange(departmentId: string): void {
     const selectedPosition = this.categoryPositionOptions().find(
       (position) => position.id === this.staffMemberForm.controls.staffPositionMasterId.value,
@@ -373,6 +396,8 @@ export class StaffMemberManageDialog implements OnInit {
   onStaffCategoryChange(institutionStaffCategoryMasterId: number): void {
     this.staffMemberForm.controls.staffJobFamilyMasterId.setValue(undefined);
     this.staffMemberForm.controls.staffPositionMasterId.setValue(undefined);
+    // Drop the previous category's families so none can be picked before the response lands.
+    this.jobFamilyOptions.set([]);
     this.loadPositions(institutionStaffCategoryMasterId);
   }
 
@@ -384,42 +409,48 @@ export class StaffMemberManageDialog implements OnInit {
   private loadProfessionalStructure(): void {
     this.isLoadingProfessionalStructure.set(true);
     this.isLoadingStaffCategories.set(true);
-    this.#professionalApi
-      .getCategories()
+    allPages((page) => this.#professionalApi.getCategories(page))
       .pipe(
         finalize(() => this.isLoadingStaffCategories.set(false)),
         takeUntilDestroyed(this.#destroyRef),
       )
       .subscribe({
-        next: (response) =>
-          this.staffCategoryOptions.set(response.isSucceeded ? response.data : []),
+        next: (categories) => this.staffCategoryOptions.set(categories),
         error: (error) => this.#commonService.showMessage(error.message, 'error'),
       });
-    this.#professionalApi
-      .getMasters(StaffProfessionalMasterType.JobFamily)
+    allPages((page) =>
+      this.#professionalApi.getMasters(StaffProfessionalMasterType.JobFamily, page),
+    )
       .pipe(takeUntilDestroyed(this.#destroyRef))
       .subscribe({
-        next: (response) => {
-          this.allJobFamilyOptions.set(response.isSucceeded ? response.data : []);
+        next: (jobFamilies) => {
+          this.allJobFamilyOptions.set(jobFamilies);
           this.loadPositions(
             this.staffMemberForm.controls.institutionStaffCategoryMasterId.value,
             this.staffMemberForm.controls.staffJobFamilyMasterId.value,
           );
         },
-        error: (error) => this.#commonService.showMessage(error.message, 'error'),
+        error: (error) => {
+          // loadPositions() owns the reset on success; on failure it never runs.
+          this.isLoadingProfessionalStructure.set(false);
+          this.#commonService.showMessage(error.message, 'error');
+        },
       });
   }
 
   private loadPositions(institutionStaffCategoryMasterId?: number, jobFamilyId?: number): void {
-    this.#professionalApi
-      .getPositions(institutionStaffCategoryMasterId)
+    // Latest request wins: a slower response for an earlier category must not overwrite it.
+    this.#positionsSubscription?.unsubscribe();
+    this.isLoadingProfessionalStructure.set(true);
+    this.#positionsSubscription = allPages((page) =>
+      this.#professionalApi.getPositions(page, institutionStaffCategoryMasterId),
+    )
       .pipe(
         finalize(() => this.isLoadingProfessionalStructure.set(false)),
         takeUntilDestroyed(this.#destroyRef),
       )
       .subscribe({
-        next: (response) => {
-          const positions = response.isSucceeded ? response.data : [];
+        next: (positions) => {
           this.categoryPositionOptions.set(positions);
           const availableFamilyIds = new Set(
             positions.map((position) => position.staffJobFamilyMasterId),
@@ -475,7 +506,11 @@ export class StaffMemberManageDialog implements OnInit {
   }
 
   async onCreate() {
-    if (this.staffMemberForm.invalid) return;
+    if (this.staffMemberForm.invalid) {
+      this.staffMemberForm.markAllAsTouched();
+      this.#focusFirstInvalid();
+      return;
+    }
 
     const roleTypeId = this.loginInfo?.user?.primaryRole?.roleTypeId;
     if (!this.staffMemberBasic()?.id) {
@@ -583,6 +618,7 @@ export class StaffMemberManageDialog implements OnInit {
           this.#commonService.showMessage(res.message, res.isSucceeded ? 'success' : 'error');
           if (res.isSucceeded) {
             this.#staffMemberBasicAPI.updateStaffMemberOfficialSignal(body, this.gendersOptions());
+            this.#syncOwnNameToMenu(body.staffMemberId, sessionUser.staffMemberId);
             this.finish(res);
           }
         },
@@ -629,6 +665,7 @@ export class StaffMemberManageDialog implements OnInit {
           this.#commonService.showMessage(res.message, res.isSucceeded ? 'success' : 'error');
           if (res.isSucceeded) {
             this.#staffMemberBasicAPI.updateStaffMemberBasicSignal(body, this.gendersOptions());
+            this.#syncOwnNameToMenu(body.staffMemberId, sessionUser.staffMemberId);
             this.finish(res);
           }
         },
@@ -654,6 +691,33 @@ export class StaffMemberManageDialog implements OnInit {
       return;
     }
     void this.#router.navigate(['/app/staff']);
+  }
+
+  /** Syncs the server-formatted name to the header menu and stored loginInfo after a
+   *  self-edit. No `takeUntilDestroyed`: `finish()` navigates away right after, and this
+   *  one-shot request must still complete. */
+  #syncOwnNameToMenu(editedStaffMemberId: string, sessionStaffMemberId: string) {
+    if (editedStaffMemberId.toLowerCase() !== sessionStaffMemberId.toLowerCase()) return;
+    this.#staffMemberBasicAPI.fetchProfileSummary(editedStaffMemberId).subscribe({
+      next: (res) => {
+        if (res?.isSucceeded && res.data?.fullName) {
+          this.#authStore.updateStaffMemberName(res.data.fullName).catch(() => undefined);
+        }
+      },
+      // Best-effort: the save already succeeded, so a failed refresh only leaves the old name.
+      error: () => undefined,
+    });
+  }
+
+  /** Moves focus to the first invalid field in DOM order, so its error scrolls into view. */
+  #focusFirstInvalid() {
+    const field = this.#host.nativeElement.querySelector<HTMLElement>(
+      '.ng-invalid[formcontrolname]',
+    );
+    const focusable = field?.matches('input')
+      ? field
+      : field?.querySelector<HTMLElement>('input, [tabindex]:not([tabindex="-1"])');
+    focusable?.focus();
   }
 
   #updatePhoneValidators(countryCode: string) {

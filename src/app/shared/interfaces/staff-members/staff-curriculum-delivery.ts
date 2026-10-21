@@ -45,9 +45,9 @@ export interface CurriculumUnit {
   plannedPeriods: number;
   learningOutcome?: string;
   isActive: boolean;
-  topics: CurriculumTopic[];
 }
-export type SaveCurriculumUnit = Omit<CurriculumUnit, 'id' | 'courseOfferingName' | 'topics'> & {
+/** Units come without their topics; `GET units/{unitId}/topics` pages them. */
+export type SaveCurriculumUnit = Omit<CurriculumUnit, 'id' | 'courseOfferingName'> & {
   id?: number;
 };
 export type SaveCurriculumTopic = Omit<CurriculumTopic, 'id'> & { id?: number };

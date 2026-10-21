@@ -2,18 +2,21 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { Confirmation, ConfirmationService } from '@openng/optimus-ui/api';
-import { of, Subject } from 'rxjs';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
+import { of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Common, StaffProfessionalStructureApi } from '@core/services';
-import { LookupStore } from '@core/stores';
+import { FeaturePageStore, LookupStore } from '@core/stores';
 import {
   ApiDataResponse,
   StaffProfessionalMaster,
   StaffProfessionalMasterType,
 } from '@shared/interfaces';
+import { buildDependencyOptions } from '@shared/utilities/dependency-options';
 
-import StaffProfessionalStructure, { buildDependencyOptions } from './staff-professional-structure';
+import { ProfessionalMasterDialog } from './professional-master-dialog/professional-master-dialog';
+import StaffProfessionalStructure from './staff-professional-structure';
 
 describe('StaffProfessionalStructure dependency options', () => {
   const values = [
@@ -58,13 +61,22 @@ describe('StaffProfessionalStructure status confirmation', () => {
   } as StaffProfessionalMaster;
 
   let component: StaffProfessionalStructure;
+  let denied: Set<string>;
   let confirmSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     const empty = of({ isSucceeded: true, message: '', data: [] });
+    denied = new Set();
     TestBed.configureTestingModule({
       providers: [
         ConfirmationService,
+        DialogService,
+        {
+          provide: FeaturePageStore,
+          useValue: {
+            canPerformOrUnknown: (_module: string, operation: string) => !denied.has(operation),
+          },
+        },
         provideRouter([]),
         {
           provide: Common,
@@ -102,6 +114,48 @@ describe('StaffProfessionalStructure status confirmation', () => {
     );
   });
 
+  it('opens the add dialog for the current tab', () => {
+    const open = vi.spyOn(TestBed.inject(DialogService), 'open').mockReturnValue(null);
+
+    component.openAdd();
+
+    expect(open).toHaveBeenCalledWith(
+      ProfessionalMasterDialog,
+      expect.objectContaining({
+        header: 'Add Job Family',
+        data: { type: StaffProfessionalMasterType.JobFamily, master: undefined },
+      }),
+    );
+  });
+
+  it('keeps Deactivate out of the row menu without Delete permission', () => {
+    denied.add('Delete');
+
+    const items = component.masterActions(master);
+
+    expect(items.find((item) => item.label === 'Edit')?.visible).toBe(true);
+    expect(items.find((item) => item.label === 'Deactivate')?.visible).toBe(false);
+  });
+
+  it('hides the row menu when no action in it is permitted', () => {
+    denied.add('Update');
+    denied.add('Delete');
+
+    expect(component.hasRowActions(true, component.canDelete())).toBe(false);
+  });
+
+  it('names the tab in the empty state', () => {
+    expect(component.emptyMessage(0)).toBe('No job families yet');
+    expect(component.emptyDetail(0)).toBe('Job families appear here once added.');
+  });
+
+  it('points at the status filter when it hides every row', () => {
+    component.setStatusFilter('inactive');
+
+    expect(component.emptyMessage(2)).toBe('No inactive job families');
+    expect(component.emptyDetail(2)).toBe('Change the status filter to see all job families.');
+  });
+
   it('uses a primary accept button when activating', () => {
     component.confirmMasterActive({ ...master, isActive: false });
 
@@ -119,6 +173,7 @@ describe('StaffProfessionalStructure busy state', () => {
       imports: [StaffProfessionalStructure],
       providers: [
         ConfirmationService,
+        DialogService,
         provideRouter([]),
         {
           provide: ActivatedRoute,
@@ -183,6 +238,7 @@ describe('StaffProfessionalStructure tab loading', () => {
     TestBed.configureTestingModule({
       providers: [
         ConfirmationService,
+        DialogService,
         provideRouter([]),
         {
           provide: Common,
@@ -222,67 +278,73 @@ describe('StaffProfessionalStructure tab loading', () => {
     capabilities.complete();
     jobFamilies.next(row('Library'));
 
-    expect(component.masters().map((item) => item.name)).toEqual(['Lesson planning']);
+    expect(component.masterList.items().map((item) => item.name)).toEqual(['Lesson planning']);
     // Reference lookups are still pending, but they do not count as the list loading.
-    expect(component.loading()).toBe(false);
+    expect(component.masterList.loading()).toBe(false);
     lookups.complete();
   });
 });
 
-describe('StaffProfessionalStructure tab routing', () => {
+/** Routing tests drive `paramMap` by hand and spy on `navigate`. */
+function setupRouting() {
   const empty = of({ isSucceeded: true, message: '', errors: [], data: [] });
-  let route: { paramMap: Subject<ReturnType<typeof convertToParamMap>> };
-  let getMasters: ReturnType<typeof vi.fn>;
-  let getPositions: ReturnType<typeof vi.fn>;
+  const route = { paramMap: new Subject<ReturnType<typeof convertToParamMap>>() };
+  const api = {
+    getCategories: vi.fn(() => empty),
+    getPositions: vi.fn(() => empty),
+    getMasters: vi.fn(() => empty),
+  };
+  TestBed.configureTestingModule({
+    imports: [StaffProfessionalStructure],
+    providers: [
+      ConfirmationService,
+      DialogService,
+      provideRouter([]),
+      { provide: ActivatedRoute, useValue: route },
+      {
+        provide: Common,
+        useValue: {
+          setPageHeaderInfo: vi.fn(),
+          setBreadcrumbItems: vi.fn(),
+          showMessage: vi.fn(),
+        },
+      },
+      {
+        provide: LookupStore,
+        useValue: { staffCategories: signal([]), reloadStaffCategories: vi.fn() },
+      },
+      { provide: StaffProfessionalStructureApi, useValue: api },
+    ],
+  });
+  const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+  return { api, navigate, route };
+}
+
+describe('StaffProfessionalStructure tab routing', () => {
+  let ctx: ReturnType<typeof setupRouting>;
   let component: StaffProfessionalStructure;
-  let navigate: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    route = { paramMap: new Subject() };
-    getMasters = vi.fn(() => empty);
-    getPositions = vi.fn(() => empty);
-    TestBed.configureTestingModule({
-      providers: [
-        ConfirmationService,
-        provideRouter([]),
-        { provide: ActivatedRoute, useValue: route },
-        {
-          provide: Common,
-          useValue: {
-            setPageHeaderInfo: vi.fn(),
-            setBreadcrumbItems: vi.fn(),
-            showMessage: vi.fn(),
-          },
-        },
-        {
-          provide: LookupStore,
-          useValue: { staffCategories: signal([]), reloadStaffCategories: vi.fn() },
-        },
-        {
-          provide: StaffProfessionalStructureApi,
-          useValue: {
-            getCategories: vi.fn(() => empty),
-            getPositions,
-            getMasters,
-          },
-        },
-      ],
-    });
-    navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    ctx = setupRouting();
     component = TestBed.runInInjectionContext(() => new StaffProfessionalStructure());
     component.ngOnInit();
   });
 
   it('selects and loads the tab named in the URL', () => {
-    route.paramMap.next(convertToParamMap({ tab: 'positions' }));
+    const firstPage = { pageNumber: 1, pageSize: 10 };
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'positions' }));
 
     expect(component.selectedTab()).toBe('positions');
-    expect(getPositions).toHaveBeenCalledWith(undefined, false);
+    expect(ctx.api.getPositions).toHaveBeenCalledWith(firstPage, undefined, false);
 
-    route.paramMap.next(convertToParamMap({ tab: 'duties' }));
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'duties' }));
 
     expect(component.selectedTab()).toBe(StaffProfessionalMasterType.DutyDefinition);
-    expect(getMasters).toHaveBeenLastCalledWith(StaffProfessionalMasterType.DutyDefinition, false);
+    expect(ctx.api.getMasters).toHaveBeenLastCalledWith(
+      StaffProfessionalMasterType.DutyDefinition,
+      firstPage,
+      false,
+    );
   });
 
   it('refreshes the central categories when entering the workspace after Host changes', () => {
@@ -290,21 +352,134 @@ describe('StaffProfessionalStructure tab routing', () => {
   });
 
   it('replaces an unknown tab segment with job-families', () => {
-    route.paramMap.next(convertToParamMap({ tab: 'nope' }));
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'nope' }));
 
-    expect(navigate).toHaveBeenCalledWith(['..', 'job-families'], {
-      relativeTo: route,
+    expect(ctx.navigate).toHaveBeenCalledWith(['..', 'job-families'], {
+      relativeTo: ctx.route,
       replaceUrl: true,
     });
   });
+});
 
-  it('navigates to the clicked tab instead of switching in place', () => {
-    route.paramMap.next(convertToParamMap({ tab: 'job-families' }));
-    component.openTab('categories');
+describe('StaffProfessionalStructure list failures and reloads', () => {
+  const rejected = { isSucceeded: false, message: 'Institution not configured', data: null };
 
-    expect(navigate).toHaveBeenCalledWith(['..', 'staff-categories'], {
-      relativeTo: route,
-    });
-    expect(component.selectedTab()).toBe(StaffProfessionalMasterType.JobFamily);
+  it('shows one toast when every reference list fails', () => {
+    const ctx = setupRouting();
+    const failing = vi.fn(() => throwError(() => new Error('Unable to reach the server.')));
+    ctx.api.getCategories = failing;
+    ctx.api.getMasters = failing;
+    const component = TestBed.runInInjectionContext(() => new StaffProfessionalStructure());
+
+    component.ngOnInit();
+
+    expect(TestBed.inject(Common).showMessage).toHaveBeenCalledOnce();
+    expect(TestBed.inject(Common).showMessage).toHaveBeenCalledWith(
+      'Unable to reach the server.',
+      'error',
+    );
+  });
+
+  it('shows a rejected first page as a failure with Retry, not as an empty tab', async () => {
+    const ctx = setupRouting();
+    ctx.api.getMasters.mockReturnValue(of(rejected) as never);
+    const fixture = TestBed.createComponent(StaffProfessionalStructure);
+    const root = fixture.nativeElement as HTMLElement;
+    await fixture.whenStable();
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'job-families' }));
+    await fixture.whenStable();
+
+    expect(root.textContent).toContain("Couldn't load the job families.");
+    expect(root.textContent).not.toContain('No job families yet');
+  });
+
+  it('clears a tab before reloading it, so stale rows never show', () => {
+    const ctx = setupRouting();
+    const component = TestBed.runInInjectionContext(() => new StaffProfessionalStructure());
+    component.ngOnInit();
+    ctx.api.getPositions.mockReturnValueOnce(
+      of({
+        isSucceeded: true,
+        message: '',
+        errors: [],
+        data: [{ id: 1, isActive: true }],
+      }) as never,
+    );
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'positions' }));
+    expect(component.positionList.items()).toHaveLength(1);
+
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'staff-categories' }));
+    ctx.api.getPositions.mockReturnValueOnce(new Subject() as never);
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'positions' }));
+
+    expect(component.positionList.items()).toEqual([]);
+    expect(component.positionList.loading()).toBe(true);
+  });
+
+  it('asks the server for active rows only when filtering by Active', () => {
+    const ctx = setupRouting();
+    const component = TestBed.runInInjectionContext(() => new StaffProfessionalStructure());
+    component.ngOnInit();
+    ctx.route.paramMap.next(convertToParamMap({ tab: 'positions' }));
+
+    component.setStatusFilter('active');
+
+    expect(ctx.api.getPositions).toHaveBeenLastCalledWith(
+      { pageNumber: 1, pageSize: 10 },
+      undefined,
+      true,
+    );
+    expect(component.emptyMessage(0)).toBe('No active positions');
+  });
+});
+
+describe('StaffProfessionalStructure tab bar', () => {
+  async function render() {
+    const ctx = setupRouting();
+    const fixture = TestBed.createComponent(StaffProfessionalStructure);
+    const root = fixture.nativeElement as HTMLElement;
+    await fixture.whenStable();
+    const show = async (tab: string) => {
+      ctx.route.paramMap.next(convertToParamMap({ tab }));
+      await fixture.whenStable();
+    };
+    const tab = (label: string) =>
+      [...root.querySelectorAll<HTMLElement>('[role="tab"]')].find(
+        (item) => item.textContent?.trim() === label,
+      );
+    const selectedTabs = () =>
+      [...root.querySelectorAll('[role="tab"][aria-selected="true"]')].map((item) =>
+        item.textContent?.trim(),
+      );
+    return { ...ctx, fixture, root, show, tab, selectedTabs };
+  }
+
+  it('moves the selected tab with the route and labels the panel with it', async () => {
+    const { root, show, selectedTabs } = await render();
+
+    await show('positions');
+    expect(selectedTabs()).toEqual(['Positions']);
+
+    await show('staff-categories');
+    expect(selectedTabs()).toEqual(['Staff Categories']);
+
+    const panel = root.querySelector('[role="tabpanel"]');
+    const selected = root.querySelector('[role="tab"][aria-selected="true"]');
+    expect(panel?.getAttribute('aria-labelledby')).toBe(selected?.id);
+    expect(selected?.getAttribute('aria-controls')).toBe(panel?.id);
+    expect(root.querySelector('[role="tablist"]')?.getAttribute('aria-label')).toBe(
+      'Professional structure sections',
+    );
+  });
+
+  it('navigates to the clicked tab and keeps the panel visible meanwhile', async () => {
+    const { fixture, navigate, route, root, show, tab } = await render();
+    await show('job-families');
+
+    tab('Staff Categories')?.click();
+    await fixture.whenStable();
+
+    expect(navigate).toHaveBeenCalledWith(['..', 'staff-categories'], { relativeTo: route });
+    expect(root.querySelector<HTMLElement>('[role="tabpanel"]')?.hidden).toBe(false);
   });
 });

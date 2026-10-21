@@ -8,7 +8,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   host: {
     role: 'list',
     class:
-      'block divide-y divide-zinc-200 rounded-[0.8rem] border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800',
+      'block divide-y divide-zinc-200 rounded-card border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800',
   },
 })
 export class ProfileList {}

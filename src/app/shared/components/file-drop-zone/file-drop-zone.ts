@@ -25,7 +25,7 @@ import { FileSelectEvent, FileUpload, FileUploadModule } from '@openng/optimus-u
       no focus and announces nothing the button does not already say.
     -->
     <div
-      class="flex flex-col items-center gap-2 rounded-[0.8rem] border-2 border-dashed p-6 text-center transition-colors duration-200"
+      class="flex flex-col items-center gap-2 rounded-card border-2 border-dashed p-6 text-center transition-colors duration-200"
       [class]="
         isDragging()
           ? 'border-primary-400 bg-primary-50 dark:bg-primary-900/30'

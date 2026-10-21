@@ -2,7 +2,7 @@
 
 # Spacing
 
-> Ported from AxionPro `spacing_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Related:** [Grid](./grid.md) · [Typography](./typography.md) · [Tokens](../tokens/README.md)
 
@@ -15,7 +15,8 @@
 ```
 
 Tailwind v4's spacing step is `0.25rem`, which at the [13px root](./typography.md#2-the-13px-root) is
-**3.25px**. Spacing is an integer multiple of this; the px `.p-datatable` padding and `p-[4.8rem]` loader are legacy.
+**3.25px**. Spacing uses whole steps of this unit, plus the half steps `1.5` (4.875px) and
+`2.5` (8.125px); the px `.p-datatable` padding and `p-[4.8rem]` loader are legacy.
 
 ---
 
@@ -63,8 +64,8 @@ See [Grid → App shell metrics](./grid.md#6-app-shell-metrics) for the full dia
 | --- | --- | --- | --- |
 | Card (`p-card`) | `--p-card-body-padding` (`1.25rem`) | — | Aura |
 | Stat card inner | `p-2` | `gap-3` `sm:gap-4` | `staff-member-stats.html` |
-| Table header cell | `!px-3 !py-3` | `gap-2` (label ↔ sort icon) | `staff-members.html` |
-| Table body cell | `!px-3 !py-3` | `gap-2` | Overrides the global `10px 5px` (th) / `6px 5px` (td) for list pages |
+| Table header cell | `px-3! py-3!` (code: `!px-3 !py-3`, DS-08) | `gap-2` (label ↔ sort icon) | `staff-members.html` |
+| Table body cell | `px-3! py-3!` (code: `!px-3 !py-3`, DS-08) | `gap-2` | Overrides the global `10px 5px` (th) / `6px 5px` (td) for list pages |
 | Table caption / filter bar | `0 0 0.8rem` bottom | `gap-2` | `.p-datatable .p-datatable-header` |
 | Form field | `px-3 py-2` (`--p-form-field-padding-x/y`) | — | Aura; `sm` = `px-2.5 py-1.5` |
 | List option | `px-3 py-2` | `2px` between options | `--p-list-option-padding` |

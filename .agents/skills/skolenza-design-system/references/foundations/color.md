@@ -1,8 +1,8 @@
 [← Index](../README.md) · [Foundations](./color.md)
 
-# Color
+# Colour
 
-> Ported from AxionPro `color_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Source of truth:** `src/styles.css` (`@theme`, `.dark` zinc→slate remap), `src/app/core/skolenza-preset.ts`, `src/app/app.ts` (`#applyBrandColor`)
@@ -78,16 +78,16 @@ the *fallback* palette, and the shape every institution palette takes.
 | `primary-700` | `#2e5eac` | `rgb(46, 94, 172)` | Button active (light), **chip text on `primary-50`** (6.01:1 ✅), highlight text |
 | `primary-800` | `#244a87` | `rgb(36, 74, 135)` | Highlight focus text, pressed states on tinted surfaces |
 | `primary-900` | `#1a3662` | `rgb(26, 54, 98)` | Dark-theme chip background at 30% alpha (`dark:bg-primary-900/30`) |
-| `primary-950` | `#10223d` | `rgb(16, 34, 61)` | Deepest tint; reserved — avoid as a text colour |
+| `primary-950` | `#10223d` | `rgb(16, 34, 61)` | Deepest shade; reserved — avoid as a text colour |
 
 Theme mapping (from the Aura base preset, unchanged by `SkolenzaPreset`):
 
 | Semantic token | Light | Dark |
 | --- | --- | --- |
-| `--p-primary-color` | `{primary.500}` | `{primary.400}` |
+| `--p-primary-color` | first of `{primary.500…800}` with ≥ 4.5:1 white text (`600` for `#4287f5`) | `{primary.400}` |
 | `--p-primary-contrast-color` | `#ffffff` | `{surface.900}` |
-| `--p-primary-hover-color` | `{primary.600}` | `{primary.300}` |
-| `--p-primary-active-color` | `{primary.700}` | `{primary.200}` |
+| `--p-primary-hover-color` | one stop darker than `primary.color` | `{primary.300}` |
+| `--p-primary-active-color` | two stops darker than `primary.color` | `{primary.200}` |
 | `--p-highlight-background` | `{primary.50}` | `color-mix(in srgb, {primary.400}, transparent 84%)` |
 | `--p-highlight-color` | `{primary.700}` | `rgba(255,255,255,.87)` |
 
@@ -274,11 +274,11 @@ value in light and the right value under `.dark`.
 | `text.body` | `{surface.700}` | `#3f3f46` | `rgb(63, 63, 70)` | Table cells, paragraph text |
 | `text.muted` | `--color-text-secondary-light` | `#71717a` | `rgb(113, 113, 122)` | Labels, captions, secondary email line |
 | `text.placeholder` | `{surface.500}` | `#71717a` | `rgb(113, 113, 122)` | Input placeholders |
-| `primary.color` | `{primary.500}` | `#4287f5`* | `rgb(66, 135, 245)` | Buttons, focus ring, active nav, stat icons |
+| `primary.color` | `{primary.600}`† | `#3873d0`* | `rgb(56, 115, 208)` | Buttons, focus ring, active nav, stat icons |
 | `primary.contrast` | `#ffffff` | `#ffffff` | `rgb(255, 255, 255)` | Text on primary fill |
 | `mask.background` | `rgba(0,0,0,0.4)` | — | — | Modal and drawer scrim |
 
-\* institution-dependent.
+\* institution-dependent. † Runtime pick: first stop from 500 to 800 with ≥ 4.5:1 white text (`accessiblePrimaryStop`).
 
 ---
 
@@ -293,9 +293,9 @@ Activated by `.dark` on `<html>`. `ThemeApi.setTheme()` sets the `<html>` class 
 | `surface.ground` | `--color-surface-ground-dark` | `#020617` | `rgb(2, 6, 23)` | App canvas |
 | `surface.default` | `--color-surface-dark` | `#0f172a` | `rgb(15, 23, 42)` | Cards, sidebar, drawers, table body |
 | `surface.raised` | `{surface.800}` | `#1e293b` | `rgb(30, 41, 59)` | Hover fill, table header band, neutral chips |
-| `surface.field` | `{surface.950}` | `#020617` | `rgb(2, 6, 23)` | Form field background |
+| `surface.field` | `{surface.900}` | `#0f172a` | `rgb(15, 23, 42)` | Form field background, level with the card (`SkolenzaPreset` dark `formField`). Disabled drops to `{surface.950}` |
 | `border.default` | `--color-border-dark` | `#1e293b` | `rgb(30, 41, 59)` | Card and sidebar dividers — **carries the elevation that shadows carry in light theme** |
-| `border.strong` | `{surface.600}` | `#475569` | `rgb(71, 85, 105)` | Form field resting border |
+| `border.strong` | `{surface.500}` | `#64748b` | `rgb(100, 116, 139)` | Form field resting border: 3.75:1 on `#0f172a` ✅ (Aura default `surface.600` was 2.36:1). Hover `{surface.400}` |
 | `text.primary` | `--color-text-primary-dark` | `#f8fafc` | `rgb(248, 250, 252)` | Headings, stat numerals — 17.06:1 ✅ |
 | `text.body` | `{zinc.100}` → slate-100 | `#f1f5f9` | `rgb(241, 245, 249)` | Table cells (`dark:text-zinc-100`) — 16.30:1 ✅ |
 | `text.muted` | `--color-text-secondary-dark` | `#94a3b8` | `rgb(148, 163, 184)` | Secondary lines — 6.96:1 ✅ |

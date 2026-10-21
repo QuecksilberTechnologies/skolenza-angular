@@ -2,7 +2,7 @@
 
 # Motion & Animation
 
-> Ported from AxionPro `motion_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Source of truth:** Aura `transitionDuration`, `src/app/layout/layout.css`, `src/styles.css`, `references/tokens/tokens.json` (`animation`)
 > **Related:** [Accessibility](../accessibility.md) · [Tokens](../tokens/README.md)

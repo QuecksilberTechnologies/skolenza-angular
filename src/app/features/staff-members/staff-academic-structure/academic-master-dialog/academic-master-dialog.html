@@ -1,0 +1,159 @@
+<form class="grid grid-cols-1 gap-4" novalidate (submit)="$event.preventDefault(); save()">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <app-form-text
+      label="Code"
+      inputId="academic-master-code"
+      [placeholder]="placeholders.code"
+      required
+      autofocus
+      codeFormat
+      [spellcheck]="false"
+      [field]="f.code"
+      [submitted]="submitted()" />
+    <app-form-text
+      label="Name"
+      inputId="academic-master-name"
+      [placeholder]="placeholders.name"
+      required
+      [field]="f.name"
+      [submitted]="submitted()" />
+  </div>
+  <app-form-textarea
+    label="Description"
+    inputId="academic-master-description"
+    [placeholder]="placeholders.description"
+    [field]="f.description"
+    [submitted]="submitted()" />
+
+  @switch (type) {
+    @case (types.Session) {
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <app-form-date
+          label="Start date"
+          inputId="academic-master-start"
+          placeholder="dd/mm/yyyy"
+          required
+          [field]="$any(f.startDate)"
+          [submitted]="submitted()" />
+        <app-form-date
+          label="End date"
+          inputId="academic-master-end"
+          placeholder="dd/mm/yyyy"
+          required
+          [minDate]="model().startDate ?? undefined"
+          [field]="$any(f.endDate)"
+          [submitted]="submitted()" />
+      </div>
+    }
+    @case (types.Programme) {
+      <app-form-text
+        label="Level"
+        inputId="academic-master-level"
+        placeholder="e.g. Secondary"
+        [field]="f.level"
+        [submitted]="submitted()" />
+    }
+    @case (types.Group) {
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <app-form-select
+          label="Session"
+          inputId="academic-master-session"
+          placeholder="Select session"
+          optionLabel="name"
+          optionValue="id"
+          showClear
+          optionDisabled="disabled"
+          [options]="sessionOptions"
+          [field]="$any(f.academicSessionId)"
+          [submitted]="submitted()" />
+        <app-form-select
+          label="Programme"
+          inputId="academic-master-programme"
+          placeholder="Select programme"
+          optionLabel="name"
+          optionValue="id"
+          showClear
+          optionDisabled="disabled"
+          [options]="programmeOptions"
+          [field]="$any(f.academicProgrammeId)"
+          [submitted]="submitted()" />
+      </div>
+    }
+    @case (types.Section) {
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <app-form-select
+          label="Academic group"
+          inputId="academic-master-group"
+          placeholder="Select group"
+          optionLabel="name"
+          optionValue="id"
+          showClear
+          optionDisabled="disabled"
+          [options]="groupOptions"
+          [field]="$any(f.academicGroupId)"
+          [submitted]="submitted()" />
+        <app-form-number
+          label="Capacity"
+          inputId="academic-master-capacity"
+          placeholder="e.g. 40"
+          [min]="0"
+          [useGrouping]="false"
+          [field]="$any(f.capacity)"
+          [submitted]="submitted()" />
+      </div>
+    }
+    @case (types.CourseOffering) {
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <app-form-select
+          label="Session"
+          inputId="academic-master-offering-session"
+          placeholder="Select session"
+          optionLabel="name"
+          optionValue="id"
+          showClear
+          optionDisabled="disabled"
+          [options]="sessionOptions"
+          [field]="$any(f.academicSessionId)"
+          [submitted]="submitted()" />
+        <app-form-select
+          label="Academic group"
+          inputId="academic-master-offering-group"
+          placeholder="Select group"
+          hint="Limited to groups in the selected session"
+          optionLabel="name"
+          optionValue="id"
+          showClear
+          emptyTitle="No groups in this session"
+          emptyDetail="Add a group to the session first."
+          optionDisabled="disabled"
+          [options]="offeringGroups()"
+          [field]="$any(f.academicGroupId)"
+          [submitted]="submitted()" />
+        <app-form-select
+          label="Subject"
+          inputId="academic-master-subject"
+          placeholder="Select subject"
+          optionLabel="name"
+          optionValue="id"
+          showClear
+          optionDisabled="disabled"
+          [options]="subjectOptions"
+          [field]="$any(f.subjectId)"
+          [submitted]="submitted()" />
+        <app-form-text
+          label="Curriculum version"
+          inputId="academic-master-curriculum-version"
+          placeholder="e.g. 2026"
+          [field]="f.curriculumVersion"
+          [submitted]="submitted()" />
+      </div>
+    }
+  }
+
+  <app-form-checkbox label="Active" inputId="academic-master-active" [field]="f.isActive" />
+
+  <div class="flex justify-end gap-2">
+    <p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="cancel()" />
+    <p-button type="submit" label="Save" icon="pi pi-check" [loading]="isSaving()" />
+  </div>
+</form>

@@ -1,4 +1,4 @@
-<p-card class="flex min-h-[calc(100vh-10.2rem)] w-full flex-col gap-8 md:p-2">
+<p-card class="flex min-h-[calc(100dvh-10.2rem)] w-full flex-col gap-8 md:p-2">
   @let basic = staffMemberBasics()[0]; @if (isLoading()) {
   <app-profile-loader />
   } @else { @if (basic) {
@@ -202,18 +202,18 @@
     <h2 class="mb-2 font-semibold" ngProjectAs="sectionTitle">Capabilities and Duties</h2>
     <app-profile-info-block label="Capabilities">
       @for (capability of basic.professionalProfile.capabilities; track capability.id) {
-      <span class="mr-2 inline-flex rounded-full border px-2 py-1 text-sm">
+      <span class="mr-2 inline-flex rounded-full border border-zinc-200 bg-white px-2 py-1 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
         {{ capability.name }} · {{ capability.verificationStatusName }}
         @if (capability.verificationStatus === 1 && canApproveCapabilities()) {
-        <button class="ml-2 text-green-700" (click)="verifyCapability(capability.id, true)">Approve</button>
-        <button class="ml-2 text-red-700" (click)="verifyCapability(capability.id, false)">Reject</button>
+        <button class="ml-2 text-green-700 dark:text-green-400" (click)="verifyCapability(capability.id, true)">Approve</button>
+        <button class="ml-2 text-red-700 dark:text-red-400" (click)="verifyCapability(capability.id, false)">Reject</button>
         }
       </span>
       } @empty { <span>-</span> }
     </app-profile-info-block>
     <app-profile-info-block label="Active Duties">
       @for (duty of basic.professionalProfile.duties; track duty.id) {
-      <span class="mr-2 inline-flex rounded-full border px-2 py-1 text-sm">
+      <span class="mr-2 inline-flex rounded-full border border-zinc-200 bg-white px-2 py-1 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
         {{ duty.name }} @if (duty.frequency) { · {{ duty.frequency }} }
       </span>
       } @empty { <span>-</span> }
@@ -226,14 +226,14 @@
     <h2 class="mb-2 font-semibold" ngProjectAs="sectionTitle">Academic Responsibilities</h2>
     <app-profile-info-block label="Subjects and Sections">
       @for (assignment of academicProfile().teachingAssignments; track assignment.id) {
-        <span class="mr-2 inline-flex rounded-full border px-2 py-1 text-sm">
+        <span class="mr-2 inline-flex rounded-full border border-zinc-200 bg-white px-2 py-1 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
           {{ assignment.subjectName }} · {{ assignment.academicGroupName }} / {{ assignment.classSectionName }}
         </span>
       } @empty { <span>-</span> }
     </app-profile-info-block>
     <app-profile-info-block label="Class Teacher">
       @for (assignment of academicProfile().classTeacherAssignments; track assignment.id) {
-        <span class="mr-2 inline-flex rounded-full border px-2 py-1 text-sm">
+        <span class="mr-2 inline-flex rounded-full border border-zinc-200 bg-white px-2 py-1 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
           {{ assignment.academicGroupName }} / {{ assignment.classSectionName }}
         </span>
       } @empty { <span>-</span> }

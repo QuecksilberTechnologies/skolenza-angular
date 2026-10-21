@@ -112,3 +112,17 @@ export interface ApiDataResponse<T> {
   errors: unknown[];
   data: T;
 }
+
+/** Paging a list endpoint accepts as `PageNumber` / `PageSize`; the server defaults to 1 / 10. */
+export interface PageRequest {
+  pageNumber: number;
+  pageSize: number;
+}
+
+/** One page of a server-paged list: `data` holds the page, the paging fields sit beside it. */
+export interface PagedDataResponse<T> extends ApiDataResponse<T[]> {
+  pageNumber: number;
+  pageSize: number;
+  totalRecords: number;
+  totalPages: number;
+}

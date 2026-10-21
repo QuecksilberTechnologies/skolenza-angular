@@ -2,7 +2,7 @@
 
 # Open items
 
-> Ported from AxionPro `open-items_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 
 > **Status:** Backlog · **Related:** [Accessibility](./accessibility.md) · [Governance](./governance.md)
 
@@ -16,8 +16,7 @@ item means changing the code, not the document.
 
 | ID | Finding | Fix | Detail |
 | --- | --- | --- | --- |
-| **A11Y-01…08** | Measured contrast and focus failures | Per-row fixes | [Accessibility → Contrast audit](./accessibility.md#4-contrast-audit) is the live list; re-check each row there |
-| **A11Y-09** | `get-new-joiner-badge-pipe.ts` paints white text on `-500` fills: `#ffffff` on `#22c55e` 2.28:1, on `#3b82f6` 3.68:1, on `#f59e0b` 2.15:1 (10px text, needs 4.5:1) | Use `-700` fills (or tinted `-50` bg + `-700` text) via classes, not inline hex | Rendered in `features/staff-members/staff-members.html` |
+| **A11Y-03…05, 07, 08** | Measured contrast and focus failures | Per-row fixes | [Accessibility → Contrast audit](./accessibility.md#4-contrast-audit) is the live list; re-check each row there |
 | **A11Y-10** | Status / priority tags in `features/projects/list-view/list-view.component.html` force `dark:text-white!` over the pastel inline backgrounds: 1.14–1.35:1 in dark mode | Fold into DS-02 | — |
 
 These block the next release. `.claude/docs/accessibility.md` requires AXE-clean and WCAG AA
@@ -40,7 +39,6 @@ minimums, so these are bugs rather than enhancements.
 | **DS-11** | Typography | `text-xs` (9.75px) used for content a user must read, not just chips | Audit; promote to `text-sm` where the string carries meaning |
 | **DS-12** | Layout | Global `.p-datatable` cell padding (`6px 5px`) is overridden per-page with `!px-3 !py-3` | Move list-page padding into a `@utility data-table-dense` and drop the `!` overrides |
 | **DS-14** | API | 161 deprecated `styleClass` bindings across 73 templates (row menus, drawers, avatars, badges), including the reference page's `p-tieredmenu`, `p-contextMenu` and `p-drawer` | Plain host → `class`. Panel moved to `body` → `[pt]="{ root: { class: '…' } }"` (see list-page R20). Fix when touching the file |
-| **DS-15** | Copy | Reference page copy carries a rename artifact: "No staffMembers found", "Add StaffMember", "StaffMember Code" in `features/staff-members/staff-members.html` | Use "No staff members found", "Add Staff Member", "Staff Member Code" |
 
 ### Closed
 
@@ -48,6 +46,7 @@ minimums, so these are bugs rather than enhancements.
 | --- | --- | --- |
 | **DS-10** | `dark.surface.0` is `#ffffff` in the preset | **Not a defect.** Aura's dark scheme uses `{surface.0}` as the *text* colour (`text.color`, `formField.color`), not a background, so white is correct. Keep it. Note `SkolenzaPreset` uses a zinc surface ramp in light and slate in dark |
 | **DS-01 (progress pipe)** | Progress pipe returned `-500` text colours | Fixed via `shared/utilities/progress-tone.ts` |
+| **DS-15** | Rename-artifact copy ("No staffMembers found", "Add StaffMember", "StaffMember Code") in `features/staff-members/staff-members.html` | Fixed. The page reads "No staff members found" and "Add Staff Member"; verified 2026-10-17 |
 
 ---
 
@@ -55,8 +54,8 @@ minimums, so these are bugs rather than enhancements.
 
 | Priority | Items | Rationale |
 | --- | --- | --- |
-| **P0 — before release** | A11Y-01 … A11Y-10, DS-03, DS-04 | WCAG AA failures; the project's own accessibility policy requires them closed |
-| **P1 — next sprint** | DS-01, DS-02, DS-15 | Colour correctness and tokenisation; visible copy defect on the reference page |
+| **P0 — before release** | A11Y-03…05, 07, 08, 10, DS-03, DS-04 | WCAG AA failures; the project's own accessibility policy requires them closed |
+| **P1 — next sprint** | DS-01, DS-02 | Colour correctness and tokenisation |
 | **P2 — opportunistic** | DS-07, DS-08, DS-09, DS-11, DS-12, DS-14 | Consistency debt. Fix when touching the file, per [Governance §2](./governance.md#2-change-process) |
 | **P3 — performance** | DS-06 | Real, but measure the render-block cost before scheduling |
 

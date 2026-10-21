@@ -31,7 +31,7 @@ import { TaskSummary } from './task-summary/task-summary';
 
 @Component({
   selector: 'app-task-detail',
-  host: { class: 'block overflow-hidden overflow-y-auto h-[calc(100vh-4.6rem)] p-4' },
+  host: { class: 'block overflow-hidden overflow-y-auto h-page p-4' },
   imports: [
     FormsModule,
     ButtonModule,

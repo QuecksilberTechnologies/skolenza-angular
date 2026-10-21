@@ -19,6 +19,7 @@ import { StaffProfessionalStructureApi } from '@core/services/staff-professional
 import { LookupStore } from '@core/stores';
 import { TrimInput } from '@shared/directives';
 import { StaffPositionMaster, IStaffMemberFilter, LoginInfo } from '@shared/interfaces';
+import { allPages } from '@shared/utilities/paged-list';
 
 import { SelectField } from '../../select-field/select-field';
 
@@ -93,24 +94,18 @@ export default class StaffMemberFilter implements OnInit {
     this.isLoadingPositions.set(true);
     this.positionOptions.set([]);
     this.staffMemberFilterForm.controls['position'].setValue(null);
-    this.#professionalApi
-      .getPositions()
+    allPages((page) => this.#professionalApi.getPositions(page))
       .pipe(
         finalize(() => this.isLoadingPositions.set(false)),
         takeUntilDestroyed(this.#destroyRef),
       )
       .subscribe({
-        next: async (res) => {
+        next: (positions) => {
           this.positionOptions.set(
-            res.isSucceeded
-              ? res.data.filter(
-                  (position) => !position.departmentId || position.departmentId === departmentId,
-                )
-              : [],
+            positions.filter(
+              (position) => !position.departmentId || position.departmentId === departmentId,
+            ),
           );
-          if (!res.isSucceeded) {
-            this.#commonService.showMessage(res.message, 'error');
-          }
         },
         error: (err) => {
           this.#commonService.showMessage(err.message, 'error');

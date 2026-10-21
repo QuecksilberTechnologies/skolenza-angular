@@ -2,10 +2,10 @@
 
 # Iconography
 
-> Ported from AxionPro `iconography_old.md` (removed; see git history). Verified against Skolenza code on 2026-10-15.
+> Verified against Skolenza code on 2026-10-15. Earlier source versions are in git history (commit `0c786d5`).
 > **Ownership:** T0 — Foundations · **Status:** Normative
 > **Source of truth:** `@openng/icons`, `lucide-angular`, `--p-icon-size`
-> **Related:** [Accessibility](../accessibility.md) · [Typography](./typography.md) · [Color](./color.md)
+> **Related:** [Accessibility](../accessibility.md) · [Typography](./typography.md) · [Colour](./color.md)
 
 ---
 
@@ -60,7 +60,7 @@ Icon size is font-size for `pi` (`--p-icon-size` = `1rem` = **13px**); Lucide `[
 | `icon-md` | `text-base` | 1 | **13** | **Default** — buttons, menu items, form field icons (`--p-icon-size`) |
 | `icon-lg` | `text-xl!` | 1.25 | 16.25 | Stat-card icons below `sm:`; row action buttons (`table-action-button`) |
 | `icon-xl` | `text-2xl!` | 1.5 | 19.5 | Stat-card icons at `sm:` and above |
-| `icon-2xl` | `text-3xl!` | 1.875 | 24.38 | Empty-state icon inside its 16×16 halo (`table-empty-message.html`, written `!text-3xl`) |
+| `icon-2xl` | `text-3xl!` | 1.875 | 24.38 | Empty-state icon inside its `h-16 w-16` (52px) halo (`table-empty-message.html`, written `!text-3xl`) |
 | `icon-hero` | `text-5xl` | 3 | 39 | Full-page empty / error states only |
 
 **Container sizing.** An icon tile is `2×` the icon — stat cards put 16.25px in `h-10 w-10`, then 19.5px

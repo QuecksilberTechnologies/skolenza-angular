@@ -1,4 +1,4 @@
-<div class="h-[calc(100vh-4.6rem)] overflow-hidden overflow-y-auto">
+<div class="h-page overflow-hidden overflow-y-auto">
   <!-- Filters -->
   <p-card class="m-3 sm:m-4">
     <div class="flex flex-col gap-2 lg:flex-row lg:items-end">
@@ -128,7 +128,7 @@
     aria-label="Summary"
     class="m-3 grid grid-cols-1 gap-4 sm:m-4 md:grid-cols-3">
     <div
-      class="flex flex-col gap-2 rounded-[0.8rem] border border-transparent bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      class="flex flex-col gap-2 rounded-card border border-transparent bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
       <span class="text-sm text-zinc-500 dark:text-zinc-400">Desktop agent</span>
       @if (store.agentStatusResource.isLoading()) {
         <p-skeleton
@@ -178,7 +178,7 @@
     </div>
 
     <div
-      class="flex flex-col gap-2 rounded-[0.8rem] border border-transparent bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      class="flex flex-col gap-2 rounded-card border border-transparent bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
       <span class="text-sm text-zinc-500 dark:text-zinc-400">Screenshots</span>
       @if (store.isLoadingCaptures()) {
         <p-skeleton
@@ -202,7 +202,7 @@
     </div>
 
     <div
-      class="flex flex-col gap-2 rounded-[0.8rem] border border-transparent bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+      class="flex flex-col gap-2 rounded-card border border-transparent bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
       <span class="text-sm text-zinc-500 dark:text-zinc-400">Field work</span>
       @if (store.isLoadingFieldVisits()) {
         <p-skeleton
@@ -405,7 +405,7 @@
                     >{{ i + 1 }}</span
                   >
                   <article
-                    class="flex flex-col gap-2 rounded-[0.8rem] border border-zinc-200 p-4 dark:border-zinc-800"
+                    class="flex flex-col gap-2 rounded-card border border-zinc-200 p-4 dark:border-zinc-800"
                     [attr.aria-label]="'Visit ' + (i + 1) + ': ' + visit.placeName">
                     <div class="flex flex-wrap items-start justify-between gap-2">
                       <div class="min-w-0">

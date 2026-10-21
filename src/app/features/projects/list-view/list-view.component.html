@@ -1,4 +1,4 @@
-<div class="h-[calc(100vh-13.8rem)] overflow-hidden overflow-y-auto">
+<div class="h-[calc(100dvh-13.8rem)] overflow-hidden overflow-y-auto">
   <p-card class="overflow-x-auto">
     <p-table
       #dt
@@ -12,7 +12,7 @@
       [rowsPerPageOptions]="[10, 25, 50]"
       [tableStyle]="{ 'min-width': '64rem' }"
       [scrollable]="true"
-      scrollHeight="calc(100vh - 320px)"
+      scrollHeight="calc(100dvh - 320px)"
       dataKey="id"
       [selection]="selectedRows()"
       (selectionChange)="selectedRows.set($any($event))">

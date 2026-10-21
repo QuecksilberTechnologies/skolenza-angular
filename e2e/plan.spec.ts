@@ -1,8 +1,9 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 import { buildPlansResponse, defaultPlans, mockPlans } from './fixtures/plan-mocks';
 
-const TOGGLE_LABEL = 'label:has(input[type="checkbox"])';
+const periodButton = (page: Page, name: 'Monthly' | 'Yearly') =>
+  page.getByRole('group', { name: 'Billing period' }).getByRole('button', { name });
 
 test.describe('Plan / pricing page', () => {
   test.beforeEach(async ({ page }) => {
@@ -22,13 +23,13 @@ test.describe('Plan / pricing page', () => {
   });
 
   test('defaults to yearly billing', async ({ page }) => {
-    await expect(page.locator('input[type="checkbox"]')).toBeChecked();
+    await expect(periodButton(page, 'Yearly')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByText('billed annually').first()).toBeVisible();
   });
 
   test('switches to monthly billing when toggled', async ({ page }) => {
-    await page.locator(TOGGLE_LABEL).click();
-    await expect(page.locator('input[type="checkbox"]')).not.toBeChecked();
+    await periodButton(page, 'Monthly').click();
+    await expect(periodButton(page, 'Monthly')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByText('billed monthly').first()).toBeVisible();
   });
 
@@ -36,9 +37,9 @@ test.describe('Plan / pricing page', () => {
     await expect(page.getByText('MOST POPULAR')).toBeVisible();
   });
 
-  test('shows a Contact Sales CTA for the custom plan', async ({ page }) => {
+  test('shows a Talk to sales CTA for the custom plan', async ({ page }) => {
     await expect(
-      page.getByRole('button', { name: /Contact sales about the Enterprise plan/ }),
+      page.getByRole('button', { name: /Talk to sales about the Enterprise plan/ }),
     ).toBeVisible();
   });
 
@@ -47,9 +48,11 @@ test.describe('Plan / pricing page', () => {
     await expect(page).toHaveURL(/\/auth\/register-institution\?planId=1/);
   });
 
-  test('navigates to register-institution when the custom plan is selected', async ({ page }) => {
-    await page.getByRole('button', { name: /Contact sales about the Enterprise plan/ }).click();
-    await expect(page).toHaveURL(/\/auth\/register-institution\?planId=3/);
+  // The custom plan opens a sales mailto (href covered by salesEnquiryMailto's unit spec);
+  // here we only pin that it never takes the self-serve route.
+  test('keeps the custom plan off the self-serve route when selected', async ({ page }) => {
+    await page.getByRole('button', { name: /Talk to sales about the Enterprise plan/ }).click();
+    await expect(page).toHaveURL(/\/auth\/plan$/);
   });
 
   test('shows the empty state when no plans are returned', async ({ page }) => {

@@ -26,6 +26,9 @@ const PAGE_BAR =
  * padding to sit flush on the dialog's rounded bottom edge instead of floating above a
  * strip of dead space.
  *
+ * Projected content sits at the start of the bar, ahead of the error message; give it
+ * `me-auto` to push the buttons right.
+ *
  * The submit button stays in the light DOM of the surrounding `<form>`, so
  * `type="submit"` still triggers the form's `(submit)`.
  */
@@ -34,6 +37,7 @@ const PAGE_BAR =
   imports: [ButtonModule],
   template: `
     <div [class]="barClass()">
+      <ng-content />
       @if (errorMessage()) {
         <p class="me-auto text-sm text-red-600 dark:text-red-400" role="alert">
           {{ errorMessage() }}

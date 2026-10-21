@@ -36,7 +36,7 @@ import { emptyTaskForm, formToTask, taskToForm, TaskFormModel } from './task-for
 
 @Component({
   selector: 'app-task-form',
-  host: { class: 'block overflow-hidden overflow-y-auto h-[calc(100vh-4.6rem)] p-4' },
+  host: { class: 'block overflow-hidden overflow-y-auto h-page p-4' },
   imports: [
     FormField,
     ButtonModule,

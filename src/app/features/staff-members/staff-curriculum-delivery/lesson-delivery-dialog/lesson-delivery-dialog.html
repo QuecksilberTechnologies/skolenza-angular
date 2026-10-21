@@ -1,0 +1,81 @@
+<form class="grid grid-cols-1 gap-4" novalidate (submit)="$event.preventDefault(); save()">
+  <p class="text-sm text-zinc-500 dark:text-zinc-400">
+    Saved as a draft. Submit it from the list when it is ready for approval.
+  </p>
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <app-form-select
+      label="Approved lesson plan"
+      inputId="lesson-delivery-plan"
+      placeholder="Select lesson plan"
+      required
+      optionLabel="label"
+      optionValue="id"
+      emptyTitle="No approved lesson plans"
+      emptyDetail="Approve a lesson plan on the Lesson Plans tab first."
+      [options]="planOptions"
+      [field]="$any(f.lessonPlanId)"
+      [submitted]="submitted()"
+      (selectionChange)="onPlanChange()" />
+    <app-form-date
+      label="Delivered date"
+      inputId="lesson-delivery-date"
+      required
+      [field]="f.deliveredDate"
+      [submitted]="submitted()" />
+  </div>
+  <app-form-textarea
+    label="Coverage notes"
+    inputId="lesson-delivery-notes"
+    required
+    [field]="f.coverageNotes"
+    [submitted]="submitted()" />
+
+  @if (model().coverage.length) {
+  <fieldset class="space-y-2">
+    <legend class="mb-2 font-medium text-zinc-900 dark:text-zinc-50">Topic completion (%)</legend>
+    <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
+      @for (row of f.coverage; track $index; let i = $index) {
+      <app-form-number
+        [label]="model().coverage[i].name"
+        [inputId]="'lesson-delivery-coverage-' + model().coverage[i].curriculumTopicId"
+        required
+        [min]="0"
+        [max]="100"
+        [useGrouping]="false"
+        [field]="row.completionPercent"
+        [submitted]="submitted()" />
+      }
+    </div>
+  </fieldset>
+  }
+
+  <app-form-textarea
+    label="Homework"
+    inputId="lesson-delivery-homework"
+    [rows]="2"
+    [field]="f.homework"
+    [submitted]="submitted()" />
+  <app-form-text
+    label="Evidence reference"
+    inputId="lesson-delivery-evidence"
+    placeholder="e.g. a link or document number"
+    [field]="f.evidenceReference"
+    [submitted]="submitted()" />
+  <app-form-textarea
+    label="Exception or incomplete reason"
+    inputId="lesson-delivery-exception"
+    [rows]="2"
+    [field]="f.exceptionReason"
+    [submitted]="submitted()" />
+  <app-form-textarea
+    label="Replan action"
+    inputId="lesson-delivery-replan"
+    [rows]="2"
+    [field]="f.replanAction"
+    [submitted]="submitted()" />
+
+  <div class="flex justify-end gap-2">
+    <p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="cancel()" />
+    <p-button type="submit" label="Save" icon="pi pi-check" [loading]="isSaving()" />
+  </div>
+</form>

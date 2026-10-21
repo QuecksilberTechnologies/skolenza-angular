@@ -17,7 +17,7 @@
 
   @if (store.isLoading()) {
     <div
-      class="kanban-board grid grid-cols-1 gap-3 sm:grid-cols-2 xl:h-[calc(100vh-19rem)] xl:grid-cols-4 xl:overflow-hidden">
+      class="kanban-board grid grid-cols-1 gap-3 sm:grid-cols-2 xl:h-[calc(100dvh-19rem)] xl:grid-cols-4 xl:overflow-hidden">
       @for (lane of skeletonLanes; track lane) {
         <div
           class="kanban-column flex h-full min-h-[10rem] flex-col gap-0.5 overflow-hidden rounded-xl border border-dashed border-surface bg-emphasis">
@@ -37,7 +37,7 @@
     </div>
   } @else {
     <div
-      class="kanban-board grid grid-cols-1 gap-3 sm:grid-cols-2 xl:h-[calc(100vh-19rem)] xl:grid-cols-4 xl:overflow-hidden"
+      class="kanban-board grid grid-cols-1 gap-3 sm:grid-cols-2 xl:h-[calc(100dvh-19rem)] xl:grid-cols-4 xl:overflow-hidden"
       cdkDropListGroup>
       @for (col of store.columns(); track col.status) {
         <div

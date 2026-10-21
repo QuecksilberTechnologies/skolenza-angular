@@ -1,0 +1,53 @@
+<form class="grid grid-cols-1 gap-4" novalidate (submit)="$event.preventDefault(); save()">
+  <app-form-select
+    [label]="parentLabel"
+    inputId="curriculum-unit-parent"
+    [placeholder]="'Select ' + parentLabel.toLowerCase()"
+    required
+    optionLabel="name"
+    optionValue="id"
+    [options]="parentOptions"
+    [field]="$any(f.parentId)"
+    [submitted]="submitted()" />
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <app-form-text
+      label="Code"
+      inputId="curriculum-unit-code"
+      required
+      [spellcheck]="false"
+      [field]="f.code"
+      [submitted]="submitted()" />
+    <app-form-text
+      label="Name"
+      inputId="curriculum-unit-name"
+      required
+      [field]="f.name"
+      [submitted]="submitted()" />
+    <app-form-number
+      label="Sequence"
+      inputId="curriculum-unit-sequence"
+      required
+      [min]="1"
+      [useGrouping]="false"
+      [field]="f.sequence"
+      [submitted]="submitted()" />
+    <app-form-number
+      label="Planned periods"
+      inputId="curriculum-unit-periods"
+      required
+      [min]="1"
+      [useGrouping]="false"
+      [field]="f.plannedPeriods"
+      [submitted]="submitted()" />
+  </div>
+  <app-form-textarea
+    label="Learning outcome"
+    inputId="curriculum-unit-outcome"
+    [field]="f.learningOutcome"
+    [submitted]="submitted()" />
+
+  <div class="flex justify-end gap-2">
+    <p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="cancel()" />
+    <p-button type="submit" label="Save" icon="pi pi-check" [loading]="isSaving()" />
+  </div>
+</form>

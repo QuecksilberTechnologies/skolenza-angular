@@ -26,6 +26,7 @@ import {
   UpdateStaffMemberUpdateStatusReq,
   UserRole,
 } from '@shared/interfaces';
+import { allPages } from '@shared/utilities/paged-list';
 
 interface StaffMembersState {
   staffMembers: IStaffMember[];
@@ -193,25 +194,18 @@ export const StaffMembersStore = signalStore(
 
       async loadPositions(departmentId?: number): Promise<void> {
         patchState(store, { isLoadingPositions: true, positionOptions: [] });
-        professionalApi
-          .getPositions()
+        allPages((page) => professionalApi.getPositions(page))
           .pipe(
             finalize(() => patchState(store, { isLoadingPositions: false })),
             takeUntilDestroyed(destroyRef),
           )
           .subscribe({
-            next: (res) => {
+            next: (positions) => {
               patchState(store, {
-                positionOptions: res.isSucceeded
-                  ? res.data.filter(
-                      (position) =>
-                        !position.departmentId || position.departmentId === departmentId,
-                    )
-                  : [],
+                positionOptions: positions.filter(
+                  (position) => !position.departmentId || position.departmentId === departmentId,
+                ),
               });
-              if (!res.isSucceeded) {
-                commonService.showMessage(res.message, 'error');
-              }
             },
             error: (err) => commonService.showMessage(err.message, 'error'),
           });

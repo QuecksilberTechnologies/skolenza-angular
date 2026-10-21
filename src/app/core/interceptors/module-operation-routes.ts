@@ -403,6 +403,7 @@ export const MODULE_OPERATION_ROUTES: readonly ModuleOperationRoute[] = [
     '/Staff/curriculum-delivery/lesson-deliveries',
     '/Staff/curriculum-delivery/syllabus-progress',
     '/Staff/curriculum-delivery/frameworks/{id}/units',
+    '/Staff/curriculum-delivery/units/{id}/topics',
   ].map(
     (path) =>
       ({

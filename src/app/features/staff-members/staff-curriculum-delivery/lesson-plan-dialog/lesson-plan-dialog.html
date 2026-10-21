@@ -1,0 +1,89 @@
+<form class="grid grid-cols-1 gap-4" novalidate (submit)="$event.preventDefault(); save()">
+  <p class="text-sm text-zinc-500 dark:text-zinc-400">
+    Saved as a draft. Submit it from the list when it is ready for approval.
+  </p>
+  <app-form-select
+    label="Teaching assignment"
+    inputId="lesson-plan-assignment"
+    placeholder="Select teaching assignment"
+    required
+    filter
+    optionLabel="label"
+    optionValue="id"
+    panelStyleClass="select-option-truncate"
+    [options]="assignmentOptions"
+    [field]="$any(f.staffTeachingAssignmentId)"
+    [submitted]="submitted()" />
+  <app-form-multiselect
+    label="Curriculum topics"
+    inputId="lesson-plan-topics"
+    placeholder="Select topics"
+    hint="Topics from the selected framework that this assignment teaches"
+    optionLabel="name"
+    optionValue="id"
+    [emptyTitle]="topicsFailed() ? 'Topics did not load' : 'No topics for this assignment'"
+    [emptyDetail]="
+      topicsFailed()
+        ? 'Select Save to try loading them again.'
+        : 'Pick a teaching assignment, or add topics on the Units & Topics tab.'
+    "
+    [options]="topicOptions()"
+    [loading]="topicsLoading()"
+    [field]="f.curriculumTopicIds"
+    [submitted]="submitted()" />
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <app-form-date
+      label="Planned date"
+      inputId="lesson-plan-date"
+      required
+      [field]="f.plannedDate"
+      [submitted]="submitted()" />
+    <app-form-text
+      label="Period reference"
+      inputId="lesson-plan-period"
+      placeholder="e.g. Period 3"
+      [field]="f.periodReference"
+      [submitted]="submitted()" />
+  </div>
+  <app-form-textarea
+    label="Objectives"
+    inputId="lesson-plan-objectives"
+    required
+    [field]="f.objectives"
+    [submitted]="submitted()" />
+  <app-form-textarea
+    label="Teaching method"
+    inputId="lesson-plan-method"
+    [rows]="2"
+    [field]="f.teachingMethod"
+    [submitted]="submitted()" />
+  <app-form-textarea
+    label="Resources"
+    inputId="lesson-plan-resources"
+    [rows]="2"
+    [field]="f.resources"
+    [submitted]="submitted()" />
+  <app-form-textarea
+    label="Activities"
+    inputId="lesson-plan-activities"
+    [rows]="2"
+    [field]="f.activities"
+    [submitted]="submitted()" />
+  <app-form-textarea
+    label="Assessment"
+    inputId="lesson-plan-assessment"
+    [rows]="2"
+    [field]="f.assessment"
+    [submitted]="submitted()" />
+  <app-form-textarea
+    label="Homework"
+    inputId="lesson-plan-homework"
+    [rows]="2"
+    [field]="f.homework"
+    [submitted]="submitted()" />
+
+  <div class="flex justify-end gap-2">
+    <p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="cancel()" />
+    <p-button type="submit" label="Save" icon="pi pi-check" [loading]="isSaving()" [disabled]="topicsLoading()" />
+  </div>
+</form>

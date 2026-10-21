@@ -34,8 +34,10 @@ export const POLICIES_ROUTES: Routes = [
     title: `Policy Type Insurance Map | ${titleSuffix}`,
   },
   {
-    path: 'leave-staffMember-policy-mapping',
+    path: 'leave-staff-member-policy-mapping',
     loadComponent: () => import('./leave-staff-member-policy-map/leave-staff-member-policy-map'),
-    title: 'Policy Mapping Leave Type Management',
+    title: `Leave - Staff Member Policy Mapping | ${titleSuffix}`,
   },
+  // Pre-rename path, kept so old bookmarks and links still resolve.
+  { path: 'leave-staffMember-policy-mapping', redirectTo: 'leave-staff-member-policy-mapping' },
 ];

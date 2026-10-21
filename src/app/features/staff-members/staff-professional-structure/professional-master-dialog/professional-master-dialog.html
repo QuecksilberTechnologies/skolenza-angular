@@ -1,0 +1,39 @@
+<form class="grid grid-cols-1 gap-4" novalidate (submit)="$event.preventDefault(); save()">
+  <app-form-text
+    label="Code"
+    inputId="professional-master-code"
+    [placeholder]="placeholders.code"
+    required
+    autofocus
+    codeFormat
+    [spellcheck]="false"
+    [field]="f.code"
+    [submitted]="submitted()" />
+  <app-form-text
+    label="Name"
+    inputId="professional-master-name"
+    [placeholder]="placeholders.name"
+    required
+    [field]="f.name"
+    [submitted]="submitted()" />
+  <app-form-textarea
+    label="Description"
+    inputId="professional-master-description"
+    [placeholder]="placeholders.description"
+    [field]="f.description"
+    [submitted]="submitted()" />
+  @if (isDuty) {
+  <app-form-text
+    label="Default frequency"
+    inputId="professional-master-frequency"
+    placeholder="e.g. Weekly"
+    [field]="f.defaultFrequency"
+    [submitted]="submitted()" />
+  }
+  <app-form-checkbox label="Active" inputId="professional-master-active" [field]="f.isActive" />
+
+  <div class="flex justify-end gap-2">
+    <p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="cancel()" />
+    <p-button type="submit" label="Save" icon="pi pi-check" [loading]="isSaving()" />
+  </div>
+</form>

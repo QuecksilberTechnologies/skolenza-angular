@@ -142,3 +142,18 @@ export function contrastTextColor(hex: string): '#ffffff' | '#000000' {
 
   return luminance > 0.45 ? '#000000' : '#ffffff';
 }
+
+const PRIMARY_STOPS = [500, 600, 700, 800] as const;
+
+/**
+ * The lightest ramp stop from 500 to 800 that carries white text at WCAG AA (4.5:1). The brand
+ * hex is institution data and only gated at 3:1, so a light brand needs a darker stop to back
+ * filled buttons, links and checked controls. Falls back to 800.
+ */
+export function accessiblePrimaryStop(
+  ramp: Partial<Record<number | string, string>>,
+): (typeof PRIMARY_STOPS)[number] {
+  return (
+    PRIMARY_STOPS.find((stop) => (contrastRatio(ramp[stop] ?? '', '#ffffff') ?? 0) >= 4.5) ?? 800
+  );
+}

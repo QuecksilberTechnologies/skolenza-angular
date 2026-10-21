@@ -43,6 +43,8 @@ export class FormSelect<T> {
   readonly options = input<unknown[]>([]);
   readonly optionLabel = input<string>();
   readonly optionValue = input<string>();
+  /** Option property that marks an option as not selectable. */
+  readonly optionDisabled = input<string>();
   readonly loading = input(false, { transform: booleanAttribute });
   readonly showClear = input(false, { transform: booleanAttribute });
   readonly filter = input(false, { transform: booleanAttribute });

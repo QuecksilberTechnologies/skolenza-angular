@@ -44,7 +44,7 @@ export default class AsideMenuItem {
     'menu-link flex items-center w-full rounded-lg font-medium text-gray-500 dark:text-zinc-300 px-4 py-2.5 transition-colors hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 dark:hover:text-white';
 
   protected readonly activeClass =
-    'text-white dark:text-gray-950! bg-primary dark:bg-primary hover:bg-primary dark:hover:bg-primary/80';
+    'text-white dark:text-primary-200! bg-primary dark:bg-primary-900/30 hover:bg-primary dark:hover:bg-primary-900/50!';
 
   /** `baseClass`, plus the active styling when this leaf owns the url. One string, not an array:
    * an array binding takes each entry as a single class name and never splits on spaces. */

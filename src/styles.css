@@ -28,7 +28,7 @@
   --p-textarea-focus-ring-style: solid !important;
   --p-textarea-focus-ring-color: var(--p-primary-color) !important;
 
-  --p-card-border-radius: 0.8rem !important;
+  --p-card-border-radius: var(--radius-card) !important;
 }
 
 @theme {
@@ -48,6 +48,9 @@
   --color-surface-ground-dark: #020617; /* slate-950 */
 
   --container-dialog-sm: 28rem;
+
+  /* Card radius, shared with Optimus `p-card` via `--p-card-border-radius`. */
+  --radius-card: 0.8rem;
 }
 
 /*
@@ -72,6 +75,16 @@
 .p-confirmdialog {
   width: var(--container-dialog-sm);
   max-width: 90vw;
+}
+
+/* === Page height ===
+   A routed page's own scroll box: the dynamic viewport minus the app header. `dvh` tracks the
+   mobile browser toolbar, so the bottom of the page never hides behind it. */
+@utility h-page {
+  height: calc(100dvh - 4.6rem);
+}
+@utility min-h-page {
+  min-height: calc(100dvh - 4.6rem);
 }
 
 /* === Dashboard card design tokens === */
@@ -225,6 +238,14 @@ body {
   color: var(--p-primary-color) !important;
 }
 
+/* The last crumb is the current page: plain text, not a link look-alike. */
+.page-breadcrumb .p-breadcrumb-list > li:last-child .p-breadcrumb-item-link {
+  color: var(--p-text-color);
+  font-weight: 500;
+  cursor: default;
+  pointer-events: none;
+}
+
 /* Premium Subtle Scrollbar */
 * {
   scrollbar-width: thin;
@@ -337,19 +358,25 @@ html {
  * readability problem the override above was aimed at.
  */
 .form-invalid-visible {
-  --p-inputtext-invalid-border-color: var(--p-red-400) !important;
+  /* `red-400` is 2.77:1 on white, under the 3:1 UI-boundary floor, so light uses `red-600`. */
+  --app-invalid-border-color: var(--p-red-600);
+  --p-inputtext-invalid-border-color: var(--app-invalid-border-color) !important;
   --p-inputtext-invalid-placeholder-color: var(--p-inputtext-placeholder-color) !important;
-  --p-textarea-invalid-border-color: var(--p-red-400) !important;
+  --p-textarea-invalid-border-color: var(--app-invalid-border-color) !important;
   --p-textarea-invalid-placeholder-color: var(--p-textarea-placeholder-color) !important;
-  --p-select-invalid-border-color: var(--p-red-400) !important;
+  --p-select-invalid-border-color: var(--app-invalid-border-color) !important;
   --p-select-invalid-placeholder-color: var(--p-select-placeholder-color) !important;
-  --p-multiselect-invalid-border-color: var(--p-red-400) !important;
+  --p-multiselect-invalid-border-color: var(--app-invalid-border-color) !important;
   --p-multiselect-invalid-placeholder-color: var(--p-multiselect-placeholder-color) !important;
-  --p-autocomplete-invalid-border-color: var(--p-red-400) !important;
+  --p-autocomplete-invalid-border-color: var(--app-invalid-border-color) !important;
   --p-autocomplete-invalid-placeholder-color: var(--p-autocomplete-placeholder-color) !important;
-  --p-checkbox-invalid-border-color: var(--p-red-400) !important;
-  --p-radiobutton-invalid-border-color: var(--p-red-400) !important;
-  --p-toggleswitch-invalid-border-color: var(--p-red-400) !important;
+  --p-checkbox-invalid-border-color: var(--app-invalid-border-color) !important;
+  --p-radiobutton-invalid-border-color: var(--app-invalid-border-color) !important;
+  --p-toggleswitch-invalid-border-color: var(--app-invalid-border-color) !important;
+}
+
+.dark .form-invalid-visible {
+  --app-invalid-border-color: var(--p-red-400);
 }
 
 /*
@@ -359,20 +386,4 @@ html {
  */
 .form-invalid-visible .p-select.p-invalid.show-invalid-managed:not(.show-invalid) {
   border-color: var(--p-select-border-color);
-}
-
-/**
- * Auth pages sit on a lighter ground (`slate-900`) than the app shell (`slate-950`), so Aura's dark
- * form-field background - `surface.950` - reads as a hole punched through the card. Lift fields one
- * step, and put the disabled state *below* the enabled one: Aura's dark scale maps disabled to
- * `surface.700`, which renders an inert control brighter than a live one.
- * Component tokens resolve `var(--p-form-field-*)` at `:root`, so they are re-declared here too.
- */
-.dark .auth-surface {
-  --p-form-field-background: var(--p-surface-900);
-  --p-form-field-disabled-background: var(--p-surface-950);
-  --p-inputtext-background: var(--p-surface-900);
-  --p-inputtext-disabled-background: var(--p-surface-950);
-  --p-select-background: var(--p-surface-900);
-  --p-select-disabled-background: var(--p-surface-950);
 }

@@ -1,0 +1,57 @@
+<form class="grid grid-cols-1 gap-4" novalidate (submit)="$event.preventDefault(); save()">
+  <app-form-select
+    label="Academic session"
+    inputId="curriculum-framework-session"
+    placeholder="Select academic session"
+    required
+    optionLabel="name"
+    optionValue="id"
+    [options]="sessions"
+    [field]="$any(f.academicSessionId)"
+    [submitted]="submitted()" />
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <app-form-text
+      label="Code"
+      inputId="curriculum-framework-code"
+      required
+      [spellcheck]="false"
+      [field]="f.code"
+      [submitted]="submitted()" />
+    <app-form-text
+      label="Name"
+      inputId="curriculum-framework-name"
+      required
+      [field]="f.name"
+      [submitted]="submitted()" />
+    <app-form-text
+      label="Board, university or authority"
+      inputId="curriculum-framework-authority"
+      required
+      [field]="f.authorityName"
+      [submitted]="submitted()" />
+    <app-form-text
+      label="Version"
+      inputId="curriculum-framework-version"
+      placeholder="e.g. 2026.1"
+      required
+      [field]="f.version"
+      [submitted]="submitted()" />
+    <app-form-date
+      label="Effective from"
+      inputId="curriculum-framework-from"
+      required
+      [field]="f.effectiveFrom"
+      [submitted]="submitted()" />
+    <app-form-date
+      label="Effective to"
+      inputId="curriculum-framework-to"
+      [field]="f.effectiveTo"
+      [submitted]="submitted()" />
+  </div>
+  <app-form-checkbox label="Active" inputId="curriculum-framework-active" [field]="f.isActive" />
+
+  <div class="flex justify-end gap-2">
+    <p-button type="button" label="Cancel" severity="secondary" [text]="true" (onClick)="cancel()" />
+    <p-button type="submit" label="Save" icon="pi pi-check" [loading]="isSaving()" />
+  </div>
+</form>

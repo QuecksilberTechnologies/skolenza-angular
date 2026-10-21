@@ -265,7 +265,9 @@ describe('StaffMembers', () => {
       await TestBed.inject(ApplicationRef).whenStable();
 
       expect(component.store.appliedFilters()).toEqual({ department: 3 });
-      expect(professionalStructureApiMock.getPositions).toHaveBeenCalledWith();
+      expect(professionalStructureApiMock.getPositions).toHaveBeenCalledWith(
+        expect.objectContaining({ pageNumber: 1 }),
+      );
       expect(component.store.positionOptions()).toEqual([
         expect.objectContaining({ id: 4, name: 'Engineer', departmentId: 3 }),
       ]);
