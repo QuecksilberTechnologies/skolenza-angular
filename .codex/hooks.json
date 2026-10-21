@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'IMPORTANT: Before responding, review skills (run /skills if unsure) and activate those relevant to this request.'"
+          }
+        ]
+      }
+    ]
+  }
+}

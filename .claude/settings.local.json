@@ -1,4 +1,8 @@
 {
+  "attribution": {
+    "commit": "Co-Authored-By: AxionPro <sujeetjaiswara2012@gmail.com>",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Bash(ng test:*)",
@@ -21,9 +25,7 @@
       "Edit(.git/**)"
     ]
   },
-  "enabledMcpjsonServers": [
-    "angular-cli"
-  ],
+  "enabledMcpjsonServers": ["angular-cli"],
   "skillOverrides": {
     "angular-new-app": "off"
   },
@@ -55,7 +57,5 @@
     "context7@claude-plugins-official": false,
     "mattpocock-skills@claude-plugins-official": false
   },
-  "disabledMcpjsonServers": [
-    "angular-cli"
-  ]
+  "disabledMcpjsonServers": ["angular-cli"]
 }
