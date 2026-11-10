@@ -1,0 +1,86 @@
+<p-card
+  class="h-full dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none"
+  [pt]="{ body: { class: 'flex-1' }, content: { class: 'flex flex-1 flex-col' } }">
+  <ng-template #header>
+    <div class="flex flex-wrap items-center justify-between gap-2 px-5 pt-5">
+      <div class="flex min-w-0 flex-col">
+        <h4 class="text-xl font-semibold text-color-emphasis dark:text-zinc-100">{{ title() }}</h4>
+        <span class="text-xs text-zinc-500 dark:text-zinc-400">Salary status: {{ current.month }}</span>
+      </div>
+      <p-tag value="Sample data" severity="secondary" icon="pi pi-info-circle" />
+    </div>
+  </ng-template>
+  <ng-template #content>
+    @let c = current;
+    @let symbol = currencyKey() | currencySymbol;
+    <div class="flex flex-1 flex-col gap-4">
+      <!-- Current month strip -->
+      <div class="grid grid-cols-2 gap-2">
+        <div class="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-zinc-700/60 dark:bg-zinc-800/60">
+          <span class="block truncate text-xs font-medium text-zinc-500 dark:text-zinc-400">Salary paid</span>
+          <span class="text-xl font-bold text-green-700 dark:text-green-400">{{ c.paidCount }}</span>
+          <span class="text-xs text-zinc-500 dark:text-zinc-400"> / {{ c.totalStaff }} staff</span>
+        </div>
+        <div class="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-zinc-700/60 dark:bg-zinc-800/60">
+          <span class="block truncate text-xs font-medium text-zinc-500 dark:text-zinc-400">Pending</span>
+          <span class="text-xl font-bold text-red-600 dark:text-red-400">{{ c.pendingCount }}</span>
+          <span class="text-xs text-zinc-500 dark:text-zinc-400"> staff</span>
+        </div>
+        <div class="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-zinc-700/60 dark:bg-zinc-800/60">
+          <span class="block truncate text-xs font-medium text-zinc-500 dark:text-zinc-400">Paid this month</span>
+          <span class="block text-lg font-bold wrap-anywhere text-gray-900 dark:text-zinc-100">
+            {{ c.paidAmount | currency: symbol : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+        <div class="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-zinc-700/60 dark:bg-zinc-800/60">
+          <span class="block truncate text-xs font-medium text-zinc-500 dark:text-zinc-400">Pending amount</span>
+          <span class="block text-lg font-bold wrap-anywhere text-gray-900 dark:text-zinc-100">
+            {{ c.pendingAmount | currency: symbol : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Month-wise -->
+      <div class="flex flex-col gap-1">
+        <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Month-wise</span>
+        <div class="flex flex-col divide-y divide-gray-100 dark:divide-zinc-800">
+          @for (m of months; track m.month) {
+            <div class="flex flex-col gap-1.5 py-2.5">
+              <div class="flex items-center justify-between gap-2 text-sm">
+                <span class="font-semibold text-gray-900 dark:text-zinc-100">{{ m.month }}</span>
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                  {{ m.paidCount }}/{{ m.totalStaff }} paid
+                  <span class="font-semibold" [class]="m.tone.text">({{ m.percent }}%)</span>
+                </span>
+              </div>
+              <div
+                class="h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700"
+                role="progressbar"
+                [attr.aria-label]="m.month + ' salaries paid'"
+                [attr.aria-valuenow]="m.percent"
+                aria-valuemin="0"
+                aria-valuemax="100">
+                <div class="h-full rounded-full" [class]="m.tone.bar" [style.width.%]="m.percent"></div>
+              </div>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                Payout {{ m.paidAmount | currency: symbol : 'symbol' : '1.0-0' }}
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="mt-auto flex items-center justify-between gap-2 border-t border-zinc-200 pt-3 dark:border-zinc-800">
+        <span class="text-sm text-gray-700 dark:text-zinc-100">
+          Total payout ({{ months.length }} months): <strong>{{ totalPayout | currency: symbol : 'symbol' : '1.0-0' }}</strong>
+        </span>
+        <a
+          [routerLink]="['/app/payroll']"
+          class="inline-flex items-center gap-1 rounded-sm text-sm font-medium text-primary-700 no-underline transition-colors duration-200 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:text-primary-200">
+          Open payroll
+          <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </ng-template>
+</p-card>

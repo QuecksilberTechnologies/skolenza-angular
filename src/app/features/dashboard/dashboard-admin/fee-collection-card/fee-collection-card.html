@@ -1,0 +1,96 @@
+<p-card class="h-full dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+  <ng-template #header>
+    <div class="flex flex-wrap items-center justify-between gap-2 px-5 pt-5">
+      <div class="flex min-w-0 flex-col">
+        <h4 class="text-xl font-semibold text-color-emphasis dark:text-zinc-100">{{ title() }}</h4>
+        <span class="text-xs text-zinc-500 dark:text-zinc-400">Location-wise status: {{ period() }}</span>
+      </div>
+      <p-tag value="Sample data" severity="secondary" icon="pi pi-info-circle" />
+    </div>
+  </ng-template>
+  <ng-template #content>
+    @let t = totals;
+    @let symbol = currencyKey() | currencySymbol;
+    <div class="flex flex-col gap-4">
+      <!-- Amount strip -->
+      <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div class="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-zinc-700/60 dark:bg-zinc-800/60">
+          <span class="block truncate text-xs font-medium text-zinc-500 dark:text-zinc-400">Expected</span>
+          <span class="block text-xl font-bold wrap-anywhere text-gray-900 dark:text-zinc-100">
+            {{ t.expected | currency: symbol : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+        <div class="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-zinc-700/60 dark:bg-zinc-800/60">
+          <span class="block truncate text-xs font-medium text-zinc-500 dark:text-zinc-400">Collected</span>
+          <span class="block text-xl font-bold wrap-anywhere text-green-700 dark:text-green-400">
+            {{ t.collected | currency: symbol : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+        <div class="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-zinc-700/60 dark:bg-zinc-800/60">
+          <span class="block truncate text-xs font-medium text-zinc-500 dark:text-zinc-400">Pending</span>
+          <span class="block text-xl font-bold wrap-anywhere text-red-600 dark:text-red-400">
+            {{ t.pending | currency: symbol : 'symbol' : '1.0-0' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Overall progress -->
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between text-sm">
+          <span class="font-medium text-gray-700 dark:text-zinc-100">Overall collection</span>
+          <span class="font-semibold" [class]="t.tone.text">{{ t.percent }}%</span>
+        </div>
+        <div
+          class="h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700"
+          role="progressbar"
+          aria-label="Overall fee collection"
+          [attr.aria-valuenow]="t.percent"
+          aria-valuemin="0"
+          aria-valuemax="100">
+          <div class="h-full rounded-full" [class]="t.tone.bar" [style.width.%]="t.percent"></div>
+        </div>
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
+          <span><i class="pi pi-check-circle text-green-700 dark:text-green-400" aria-hidden="true"></i> {{ t.fullyPaid }} paid</span>
+          <span><i class="pi pi-clock text-amber-700 dark:text-amber-400" aria-hidden="true"></i> {{ t.partiallyPaid }} partially paid</span>
+          <span><i class="pi pi-times-circle text-red-600 dark:text-red-400" aria-hidden="true"></i> {{ t.notPaid }} not paid</span>
+          <span>of {{ t.students }} students</span>
+        </div>
+      </div>
+
+      <!-- Per location -->
+      <div class="flex flex-col divide-y divide-gray-100 dark:divide-zinc-800">
+        @for (location of locations; track location.id) {
+          <div class="flex flex-col gap-2 py-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="block min-w-0 truncate text-sm font-semibold text-gray-900 dark:text-zinc-100">
+                {{ location.locationName }}
+              </span>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">
+                {{ location.collectedAmount | currency: symbol : 'symbol' : '1.0-0' }}
+                of {{ location.expectedAmount | currency: symbol : 'symbol' : '1.0-0' }}
+                <span class="font-semibold" [class]="location.tone.text">({{ location.percent }}%)</span>
+              </span>
+            </div>
+            <div
+              class="h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700"
+              role="progressbar"
+              [attr.aria-label]="location.locationName + ' fee collection'"
+              [attr.aria-valuenow]="location.percent"
+              aria-valuemin="0"
+              aria-valuemax="100">
+              <div class="h-full rounded-full" [class]="location.tone.bar" [style.width.%]="location.percent"></div>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <p-tag severity="success" icon="pi pi-check-circle" [value]="location.fullyPaidCount + ' paid'" />
+              <p-tag severity="warn" icon="pi pi-clock" [value]="location.partiallyPaidCount + ' partial'" />
+              <p-tag severity="danger" icon="pi pi-times-circle" [value]="location.notPaidCount + ' not paid'" />
+              <span class="ml-auto text-xs text-zinc-500 dark:text-zinc-400">
+                Pending {{ location.pendingAmount | currency: symbol : 'symbol' : '1.0-0' }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+</p-card>

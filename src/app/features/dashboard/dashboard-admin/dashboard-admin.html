@@ -52,6 +52,24 @@
       <span>Failed to load request status</span>
     } -->
 
+    <!-- Fee Collection (static sample data until the API lands) -->
+    @defer (on idle) {
+    <app-fee-collection-card title="Fee Collection" />
+    } @placeholder {
+    <app-dashboard-card-placeholder class="md:col-span-2" title="Fee Collection" />
+    } @error {
+    <span>Failed to load fee collection</span>
+    }
+
+    <!-- Staff Payroll (static sample data until the API lands) -->
+    @if (canViewPayroll()) { @defer (on idle) {
+    <app-payroll-summary-card title="Staff Payroll" />
+    } @placeholder {
+    <app-dashboard-card-placeholder title="Staff Payroll" />
+    } @error {
+    <span>Failed to load payroll summary</span>
+    } }
+
     <!-- StaffMember Overview -->
     @defer (on idle) {
     <app-staff-member-stats-card
