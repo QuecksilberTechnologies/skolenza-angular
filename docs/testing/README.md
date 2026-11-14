@@ -25,3 +25,7 @@ Current Skolenza Angular verification is recorded here. Files ending in
 - [Login page e2e spec realignment — 2026-10-18](auth/login-e2e-spec/2026-10-18.md)
 - [Professional and academic structure server-side pagination — 2026-10-19](staff/structure-masters-pagination/2026-10-19.md)
 - [Admin dashboard fee collection and payroll cards — 2026-11-11](dashboard/admin-fee-payroll-cards/2026-11-11.md)
+# Campus permissions
+
+- [Campus Add/Edit route permission correction](campuses/form-permissions/2026-11-14.md) - local unit tests; authenticated and deployed checks pending.
+

@@ -5,11 +5,7 @@ import { environment } from '@env/environment';
 
 const titleSuffix = environment.appName;
 
-/**
- * Attendance configuration has no catalog module of its own yet, so these screens ride the existing
- * institution `Attendance` key. Swap it once the backend models locations separately.
- */
-const MODULE_KEY = 'Attendance';
+const MODULE_KEY = 'Campuses';
 
 export const INSTITUTION_CAMPUSES_ROUTES: Routes = [
   {
@@ -33,4 +29,3 @@ export const INSTITUTION_CAMPUSES_ROUTES: Routes = [
     canDeactivate: [unsavedChangesGuard],
   },
 ];
-
