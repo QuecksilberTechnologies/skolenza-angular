@@ -27,7 +27,9 @@
   },
   "enabledMcpjsonServers": ["angular-cli"],
   "skillOverrides": {
-    "angular-new-app": "off"
+    "angular-new-app": "off",
+    "angular-developer": "off",
+    "clean-code": "off"
   },
   "hooks": {
     "UserPromptSubmit": [
