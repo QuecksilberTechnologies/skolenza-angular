@@ -16,7 +16,9 @@ type AdminSection =
   | 'storage-status'
   | 'hiring-pipeline'
   | 'department-headcount'
-  | 'recent-onboarding';
+  | 'recent-onboarding'
+  | 'fee-collection'
+  | 'payroll-summary';
 
 /**
  * The Admin dashboard's widgets, all read from the single `INSTITUTION_ADMIN` dashboard call. The
@@ -58,6 +60,10 @@ export const AdminDashboardStore = signalStore(
       storagePlaceholder: computed(() => admin()?.storageStatus?.isPlaceholder ?? false),
       hiringPipeline: computed(() => admin()?.hiringPipeline?.data ?? null),
       hiringPipelinePlaceholder: computed(() => admin()?.hiringPipeline?.isPlaceholder ?? false),
+      feeCollection: computed(() => admin()?.feeCollection?.data ?? null),
+      feeCollectionPlaceholder: computed(() => admin()?.feeCollection?.isPlaceholder ?? false),
+      payrollSummary: computed(() => admin()?.payrollSummary?.data ?? null),
+      payrollSummaryPlaceholder: computed(() => admin()?.payrollSummary?.isPlaceholder ?? false),
     };
   }),
 );

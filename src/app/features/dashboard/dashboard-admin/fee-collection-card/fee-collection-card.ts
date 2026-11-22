@@ -1,108 +1,86 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { CardModule } from '@openng/optimus-ui/card';
 import { TagModule } from '@openng/optimus-ui/tag';
 
+import { DashboardCardHeader } from '@shared/components/dashboad/dashboard-card-header/dashboard-card-header';
+import { TableEmptyMessage } from '@shared/components/table-empty-message/table-empty-message';
+import { FeeCollectionSummary } from '@shared/interfaces';
 import { CurrencySymbolPipe } from '@shared/pipes';
 import { percentOf } from '@shared/utilities/percent-of';
 import { progressTone } from '@shared/utilities/progress-tone';
 
-export interface LocationFeeSummary {
-  id: number;
-  locationName: string;
-  totalStudents: number;
-  /** Amount due for the period across every student at the location. */
-  expectedAmount: number;
-  collectedAmount: number;
-  fullyPaidCount: number;
-  partiallyPaidCount: number;
-  notPaidCount: number;
+const periodLabel = new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' });
+
+/** `yyyy-MM` to `November 2026`; anything else is shown as sent. */
+function formatPeriod(period: string): string {
+  const match = /^(\d{4})-(\d{2})/.exec(period);
+  return match ? periodLabel.format(new Date(+match[1], +match[2] - 1, 1)) : period;
 }
 
-/**
- * Static figures until the fee-collection API lands. Swap this for a store input when it does;
- * the template only reads the `LocationFeeSummary` shape.
- */
-const SAMPLE_LOCATIONS: LocationFeeSummary[] = [
-  {
-    id: 1,
-    locationName: 'Main Campus',
-    totalStudents: 420,
-    expectedAmount: 1_260_000,
-    collectedAmount: 1_050_400,
-    fullyPaidCount: 330,
-    partiallyPaidCount: 52,
-    notPaidCount: 38,
-  },
-  {
-    id: 2,
-    locationName: 'North Branch',
-    totalStudents: 260,
-    expectedAmount: 780_000,
-    collectedAmount: 561_600,
-    fullyPaidCount: 172,
-    partiallyPaidCount: 40,
-    notPaidCount: 48,
-  },
-  {
-    id: 3,
-    locationName: 'City Junior Wing',
-    totalStudents: 180,
-    expectedAmount: 540_000,
-    collectedAmount: 486_000,
-    fullyPaidCount: 158,
-    partiallyPaidCount: 14,
-    notPaidCount: 8,
-  },
-];
-
-const LOCATIONS = SAMPLE_LOCATIONS.map((location) => {
-  const percent = percentOf(location.collectedAmount, location.expectedAmount);
-  return {
-    ...location,
-    pendingAmount: Math.max(0, location.expectedAmount - location.collectedAmount),
-    percent,
-    tone: progressTone(percent),
-  };
-});
-
-const TOTALS = (() => {
-  const sum = LOCATIONS.reduce(
-    (acc, l) => ({
-      expected: acc.expected + l.expectedAmount,
-      collected: acc.collected + l.collectedAmount,
-      students: acc.students + l.totalStudents,
-      fullyPaid: acc.fullyPaid + l.fullyPaidCount,
-      partiallyPaid: acc.partiallyPaid + l.partiallyPaidCount,
-      notPaid: acc.notPaid + l.notPaidCount,
-    }),
-    { expected: 0, collected: 0, students: 0, fullyPaid: 0, partiallyPaid: 0, notPaid: 0 },
-  );
-  const percent = percentOf(sum.collected, sum.expected);
-  return {
-    ...sum,
-    pending: Math.max(0, sum.expected - sum.collected),
-    percent,
-    tone: progressTone(percent),
-  };
-})();
-
+/** Location-wise fee collection: expected, collected and pending, with paid/partial/unpaid counts. */
 @Component({
   selector: 'app-fee-collection-card',
-  imports: [CardModule, CurrencyPipe, CurrencySymbolPipe, TagModule],
+  imports: [
+    CardModule,
+    CurrencyPipe,
+    CurrencySymbolPipe,
+    DashboardCardHeader,
+    TableEmptyMessage,
+    TagModule,
+  ],
   templateUrl: './fee-collection-card.html',
-  host: { class: 'block md:col-span-2' },
+  // the static title="..." the parent writes would otherwise render as a native tooltip
+  host: { class: 'block md:col-span-2', '[attr.title]': 'null' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeeCollectionCard {
-  readonly title = input('Fee Collection');
-  /** Defaults to the current month so the label never goes stale. */
-  readonly period = input(
-    new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' }).format(new Date()),
-  );
-  /** ISO code rendered through `currencySymbol`; the fee-collection API should supply it. */
-  readonly currencyKey = input('INR');
+  readonly title = input<string>();
+  readonly summary = input<FeeCollectionSummary | null>(null);
+  /** The backend still fakes this section's values. */
+  readonly placeholder = input(false);
+  readonly loading = input(false);
+  readonly refresh = output<void>();
 
-  protected readonly locations = LOCATIONS;
-  protected readonly totals = TOTALS;
+  protected readonly skeletonRows = [1, 2, 3];
+
+  protected readonly currencyKey = computed(() => this.summary()?.currencyCode ?? 'INR');
+
+  protected readonly period = computed(() => {
+    const period = this.summary()?.period;
+    return period ? formatPeriod(period) : null;
+  });
+
+  protected readonly locations = computed(() =>
+    (this.summary()?.locations ?? []).map((location) => {
+      const percent = percentOf(location.collectedAmount, location.expectedAmount);
+      return {
+        ...location,
+        pendingAmount: Math.max(0, location.expectedAmount - location.collectedAmount),
+        percent,
+        tone: progressTone(percent),
+      };
+    }),
+  );
+
+  protected readonly totals = computed(() => {
+    const sum = this.locations().reduce(
+      (acc, l) => ({
+        expected: acc.expected + l.expectedAmount,
+        collected: acc.collected + l.collectedAmount,
+        students: acc.students + l.totalStudents,
+        fullyPaid: acc.fullyPaid + l.fullyPaidCount,
+        partiallyPaid: acc.partiallyPaid + l.partiallyPaidCount,
+        notPaid: acc.notPaid + l.notPaidCount,
+      }),
+      { expected: 0, collected: 0, students: 0, fullyPaid: 0, partiallyPaid: 0, notPaid: 0 },
+    );
+    const percent = percentOf(sum.collected, sum.expected);
+    return {
+      ...sum,
+      pending: Math.max(0, sum.expected - sum.collected),
+      percent,
+      tone: progressTone(percent),
+    };
+  });
 }

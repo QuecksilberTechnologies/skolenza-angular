@@ -52,18 +52,28 @@
       <span>Failed to load request status</span>
     } -->
 
-    <!-- Fee Collection (static sample data until the API lands) -->
+    <!-- Fee Collection -->
     @defer (on idle) {
-    <app-fee-collection-card title="Fee Collection" />
+    <app-fee-collection-card
+      title="Fee Collection"
+      [summary]="store.feeCollection()"
+      [placeholder]="store.feeCollectionPlaceholder()"
+      [loading]="store.isSectionLoading('fee-collection')"
+      (refresh)="store.reload('fee-collection')" />
     } @placeholder {
     <app-dashboard-card-placeholder class="md:col-span-2" title="Fee Collection" />
     } @error {
     <span>Failed to load fee collection</span>
     }
 
-    <!-- Staff Payroll (static sample data until the API lands) -->
+    <!-- Staff Payroll -->
     @if (canViewPayroll()) { @defer (on idle) {
-    <app-payroll-summary-card title="Staff Payroll" />
+    <app-payroll-summary-card
+      title="Staff Payroll"
+      [summary]="store.payrollSummary()"
+      [placeholder]="store.payrollSummaryPlaceholder()"
+      [loading]="store.isSectionLoading('payroll-summary')"
+      (refresh)="store.reload('payroll-summary')" />
     } @placeholder {
     <app-dashboard-card-placeholder title="Staff Payroll" />
     } @error {

@@ -74,6 +74,33 @@ describe('AdminDashboardStore', () => {
     expect(store.hiringPipeline()?.totalApplicants).toBe(148);
   });
 
+  it('reads fee collection and payroll sections with their placeholder flags', async () => {
+    const res = response();
+    Object.assign(res.data.institutionAdministrator, {
+      feeCollection: {
+        ...section({ period: '2026-11', currencyCode: 'INR', locations: [] }),
+        isPlaceholder: true,
+      },
+      payrollSummary: section({ currencyCode: 'INR', months: [] }),
+    });
+    apiMock.getDashboard.mockReturnValue(of(res));
+
+    const store = await createStore();
+
+    expect(store.feeCollection()?.period).toBe('2026-11');
+    expect(store.feeCollectionPlaceholder()).toBe(true);
+    expect(store.payrollSummary()?.currencyCode).toBe('INR');
+    expect(store.payrollSummaryPlaceholder()).toBe(false);
+  });
+
+  it('resolves fee collection and payroll to null while the backend omits them', async () => {
+    const store = await createStore();
+
+    expect(store.feeCollection()).toBeNull();
+    expect(store.payrollSummary()).toBeNull();
+    expect(store.feeCollectionPlaceholder()).toBe(false);
+  });
+
   it('reshapes exits into list rows and keeps the section flags', async () => {
     const res = response();
     res.data.institutionAdministrator.exitedStaffMembers = {

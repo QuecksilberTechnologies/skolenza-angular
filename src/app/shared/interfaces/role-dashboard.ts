@@ -82,6 +82,44 @@ export interface RecentExitedStaffMember {
   dateOfExit: string;
 }
 
+export interface LocationFeeSummary {
+  locationId: number;
+  locationName: string | null;
+  totalStudents: number;
+  /** Amount due for the period across every student at the location. */
+  expectedAmount: number;
+  collectedAmount: number;
+  fullyPaidCount: number;
+  partiallyPaidCount: number;
+  notPaidCount: number;
+}
+
+export interface FeeCollectionSummary {
+  /** `yyyy-MM` */
+  period: string;
+  /** ISO 4217, e.g. `INR`. */
+  currencyCode: string | null;
+  locations: LocationFeeSummary[] | null;
+}
+
+export interface MonthlyPayrollSummary {
+  /** `yyyy-MM` */
+  month: string;
+  totalStaff: number;
+  paidCount: number;
+  /** Net salary already disbursed for the month. */
+  paidAmount: number;
+  /** Net salary still owed to staff not yet paid. */
+  pendingAmount: number;
+}
+
+export interface DashboardPayrollSummary {
+  /** ISO 4217, e.g. `INR`. */
+  currencyCode: string | null;
+  /** Newest month first. */
+  months: MonthlyPayrollSummary[] | null;
+}
+
 export interface InstitutionAdministratorDashboard {
   summary: DashboardSection<SuperAdminSummary>;
   staffMemberOverview: DashboardSection<SuperAdminStaffMemberOverview>;
@@ -94,6 +132,13 @@ export interface InstitutionAdministratorDashboard {
   departmentHeadcount: DashboardSection<SuperAdminDepartmentHeadcount[] | null>;
   storageStatus: DashboardSection<SuperAdminStorage>;
   hiringPipeline: DashboardSection<SuperAdminHiringPipeline>;
+  /**
+   * Proposed contract, not yet served by the backend (checked against Swagger 2026-11-22).
+   * Optional so the dashboard keeps working until it ships.
+   */
+  feeCollection?: DashboardSection<FeeCollectionSummary | null> | null;
+  /** Proposed contract, not yet served by the backend. Only sent to Payroll-permitted callers. */
+  payrollSummary?: DashboardSection<DashboardPayrollSummary | null> | null;
 }
 
 export interface StaffManagerDashboard {
